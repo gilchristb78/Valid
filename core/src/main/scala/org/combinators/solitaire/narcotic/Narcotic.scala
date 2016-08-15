@@ -1,11 +1,14 @@
 package org.combinators.solitaire.narcotic
 
+import javax.inject.Inject
+
 import com.github.javaparser.ast.CompilationUnit
+import controllers.WebJarAssets
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 
-class Narcotic extends InhabitationController {
+class Narcotic @Inject()(webJars: WebJarAssets) extends InhabitationController(webJars) {
   lazy val repository = new Game with Moves {}
   lazy val Gamma = ReflectedRepository(repository)
 

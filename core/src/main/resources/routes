@@ -1,3 +1,5 @@
+GET   /webjars/*file                 controllers.WebJarAssets.at(file)
+
 GET   /narcotic                      org.combinators.solitaire.narcotic.Narcotic.overview()
 GET   /narcotic/                     org.combinators.solitaire.narcotic.Narcotic.overview()
 GET   /narcotic/raw_:number          org.combinators.solitaire.narcotic.Narcotic.raw(number: Long)

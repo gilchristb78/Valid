@@ -22,6 +22,7 @@ lazy val commonSettings = Seq(
 
 lazy val infrastructure = (Project(id = "java-templating", base = file("java-templating")))
   .settings(commonSettings: _*)
+  .enablePlugins(SbtTwirl)
   .settings(
     moduleName := "java-templating",
 
@@ -35,7 +36,8 @@ lazy val infrastructure = (Project(id = "java-templating", base = file("java-tem
       "org.webjars" % "bootstrap" % "3.3.7",
       "de.tu_dortmund.cs.ls14" %% "cls-scala" % "1.0",
       "de.tu_dortmund.cs.ls14" %% "shapeless-feat" % "0.1.0"
-    )
+    ),
+    sourceDirectories in (Compile, TwirlKeys.compileTemplates) := Seq(sourceDirectory.value / "main" / "html-templates")
   )
 
 
