@@ -1,4 +1,4 @@
-@(NumPiles: Expression)
+@(RootPackage: NameExpr, NumPiles: Expression)
 // Fields
 CardImages ci = getCardImages();
 
@@ -24,7 +24,7 @@ addModelElement(deck);
 deckView = new DeckView(deck);
 deckView.setBounds(20, 20, cw, ch);
 addViewWidget(deckView);
-deckView.setMouseAdapter(new solitaire.narcotic.controller.DeckController (this));
+deckView.setMouseAdapter(new @{Java(RootPackage)}.controller.DeckController (this));
 
 for (int i = 0; i < @Java(NumPiles) ; i++) {
     pile[i] = new Pile("pile" + i);
@@ -33,7 +33,7 @@ for (int i = 0; i < @Java(NumPiles) ; i++) {
     pileView[i]= new PileView(pile[i]);
     pileView[i].setBounds(40 + i*20 + (i+1)*cw, 20, cw, ch);
     addViewWidget(pileView[i]);
-    pileView[i].setMouseAdapter(new solitaire.narcotic.controller.NarcoticPileController (this, pileView[i]));
+    pileView[i].setMouseAdapter(new @{Java(RootPackage)}.controller.NarcoticPileController (this, pileView[i]));
 }
 
 updateNumberCardsLeft(52);

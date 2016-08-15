@@ -9,40 +9,51 @@ import com.github.javaparser.ast.expr.{NameExpr, QualifiedNameExpr}
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter
 
 trait Persistable {
-  def rawText: String
+  type T
+  def rawText(elem: T): String
+  def path(elem: T): Path
 
-  def path: Path
+  /**
+    * Computes the full path where to place `elem` relative to `basePath`.
+    */
+  def fullPath(basePath: Path, elem: T): Path = {
+    basePath.resolve(path(elem))
+  }
+
 
   /**
     * Persists this object to an object dependent path under `basePath`.
     * Overwrites any pre-existing files under `basePath` / `path`.
     */
-  def persistOverwriting(basePath: Path): Unit = {
-    val fullPath = Paths.get(basePath.toAbsolutePath.toString, path.getParent.toString)
-    if (!Files.exists(fullPath.getParent))
-      Files.createDirectories(fullPath.getParent)
-    Files.write(fullPath, rawText.getBytes)
+  def persistOverwriting(basePath: Path, elem: T): Unit = {
+    val fp = fullPath(basePath, elem)
+    if (!Files.exists(fp.getParent))
+      Files.createDirectories(fp.getParent)
+    Files.write(fp, rawText(elem).getBytes)
   }
 
   /**
     * Persists this object to an object dependent path under `basePath`.
     * Throws an `FileAlreadyExistsException` if the file already exists.
     */
-  def persist(basePath: Path): Unit = {
-    val fullPath = Paths.get(basePath.toAbsolutePath.toString, path.getParent.toString)
-    if (Files.exists(fullPath)) throw new FileAlreadyExistsException(fullPath.toString)
-    else persistOverwriting(fullPath)
+  def persist(basePath: Path, elem: T): Unit = {
+    val fp = fullPath(basePath, elem)
+    if (Files.exists(fp)) throw new FileAlreadyExistsException(fp.toString)
+    else persistOverwriting(basePath, elem)
   }
 }
 
 object Persistable {
+  type Aux[TT] = Persistable { type T = TT }
+
   /**
     * Persistable instance for a compilation unit, deriving path and file name from the package and first type decl name.
     */
-  implicit def compilationUnitInstance(compilationUnit: CompilationUnit): Persistable =
+  implicit def compilationUnitInstance: Aux[CompilationUnit] =
     new Persistable {
-      override def rawText = compilationUnit.toString
-      override def path = {
+      type T = CompilationUnit
+      override def rawText(compilationUnit: CompilationUnit) = compilationUnit.toString
+      override def path(compilationUnit: CompilationUnit) = {
         val pkg: Seq[String] =
           compilationUnit.getPackage match {
             case null => Seq.empty
@@ -55,9 +66,11 @@ object Persistable {
                 ()
               )
           }
-        val clsName = compilationUnit.getTypes.asScala.head.getName
+        val clsName = s"${compilationUnit.getTypes.asScala.head.getName}.java"
         val fullPath = pkg :+ clsName
         Paths.get(fullPath.head, fullPath.tail : _*)
       }
     }
+
+  def apply[T](implicit persistable: Aux[T]): Aux[T] = persistable
 }

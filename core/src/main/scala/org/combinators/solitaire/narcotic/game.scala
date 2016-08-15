@@ -11,6 +11,7 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared.GameTemplate
 import org.combinators.solitaire.shared.Score52
 
+
 trait Game extends GameTemplate with Score52 {
 
   @combinator object NumNarcoticPiles {
@@ -33,10 +34,10 @@ trait Game extends GameTemplate with Score52 {
   }
 
   @combinator object Initialization {
-    def apply(numberOfPiles: Expression): Seq[Statement] = {
-      java.Initialization.render(numberOfPiles).statements()
+    def apply(rootPackage: NameExpr, numberOfPiles: Expression): Seq[Statement] = {
+      java.Initialization.render(rootPackage, numberOfPiles).statements()
     }
-    val semanticType: Type = 'NumPiles =>: 'Initialization :&: 'NonEmptySeq
+    val semanticType: Type = 'RootPackage =>: 'NumPiles =>: 'Initialization :&: 'NonEmptySeq
   }
 
   @combinator object ExtraImports {

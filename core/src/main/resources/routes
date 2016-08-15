@@ -1,0 +1,5 @@
+GET   /narcotic                      org.combinators.solitaire.narcotic.Narcotic.overview()
+GET   /narcotic/                     org.combinators.solitaire.narcotic.Narcotic.overview()
+GET   /narcotic/raw_:number          org.combinators.solitaire.narcotic.Narcotic.raw(number: Long)
+GET   /narcotic/prepare              org.combinators.solitaire.narcotic.Narcotic.prepare(number: Long)
+GET   /narcotic/narcotic.git/*file   org.combinators.solitaire.narcotic.Narcotic.serveFile(file)
