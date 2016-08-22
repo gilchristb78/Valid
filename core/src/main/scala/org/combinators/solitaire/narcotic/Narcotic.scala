@@ -7,8 +7,9 @@ import controllers.WebJarAssets
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
+import org.webjars.play.RequireJS
 
-class Narcotic @Inject()(webJars: WebJarAssets) extends InhabitationController(webJars) {
+class Narcotic @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
   lazy val repository = new Game with Moves {}
   lazy val Gamma = ReflectedRepository(repository)
 

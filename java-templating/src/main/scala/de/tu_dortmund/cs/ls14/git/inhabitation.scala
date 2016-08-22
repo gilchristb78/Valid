@@ -2,7 +2,7 @@ package de.tu_dortmund.cs.ls14.git
 
 import java.nio.file._
 
-import controllers.WebJarAssets
+import controllers.{Assets, WebJarAssets}
 import shapeless.feat.Enumeration
 import de.tu_dortmund.cs.ls14.cls.inhabitation.Tree
 import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
@@ -11,9 +11,10 @@ import de.tu_dortmund.cs.ls14.java.Persistable
 import de.tu_dortmund.cs.ls14.html
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
+import org.webjars.play.RequireJS
 import play.api.mvc._
 
-abstract class InhabitationController(webJars: WebJarAssets) extends Controller {
+abstract class InhabitationController(webJars: WebJarAssets, requireJS: RequireJS) extends Controller {
   private lazy val root = Files.createTempDirectory("inhabitants")
   private lazy val git = Git.init().setDirectory(root.toFile()).call()
   private lazy val computedVariations = collection.mutable.Set.empty[Long]
@@ -30,6 +31,7 @@ abstract class InhabitationController(webJars: WebJarAssets) extends Controller 
   sealed trait Results { self =>
     val targets: Seq[Type]
     val raw: Enumeration[Seq[Tree]]
+    val infinite: Boolean
     val persistenceActions: Enumeration[Seq[() => Unit]]
     def storeToDisk(fileSystemRoot: Path, number: Long): Unit = {
       val result = persistenceActions.index(number)
@@ -53,12 +55,14 @@ abstract class InhabitationController(webJars: WebJarAssets) extends Controller 
         val persistenceActions = self.persistenceActions.product(inhabitationResult.interpretedTerms).map {
           case (ps, r) => ps :+ (() => persistable.persist(root.resolve(sourceDirectory), r))
         }
+        val infinite = self.infinite || inhabitationResult.isInfinite
       }
   }
   object Results extends Results {
     val targets = Seq.empty
     val raw = Enumeration.singleton(Seq())
     val persistenceActions = Enumeration.singleton(Seq())
+    val infinite = false
   }
 
   val results: Results
@@ -91,7 +95,8 @@ abstract class InhabitationController(webJars: WebJarAssets) extends Controller 
   }
 
   def prepare(number: Long) = Action {
-    val branchFile = Paths.get(root.toString, ".git", "refs", "heads", "variation_$id")
+    val branchFile = Paths.get(root.toString, ".git", "refs", "heads", s"variation_${number}")
+    val result = results.raw.index(number).toString
     if (!Files.exists(branchFile)) {
       checkoutEmptyBranch(number)
       results.storeToDisk(root, number)
@@ -99,12 +104,12 @@ abstract class InhabitationController(webJars: WebJarAssets) extends Controller 
       updateInfo(rev, number)
       computedVariations.add(number)
     }
-    Ok(results.raw.index(number).toString)
+    Ok(result)
     //Redirect(".")
   }
 
-  def overview() = Action {
-    Ok(html.overview.render(webJars, combinators, results.targets, results.raw, computedVariations.toSet))
+  def overview() = Action { request =>
+    Ok(html.overview.render(request.path, webJars, requireJS, combinators, results.targets, results.raw, computedVariations.toSet, results.infinite))
   }
   def raw(id: Long) = {
     TODO
@@ -118,5 +123,4 @@ abstract class InhabitationController(webJars: WebJarAssets) extends Controller 
       case _: AccessDeniedException => play.api.mvc.Results.Forbidden(s"403, Forbidden: $name")
     }
   }
-
 }

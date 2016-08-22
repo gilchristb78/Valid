@@ -1,0 +1,2 @@
+GET   /webjars/*file                 controllers.WebJarAssets.at(file)
+GET   /js/*file                      controllers.Assets.at(path="/de/tu_dortmund/cs/ls14/git/", file)

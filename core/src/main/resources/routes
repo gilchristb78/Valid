@@ -1,4 +1,6 @@
-GET   /webjars/*file                 controllers.WebJarAssets.at(file)
+
+->    /                              shared.Routes
+
 
 GET   /narcotic                      org.combinators.solitaire.narcotic.Narcotic.overview()
 GET   /narcotic/                     org.combinators.solitaire.narcotic.Narcotic.overview()

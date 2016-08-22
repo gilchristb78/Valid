@@ -1,3 +1,4 @@
+import play.sbt.PlayLayoutPlugin
 import play.twirl.sbt.SbtTwirl
 
 lazy val commonSettings = Seq(
@@ -22,6 +23,8 @@ lazy val commonSettings = Seq(
 lazy val infrastructure = (Project(id = "java-templating", base = file("java-templating")))
   .settings(commonSettings: _*)
   .enablePlugins(SbtTwirl)
+  .enablePlugins(PlayScala)
+  .disablePlugins(PlayLayoutPlugin)
   .settings(
     moduleName := "java-templating",
 

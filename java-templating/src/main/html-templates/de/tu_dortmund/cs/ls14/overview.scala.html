@@ -2,11 +2,15 @@
 @import de.tu_dortmund.cs.ls14.cls.inhabitation.Tree
 @import shapeless.feat.Enumeration
 @import controllers.WebJarAssets
-@(webJars: WebJarAssets,
+
+@(path: String,
+    webJars: WebJarAssets,
+    requireJS: org.webjars.play.RequireJS,
     combinators: Map[String, Type],
     targets: Seq[Type],
     rawTerms: Enumeration[Seq[Tree]],
-    computedVariations: Set[Long])
+    computedVariations: Set[Long],
+    infinite: Boolean)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -19,11 +23,67 @@
     <meta name="author" content="">
 
     <title>Inhabitation</title>
-
     <!-- Bootstrap core CSS -->
     <link href='/webjars/@webJars.locate("css/bootstrap.min.css")' rel="stylesheet">
+    @Html(requireJS.setup(Class.forName("controllers.routes", true, this.getClass.getClassLoader).getDeclaredField("Assets").get(null).asInstanceOf[{ def at(path: String): Call }].at("ui_init.js")))
+    <style>
+        .glyphicon-refresh-animate {
+            -animation: spin .7s infinite linear;
+            -ms-animation: spin .7s infinite linear;
+            -webkit-animation: spinw .7s infinite linear;
+            -moz-animation: spinm .7s infinite linear;
+        }
+
+        @@keyframes spin {
+            from { transform: scale(1) rotate(0deg);}
+            to { transform: scale(1) rotate(360deg);}
+        }
+
+        @@-webkit-keyframes spinw {
+            from { -webkit-transform: rotate(0deg);}
+            to { -webkit-transform: rotate(360deg);}
+        }
+
+        @@-moz-keyframes spinm {
+            from { -moz-transform: rotate(0deg);}
+            to { -moz-transform: rotate(360deg);}
+        }
+    </style>
 </head>
 <body>
+
+<h3>Requests:</h3>
+<pre>
+@for(ty <- targets) {
+    &Gamma; &vdash; ? : @ty
+}
+</pre>
+<h3>Solutions:</h3>
+@if(infinite) {
+} else {
+@for(i <- 0 to rawTerms.values.flatMap(_._2).size - 1) {
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <div class="navbar-brand">Variation @Html(i.toString):</div>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li role="presentation" id="compute_button_@Html(i.toString)" @Html(if(computedVariations.contains(i)) { "class='hidden'" } else { "" })>
+                    <a id="compute_link_@Html(i.toString)" href="javascript:toggleCompute(@Html(i.toString), '@path')">
+                        <div id="compute_text_@Html(i.toString)">Compute</div>
+                        <div id="compute_spinner_@Html(i.toString)" class="glyphicon glyphicon-refresh glyphicon-refresh-animate hidden"></div>
+                    </a>
+                </li>
+                <li role="presentation" id="raw_button_@Html(i.toString)" @Html(if(!computedVariations.contains(i)) { "class='hidden'" } else { "" })><a href="javascript:toggleRaw(@Html(i.toString), '@path')">Raw</a></li>
+                <li role="presentation" id="git_button_@Html(i.toString)" @Html(if(!computedVariations.contains(i)) { "class='hidden'" } else { "" })><a href="javascript:toggleGit(@Html(i.toString), '@path')">Git</a></li>
+            </ul>
+        </div>
+        <pre id="solution_@Html(i.toString)" hidden/>
+    </div>
+</nav>
+}
+}
 <h3>Repository:</h3>
 <pre>
     &Gamma; = {
@@ -32,24 +92,5 @@
     }
     }
 </pre>
-<h3>Requests:</h3>
-<pre>
-@for(ty <- targets) {
-    &Gamma; &vdash; ? : @ty
-}
-</pre>
-<h3>Solutions</h3>
-@for(variation <- computedVariations) {
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Git <span class="sr-only">(current)</span></a></li>
-                <li><a href="#">Raw</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
-}
 </body>
 </html>
