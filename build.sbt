@@ -8,8 +8,7 @@ lazy val commonSettings = Seq(
 
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
-    Resolver.typesafeRepo("releases"),
-    "Eclipse Repositories" at "https://repo.eclipse.org/content/groups/releases/"
+    Resolver.typesafeRepo("releases")
   ),
 
   scalacOptions ++= Seq(
