@@ -11,7 +11,7 @@ require(['bootstrap'], function(bootstrap) {
                 $("#compute_spinner_" + i).removeClass("hidden");
                 $("#compute_link_" + i).attr("href", "javascript:void(0)");
                 $.ajax({
-                    url : path +  "/prepare?number=" + i,
+                    url : (path.endsWith("/") ? path : path + "/") +  "prepare?number=" + i,
                     dataType: "html"
                 }).done(
                     function(rawInhabitant) {
