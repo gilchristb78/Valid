@@ -7,3 +7,9 @@ GET   /narcotic/                     org.combinators.solitaire.narcotic.Narcotic
 GET   /narcotic/raw_:number          org.combinators.solitaire.narcotic.Narcotic.raw(number: Long)
 GET   /narcotic/prepare              org.combinators.solitaire.narcotic.Narcotic.prepare(number: Long)
 GET   /narcotic/narcotic.git/*file   org.combinators.solitaire.narcotic.Narcotic.serveFile(file)
+
+GET   /freecell                      org.combinators.solitaire.freecell.FreeCell.overview()
+GET   /freecell/                     org.combinators.solitaire.freecell.FreeCell.overview()
+GET   /freecell/raw_:number          org.combinators.solitaire.freecell.FreeCell.raw(number: Long)
+GET   /freecell/prepare              org.combinators.solitaire.freecell.FreeCell.prepare(number: Long)
+GET   /freecell/freecell.git/*file   org.combinators.solitaire.freecell.FreeCell.serveFile(file)

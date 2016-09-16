@@ -8,15 +8,16 @@ import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared
 
+import de.tu_dortmund.cs.ls14.twirl.Java
 
-trait Controllers {
+trait Controller {
   class ColumnController(columnNameType: Type) {
     def apply(rootPackage: NameExpr,
       columnDesignate: NameExpr,
       nameOfTheGame: NameExpr,
       columnMouseClicked: Seq[Statement],
       columnMouseReleased: Seq[Statement],
-      columnMousePressed: Seq[Statement]): CompilationUnit = {
+      columnMousePressed: (NameExpr, NameExpr) => Seq[Statement]): CompilationUnit = {
       shared.controller.java.ColumnController.render(
         RootPackage = rootPackage,
         ColumnDesignate = columnDesignate,
@@ -28,11 +29,11 @@ trait Controllers {
     }
     val semanticType: Type =
       'RootPackage =>:
-        columnNameType =>:
+        'Column(columnNameType, 'ClassName) =>:
         'NameOfTheGame =>:
         'Column(columnNameType, 'Clicked) :&: 'NonEmptySeq =>:
         'Column(columnNameType, 'Released) :&: 'NonEmptySeq =>:
-        'Column(columnNameType, 'Pressed) :&: 'NonEmptySeq =>:
+        ('Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Column(columnNameType, 'Pressed) :&: 'NonEmptySeq) =>:
         'Controller(columnNameType)
   }
 
@@ -54,7 +55,7 @@ trait Controllers {
     }
     val semanticType: Type =
       'RootPackage =>:
-        pileNameType =>:
+        'Pile(pileNameType, 'ClassName) =>:
         'NameOfTheGame =>:
         'Pile(pileNameType, 'Clicked) :&: 'NonEmptySeq =>:
         'Pile(pileNameType, 'Released) :&: 'NonEmptySeq =>:
@@ -73,32 +74,88 @@ trait Controllers {
       ).compilationUnit()
     }
     val semanticType: Type =
-      'RootPackage =>:
-        'NameOfTheGame =>:
-        'Deck('Pressed) =>:
-        'Controller('Deck)
+      'RootPackage =>:  'NameOfTheGame =>: 'Deck('Pressed) =>: 'Controller('Deck)
   }
 
-  class MoveWidgetToWidgetController(moveNameType: Type) {
+  
+  
+  // generative classes for each of the required elements
+  class ClassNameDef(moveNameType:Type, value:String) {
+		def apply(): NameExpr = {
+				Java(value).nameExpression
+		}
+		val semanticType: Type = 'MoveElement(moveNameType, 'ClassName) 
+	}
+  
+  // generative classes for each of the required elements
+  class MovableElementNameDef(moveNameType:Type, value:String) {
+		def apply(): NameExpr = {
+				Java(value).nameExpression
+		}
+		val semanticType: Type = 'MoveElement(moveNameType, 'MovableElementName) 
+	}
+  
+  // generative classes for each of the required elements
+  class SourceWidgetNameDef(moveNameType:Type, value:String) {
+		def apply(): NameExpr = {
+				Java(value).nameExpression
+		}
+		val semanticType: Type = 'MoveElement(moveNameType, 'SourceWidgetName) 
+	}
+	
+  // generative classes for each of the required elements
+  class TargetWidgetNameDef(moveNameType:Type, value:String) {
+		def apply(): NameExpr = {
+				Java(value).nameExpression
+		}
+		val semanticType: Type = 'MoveElement(moveNameType, 'TargetWidgetName) 
+	}
+  
+  // this provides just the sequence of statements....
+  class MoveWidgetToWidgetStatements(moveNameType: Type) {
     def apply(rootPackage: NameExpr,
       theMove: NameExpr,
       movingWidgetName: NameExpr,
       sourceWidgetName: NameExpr,
-      targetWidgetName: NameExpr): CompilationUnit = {
-      shared.controller.java.MoveWidgetToWidget.render(
+      targetWidgetName: NameExpr): Seq[Statement] = {
+      
+      shared.controller.java.MoveWidgetToWidgetStatements.render(
         RootPackage = rootPackage,
         TheMove = theMove,
         MovingWidgetName = movingWidgetName,
         SourceWidgetName = sourceWidgetName,
         TargetWidgetName = targetWidgetName
-      ).compilationUnit()
+      ).statements()
     }
     val semanticType: Type =
       'RootPackage =>:
-      moveNameType =>:
-      'MovableElementName =>:
-      'SourceWidgetName =>:
-      'TargetWidgetName =>:
-      'Controller(moveNameType)
+      'MoveElement(moveNameType, 'ClassName) =>:
+      'MoveElement(moveNameType, 'MovableElementName) =>:
+      'MoveElement(moveNameType, 'SourceWidgetName) =>:
+      'MoveElement(moveNameType, 'TargetWidgetName) =>:
+      'MoveWidget(moveNameType)
   }
+  
+//  class MoveWidgetToWidgetController(moveNameType: Type) {
+//    def apply(rootPackage: NameExpr,
+//      theMove: NameExpr,
+//      movingWidgetName: NameExpr,
+//      sourceWidgetName: NameExpr,
+//      targetWidgetName: NameExpr): CompilationUnit = {
+//      shared.controller.java.MoveWidgetToWidget.render(
+//        RootPackage = rootPackage,
+//        TheMove = theMove,
+//        MovingWidgetName = movingWidgetName,
+//        SourceWidgetName = sourceWidgetName,
+//        TargetWidgetName = targetWidgetName
+//      ).compilationUnit()
+//    }
+//    val semanticType: Type =
+//      'RootPackage =>:
+//      moveNameType =>:
+//      'MovableElementName =>:
+//      'SourceWidgetName =>:
+//      'TargetWidgetName =>:
+//      'MoveWidget(moveNameType)
+//  }
 }

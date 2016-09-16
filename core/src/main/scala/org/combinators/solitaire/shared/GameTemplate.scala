@@ -42,4 +42,38 @@ trait GameTemplate {
         'WinConditionChecking :&: 'NonEmptySeq =>:
         'SolitaireVariation
   }
+  
+  @combinator object SolvableGame {
+
+    def apply(rootPackage: NameExpr,
+      nameParameter: NameExpr,
+      extraImports: Seq[ImportDeclaration],
+      extraFields: Seq[FieldDeclaration],
+      extraMethods: Seq[MethodDeclaration],
+      initializeSteps: Seq[Statement],
+      winParameter: Seq[Statement]): CompilationUnit = {
+
+      shared.java.SolvableGameTemplate
+        .render(
+          rootPackage = rootPackage,
+          extraImports = extraImports,
+          nameParameter = nameParameter,
+          extraFields = extraFields,
+          extraMethods = extraMethods,
+          winParameter = winParameter,
+          initializeSteps = initializeSteps)
+        .compilationUnit()
+    }
+
+    val semanticType: Type =
+      'RootPackage =>:
+        'NameOfTheGame =>:
+        'ExtraImports =>:
+        'ExtraFields =>:
+        'ExtraMethods :&: 'AvailableMoves =>:
+        'Initialization :&: 'NonEmptySeq =>:
+        'WinConditionChecking :&: 'NonEmptySeq =>:
+        'SolitaireVariation :&: 'Solvable
+  }
+  
 }
