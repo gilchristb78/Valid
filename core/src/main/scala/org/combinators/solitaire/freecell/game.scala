@@ -68,7 +68,7 @@ trait Game extends GameTemplate with Score52 {
       
       java.ExtraMethods.render(numFreePiles, numColumns).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
     }
-    val semanticType: Type = 'NumFreePiles =>: 'NumColumns =>: 'ExtraMethods :&: 'AvailableMoves
+    val semanticType: Type = 'NumFreePiles =>: 'NumColumns =>: 'ExtraMethods :&: 'Column('FreeCellColumn, 'AutoMovesAvailable) 
   }
 
   

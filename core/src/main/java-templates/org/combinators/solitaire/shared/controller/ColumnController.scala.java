@@ -1,6 +1,7 @@
 @(RootPackage: NameExpr,
         ColumnDesignate: NameExpr,
         NameOfTheGame : NameExpr,
+        AutoMoves : Seq[Statement],
         ColumnMouseClicked: Seq[Statement],
         ColumnMousePressed: (NameExpr, NameExpr) => Seq[Statement],
         ColumnMouseReleased: Seq[Statement])
@@ -72,8 +73,7 @@ public class @{Java(ColumnDesignate)}ColumnController extends SolitaireReleasedA
 
 		@Java(ColumnMouseReleased)
 
-		// try auto moves: HACK: Should remove from common class designate
-		((@Java(NameOfTheGame))theGame).tryAutoMoves();
+		@Java(AutoMoves)
 
 		// release the dragging object (this will reset container's dragSource).
 		c.releaseDraggingObject();

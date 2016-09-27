@@ -1,6 +1,7 @@
 package org.combinators.solitaire.shared
 
 import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
@@ -15,13 +16,51 @@ trait Controller {
     def apply(rootPackage: NameExpr,
       columnDesignate: NameExpr,
       nameOfTheGame: NameExpr,
+      autoMoves : Seq[MethodDeclaration],
       columnMouseClicked: Seq[Statement],
       columnMouseReleased: Seq[Statement],
       columnMousePressed: (NameExpr, NameExpr) => Seq[Statement]): CompilationUnit = {
+      
+      // ((Idiot) theGame).tryAutoMoves();
+      val statements = Java("(("+ rootPackage.getName() + "." + nameOfTheGame.getName() + ") theGame).tryAutoMoves();").statements()
+      
       shared.controller.java.ColumnController.render(
         RootPackage = rootPackage,
         ColumnDesignate = columnDesignate,
         NameOfTheGame = nameOfTheGame,
+        AutoMoves = statements,
+        ColumnMouseClicked =  columnMouseClicked,
+        ColumnMousePressed = columnMousePressed,
+        ColumnMouseReleased =  columnMouseReleased
+      ).compilationUnit()
+    }
+    val semanticType: Type =
+      'RootPackage =>:
+        'Column(columnNameType, 'ClassName) =>:
+        'NameOfTheGame =>:
+        'Column(columnNameType, 'AutoMovesAvailable)=>: 
+        'Column(columnNameType, 'Clicked) :&: 'NonEmptySeq =>:
+        'Column(columnNameType, 'Released) :&: 'NonEmptySeq =>:
+        ('Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Column(columnNameType, 'Pressed) :&: 'NonEmptySeq) =>:
+        'Controller(columnNameType)
+  }
+
+  class ColumnControllerNoAutoMove(columnNameType: Type) {
+    def apply(rootPackage: NameExpr,
+      columnDesignate: NameExpr,
+      nameOfTheGame: NameExpr,
+      columnMouseClicked: Seq[Statement],
+      columnMouseReleased: Seq[Statement],
+      columnMousePressed: (NameExpr, NameExpr) => Seq[Statement]): CompilationUnit = {
+      
+      // ((Idiot) theGame).tryAutoMoves();
+      val statements = Java("(("+ rootPackage.getName() + "." + nameOfTheGame.getName() + ") theGame).tryAutoMoves();").statements()
+       
+      shared.controller.java.ColumnController.render(
+        RootPackage = rootPackage,
+        ColumnDesignate = columnDesignate,
+        NameOfTheGame = nameOfTheGame,
+        AutoMoves = Seq.empty,
         ColumnMouseClicked =  columnMouseClicked,
         ColumnMousePressed = columnMousePressed,
         ColumnMouseReleased =  columnMouseReleased
@@ -37,6 +76,8 @@ trait Controller {
         'Controller(columnNameType)
   }
 
+
+  
   class PileController(pileNameType: Type) {
     def apply(rootPackage: NameExpr,
       pileDesignate: NameExpr,
