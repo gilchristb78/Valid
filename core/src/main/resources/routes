@@ -13,3 +13,9 @@ GET   /freecell/                     org.combinators.solitaire.freecell.FreeCell
 GET   /freecell/raw_:number          org.combinators.solitaire.freecell.FreeCell.raw(number: Long)
 GET   /freecell/prepare              org.combinators.solitaire.freecell.FreeCell.prepare(number: Long)
 GET   /freecell/freecell.git/*file   org.combinators.solitaire.freecell.FreeCell.serveFile(file)
+
+GET   /idiot                      org.combinators.solitaire.idiot.Idiot.overview()
+GET   /idiot/                     org.combinators.solitaire.idiot.Idiot.overview()
+GET   /idiot/raw_:number          org.combinators.solitaire.idiot.Idiot.raw(number: Long)
+GET   /idiot/prepare              org.combinators.solitaire.idiot.Idiot.prepare(number: Long)
+GET   /idiot/idiot.git/*file  	  org.combinators.solitaire.idiot.Idiot.serveFile(file)
