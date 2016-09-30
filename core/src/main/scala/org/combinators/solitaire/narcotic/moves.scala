@@ -9,7 +9,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared
 
-trait Moves extends shared.Controllers with shared.Moves {
+trait Moves extends shared.Controller with shared.Moves {
   @combinator object RemoveCard {
     def apply(rootPackage: NameExpr, numPiles: Expression): CompilationUnit = {
       moves.java.MoveRemoveCard.render(rootPackage, numPiles).compilationUnit()
@@ -44,7 +44,7 @@ trait Moves extends shared.Controllers with shared.Moves {
     def apply(): NameExpr = {
       Java("Narcotic").nameExpression()
     }
-    val semanticType: Type = 'NarcoticPile
+    val semanticType: Type = 'Pile('NarcoticPile, 'ClassName)
   }
 
   @combinator object PilePressedHandler {
