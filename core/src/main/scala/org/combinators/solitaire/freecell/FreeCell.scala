@@ -44,7 +44,7 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
       .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToFreePile :&: 'GenericMove, 'CompleteMove)))
       
       // Here is how you launch directly and it gets placed into file
-      // .add(Gamma.inhabit[Seq[Statement]]('Something), Paths.get("somePlace"))
+      //.add(Gamma.inhabit[Seq[Statement]]('Something), Paths.get("somePlace"))
       //
       
       

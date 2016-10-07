@@ -13,7 +13,7 @@ import org.combinators.solitaire.shared
 trait ColumnController extends shared.Controller {
 
 	// column move designated combinators
-	@combinator object ColumnControllerDef extends ColumnControllerNoAutoMove ('IdiotColumn)
+	@combinator object ColumnControllerDef extends ColumnController ('IdiotColumn)
 
 	@combinator object IdiotColumn {
 		def apply(): NameExpr = {

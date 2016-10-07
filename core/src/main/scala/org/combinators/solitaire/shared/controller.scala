@@ -12,7 +12,7 @@ import org.combinators.solitaire.shared
 import de.tu_dortmund.cs.ls14.twirl.Java
 
 trait Controller {
-  class ColumnController(columnNameType: Type) {
+  class ColumnControllerExtra(columnNameType: Type) {
     def apply(rootPackage: NameExpr,
       columnDesignate: NameExpr,
       nameOfTheGame: NameExpr,
@@ -22,7 +22,7 @@ trait Controller {
       columnMousePressed: (NameExpr, NameExpr) => Seq[Statement]): CompilationUnit = {
       
       // ((Idiot) theGame).tryAutoMoves();
-      val statements = Java("(("+ rootPackage.getName() + "." + nameOfTheGame.getName() + ") theGame).tryAutoMoves();").statements()
+      val statements = Java("(("+ rootPackage.toString() + "." + nameOfTheGame.toString() + ") theGame).tryAutoMoves();").statements()
       
       shared.controller.java.ColumnController.render(
         RootPackage = rootPackage,
@@ -40,12 +40,12 @@ trait Controller {
         'NameOfTheGame =>:
         'Column(columnNameType, 'AutoMovesAvailable)=>: 
         'Column(columnNameType, 'Clicked) :&: 'NonEmptySeq =>:
-        'Column(columnNameType, 'Released) :&: 'NonEmptySeq =>:
+        'Column(columnNameType, 'Released)  =>:                           // no longer need ... :&: 'NonEmptySeq (I think)....
         ('Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Column(columnNameType, 'Pressed) :&: 'NonEmptySeq) =>:
         'Controller(columnNameType)
   }
 
-  class ColumnControllerNoAutoMove(columnNameType: Type) {
+  class ColumnController(columnNameType: Type) {
     def apply(rootPackage: NameExpr,
       columnDesignate: NameExpr,
       nameOfTheGame: NameExpr,
@@ -53,9 +53,6 @@ trait Controller {
       columnMouseReleased: Seq[Statement],
       columnMousePressed: (NameExpr, NameExpr) => Seq[Statement]): CompilationUnit = {
       
-      // ((Idiot) theGame).tryAutoMoves();
-      val statements = Java("(("+ rootPackage.getName() + "." + nameOfTheGame.getName() + ") theGame).tryAutoMoves();").statements()
-       
       shared.controller.java.ColumnController.render(
         RootPackage = rootPackage,
         ColumnDesignate = columnDesignate,
@@ -71,7 +68,7 @@ trait Controller {
         'Column(columnNameType, 'ClassName) =>:
         'NameOfTheGame =>:
         'Column(columnNameType, 'Clicked) :&: 'NonEmptySeq =>:
-        'Column(columnNameType, 'Released) :&: 'NonEmptySeq =>:
+        'Column(columnNameType, 'Released)  =>:                           // no longer need ... :&: 'NonEmptySeq (I think)....
         ('Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Column(columnNameType, 'Pressed) :&: 'NonEmptySeq) =>:
         'Controller(columnNameType)
   }
