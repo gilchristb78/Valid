@@ -7,6 +7,7 @@ import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type, Constructor}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
+
 import de.tu_dortmund.cs.ls14.twirl.Java
 
 trait JavaIdioms {
