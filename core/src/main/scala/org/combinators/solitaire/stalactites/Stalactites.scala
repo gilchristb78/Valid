@@ -7,28 +7,22 @@ import controllers.WebJarAssets
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
+import org.combinators.TypeNameStatistics
 import org.webjars.play.RequireJS
+
+
+
 
 class Stalactites @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
   lazy val repository = new Game with Moves with StalactitesColumnController with  FoundationPileController with ColumnToPileMoves {}
   lazy val Gamma = ReflectedRepository(repository)
-
-//  println (Gamma.combinators.foreach( { 
-//    case (combinatorName, combinatorType) => def funct(combinatorType:Type) : Int = {
-//      combinatorType match { 
-//        case 
-//      }
-//    }
-//  })
-//  
-  // Map[TypeName, NumberOfUsages]
-  // get the usages of 'SolitaireVariation.
-  //
-  // then get count
+  lazy val statistics = new TypeNameStatistics(Gamma)
+  println(statistics.overview)
+  println(statistics.warnings)
   lazy val combinators = Gamma.combinators
   lazy val results =
     Results
-      .add(Gamma.inhabit[CompilationUnit]('SolitaireVariation :&: 'IncrementConcept))
+      .add(Gamma.inhabit[CompilationUnit]('IncrementConcept('SolitaireVariation)))
       .add(Gamma.inhabit[CompilationUnit]('Controller('StalactitesColumn)))
       //.add(Gamma.inhabit[CompilationUnit]('Controller('ReservePile)))
       .add(Gamma.inhabit[CompilationUnit]('Controller('FoundationPile)))
