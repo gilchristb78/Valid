@@ -10,11 +10,28 @@ import de.tu_dortmund.cs.ls14.git.InhabitationController
 import org.webjars.play.RequireJS
 
 class Stalactites @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
-  lazy val repository = new Game {}
+  lazy val repository = new Game with Moves with StalactitesColumnController with  FoundationPileController with ColumnToPileMoves {}
   lazy val Gamma = ReflectedRepository(repository)
 
+//  println (Gamma.combinators.foreach( { 
+//    case (combinatorName, combinatorType) => def funct(combinatorType:Type) : Int = {
+//      combinatorType match { 
+//        case 
+//      }
+//    }
+//  })
+//  
+  // Map[TypeName, NumberOfUsages]
+  // get the usages of 'SolitaireVariation.
+  //
+  // then get count
   lazy val combinators = Gamma.combinators
   lazy val results =
     Results
-      .add(Gamma.inhabit[CompilationUnit]('SolitaireVariation))
+      .add(Gamma.inhabit[CompilationUnit]('SolitaireVariation :&: 'IncrementConcept))
+      .add(Gamma.inhabit[CompilationUnit]('Controller('StalactitesColumn)))
+      //.add(Gamma.inhabit[CompilationUnit]('Controller('ReservePile)))
+      .add(Gamma.inhabit[CompilationUnit]('Controller('FoundationPile)))
+      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToFoundationPile :&: 'PotentialMove, 'CompleteMove)))
+      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToFoundationPile :&: 'GenericMove, 'CompleteMove)))
 }

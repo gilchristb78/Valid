@@ -68,7 +68,9 @@ trait Moves {
 					'Move(semanticMoveNameType :&: 'PotentialMove, 'CompleteMove)
 	}
 
-	
+	/**
+	 * Reassemble a deck from a number of stacks.
+	 */
 	@combinator object ResetDeck {
 		def apply(rootPackage: NameExpr): CompilationUnit = {
 				shared.moves.java.ResetDeck.render(rootPackage).compilationUnit()
@@ -83,6 +85,9 @@ trait Moves {
 		val semanticType: Type = 'RootPackage =>: 'Move('RemoveCard, 'CompleteMove)
 	}
 
+	/** 
+	 * Deal cards from deck onto a set of stacks.
+	 */
 	@combinator object DealStacks {
 		def apply(rootPackage: NameExpr): CompilationUnit = {
 				shared.moves.java.DealStacksMove.render(rootPackage).compilationUnit()

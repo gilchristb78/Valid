@@ -24,9 +24,12 @@ for (int i = 0; i < @Java(NumFoundations); i++) {
 	foundationViews[i] = new PileView(foundation[i]);
 	foundationViews[i].setBounds((i + 5) * (cw + 10) - 35, 120, cw, ch);
 	addViewWidget(foundationViews[i]);
+	
+	// need these controller registrations to be more composable
+	foundationViews[i].setMouseMotionAdapter(new SolitaireMouseMotionAdapter(this));
+    foundationViews[i].setUndoAdapter(new SolitaireUndoAdapter(this));
+    foundationViews[i].setMouseAdapter(new FoundationPilePileController(this, foundationViews[i]));
 }
-
-
 
 // get cards that represent foundation
 for (int i = 0; i < @Java(NumFoundations); i++) {
@@ -47,6 +50,10 @@ for (int i = 0; i < @Java(NumColumns); i++) {
 	tableauViews[i] = new ColumnView(tableau[i]);
 	tableauViews[i].setBounds((i +1) * (cw + 10) - 35, 240, cw, 2 * ch + 20);
 	addViewWidget(tableauViews[i]);
+	
+	tableauViews[i].setMouseMotionAdapter(new SolitaireMouseMotionAdapter(this));
+    tableauViews[i].setUndoAdapter(new SolitaireUndoAdapter(this));
+    tableauViews[i].setMouseAdapter(new StalactitesColumnController(this, tableauViews[i]));
 }
 
 // developing reserve

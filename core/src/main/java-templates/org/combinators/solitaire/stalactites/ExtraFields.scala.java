@@ -27,7 +27,3 @@ protected PileView foundationViews[] = new PileView[@Java(NumFoundations)];
 /** Cards to display initial foundation */
 public Card cards[] = new Card[@Java(NumFoundations)];
 protected CardView cardViews[] = new CardView[@Java(NumFoundations)];
-
-/** Determine whether up-increment or down-increment. */
-public int increment;
-
