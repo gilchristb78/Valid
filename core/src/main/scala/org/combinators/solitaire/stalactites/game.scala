@@ -11,9 +11,9 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared.GameTemplate
 import org.combinators.solitaire.shared.Score52
 import com.github.javaparser.ast.CompilationUnit
+import org.combinators.generic
 
-
-trait Game extends GameTemplate with Score52 {
+trait Game extends GameTemplate with Score52 with generic.JavaIdioms {
 
   @combinator object NumReservePiles {
     def apply: Expression = Java("2").expression()
@@ -68,11 +68,12 @@ trait Game extends GameTemplate with Score52 {
  
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
-      java.ExtraMethods.render().classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+      Seq.empty
     }
     val semanticType: Type = 'ExtraMethods
   }
   
+ 
   // takes in concept to be added.
   abstract class WeaveCombinator(conceptType : Symbol) {
     
@@ -89,12 +90,15 @@ trait Game extends GameTemplate with Score52 {
       unit
     }
     
-    val semanticType: Type = 'SolitaireVariation =>: conceptType :&: 'SolitaireVariation
+    val semanticType: Type = 'SolitaireVariation =>: conceptType('SolitaireVariation)
   }
 
    // Finally applies the weaving of the Increment concept by takings its constituent fields and method declarations
   // and injecting them into the compilation unit.
   @combinator object IncrementCombinator extends WeaveCombinator ('IncrementConcept) {
+  
+    // create get/set methods for 'increment' (defaults to public methods)
+    object getsm extends GetterSetterMethods(Java("increment").nameExpression(), "int", 'increment);
     
     def fields() : Seq[FieldDeclaration] = {
       Java("""
@@ -104,10 +108,10 @@ trait Game extends GameTemplate with Score52 {
     }
     
     def methods(): Seq[MethodDeclaration] = {
-      Seq.empty
+      getsm.apply()
     }
   }
-  
+
   // @(NumColumns: Expression, NumReservePiles: Expression, NumFoundations: Expression)
   @combinator object ExtraFields {
     def apply(numColumns:Expression, numReservePiles: Expression, numFoundations:Expression): Seq[FieldDeclaration] = {

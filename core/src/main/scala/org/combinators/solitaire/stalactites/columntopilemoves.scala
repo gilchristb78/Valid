@@ -37,11 +37,11 @@ trait ColumnToPileMoves extends shared.Moves {
 		val semanticType: Type = 'Move('ColumnToFoundationPile, 'DraggingCardVariableName)
 	}
 
-  @combinator object ColumnToFreePileValid {
-		def apply(): Seq[Statement] = {
-				moves.columntofoundationpile.java.ColumnToFoundationPileValid.render().statements()
+  @combinator object ColumnToFoundationPileValid {
+		def apply(root:NameExpr, name:NameExpr): Seq[Statement] = {
+				moves.columntofoundationpile.java.ColumnToFoundationPileValid.render(root, name).statements()
 		}
-		val semanticType: Type = 'Move('ColumnToFoundationPile, 'CheckValidStatements)
+		val semanticType: Type = 'RootPackage =>: 'NameOfTheGame =>: 'Move('ColumnToFoundationPile, 'CheckValidStatements)
 	}
   
 	@combinator object ColumnToFoundationHelper {
