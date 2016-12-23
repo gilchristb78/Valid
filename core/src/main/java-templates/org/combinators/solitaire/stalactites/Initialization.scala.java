@@ -13,8 +13,23 @@ model.addElement(deck);
 // start with neutral increment
 setIncrement(0);
 
-// 48 cards to start once dealt
+// 48 cards to start once dealt out four cards.
 this.updateNumberCardsLeft(48);
+this.updateScore(4);
+
+
+//Setup the scoreView
+scoreView  = new IntegerView(score);
+scoreView.setBounds (40, 40, 100, 60);
+addViewWidget (scoreView);
+scoreView.setMouseAdapter(new SolitaireReleasedAdapter(this));
+
+//Setup numLeft
+numLeftView = new IntegerView (getNumLeft());
+numLeftView.setBounds (160, 40, 100, 60);
+addViewWidget (numLeftView);
+numLeftView.setMouseAdapter(new SolitaireReleasedAdapter(this));
+
 
 // developing foundations
 for (int i = 0; i < @Java(NumFoundations); i++) {
@@ -64,6 +79,11 @@ for (int i = 0; i < @Java(NumReservePiles); i++) {
 	reserveViews[i] = new PileView(reserve[i]);
 	reserveViews[i].setBounds((i+1) * (cw + 10) - 35, 120, cw, ch);
 	addViewWidget(reserveViews[i]);
+	
+	// THIS ENTIRE FILE IS NOT COMPOSITIONAL. MUST FIND WAY TO ASSEMBLE THIS COMPOSITIONALLY
+	reserveViews[i].setMouseMotionAdapter(new SolitaireMouseMotionAdapter(this));
+	reserveViews[i].setUndoAdapter(new SolitaireUndoAdapter(this));
+	reserveViews[i].setMouseAdapter(new ReservePilePileController(this, reserveViews[i]));
 }
 
 // now deal out the initial cards

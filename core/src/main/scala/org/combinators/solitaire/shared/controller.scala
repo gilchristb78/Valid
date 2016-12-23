@@ -64,7 +64,7 @@ trait Controller {
         'Pile(pileNameType, 'ClassName) =>:
         'NameOfTheGame =>:
         'Pile(pileNameType, 'Clicked) :&: 'NonEmptySeq =>:
-        'Pile(pileNameType, 'Released) :&: 'NonEmptySeq =>:
+        'Pile(pileNameType, 'Released)  =>:
         ('Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Pile(pileNameType, 'Pressed) :&: 'NonEmptySeq) =>:
         'Controller(pileNameType)
   }

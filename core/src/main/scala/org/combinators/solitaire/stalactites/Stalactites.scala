@@ -14,7 +14,7 @@ import org.webjars.play.RequireJS
 
 
 class Stalactites @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
-  lazy val repository = new Game with Moves with StalactitesColumnController with  FoundationPileController with ColumnToPileMoves {}
+  lazy val repository = new Game with Moves with StalactitesColumnController with  FoundationPileController with ReservePileController with PileToPileMoves with ColumnToPileMoves {}
   lazy val Gamma = ReflectedRepository(repository)
   lazy val statistics = new TypeNameStatistics(Gamma)
   println(statistics.overview)
@@ -22,10 +22,16 @@ class Stalactites @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends
   lazy val combinators = Gamma.combinators
   lazy val results =
     Results
-      .add(Gamma.inhabit[CompilationUnit]('IncrementConcept('SolitaireVariation)))
+      .add(Gamma.inhabit[CompilationUnit]('increment('SolitaireVariation)))
       .add(Gamma.inhabit[CompilationUnit]('Controller('StalactitesColumn)))
-      //.add(Gamma.inhabit[CompilationUnit]('Controller('ReservePile)))
+      .add(Gamma.inhabit[CompilationUnit]('Controller('ReservePile)))
       .add(Gamma.inhabit[CompilationUnit]('Controller('FoundationPile)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToFoundationPile :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToFoundationPile :&: 'GenericMove, 'CompleteMove)))
+      .add(Gamma.inhabit[CompilationUnit]('lastOrientation('orientation('Move('ColumnToFoundationPile :&: 'PotentialMove, 'CompleteMove)))))
+      .add(Gamma.inhabit[CompilationUnit]('lastOrientation('orientation('Move('ColumnToFoundationPile :&: 'GenericMove, 'CompleteMove)))))
+      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToReservePile :&: 'PotentialMove, 'CompleteMove)))
+      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToReservePile :&: 'GenericMove, 'CompleteMove)))
+      .add(Gamma.inhabit[CompilationUnit]('lastOrientation('orientation('Move('ReservePileToFoundationPile :&: 'PotentialMove, 'CompleteMove)))))
+      .add(Gamma.inhabit[CompilationUnit]('lastOrientation('orientation('Move('ReservePileToFoundationPile :&: 'GenericMove, 'CompleteMove)))))
+      .add(Gamma.inhabit[CompilationUnit]('Move('ReservePileToReservePile :&: 'PotentialMove, 'CompleteMove)))
+      .add(Gamma.inhabit[CompilationUnit]('Move('ReservePileToReservePile :&: 'GenericMove, 'CompleteMove)))
 }

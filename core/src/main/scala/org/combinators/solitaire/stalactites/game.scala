@@ -73,44 +73,43 @@ trait Game extends GameTemplate with Score52 with generic.JavaIdioms {
     val semanticType: Type = 'ExtraMethods
   }
   
- 
-  // takes in concept to be added.
-  abstract class WeaveCombinator(conceptType : Symbol) {
-    
-    def fields(): Seq[FieldDeclaration]
-    def methods(): Seq[MethodDeclaration]
-    
-    def apply(unit: CompilationUnit) : CompilationUnit = {
-      
-      // merge fields into unit's fields
-      val types = unit.getTypes()
-      fields().foreach { x => types.get(0).getMembers().add(x) }
-      methods().foreach { x => types.get(0).getMembers().add(x) }
-      
-      unit
-    }
-    
-    val semanticType: Type = 'SolitaireVariation =>: conceptType('SolitaireVariation)
-  }
 
-   // Finally applies the weaving of the Increment concept by takings its constituent fields and method declarations
+  // Finally applies the weaving of the Increment concept by takings its constituent fields and method declarations
   // and injecting them into the compilation unit.
-  @combinator object IncrementCombinator extends WeaveCombinator ('IncrementConcept) {
+  @combinator object IncrementCombinator extends GetterSetterMethods(Java("increment").nameExpression(), "int", 'SolitaireVariation, 'increment)
   
-    // create get/set methods for 'increment' (defaults to public methods)
-    object getsm extends GetterSetterMethods(Java("increment").nameExpression(), "int", 'increment);
-    
-    def fields() : Seq[FieldDeclaration] = {
-      Java("""
-          /** Determine whether up-increment or down-increment. */
-          public int increment;
-          """).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-    }
-    
-    def methods(): Seq[MethodDeclaration] = {
-      getsm.apply()
-    }
-  }
+  
+  /**
+   * Fundamental to Undo of moves to foundation is the ability to keep track of the last orientation.
+   */
+  @combinator object RecordNewOrientation {
+		def apply(root:NameExpr, name:NameExpr): Seq[Statement] = {
+  		  val code = root.toString() + "." + name.toString() + " stalactites = (" +
+		             root.toString() + "." + name.toString() + ") game;" + "\n" + 
+                 "lastOrientation = stalactites.getIncrement();" + "\n" + 
+                 "stalactites.setIncrement(orientation);"
+            
+        Java(code).statements()
+		}
+		
+		val semanticType: Type = 'RootPackage =>: 'NameOfTheGame =>: 'RecordOrientation
+	}
+	
+	/**
+	 * Go back to earlier orientation
+	 */
+	@combinator object RevertToEarlierOrientation {
+		def apply(root:NameExpr, name:NameExpr): Seq[Statement] = {
+		  val code = root.toString() + "." + name.toString() + " stalactites = (" +
+		             root.toString() + "." + name.toString() + ") game;" + "\n" + 
+		             "stalactites.setIncrement(lastOrientation);"
+		             
+		   Java(code).statements()
+		}
+		
+		val semanticType: Type = 'RootPackage =>: 'NameOfTheGame =>: 'UndoOrientation
+	}
+ 
 
   // @(NumColumns: Expression, NumReservePiles: Expression, NumFoundations: Expression)
   @combinator object ExtraFields {
