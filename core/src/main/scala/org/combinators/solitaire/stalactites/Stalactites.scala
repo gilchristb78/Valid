@@ -22,7 +22,7 @@ class Stalactites @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends
   lazy val combinators = Gamma.combinators
   lazy val results =
     Results
-      .add(Gamma.inhabit[CompilationUnit]('increment('SolitaireVariation)))
+      .add(Gamma.inhabit[CompilationUnit]('IncrementConcept('SolitaireVariation)))
       .add(Gamma.inhabit[CompilationUnit]('Controller('StalactitesColumn)))
       .add(Gamma.inhabit[CompilationUnit]('Controller('ReservePile)))
       .add(Gamma.inhabit[CompilationUnit]('Controller('FoundationPile)))

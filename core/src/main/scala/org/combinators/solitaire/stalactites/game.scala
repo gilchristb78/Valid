@@ -73,6 +73,24 @@ trait Game extends GameTemplate with Score52 with generic.JavaIdioms {
     val semanticType: Type = 'ExtraMethods
   }
   
+  // takes in concept to be added.
+  abstract class WeaveCombinator(conceptType : Symbol) {
+    
+    def fields(): Seq[FieldDeclaration]
+    def methods(): Seq[MethodDeclaration]
+    
+    def apply(unit: CompilationUnit) : CompilationUnit = {
+      
+      // merge fields into unit's fields
+      val types = unit.getTypes()
+      fields().foreach { x => types.get(0).getMembers().add(x) }
+      methods().foreach { x => types.get(0).getMembers().add(x) }
+      
+      unit
+    }
+    
+    val semanticType: Type = 'SolitaireVariation =>: conceptType('SolitaireVariation)
+  }
 
   // Finally applies the weaving of the Increment concept by takings its constituent fields and method declarations
   // and injecting them into the compilation unit.
