@@ -9,17 +9,12 @@ import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared
+import org.combinators.generic
 
-trait FoundationPileController extends shared.Controller  {
+trait FoundationPileController extends shared.Controller  with generic.JavaIdioms {
 
 	// column move designated combinators
 	@combinator object FoundationPileControllerDef extends PileController ('FoundationPile)
-	
-//	'RootPackage =>:
-//        'Pile(pileNameType, 'Clicked) :&: 'NonEmptySeq =>:
-//        'Pile(pileNameType, 'Released) :&: 'NonEmptySeq =>:
-//        ('Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Pile(pileNameType, 'Pressed) :&: 'NonEmptySeq) =>:
-//        'Controller(pileNameType)
 	
 	@combinator object FoundationPile {
     def apply(): NameExpr = {
@@ -29,7 +24,7 @@ trait FoundationPileController extends shared.Controller  {
   }
 
 	// ignore presses on the foundation pile
-  @combinator object PilePressedHandler {
+  @combinator object FoundationPilePressedHandler {
     def apply(): (NameExpr, NameExpr) => Seq[Statement] = {
       (widgetVariableName: NameExpr, ignoreWidgetVariableName: NameExpr) =>
 
@@ -40,7 +35,7 @@ trait FoundationPileController extends shared.Controller  {
         'Pile('FoundationPile, 'Pressed) :&: 'NonEmptySeq
   }
 
-  @combinator object PiledClickedHandler {
+  @combinator object FoundationPileClickedHandler {
     def apply(rootPackage: NameExpr, nameOfTheGame: NameExpr): Seq[Statement] = {
      Seq.empty
     }
@@ -56,19 +51,49 @@ trait FoundationPileController extends shared.Controller  {
 	@combinator object CFPM extends MovableElementNameDef('ColumnToFoundationPile, "Column")
 	@combinator object CFPT extends TargetWidgetNameDef('ColumnToFoundationPile, "Pile")
   
-  @combinator object FoundationPileReleasedHandler {
-		def apply(fromColumn:Seq[Statement]): Seq[Statement] = {
-				Java("""
-						// Column moving to FoundationPile
-						if (w instanceof ColumnView) {
-						""" + fromColumn.mkString("\n") + """;
-						}
-						""").statements();
+ // move widget statements: 'MoveWidget(moveNameType)
+  @combinator object ReservePileToFoundationPileStatements extends MoveWidgetToWidgetStatements ('ReservePileToFoundationPile)
 
-		}
-		val semanticType: Type =
-				'MoveWidget('ColumnToFoundationPile) =>: 'Pile('FoundationPile, 'Released) :&: 'NonEmptySeq
-	}
+	@combinator object RPFPN extends ClassNameDef('ReservePileToFoundationPile, "ReservePileToFoundation")
+	@combinator object RPFPS extends SourceWidgetNameDef('ReservePileToFoundationPile, "Pile")
+	@combinator object RPFPM extends MovableElementNameDef('ReservePileToFoundationPile, "Card")
+	@combinator object RPFPT extends TargetWidgetNameDef('ReservePileToFoundationPile, "Pile")
   
+  
+	// w instanceof ColumnView
+	@combinator object ColumnViewCheckFP {
+    def apply: Expression = Java("w instanceof ColumnView").expression()
+    val semanticType: Type = 'GuardColumnViewFP
+  }
+	
+	@combinator object CardViewCheckFP {
+    def apply: Expression = Java("w instanceof CardView").expression()
+    val semanticType: Type = 'GuardCardViewFP
+  }
+	
+	@combinator object IfStart1 extends IfBlock('GuardColumnViewFP, 'MoveWidget('ColumnToFoundationPile), 'CombinedFP1)  
+	    
+	@combinator object IfStart2 extends IfBlock('GuardCardViewFP, 'MoveWidget('ReservePileToFoundationPile), 'CombinedFP2)  
+	    
+	@combinator object CombinedHandlers extends StatementCombiner('CombinedFP1, 'CombinedFP2, 'Pile('FoundationPile, 'Released))
+	
+//	// seeming hack since the pair 'Pile('FoundationPile, 'Released) can't be valid Constructor for StatementCombiner?
+//	@combinator object Final {
+//	   def apply(in:Seq[Statement]):Seq[Statement] = {
+//	     in
+//	   }
+//	   
+//	   val semanticType: Type = 'CombinedZZ =>: 'Pile('FoundationPile, 'Released)
+//	}
+  
+	
+//	// seeming hack since the pair 'Pile('FoundationPile, 'Released) can't be valid Constructor for StatementCombiner?
+//	@combinator object FinalSet {
+//	   def apply():Seq[Statement] = {
+//	     Seq.empty
+//	   }
+//	   
+//	   val semanticType: Type =  'Pile('FoundationPile, 'Released)
+//	}
 	
 }

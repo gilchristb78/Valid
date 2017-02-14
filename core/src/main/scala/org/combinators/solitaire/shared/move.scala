@@ -8,6 +8,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared
+import de.tu_dortmund.cs.ls14.twirl.Java
 
 trait Moves {
 	class Move(semanticMoveNameType: Type) {
@@ -78,6 +79,50 @@ trait Moves {
 		val semanticType: Type = 'RootPackage =>: 'Move('ResetDeck, 'CompleteMove)
 	}
 
+	/**
+	 * Increment score
+	 */
+	@combinator object IncrementScore {
+		def apply(): Seq[Statement] = {
+		  Java("game.updateScore(1);").statements()
+		}
+		
+		val semanticType: Type = 'IncrementScore
+	}
+	
+	/**
+	 * Decrement score
+	 */
+	@combinator object DecrementScore {
+		def apply(): Seq[Statement] = {
+		  Java("game.updateScore(-1);").statements()
+		}
+		
+		val semanticType: Type = 'DecrementScore
+	}
+	
+	/**
+	 * Increment NumberCardsLeft
+	 */
+	@combinator object IncrementNumberCardsLeft {
+		def apply(): Seq[Statement] = {
+		  Java("game.updateNumberCardsLeft(1);").statements()
+		}
+		
+		val semanticType: Type = 'IncrementNumberCardsLeft
+	}
+	
+	/**
+	 * Decrement NumberCardsLeft
+	 */
+	@combinator object DecrementNumberCardsLeft {
+		def apply(): Seq[Statement] = {
+		  Java("game.updateNumberCardsLeft(-1);").statements()
+		}
+		
+		val semanticType: Type = 'DecrementNumberCardsLeft
+	}
+	
 	@combinator object RemovedCard {
 		def apply(rootPackage: NameExpr): CompilationUnit = {
 				shared.moves.java.RemovedCard.render(rootPackage).compilationUnit()

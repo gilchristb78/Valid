@@ -1,6 +1,6 @@
 @(WidgetVariable: NameExpr, IgnoreWidgetVariable: NameExpr)
 
-@Java(IgnoreWidgetVariable) = false;
+@Java(IgnoreWidgetVariable) = true;
 
 Column srcCol = (Column) src.getModelElement();
 //the column on which the mouse has pressed
@@ -16,16 +16,8 @@ if (srcCol.count() == 0) {
 @Java(WidgetVariable) = src.getColumnView (me);
 
 // Safety Check
-if (@Java(WidgetVariable)  == null) {
-	return;
+if (@Java(WidgetVariable) != null) {
+	@Java(IgnoreWidgetVariable) = false;
 }
 
-Column draggingSource = (Column) @Java(WidgetVariable) .getModelElement();
 
-// precheck to make sure column is suitable
-if (!draggingSource.alternatingColors() || !draggingSource.descending()) {
-	src.returnWidget(@Java(WidgetVariable));
-	@Java(IgnoreWidgetVariable) = true;
-	c.releaseDraggingObject();
-	return;
-}
