@@ -1,7 +1,6 @@
 
 ->    /                              shared.Routes
 
-
 GET   /narcotic                      org.combinators.solitaire.narcotic.Narcotic.overview()
 GET   /narcotic/                     org.combinators.solitaire.narcotic.Narcotic.overview()
 GET   /narcotic/raw_:number          org.combinators.solitaire.narcotic.Narcotic.raw(number: Long)
@@ -19,3 +18,9 @@ GET   /idiot/                     org.combinators.solitaire.idiot.Idiot.overview
 GET   /idiot/raw_:number          org.combinators.solitaire.idiot.Idiot.raw(number: Long)
 GET   /idiot/prepare              org.combinators.solitaire.idiot.Idiot.prepare(number: Long)
 GET   /idiot/idiot.git/*file  	  org.combinators.solitaire.idiot.Idiot.serveFile(file)
+
+GET   /stalactites                      org.combinators.solitaire.stalactites.Stalactites.overview()
+GET   /stalactites/                     org.combinators.solitaire.stalactites.Stalactites.overview()
+GET   /stalactites/raw_:number          org.combinators.solitaire.stalactites.Stalactites.raw(number: Long)
+GET   /stalactites/prepare              org.combinators.solitaire.stalactites.Stalactites.prepare(number: Long)
+GET   /stalactites/stalactites.git/*file  	  org.combinators.solitaire.stalactites.Stalactites.serveFile(file)

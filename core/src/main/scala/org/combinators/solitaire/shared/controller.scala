@@ -12,50 +12,15 @@ import org.combinators.solitaire.shared
 import de.tu_dortmund.cs.ls14.twirl.Java
 
 trait Controller {
+  
   class ColumnController(columnNameType: Type) {
     def apply(rootPackage: NameExpr,
       columnDesignate: NameExpr,
       nameOfTheGame: NameExpr,
-      autoMoves : Seq[MethodDeclaration],
       columnMouseClicked: Seq[Statement],
       columnMouseReleased: Seq[Statement],
       columnMousePressed: (NameExpr, NameExpr) => Seq[Statement]): CompilationUnit = {
       
-      // ((Idiot) theGame).tryAutoMoves();
-      val statements = Java("(("+ rootPackage.getName() + "." + nameOfTheGame.getName() + ") theGame).tryAutoMoves();").statements()
-      
-      shared.controller.java.ColumnController.render(
-        RootPackage = rootPackage,
-        ColumnDesignate = columnDesignate,
-        NameOfTheGame = nameOfTheGame,
-        AutoMoves = statements,
-        ColumnMouseClicked =  columnMouseClicked,
-        ColumnMousePressed = columnMousePressed,
-        ColumnMouseReleased =  columnMouseReleased
-      ).compilationUnit()
-    }
-    val semanticType: Type =
-      'RootPackage =>:
-        'Column(columnNameType, 'ClassName) =>:
-        'NameOfTheGame =>:
-        'Column(columnNameType, 'AutoMovesAvailable)=>: 
-        'Column(columnNameType, 'Clicked) :&: 'NonEmptySeq =>:
-        'Column(columnNameType, 'Released) :&: 'NonEmptySeq =>:
-        ('Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Column(columnNameType, 'Pressed) :&: 'NonEmptySeq) =>:
-        'Controller(columnNameType)
-  }
-
-  class ColumnControllerNoAutoMove(columnNameType: Type) {
-    def apply(rootPackage: NameExpr,
-      columnDesignate: NameExpr,
-      nameOfTheGame: NameExpr,
-      columnMouseClicked: Seq[Statement],
-      columnMouseReleased: Seq[Statement],
-      columnMousePressed: (NameExpr, NameExpr) => Seq[Statement]): CompilationUnit = {
-      
-      // ((Idiot) theGame).tryAutoMoves();
-      val statements = Java("(("+ rootPackage.getName() + "." + nameOfTheGame.getName() + ") theGame).tryAutoMoves();").statements()
-       
       shared.controller.java.ColumnController.render(
         RootPackage = rootPackage,
         ColumnDesignate = columnDesignate,
@@ -71,7 +36,7 @@ trait Controller {
         'Column(columnNameType, 'ClassName) =>:
         'NameOfTheGame =>:
         'Column(columnNameType, 'Clicked) :&: 'NonEmptySeq =>:
-        'Column(columnNameType, 'Released) :&: 'NonEmptySeq =>:
+        'Column(columnNameType, 'Released)  =>:                           // no longer need ... :&: 'NonEmptySeq (I think)....
         ('Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Column(columnNameType, 'Pressed) :&: 'NonEmptySeq) =>:
         'Controller(columnNameType)
   }
@@ -176,27 +141,5 @@ trait Controller {
       'MoveElement(moveNameType, 'TargetWidgetName) =>:
       'MoveWidget(moveNameType)
   }
-  
-//  class MoveWidgetToWidgetController(moveNameType: Type) {
-//    def apply(rootPackage: NameExpr,
-//      theMove: NameExpr,
-//      movingWidgetName: NameExpr,
-//      sourceWidgetName: NameExpr,
-//      targetWidgetName: NameExpr): CompilationUnit = {
-//      shared.controller.java.MoveWidgetToWidget.render(
-//        RootPackage = rootPackage,
-//        TheMove = theMove,
-//        MovingWidgetName = movingWidgetName,
-//        SourceWidgetName = sourceWidgetName,
-//        TargetWidgetName = targetWidgetName
-//      ).compilationUnit()
-//    }
-//    val semanticType: Type =
-//      'RootPackage =>:
-//      moveNameType =>:
-//      'MovableElementName =>:
-//      'SourceWidgetName =>:
-//      'TargetWidgetName =>:
-//      'MoveWidget(moveNameType)
-//  }
+
 }

@@ -6,11 +6,13 @@ import com.github.javaparser.ast.body.{BodyDeclaration}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type}
+import de.tu_dortmund.cs.ls14.cls.types.{Constructor}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.generic
 import org.combinators.solitaire.shared
 
-trait ColumnController extends shared.Controller  {
+trait ColumnController extends shared.Controller with generic.JavaIdioms {
 
 	// column move designated combinators
 	@combinator object ColumnControllerDef extends ColumnController ('FreeCellColumn)
@@ -72,22 +74,66 @@ trait ColumnController extends shared.Controller  {
 	//      'MoveElement(moveNameType, 'TargetWidgetName) =>:
 	//      'MoveWidget(moveNameType)
 
-	// release must take into account both FROMPILE and FROMCOLUMN events.
-	@combinator object ColumnReleasedHandler {
-		def apply(fromColumn:Seq[Statement], fromPile:Seq[Statement]): Seq[Statement] = {
+	// IF (1) { }
+	// IF (2) { }
+	// autoMove
+	// 
+	
+	// w instanceof ColumnView
+	@combinator object ColumnViewCheck {
+    def apply: Expression = Java("w instanceof ColumnView").expression()
+    val semanticType: Type = 'GuardColumnView
+  }
+	
+	@combinator object CardViewCheck {
+    def apply: Expression = Java("w instanceof CardView").expression()
+    val semanticType: Type = 'GuardCardView
+  }
+	
+	@combinator object IfStart1 extends IfBlock('GuardColumnView, 'MoveWidget('ColumnToColumn), 'Combined1)  
+	    
+	@combinator object IfStart2 extends IfBlock('GuardCardView, 'MoveWidget('FreePileToColumn), 'Combined2)  
+	    
+	@combinator object CombinedHandlers extends StatementCombiner('Combined1, 'Combined2, 'Combined3)
+	
+	// Column('FreeCellColumn, 'Released))
+	@combinator object CombinedHandlers2 extends StatementCombiner('Combined3, 'AutoMoveColumn, 'Column('FreeCellColumn, 'Released))
+	
+//	@combinator object CombinedHandlers extends StatementCombiner('MoveWidget('ColumnToColumn), 'MoveWidget('FreePileToColumn), 'Combined1)
+//	
+//	@combinator object CombinedHandlers2 extends StatementCombiner('IfCombined1, 'AutoMoveColumn, 'Column('FreeCellColumn, 'Released))
+	
+	@combinator object AutoMoveSequence {
+		def apply(pkgName:NameExpr, name:NameExpr): Seq[Statement] = {
 				Java("""
-						// Column moving to Column on FreeCell tableau
-						if (w instanceof ColumnView) {
-						""" + fromColumn.mkString("\n") + """;
-						}
-						if (w instanceof CardView) {
-						""" + fromPile.mkString("\n") + """
-						}  
+						// post-chain automove here rather than change controller combinator...
+						((""" + pkgName.toString() + """.""" + name.toString() + """) theGame).tryAutoMoves();
 						""").statements();
 
 		}
 		val semanticType: Type =
-				'MoveWidget('ColumnToColumn) =>: 'MoveWidget('FreePileToColumn) =>: 'Column('FreeCellColumn, 'Released) :&: 'NonEmptySeq
+				'RootPackage =>: 'NameOfTheGame =>: 'AutoMoveColumn
 	}
+	
+//	// release must take into account both FROMPILE and FROMCOLUMN events.
+//	@combinator object ColumnReleasedHandler {
+//		def apply(pkgName:NameExpr, name:NameExpr, fromColumn:Seq[Statement], fromPile:Seq[Statement]): Seq[Statement] = {
+//				Java("""
+//						// Column moving to Column on FreeCell tableau
+//						if (w instanceof ColumnView) {
+//						""" + fromColumn.mkString("\n") + """;
+//						}
+//						if (w instanceof CardView) {
+//						""" + fromPile.mkString("\n") + """
+//						}  
+//						
+//						// post-chain automove here rather than change controller combinator...
+//						((""" + pkgName.toString() + """.""" + name.toString() + """) theGame).tryAutoMoves();
+//						""").statements();
+//
+//		}
+//		val semanticType: Type =
+//				'RootPackage =>: 'NameOfTheGame =>: 'MoveWidget('ColumnToColumn) =>: 'MoveWidget('FreePileToColumn) =>: 'Column('FreeCellColumn, 'Released) :&: 'NonEmptySeq
+//	}
 
 }

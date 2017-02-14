@@ -1,6 +1,6 @@
 @(Name: NameExpr)
 
-// will only be a single card, despite being a column object
+// will only be a single card
 Column movingColumn;
 
 

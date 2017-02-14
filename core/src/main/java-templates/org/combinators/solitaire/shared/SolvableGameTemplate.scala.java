@@ -29,7 +29,7 @@ import java.awt.Dimension;
  * It is a fully working plugin that has absolutely no behavior or meaning. It won't have the
  * Score or NumberOfCardsLeft, but it will at least be able to show a blank playing field.
  * __p__
- * __author: George T. Heineman (heineman__cs.wpi.edu)
+ * __author: George T. Heineman (heineman__cs.wpi.edu)    // NodeWithImplements<T>
  */
 public class @Java(nameParameter) extends Solitaire implements SolvableSolitaire {
 
