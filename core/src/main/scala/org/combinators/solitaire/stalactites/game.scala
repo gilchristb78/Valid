@@ -89,7 +89,7 @@ trait Game extends GameTemplate with Score52 {
       unit
     }
     
-    val semanticType: Type = 'SolitaireVariation =>: conceptType :&: 'SolitaireVariation
+    val semanticType: Type = 'SolitaireVariation =>: conceptType('SolitaireVariation)
   }
 
    // Finally applies the weaving of the Increment concept by takings its constituent fields and method declarations
@@ -107,7 +107,7 @@ trait Game extends GameTemplate with Score52 {
       Seq.empty
     }
   }
-  
+
   // @(NumColumns: Expression, NumReservePiles: Expression, NumFoundations: Expression)
   @combinator object ExtraFields {
     def apply(numColumns:Expression, numReservePiles: Expression, numFoundations:Expression): Seq[FieldDeclaration] = {
