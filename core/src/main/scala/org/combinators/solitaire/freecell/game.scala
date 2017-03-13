@@ -1,6 +1,7 @@
 package org.combinators.solitaire.freecell
 
 import com.github.javaparser.ast.ImportDeclaration
+import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration, BodyDeclaration}
 import com.github.javaparser.ast.expr.{Expression, NameExpr}
 import com.github.javaparser.ast.stmt.Statement
@@ -11,8 +12,49 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared.GameTemplate
 import org.combinators.solitaire.shared.Score52
 
+// domain
+import domain._
+import domain.freeCell.HomePile
 
 trait Game extends GameTemplate with Score52 {
+
+  //lazy val alpha = Variable("alpha")
+
+  // extend existing kinding
+  lazy val newKinding = Kinding(tableauType)
+                        .addOption('FourColumnTableau)
+                        .addOption('EightColumnTableau)
+
+  // 4-HomePile Foundation
+  @combinator object FourHomePileFoundation {
+    def apply(): Foundation = {
+       val f = new Foundation()
+
+       f.add (new HomePile())    // put into for-loop soon.
+       f.add (new HomePile())
+       f.add (new HomePile())
+       f.add (new HomePile())
+
+       println("setting four-pile Foundation")
+
+       f
+    }
+    
+    val semanticType:Type = 'ValidFoundation :&: 'FourPileFoundation
+  }
+ 
+  // in FreeCell we need a valid tableau. Not sure why we have to
+  // restrict that here to be 8; could still be searched
+  @combinator object AddEightColumnTableau {
+    def apply(s:Solitaire, tab:Tableau): Solitaire = {
+      s.setTableau(tab)
+      println("setting eight-column tableau")
+      s
+    }
+
+    val semanticType: Type =
+      ('P('NoTableau) =>: 'EightColumnTableau =>: 'P('EightColumnTableau :&: 'ValidTableau)) 
+  }
 
   @combinator object NumHomePiles {
     def apply: Expression = Java("4").expression()

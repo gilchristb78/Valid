@@ -53,6 +53,7 @@ trait ReservePileController extends shared.Controller  with generic.JavaIdioms  
   
    // move widget statements: 'MoveWidget(moveNameType)
   @combinator object ReservePileToReservePileStatements extends MoveWidgetToWidgetStatements ('ReservePileToReservePile)
+  
 
 	@combinator object RPRPN extends ClassNameDef('ReservePileToReservePile, "ReservePileToReserve")
 	@combinator object RPRPS extends SourceWidgetNameDef('ReservePileToReservePile, "Pile")

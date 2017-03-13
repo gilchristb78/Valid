@@ -13,10 +13,17 @@ import org.webjars.play.RequireJS
 import _root_.java.nio.file._                              // overloaded so go to _root_
 import com.github.javaparser.ast.stmt.Statement
 
+// domain
+import domain._
+
 class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
   lazy val repository = new Game with ColumnMoves with PileMoves with ColumnController with PileController {}
   lazy val Gamma = ReflectedRepository(repository)
 
+  lazy val domainCombinators = Gamma.combinators
+  val obj = Gamma.inhabit[Solitaire]('P('ValidTableau))
+  println (obj) 
+  
   lazy val combinators = Gamma.combinators
   lazy val results =
     Results
