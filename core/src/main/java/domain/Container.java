@@ -13,44 +13,44 @@ import java.util.*;
 
 public class Container implements Iterable<Element> {
 
-    /** Use what is available. */
-    ArrayList<Element> elements = new ArrayList<Element>();
+	/** Use what is available. */
+	ArrayList<Element> elements = new ArrayList<Element>();
 
-    /** Return the size of the container. */
-    public int getSize() {
-	return elements.size();
-    }
-
-    /**
-     * Attempt to add element to Container, returning true if 
-     * successful; false if a duplicate.
-     */
-    public boolean add(Element e) {
-	if (elements.contains(e)) {
-	    return false;
+	/** Return the size of the container. */
+	public int size() {
+		return elements.size();
 	}
 
-	elements.add(e);
-	return true;
-    } 
+	/**
+	 * Attempt to add element to Container, returning true if 
+	 * successful; false if a duplicate.
+	 */
+	public boolean add(Element e) {
+		if (elements.contains(e)) {
+			return false;
+		}
 
-    /**
-     * Attempt to remove element from Container, returning true 
-     * if successful; false if not present.
-     */
-    public boolean remove(Element e) {
-	if (!elements.contains(e)) {
-	    return false;
+		elements.add(e);
+		return true;
+	} 
+
+	/**
+	 * Attempt to remove element from Container, returning true 
+	 * if successful; false if not present.
+	 */
+	public boolean remove(Element e) {
+		if (!elements.contains(e)) {
+			return false;
+		}
+
+		elements.remove(e);
+		return true;
 	}
 
-	elements.remove(e);
-	return true;
-    }
-
-    /** 
-     * iterator over all elements. 
-     */
-    public Iterator<Element> iterator() {
-	return elements.iterator();
-    }
+	/** 
+	 * iterator over all elements. 
+	 */
+	public Iterator<Element> iterator() {
+		return elements.iterator();
+	}
 }

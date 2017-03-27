@@ -17,13 +17,16 @@ import com.github.javaparser.ast.stmt.Statement
 import domain._
 
 class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
-  lazy val repository = new Game with ColumnMoves with PileMoves with ColumnController with PileController {}
-  lazy val Gamma = ReflectedRepository(repository)
+  lazy val repositoryPre = new Game {}
+  lazy val GammaPre = ReflectedRepository(repositoryPre)
 
-  lazy val domainCombinators = Gamma.combinators
-  val obj = Gamma.inhabit[Solitaire]('P('ValidTableau))
-  println (obj) 
+  var reply = GammaPre.inhabit[Solitaire]('FreeCellVariation)
+  val it = reply.interpretedTerms.values.flatMap(_._2).iterator
+  val s = it.next()
+  Solitaire.setInstance(s)
   
+  lazy val repository = new GameDomain(s) with ColumnMoves with PileMoves with ColumnController with PileController {}
+  lazy val Gamma = ReflectedRepository(repository)
   lazy val combinators = Gamma.combinators
   lazy val results =
     Results

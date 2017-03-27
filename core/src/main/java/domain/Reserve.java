@@ -1,5 +1,5 @@
 package domain;
 
-public class Reserve {
+public class Reserve extends Container {
 
 }

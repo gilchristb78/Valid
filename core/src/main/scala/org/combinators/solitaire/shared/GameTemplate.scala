@@ -8,7 +8,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared
-
+import scala.collection.JavaConversions._
 // domain
 import domain._
 
@@ -22,7 +22,9 @@ trait GameTemplate {
        new Solitaire()
     }
     
-    val semanticType:Type = 'P('NoTableau) :&: 'P('NoFoundation)
+    val semanticType:Type = 'Solitaire('Tableau('None)) :&:
+                            'Solitaire('Foundation('None)) :&:
+                            'Solitaire('Reserve('None))
   }
 
   // generic 8-column tableau
@@ -41,7 +43,7 @@ trait GameTemplate {
        t
     }
     
-    val semanticType:Type = 'ValidTableau :&: 'EightColumnTableau
+    val semanticType:Type = 'Tableau('Valid :&: 'Eight :&: 'Column)
   }
 
   // generic 4-column tableau
@@ -56,23 +58,39 @@ trait GameTemplate {
        t
     }
     
-    val semanticType:Type = 'ValidTableau :&: 'FourColumnTableau
+    val semanticType:Type = 'Tableau('Valid :&: 'Four :&: 'Column)
   }
-
-  // generic 4-pile Foundation
-  @combinator object FourPileFoundation {
-    def apply(): Foundation = {
-       val f = new Foundation()
-       f.add (new Pile())    // put into for-loop soon.
-       f.add (new Pile())
-       f.add (new Pile())
-       f.add (new Pile())
-
-       f
-    }
-    
-    val semanticType:Type = 'ValidFoundation :&: 'FourPileFoundation
-  }
+//
+//  // generic 4-pile Foundation
+//  @combinator object FourPileFoundation {
+//    def apply(): Foundation = {
+//       val f = new Foundation()
+//       f.add (new Pile())    // put into for-loop soon.
+//       f.add (new Pile())
+//       f.add (new Pile())
+//       f.add (new Pile())
+//
+//       // also use scalaList and work with it
+//       val scalaList = f.iterator.toList
+//       
+//       // Layout for any container which horizontal placement of widgets within. Spacing can 
+//       // be computed from the bounds
+//       val it = f.iterator()
+//       while (it.hasNext()) {
+//         val p = it.next()
+//         
+////          val winStmts =
+////          JavaParser.parseStatement("{ int x = 42; int z = -1; z++; foo(x, z); }")
+////            .asInstanceOf[com.github.javaparser.ast.stmt.BlockStmt]
+////            .stmts
+////  
+//       }
+//       
+//       f
+//    }
+//    
+//    val semanticType:Type = 'Foundation('Valid :&: 'Four :&: 'Pile)
+//  }
 
 
   @combinator object MainGame {

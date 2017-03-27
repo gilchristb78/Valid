@@ -1,5 +1,7 @@
 package domain;
 
+import java.util.Iterator;
+
 /**
 
   This class models the top-level domain of the solitaire applicatoin
@@ -28,12 +30,24 @@ package domain;
 */
 
 public class Solitaire {
+	
+	// Hack. Stash the constructed Solitaire object here 
+	static Solitaire _inst = null;
+	public static void setInstance (Solitaire s) { _inst = s; System.out.println (_inst); }
+	public static Solitaire getInstance() { return _inst; }
 
     Tableau       tableau;
+    public Tableau getTableau () { return tableau; }
     public void setTableau(Tableau t) { tableau = t; }
 
     Foundation    foundation;
+    public Foundation getFoundation() { return foundation; }
+    public void setFoundation(Foundation f) { foundation = f; }
+    
     Reserve       reserve;
+    public Reserve getReserve() { return reserve; }
+    public void setReserve(Reserve r) { reserve = r; }
+    
     Waste         waste;
 
     // any variation-specific game state is placed here.
