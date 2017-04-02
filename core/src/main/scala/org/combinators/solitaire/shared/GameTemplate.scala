@@ -24,7 +24,8 @@ trait GameTemplate {
     
     val semanticType:Type = 'Solitaire('Tableau('None)) :&:
                             'Solitaire('Foundation('None)) :&:
-                            'Solitaire('Reserve('None))
+                            'Solitaire('Reserve('None)) :&:
+			    'Solitaire('Layout('None))
   }
 
   // generic 8-column tableau
@@ -60,6 +61,26 @@ trait GameTemplate {
     
     val semanticType:Type = 'Tableau('Valid :&: 'Four :&: 'Column)
   }
+
+  // Standard Layout with Tableau below a Reserve (Left) and Foundation (Right)
+  @combinator object FoundationReserveTableauLayout {
+    def apply(): Layout = {
+       val lay = new Layout()
+
+       // width = 73
+       // height = 97
+
+       lay.add (Layout.Foundation, 390, 20, 680, 97);
+       lay.add (Layout.Reserve,     15, 20, 680, 97);
+       lay.add (Layout.Tableau,     15, 137, 1360, 13*97);
+       
+       lay    
+    }
+    
+    val semanticType:Type = 'Layout('Valid :&: 'FoundationReserveTableau)
+  }
+
+
 //
 //  // generic 4-pile Foundation
 //  @combinator object FourPileFoundation {

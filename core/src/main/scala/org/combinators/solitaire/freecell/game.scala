@@ -28,20 +28,22 @@ trait Game extends GameTemplate with Score52 {
 
   // Free cell is an example solitaire game that uses Foundation, Reserve, and Tableau.
   @combinator object FreeCellConstruction {
-    def apply(s:Solitaire, f:Foundation, r:Reserve, t:Tableau): Solitaire = {
+    def apply(s:Solitaire, f:Foundation, r:Reserve, t:Tableau, lay:Layout): Solitaire = {
        s.setFoundation(f)
        s.setReserve(r)
        s.setTableau(t)
+       s.setLayout(lay)
        
-       Solitaire.setInstance(s)
+       //       Solitaire.setInstance(s)
        s
     }
     
     val semanticType:Type =  
-      'Solitaire('Tableau('None)) :&: 'Solitaire('Foundation('None)) :&: 'Solitaire('Reserve('None)) =>:
+      'Solitaire('Tableau('None)) :&: 'Solitaire('Foundation('None)) :&: 'Solitaire('Reserve('None)) :&: 'Solitaire('Layout('None)) =>:
       'Foundation('Valid :&: 'HomePile) =>:
       'Reserve('Valid :&: 'FreePile) =>:
-      'Tableau('Valid :&: 'Column) =>: 
+      'Tableau('Valid :&: 'Eight :&: 'Column) =>: 
+      'Layout('Valid :&: 'FoundationReserveTableau) =>:
       'FreeCellVariation
   }                      
                         

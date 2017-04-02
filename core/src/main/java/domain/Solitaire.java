@@ -20,7 +20,7 @@ import java.util.Iterator;
   implement an interface or extend a class. Annoying but at least offers
   a standardized means of processing the domain model.
 
-  Perhaps use standar Eclipse EMF notation? don't invent the wheel!
+  Perhaps use standard Eclipse EMF notation? don't invent the wheel!
 
   The classes within the domain reflect a deep understanding of the
   domain. It may not be necessary to name the classes according to
@@ -29,12 +29,18 @@ import java.util.Iterator;
 
 */
 
-public class Solitaire {
+public class Solitaire implements Iterable<Container> {
 	
-	// Hack. Stash the constructed Solitaire object here 
-	static Solitaire _inst = null;
-	public static void setInstance (Solitaire s) { _inst = s; System.out.println (_inst); }
-	public static Solitaire getInstance() { return _inst; }
+    // Hack. Stash the constructed Solitaire object here 
+    // will remove eventually
+    static Solitaire _inst = null;
+    public static void setInstance (Solitaire s) { _inst = s; System.out.println (_inst); }
+    public static Solitaire getInstance() { return _inst; }
+
+    // number of decks
+    int  numDecks = 1;   // default to 1
+    public void setNumberDecks(int nd) { numDecks = nd; }
+    public int  getNumberDecks() { return numDecks; }
 
     Tableau       tableau;
     public Tableau getTableau () { return tableau; }
@@ -48,6 +54,15 @@ public class Solitaire {
     public Reserve getReserve() { return reserve; }
     public void setReserve(Reserve r) { reserve = r; }
     
+    Stock         stock;
+    public Stock  getStock() { return stock; }
+    public void setStock(Stock s) { stock = s; }
+    
+    // Chosen by player
+    Layout        layout;
+    public Layout getLayout() { return layout; }
+    public void   setLayout(Layout lay) { layout = lay; }
+
     Waste         waste;
 
     // any variation-specific game state is placed here.
@@ -56,8 +71,6 @@ public class Solitaire {
     // not sure why here...
     //    WinLogic      winLogic;
 
-    // Chosen by player
-    //    Layout        layoutLogic;
 
     // inferred from the structure above. Now perhaps
     // we have to construct manually
