@@ -1,10 +1,10 @@
 package domain;
 
-import java.util.Iterator;
+import java.util.*;
 
 /**
 
-  This class models the top-level domain of the solitaire applicatoin
+  This class models the top-level domain of the solitaire application
   space.
 
   Here is where you would find accurate descriptions of each variation,
@@ -26,21 +26,32 @@ import java.util.Iterator;
   domain. It may not be necessary to name the classes according to
   any existing name of classes.
 
-
 */
 
 public class Solitaire implements Iterable<Container> {
 	
     // Hack. Stash the constructed Solitaire object here 
     // will remove eventually
-    static Solitaire _inst = null;
-    public static void setInstance (Solitaire s) { _inst = s; System.out.println (_inst); }
-    public static Solitaire getInstance() { return _inst; }
+    //static Solitaire _inst = null;
+    //public static void setInstance (Solitaire s) { _inst = s; System.out.println (_inst); }
+    //public static Solitaire getInstance() { return _inst; }
 
     // number of decks
-    int  numDecks = 1;   // default to 1
-    public void setNumberDecks(int nd) { numDecks = nd; }
-    public int  getNumberDecks() { return numDecks; }
+    //    int  numDecks = 1;   // default to 1
+    //    public void setNumberDecks(int nd) { numDecks = nd; }
+    //    public int  getNumberDecks() { return numDecks; }
+
+
+    /** Hack. */
+    public Iterator<Container> iterator() { 
+	ArrayList<Container> ar = new ArrayList<Container>();
+	if (tableau != null) { ar.add(tableau); }
+	if (foundation != null) { ar.add(foundation); }
+	if (reserve != null) { ar.add(reserve); }
+	if (stock != null) { ar.add(stock); }
+	if (waste != null) { ar.add(waste); }
+	return ar.iterator();
+    }
 
     Tableau       tableau;
     public Tableau getTableau () { return tableau; }
@@ -58,21 +69,20 @@ public class Solitaire implements Iterable<Container> {
     public Stock  getStock() { return stock; }
     public void setStock(Stock s) { stock = s; }
     
+    Rules         rules;
+    public Rules  getRules() { return rules; }
+    public void   setRules(Rules r) { rules = r; }
+
     // Chosen by player
     Layout        layout;
     public Layout getLayout() { return layout; }
     public void   setLayout(Layout lay) { layout = lay; }
 
     Waste         waste;
+    public Waste  getWaste() { return waste; }
+    public void   setWaste(Waste w) { waste = w; }
 
     // any variation-specific game state is placed here.
     State         state;
 
-    // not sure why here...
-    //    WinLogic      winLogic;
-
-
-    // inferred from the structure above. Now perhaps
-    // we have to construct manually
-    //    Moves         moves;
 }

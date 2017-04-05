@@ -1,5 +1,7 @@
 package domain;
 
-public class Element {
+public abstract class Element {
+
+    public abstract int getSize();
 
 }

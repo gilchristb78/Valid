@@ -1,5 +1,5 @@
 package domain;
 
-public class Waste {
+public class Waste extends Container {
 
 }

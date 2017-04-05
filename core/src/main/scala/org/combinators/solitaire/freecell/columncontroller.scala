@@ -55,7 +55,6 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
 	@combinator object ColumnToColumnStatements extends MoveWidgetToWidgetStatements ('ColumnToColumn)
 	@combinator object PileToColumnStatements extends MoveWidgetToWidgetStatements ('FreePileToColumn)
 
-
 	@combinator object CCN extends ClassNameDef('ColumnToColumn, "FreeCellColumnToColumn")
 	@combinator object CCM extends MovableElementNameDef('ColumnToColumn, "Column")
 	@combinator object CCS extends SourceWidgetNameDef('ColumnToColumn, "Column")
@@ -66,19 +65,6 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
 	@combinator object PCS extends SourceWidgetNameDef('FreePileToColumn, "Pile")
 	@combinator object PCT extends TargetWidgetNameDef('FreePileToColumn, "Column")
 
-	// val semanticType: Type =
-	//      'RootPackage =>:
-	//      'MoveElement(moveNameType, 'ClassName) =>:
-	//      'MoveElement(moveNameType, 'MovableElementName) =>:
-	//      'MoveElement(moveNameType, 'SourceWidgetName) =>:
-	//      'MoveElement(moveNameType, 'TargetWidgetName) =>:
-	//      'MoveWidget(moveNameType)
-
-	// IF (1) { }
-	// IF (2) { }
-	// autoMove
-	// 
-	
 	// w instanceof ColumnView
 	@combinator object ColumnViewCheck {
     def apply: Expression = Java("w instanceof ColumnView").expression()
@@ -114,26 +100,6 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
 		val semanticType: Type =
 				'RootPackage =>: 'NameOfTheGame =>: 'AutoMoveColumn
 	}
-	
-//	// release must take into account both FROMPILE and FROMCOLUMN events.
-//	@combinator object ColumnReleasedHandler {
-//		def apply(pkgName:NameExpr, name:NameExpr, fromColumn:Seq[Statement], fromPile:Seq[Statement]): Seq[Statement] = {
-//				Java("""
-//						// Column moving to Column on FreeCell tableau
-//						if (w instanceof ColumnView) {
-//						""" + fromColumn.mkString("\n") + """;
-//						}
-//						if (w instanceof CardView) {
-//						""" + fromPile.mkString("\n") + """
-//						}  
-//						
-//						// post-chain automove here rather than change controller combinator...
-//						((""" + pkgName.toString() + """.""" + name.toString() + """) theGame).tryAutoMoves();
-//						""").statements();
-//
-//		}
-//		val semanticType: Type =
-//				'RootPackage =>: 'NameOfTheGame =>: 'MoveWidget('ColumnToColumn) =>: 'MoveWidget('FreePileToColumn) =>: 'Column('FreeCellColumn, 'Released) :&: 'NonEmptySeq
-//	}
+
 
 }

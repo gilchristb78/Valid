@@ -22,30 +22,30 @@ class GameDomain(val solitaire:Solitaire) extends GameTemplate with Score52 {
 
 
 	// Be sure to avoid 'var' within the exterior of a combinator.
-	@combinator object NumHomePiles {
-		def apply: Expression = {
-			val f = Solitaire.getInstance().getFoundation()
-					Java("" + f.size()).expression()
-	}
-	val semanticType: Type = 'NumHomePiles
-	}
+//	@combinator object NumHomePiles {
+//		def apply: Expression = {
+//			val f = solitaire.getFoundation()
+//					Java("" + f.size()).expression()
+//	}
+//	val semanticType: Type = 'NumHomePiles
+//	}
 
-	@combinator object NumFreePiles {
-		def apply: Expression = {
-			val r = Solitaire.getInstance().getReserve()
-					Java("" + r.size()).expression()
-	}
-	val semanticType: Type = 'NumFreePiles
-	}
+//	@combinator object NumFreePiles {
+//		def apply: Expression = {
+//			val r = solitaire.getReserve()
+//					Java("" + r.size()).expression()
+//	}
+//	val semanticType: Type = 'NumFreePiles
+//	}
 
-	@combinator object NumColumns {
-		def apply: Expression = {
-			val t = Solitaire.getInstance().getTableau()
-					Java("" + t.size()).expression()
-	}
-
-	val semanticType: Type = 'NumColumns
-	}
+//	@combinator object NumColumns {
+//		def apply: Expression = {
+//			val t = solitaire.getTableau()
+//					Java("" + t.size()).expression()
+//	}
+//
+//	val semanticType: Type = 'NumColumns
+//	}
 
 	// Mapping into Java is a concern for this scala trait.
 
@@ -77,46 +77,58 @@ class GameDomain(val solitaire:Solitaire) extends GameTemplate with Score52 {
 	// FreeCell model derived from the domain model
 	@combinator object FreeCellInitModel {
 
-		// note: we could avoid passing in these parameters and just solely
-		// visit the domain model. That is an alternative worth considering.
+	// note: we could avoid passing in these parameters and just solely
+	// visit the domain model. That is an alternative worth considering.
 
-		def apply(NumColumns:Expression, NumHomePiles:Expression, NumFreePiles:Expression): Seq[Statement] = {
+	def apply(): Seq[Statement] = {
 
-				Java(s"""/* construct model elements */
-						for (int i = 0; i < $NumColumns; i++) {
-						fieldColumns[i] = new Column(ColumnsPrefix + (i+1));
-						addModelElement (fieldColumns[i]);		
-						fieldColumnViews[i] = new ColumnView(fieldColumns[i]);
-						}
+	val NumFreePiles = solitaire.getReserve().size()
+	val NumHomePiles = solitaire.getFoundation().size()
+	val NumColumns   = solitaire.getTableau().size()
 
-						for (int i = 0; i < $NumFreePiles; i++) {
-						fieldFreePiles[i] = new Pile (FreePilesPrefix + (i+1));
-						addModelElement (fieldFreePiles[i]);
-						fieldFreePileViews[i] = new PileView (fieldFreePiles[i]);
-						}
-
-						for (int i = 0; i < $NumHomePiles; i++) {
-						fieldHomePiles[i] = new Pile (HomePilesPrefix + (i+1));
-						addModelElement (fieldHomePiles[i]); 
-						fieldHomePileViews[i] = new PileView(fieldHomePiles[i]);
-						}
-						""").statements
-		}
-
-		val semanticType: Type = 'NumColumns =>: 'NumHomePiles =>: 'NumFreePiles =>:
-			'Init('Model)
+	Java(s"""
+			  
+	  // Basic start of pretty much any solitaire game that requires a deck.
+          deck = new Deck ("deck");
+          int seed = getSeed();
+          deck.create(seed);
+          addModelElement (deck);
+            
+         /* construct model elements */
+	for (int i = 0; i < $NumColumns; i++) {
+   	   fieldColumns[i] = new Column(ColumnsPrefix + (i+1));
+	   addModelElement (fieldColumns[i]);		
+	   fieldColumnViews[i] = new ColumnView(fieldColumns[i]);
 	}
 
-	@combinator object FreeCellInitView {
-		def apply(NumColumns:Expression, NumHomePiles:Expression, NumFreePiles:Expression): Seq[Statement] = {
+	for (int i = 0; i < $NumFreePiles; i++) {
+	  fieldFreePiles[i] = new Pile (FreePilesPrefix + (i+1));
+	  addModelElement (fieldFreePiles[i]);
+	  fieldFreePileViews[i] = new PileView (fieldFreePiles[i]);
+	}
 
-				val found = Solitaire.getInstance().getFoundation()
-				val tableau = Solitaire.getInstance().getTableau()
-				val free = Solitaire.getInstance().getReserve()
-				val lay = Solitaire.getInstance().getLayout()
-				val rectFound = lay.get(Layout.Foundation)
-				val rectFree = lay.get(Layout.Reserve)
-				val rectTableau = lay.get(Layout.Tableau)
+	for (int i = 0; i < $NumHomePiles; i++) {
+	  fieldHomePiles[i] = new Pile (HomePilesPrefix + (i+1));
+	  addModelElement (fieldHomePiles[i]); 
+	  fieldHomePileViews[i] = new PileView(fieldHomePiles[i]);
+	}
+	""").statements
+		}
+
+	val semanticType: Type = 'Init('Model)
+}
+	@combinator object FreeCellInitView {
+		def apply(): Seq[Statement] = {
+
+				//val found = Solitaire.getInstance().getFoundation()
+		  val found = solitaire.getFoundation()
+			val tableau = solitaire.getTableau()
+			val NumColumns = tableau.size()
+			val free = solitaire.getReserve()
+			val lay = solitaire.getLayout()
+			val rectFound = lay.get(Layout.Foundation)
+			val rectFree = lay.get(Layout.Reserve)
+			val rectTableau = lay.get(Layout.Tableau)
 
 				// (a) do the computations natively in scala to generate java code
 				// (b) delegation to Layout class, but then needs to pull back into
@@ -179,24 +191,24 @@ class GameDomain(val solitaire:Solitaire) extends GameTemplate with Score52 {
 				stmts
 		}
 		
-		val semanticType: Type = 'NumColumns =>: 'NumHomePiles =>: 'NumFreePiles =>: 'Init('View)
+		val semanticType: Type = 'Init('View)
 	}
 
 	@combinator object FreeCellInitControl {
-		def apply(NumColumns:Expression, NumHomePiles:Expression, NumFreePiles:Expression, NameOfGame:NameExpr): Seq[Statement] = {
+		def apply(NameOfGame:NameExpr): Seq[Statement] = {
 
-				val nc = NumColumns.toString()
-						val np = NumHomePiles.toString()
-						val nf = NumFreePiles.toString()
-						val name = NameOfGame.toString()
+		val nc = solitaire.getTableau().size()
+		val np = solitaire.getFoundation().size()
+		val nf = solitaire.getReserve().size()
+		val name = NameOfGame.toString()
 
-						Java(s"""
-								// setup controllers
-								for (int i = 0; i < $nc; i++) {
-  								fieldColumnViews[i].setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
-  								fieldColumnViews[i].setUndoAdapter (new SolitaireUndoAdapter (this));
-    								fieldColumnViews[i].setMouseAdapter (new ${name}ColumnController (this, fieldColumnViews[i]));
-    						}
+		Java(s"""
+			// setup controllers
+			for (int i = 0; i < $nc; i++) {
+			fieldColumnViews[i].setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
+			fieldColumnViews[i].setUndoAdapter (new SolitaireUndoAdapter (this));
+			fieldColumnViews[i].setMouseAdapter (new ${name}ColumnController (this, fieldColumnViews[i]));
+			}
     
     						for (int i = 0; i < $np; i++) {
       						fieldHomePileViews[i].setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
@@ -214,36 +226,36 @@ class GameDomain(val solitaire:Solitaire) extends GameTemplate with Score52 {
 
 		}
 
-		val semanticType: Type = 'NumColumns =>: 'NumHomePiles =>: 'NumFreePiles =>: 'NameOfTheGame =>: 'Init('Control)
+		val semanticType: Type = 'NameOfTheGame =>: 'Init('Control)
 	}
 
 	// generic deal cards from deck into the tableau
 	@combinator object FreeCellInitLayout {
-		def apply(NumColumns:Expression): Seq[Statement] = {
-      val tableau = Solitaire.getInstance().getTableau()
+		def apply(): Seq[Statement] = {
+      val tableau = solitaire.getTableau()
+      val NumColumns = tableau.size()
 
       // HACK! How to create empty sequence to start loop with?
-			var stmts = Java("System.out.println(\"Complete initial deal.\");").statements()
+      var stmts = Java("System.out.println(\"Complete initial deal.\");").statements()
 
-			// standard logic to deal to all tableau cards
-			var numColumns = tableau.size() 
-			val s = Java(s"""
-					int col = 0;
-					while (!deck.empty()) {
-  					fieldColumns[col++].add(deck.get());
-  					if (col >= $numColumns) {
-  					  col = 0;
-  					}
-					}
-					""").statements()
-
-					stmts = Java(stmts.mkString("\n") + "\n" + s.mkString("\n")).statements()
-
-					stmts
+	// standard logic to deal to all tableau cards
+	var numColumns = tableau.size() 
+	val s = Java(s"""
+		int col = 0;
+		while (!deck.empty()) {
+  		fieldColumns[col++].add(deck.get());
+  		if (col >= $numColumns) {
+  		  col = 0;
+  		}
 		}
+		""").statements()
+	stmts = Java(stmts.mkString("\n") + "\n" + s.mkString("\n")).statements()
 
-		val semanticType: Type = 'NumColumns =>: 'Init('Layout)
+	stmts
 	}
+
+	val semanticType: Type = 'Init('Layout)
+     }
 
 	// create three separate blocks based on the domain model.
 	@combinator object Initialization {
@@ -266,11 +278,16 @@ class GameDomain(val solitaire:Solitaire) extends GameTemplate with Score52 {
 	}
 
 	@combinator object ExtraMethods {
-		def apply(numFreePiles:Expression, numColumns: Expression): Seq[MethodDeclaration] = {
+		def apply(): Seq[MethodDeclaration] = {
 
-				java.ExtraMethods.render(numFreePiles, numColumns).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+		val reserve = solitaire.getReserve().size()
+		val tableau = solitaire.getTableau().size()
+		val numFreePiles= Java(s"$reserve").expression()
+		val numColumns = Java(s"$tableau").expression()
+
+		java.ExtraMethods.render(numFreePiles, numColumns).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
 		}
-		val semanticType: Type = 'NumFreePiles =>: 'NumColumns =>: 'ExtraMethods :&: 'Column('FreeCellColumn, 'AutoMovesAvailable) 
+		val semanticType: Type = 'ExtraMethods :&: 'Column('FreeCellColumn, 'AutoMovesAvailable) 
 	}
 
 
@@ -280,14 +297,44 @@ class GameDomain(val solitaire:Solitaire) extends GameTemplate with Score52 {
 	}
 
 
-	// @(NumHomePiles: Expression, NumFreePiles: Expression, NumColumns:Expression)
+	// This maps the elements in the Solitaire domain model into actual java fields.
 	@combinator object ExtraFields {
-		def apply(numHomePiles:Expression, numFreePiles:Expression, numColumns: Expression): Seq[FieldDeclaration] = {
-				java.ExtraFields
-				.render(numHomePiles, numFreePiles, numColumns)
-				.classBodyDeclarations()
-				.map(_.asInstanceOf[FieldDeclaration])
+	  def apply(): Seq[FieldDeclaration] = {
+
+		var fields = Java("IntegerView scoreView;\nIntegerView numLeftView;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+
+		val found = solitaire.getFoundation()
+		val reserve = solitaire.getReserve()
+		val tableau = solitaire.getTableau()
+		val stock = solitaire.getStock()
+		
+		// turn Stock into deck. FIX ME. HOW TO DO IF CONDITIONAL?
+		val decks = Java("Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+		if (stock.getNumDecks() > 1) {
+		  val multidecks = Java("MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 		}
-		val semanticType: Type = 'NumHomePiles =>: 'NumFreePiles =>: 'NumColumns=>: 'ExtraFields
+		
+		val fieldFreePiles = java.FieldsTemplate
+		  .render("FreePile", "Pile", "PileView", ""+reserve.size())
+		  .classBodyDeclarations()
+		  .map(_.asInstanceOf[FieldDeclaration])
+		
+		val fieldHomePiles = java.FieldsTemplate
+		  .render("HomePile", "Pile", "PileView", ""+found.size())
+		  .classBodyDeclarations()
+		  .map(_.asInstanceOf[FieldDeclaration])
+		
+    val fieldColumns = java.FieldsTemplate
+		  .render("Column", "Column", "ColumnView", ""+tableau.size())
+		  .classBodyDeclarations()
+		  .map(_.asInstanceOf[FieldDeclaration])
+		  
+		// no doubt, better way of doing this
+		Java(decks.mkString("\n") + "\n" + fields.mkString("\n") + "\n" + fieldFreePiles.mkString("\n") + fieldHomePiles.mkString("\n") + fieldColumns.mkString("\n"))
+		    .classBodyDeclarations()
+		    .map(_.asInstanceOf[FieldDeclaration])
+  		}
+		
+		val semanticType: Type = 'ExtraFields
 	}
 }
