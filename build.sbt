@@ -36,8 +36,7 @@ lazy val infrastructure = (Project(id = "java-templating", base = file("java-tem
       "org.eclipse.jgit" % "org.eclipse.jgit" % "4.4.1.201607150455-r",
       "org.webjars" %% "webjars-play" % "2.5.0",
       "org.webjars" % "bootstrap" % "3.3.7",
-      "de.tu_dortmund.cs.ls14" %% "cls-scala" % "1.0",
-      "de.tu_dortmund.cs.ls14" %% "shapeless-feat" % "0.1.0"
+      "de.tu_dortmund.cs.ls14" %% "cls-scala" % "1.1.0-SNAPSHOT"
     ),
     sourceDirectories in (Compile, TwirlKeys.compileTemplates) := Seq(sourceDirectory.value / "main" / "html-templates")
   )
@@ -53,7 +52,7 @@ lazy val core = (Project(id = "nextgen-solitaire", base = file("core")))
     moduleName := "nextgen-solitaire",
 
     libraryDependencies ++= Seq(
-      "de.tu_dortmund.cs.ls14" %% "cls-scala" % "1.0"
+      "de.tu_dortmund.cs.ls14" %% "cls-scala" % "1.1.0-SNAPSHOT"
     ),
 
     sourceDirectories in (Compile, TwirlKeys.compileTemplates) := Seq(sourceDirectory.value / "main" / "java-templates"),
