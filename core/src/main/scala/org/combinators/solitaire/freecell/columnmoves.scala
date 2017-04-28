@@ -10,8 +10,11 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared
 
-trait ColumnMoves extends shared.Moves {
+import domain._
 
+trait ColumnMoves extends shared.Moves {
+  val solitaire:Solitaire     // the overall class provides this once woven in
+  
 //		val semanticType: Type =
 //				'RootPackage =>:
 //					'Move(semanticMoveNameType, 'ClassName) =>: 

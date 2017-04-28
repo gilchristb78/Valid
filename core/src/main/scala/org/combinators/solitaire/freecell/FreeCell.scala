@@ -13,18 +13,34 @@ import org.webjars.play.RequireJS
 import _root_.java.nio.file._                              // overloaded so go to _root_
 import com.github.javaparser.ast.stmt.Statement
 
-class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
-  lazy val repository = new Game with ColumnMoves with PileMoves with ColumnController with PileController {}
-  lazy val Gamma = ReflectedRepository(repository)
+// domain
+import domain._
 
+class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
+  lazy val repositoryPre = new Game {}
+  lazy val GammaPre = ReflectedRepository(repositoryPre)
+
+  var reply = GammaPre.inhabit[Solitaire]('FreeCellVariation)
+  val it = reply.interpretedTerms.values.flatMap(_._2).iterator
+  val s = it.next()
+  //Solitaire.setInstance(s)
+  
+  // We can generate any number of these possibilities by inspecting the domain model.
+  // This is where the mapping comes from
+  
+  lazy val repository = new GameDomain(s) with ColumnMoves with PileMoves with ColumnController with PileController {}
+  lazy val Gamma = ReflectedRepository(repository)
   lazy val combinators = Gamma.combinators
-  lazy val results =
-    Results
-      .add(Gamma.inhabit[CompilationUnit]('SolitaireVariation ))
-//      .add(Gamma.inhabit[CompilationUnit]('ShortCut))
-      .add(Gamma.inhabit[CompilationUnit]('Controller('FreeCellColumn)))
-      .add(Gamma.inhabit[CompilationUnit]('Controller('FreePile)))
-      .add(Gamma.inhabit[CompilationUnit]('Controller('HomePile)))
+
+  // key is to get variation in place first.
+  // NOTE: How to stage these multiple times so I don't have to bundle everything up
+  // together. That is, I want to first inhabit SolitaireVariation, then go and 
+  // inhabit the controllers, then inhabit all the moves, based upon the domain model.
+  lazy val results = Results
+    .add(Gamma.inhabit[CompilationUnit]('SolitaireVariation ))
+    .add(Gamma.inhabit[CompilationUnit]('Controller('FreeCellColumn)))
+    .add(Gamma.inhabit[CompilationUnit]('Controller('FreePile)))
+    .add(Gamma.inhabit[CompilationUnit]('Controller('HomePile)))
       .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove)))
       .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToColumn :&: 'GenericMove, 'CompleteMove)))
       

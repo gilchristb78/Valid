@@ -1,6 +1,7 @@
 package org.combinators.solitaire.freecell
 
 import com.github.javaparser.ast.ImportDeclaration
+import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration, BodyDeclaration}
 import com.github.javaparser.ast.expr.{Expression, NameExpr}
 import com.github.javaparser.ast.stmt.Statement
@@ -11,81 +12,129 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared.GameTemplate
 import org.combinators.solitaire.shared.Score52
 
+// domain
+import domain._
+import domain.freeCell.HomePile
+import domain.freeCell.FreePile
 
 trait Game extends GameTemplate with Score52 {
 
-  @combinator object NumHomePiles {
-    def apply: Expression = Java("4").expression()
-    val semanticType: Type = 'NumHomePiles
-  }
+  //lazy val alpha = Variable("alpha")
 
-  @combinator object NumFreePiles {
-    def apply: Expression = Java("4").expression()
-    val semanticType: Type = 'NumFreePiles
-  }
-  
-  @combinator object NumColumns {
-    def apply: Expression = Java("8").expression()
-    val semanticType: Type = 'NumColumns
-  }
-  
-  @combinator object RootPackage {
-    def apply: NameExpr = {
-      Java("org.combinators.solitaire.freecell").nameExpression
+  // extend existing kinding
+  lazy val newKinding = Kinding(tableauType)
+                        .addOption('FourColumnTableau)
+                        .addOption('EightColumnTableau)
+
+  // Free cell is an example solitaire game that uses Foundation, Reserve, and Tableau.
+  @combinator object FreeCellConstruction {
+    def apply(s:Solitaire, f:Foundation, r:Reserve, t:Tableau, st:Stock, lay:Layout): Solitaire = {
+       s.setFoundation(f)
+       s.setReserve(r)
+       s.setTableau(t)
+       s.setStock(st)
+       s.setLayout(lay)
+       
+       //       Solitaire.setInstance(s)
+       s
     }
-    val semanticType: Type = 'RootPackage
-  }
+    
+    val semanticType:Type =  
+      'Solitaire('Tableau('None)) :&: 'Solitaire('Foundation('None)) :&: 'Solitaire('Reserve('None)) :&: 'Solitaire('Layout('None)) =>:
+      'Foundation('Valid :&: 'HomePile) =>:
+      'Reserve('Valid :&: 'FreePile) =>:
+      'Tableau('Valid :&: 'Eight :&: 'Column) =>: 
+      'Stock('Valid :&: 'OneDeck) =>:
+      'Layout('Valid :&: 'FoundationReserveTableau) =>:
+      'FreeCellVariation
+  }                      
+                        
+  // 4-HomePile Foundation
+  @combinator object FourHomePileFoundation {
+    def apply(): Foundation = {
+       val f = new Foundation()
 
-  @combinator object NameOfTheGame {
-    def apply: NameExpr = {
-      Java("FreeCell").nameExpression
+       f.add (new HomePile())    // put into for-loop soon.
+       f.add (new HomePile())
+       f.add (new HomePile())
+       f.add (new HomePile())
+
+       println("setting four HomePile Foundation")
+
+       f
     }
-    val semanticType: Type = 'NameOfTheGame
+    
+    val semanticType:Type = 'Foundation('Valid :&: 'Four :&: 'HomePile)
   }
-
-  // @(NameOfTheGame: String, NumColumns:Expression, NumHomePiles: Expression, NumFreePiles: Expression)
-
   
-  @combinator object Initialization {
-    def apply(nameOfTheGame: NameExpr, numColumns:Expression, numHomePiles:Expression, numFreePiles: Expression): Seq[Statement] = {
+  // in FreeCell we need a valid foundation.
+  @combinator object AddFourPileFoundation {
+    def apply(s:Solitaire, f:Foundation): Solitaire = {
+      s.setFoundation(f)
+      println("setting four-pile foundation.")
+      s
+    }
+
+    val semanticType: Type =
+      'Solitaire('Foundation('None)) =>: 'Foundation('Valid :&: 'HomePile) =>: 
+          'Solitaire('Foundation('Valid :&: 'HomePile))
+  }
+  
+  // 4-HomePile Foundation
+  @combinator object FourHomePileReserve {
+    def apply(): Reserve = {
+       val r = new Reserve()
+
+       r.add (new FreePile())    // put into for-loop soon.
+       r.add (new FreePile())
+       r.add (new FreePile())
+       r.add (new FreePile())
+
+       println("setting four FreePile Reserve")
+
+       r
+    }
+    
+    val semanticType:Type = 'Reserve('Valid :&: 'Four :&: 'FreePile)
+  }
+  
+  // in FreeCell we need a stock composed of a single deck.
+  @combinator object SingleDeckStock {
+    def apply() = {
+      val st = new Stock()
       
-      java.Initialization.render(nameOfTheGame.toString(), numColumns, numHomePiles, numFreePiles).statements()
+      st
     }
-    val semanticType: Type = 'NameOfTheGame =>: 'NumColumns =>: 'NumHomePiles =>: 'NumFreePiles =>: 'Initialization :&: 'NonEmptySeq
+
+    val semanticType: Type = 'Stock('Valid :&: 'OneDeck)
+  }
+ 
+  
+  // in FreeCell we need a valid reserve
+  @combinator object AddFourPileReserve {
+    def apply(s:Solitaire, r:Reserve): Solitaire = {
+      s.setReserve(r)
+      println("setting four-pile reserve.")
+      s
+    }
+
+    val semanticType: Type =
+      'Solitaire('Reserve('None)) =>: 'Reserve('Valid :&: 'FreePile) =>: 
+          'Solitaire('Reserve('Valid :&: 'FreePile))
+  }
+ 
+  // in FreeCell we need a valid tableau. Not sure why we have to
+  // restrict that here to be 8; could still be searched
+  @combinator object AddEightColumnTableau {
+    def apply(s:Solitaire, tab:Tableau): Solitaire = {
+      s.setTableau(tab)
+      println("setting eight-column tableau")
+      s
+    }
+
+    val semanticType: Type =
+      'Solitaire('Tableau('None)) =>: 'Tableau('Valid :&: 'Column) =>:
+          'Solitaire('Tableau('Valid :&: 'Column))
   }
 
-  @combinator object ExtraImports {
-    def apply(nameExpr:NameExpr): Seq[ImportDeclaration] = {
-      Seq(Java("import " + nameExpr.toString() + ".controller.*;").importDeclaration(),
-          Java("import " + nameExpr.toString() + ".model.*;").importDeclaration()
-      )
-    }
-    val semanticType: Type = 'RootPackage =>: 'ExtraImports
-  }
-
-  @combinator object ExtraMethods {
-     def apply(numFreePiles:Expression, numColumns: Expression): Seq[MethodDeclaration] = {
-      
-      java.ExtraMethods.render(numFreePiles, numColumns).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
-    }
-    val semanticType: Type = 'NumFreePiles =>: 'NumColumns =>: 'ExtraMethods :&: 'Column('FreeCellColumn, 'AutoMovesAvailable) 
-  }
-
-  
-  @combinator object EmptyExtraMethods {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
-    val semanticType: Type = 'ExtraMethodsBad
-  }
-  
-  
-  // @(NumHomePiles: Expression, NumFreePiles: Expression, NumColumns:Expression)
-  @combinator object ExtraFields {
-    def apply(numHomePiles:Expression, numFreePiles:Expression, numColumns: Expression): Seq[FieldDeclaration] = {
-      java.ExtraFields
-        .render(numHomePiles, numFreePiles, numColumns)
-        .classBodyDeclarations()
-        .map(_.asInstanceOf[FieldDeclaration])
-    }
-    val semanticType: Type = 'NumHomePiles =>: 'NumFreePiles =>: 'NumColumns=>: 'ExtraFields
-  }
 }
