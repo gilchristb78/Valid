@@ -3,6 +3,8 @@ package org.combinators.solitaire.freecell
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
+import de.tu_dortmund.cs.ls14.cls.types.Type
+import de.tu_dortmund.cs.ls14.twirl.Java
 
 // strange name-clash with 'controllers'. Compiles but in eclipse shows errors :)
 import _root_.controllers.WebJarAssets
@@ -18,18 +20,25 @@ import domain._
 
 class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
   lazy val repositoryPre = new Game {}
-  lazy val GammaPre = ReflectedRepository(repositoryPre)
+  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
 
-  var reply = GammaPre.inhabit[Solitaire]('FreeCellVariation)
-  val it = reply.interpretedTerms.values.flatMap(_._2).iterator
-  val s = it.next()
+  lazy val reply = GammaPre.inhabit[Solitaire]('FreeCellVariation)
+  lazy val it = reply.interpretedTerms.values.flatMap(_._2).iterator
+  lazy val s = it.next()
   //Solitaire.setInstance(s)
   
   // We can generate any number of these possibilities by inspecting the domain model.
   // This is where the mapping comes from
   
   lazy val repository = new GameDomain(s) with ColumnMoves with PileMoves with ColumnController with PileController {}
-  lazy val Gamma = ReflectedRepository(repository)
+  object RuntimeCombinator {
+    def apply(): CompilationUnit = Java(s"""
+      package org.combinators.solitaire;
+      public class IAmRuntimeCreated {}
+      """).compilationUnit()
+    val semanticType: Type = 'RuntimeCombinatorClass
+  }
+  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader).addCombinator("RuntimeCombinator", RuntimeCombinator)
   lazy val combinators = Gamma.combinators
 
   // key is to get variation in place first.
@@ -58,6 +67,7 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
       
       .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToFreePile :&: 'PotentialMove, 'CompleteMove)))
       .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToFreePile :&: 'GenericMove, 'CompleteMove)))
+      .add(Gamma.inhabit[CompilationUnit]('RuntimeCombinatorClass))
       
       // Here is how you launch directly and it gets placed into file
       //.add(Gamma.inhabit[Seq[Statement]]('Something), Paths.get("somePlace"))

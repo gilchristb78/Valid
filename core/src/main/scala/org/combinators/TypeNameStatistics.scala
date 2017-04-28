@@ -13,7 +13,7 @@ class TypeNameStatistics[A](repository: ReflectedRepository[A]) {
   }
 
   private lazy val subtypeEnv =
-    SubtypeEnvironment(repository.nativeTypeTaxonomy.taxonomy.merge(repository.semanticTaxonomy))
+    SubtypeEnvironment(repository.nativeTypeTaxonomy.taxonomy.merge(repository.semanticTaxonomy).underlyingMap)
 
   private final def increaseUsage(isParameter: Boolean): TypeUsage => TypeUsage =
     if (isParameter) _.increaseParameterUsage else _.increaseResultUsage
@@ -54,7 +54,7 @@ class TypeNameStatistics[A](repository: ReflectedRepository[A]) {
   }
 
   private def possiblyInhabitable(ty: String, seen: Set[String] = Set.empty): Boolean = {
-    lazy val subtypes = subtypeEnv.taxonomicSubtypesOf(ty)
+    lazy val subtypes = subtypeEnv.taxonomicSubtypesOf.getOrElse(ty, Set())
     !((nativeTypes(ty).isOnlyParameter || semanticTypes(ty).isOnlyParameter) &&
       subtypes.foldLeft[Option[Set[String]]](Some(seen)) {
         case (None, _) => None
