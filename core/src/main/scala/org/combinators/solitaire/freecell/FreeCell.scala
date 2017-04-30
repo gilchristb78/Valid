@@ -38,7 +38,7 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
       """).compilationUnit()
     val semanticType: Type = 'RuntimeCombinatorClass
   }
-  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader).addCombinator("RuntimeCombinator", RuntimeCombinator)
+  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader).addCombinator(RuntimeCombinator)
   lazy val combinators = Gamma.combinators
 
   // key is to get variation in place first.
