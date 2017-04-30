@@ -5,7 +5,7 @@ lazy val commonSettings = Seq(
   version := "1.0",
   organization := "org.combinators",
   
-  scalaVersion := "2.11.8",
+  scalaVersion := "2.11.11",
 
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
