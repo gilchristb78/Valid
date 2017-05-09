@@ -1,4 +1,4 @@
-@(Root: NameExpr, GameName: NameExpr)
+@(Root: Name, GameName: SimpleName)
 
 Card baseCard = destination.peek();
 if (movingColumn.count() != 1) {

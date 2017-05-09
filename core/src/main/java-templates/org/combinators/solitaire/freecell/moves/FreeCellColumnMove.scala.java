@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, NameOfTheGame: NameExpr)
+@(RootPackage: Name, NameOfTheGame: SimpleName)
 
 package @Java(RootPackage);
 

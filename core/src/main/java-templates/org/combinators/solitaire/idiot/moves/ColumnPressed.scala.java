@@ -1,4 +1,4 @@
-@(WidgetVariable: NameExpr, IgnoreWidgetVariable: NameExpr)
+@(WidgetVariable: SimpleName, IgnoreWidgetVariable: SimpleName)
 
 // should we ignore this 
 @Java(IgnoreWidgetVariable) = true;

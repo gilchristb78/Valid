@@ -9,7 +9,11 @@ public class NotConstraint extends Constraint {
     Constraint c1;
 
     public NotConstraint (Constraint c1) {
-	super();
-	this.c1 = c1;
+        super();
+        this.c1 = c1;
+    }
+
+    public Constraint getC1() {
+        return c1;
     }
 }

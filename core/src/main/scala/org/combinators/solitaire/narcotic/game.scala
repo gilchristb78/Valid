@@ -2,7 +2,7 @@ package org.combinators.solitaire.narcotic
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, NameExpr}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
@@ -20,21 +20,17 @@ trait Game extends GameTemplate with Score52 {
   }
 
   @combinator object RootPackage {
-    def apply: NameExpr = {
-      Java("org.combinators.solitaire.narcotic").nameExpression
-    }
+    def apply: Name = Java("org.combinators.solitaire.narcotic").name()
     val semanticType: Type = 'RootPackage
   }
 
   @combinator object NameOfTheGame {
-    def apply: NameExpr = {
-      Java("Narcotic").nameExpression
-    }
+    def apply: SimpleName = Java("Narcotic").simpleName()
     val semanticType: Type = 'NameOfTheGame
   }
 
   @combinator object Initialization {
-    def apply(rootPackage: NameExpr, numberOfPiles: Expression): Seq[Statement] = {
+    def apply(rootPackage: Name, numberOfPiles: Expression): Seq[Statement] = {
       java.Initialization.render(rootPackage, numberOfPiles).statements()
     }
     val semanticType: Type = 'RootPackage =>: 'NumPiles =>: 'Initialization :&: 'NonEmptySeq

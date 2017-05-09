@@ -1,4 +1,4 @@
-@(Name: NameExpr)
+@(Name: SimpleName)
 
 // will only be a single card, despite being a column object
 Column movingColumn;

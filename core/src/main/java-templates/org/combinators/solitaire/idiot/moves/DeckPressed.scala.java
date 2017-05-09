@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, NameOfTheGame: NameExpr)
+@(RootPackage: Name, NameOfTheGame: SimpleName)
 //Respond to the mousePressed events only on the deck
 // Deck deck = (Deck) src.getModelElement();
 

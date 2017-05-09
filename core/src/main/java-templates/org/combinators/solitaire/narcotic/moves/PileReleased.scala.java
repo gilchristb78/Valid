@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr)
+@(RootPackage: Name)
 /** Must be the CardView widget. */
 CardView cardView = (CardView) w;
 Card theCard = (Card) cardView.getModelElement();

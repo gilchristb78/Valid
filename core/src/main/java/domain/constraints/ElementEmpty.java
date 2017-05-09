@@ -5,11 +5,11 @@ import domain.*;
 public class ElementEmpty extends Constraint {
 
     public ElementEmpty () {
-	super();
+        super();
     }
 
     public ElementEmpty (Constraint c) {
-	super(c);
+        super(c);
     }
 
 }

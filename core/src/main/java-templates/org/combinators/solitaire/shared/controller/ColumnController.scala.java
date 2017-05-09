@@ -1,9 +1,9 @@
-@(RootPackage: NameExpr,
-        ColumnDesignate: NameExpr,
-        NameOfTheGame : NameExpr,
+@(RootPackage: Name,
+        ColumnDesignate: SimpleName,
+        NameOfTheGame : SimpleName,
         AutoMoves : Seq[Statement],
         ColumnMouseClicked: Seq[Statement],
-        ColumnMousePressed: (NameExpr, NameExpr) => Seq[Statement],
+        ColumnMousePressed: (SimpleName, SimpleName) => Seq[Statement],
         ColumnMouseReleased: Seq[Statement])
 package @{Java(RootPackage)}.controller;
 
@@ -47,7 +47,7 @@ public class @{Java(ColumnDesignate)}ColumnController extends SolitaireReleasedA
 		Widget me_widget = null;
 
 		// must both define me_ignore to false and set me_widget to valid widget
-		@Java(ColumnMousePressed(Java("me_widget").nameExpression(), Java("me_ignore").nameExpression()))
+		@Java(ColumnMousePressed(Java("me_widget").simpleName(), Java("me_ignore").simpleName()))
 
 		if (me_ignore) {
 			return;

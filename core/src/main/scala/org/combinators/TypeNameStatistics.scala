@@ -1,15 +1,16 @@
 package org.combinators
 
-import scala.reflect.runtime.universe.{ Type => _, _}
-import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import de.tu_dortmund.cs.ls14.cls.types._
+
+import scala.reflect.runtime.universe.{Type => _, _}
 
 class TypeNameStatistics[A](repository: ReflectedRepository[A]) {
   case class TypeUsage(asParameter: Int = 0, asResult: Int = 0) {
     val overAll: Int = asParameter + asResult
-    def increaseParameterUsage : TypeUsage = this.copy(asParameter = asParameter + 1)
-    def increaseResultUsage : TypeUsage = this.copy(asResult = asResult + 1)
-    def isOnlyParameter = asParameter > 0 && asResult <= 0
+    def increaseParameterUsage: TypeUsage = this.copy(asParameter = asParameter + 1)
+    def increaseResultUsage: TypeUsage = this.copy(asResult = asResult + 1)
+    def isOnlyParameter: Boolean = asParameter > 0 && asResult <= 0
   }
 
   private lazy val subtypeEnv =
@@ -18,7 +19,9 @@ class TypeNameStatistics[A](repository: ReflectedRepository[A]) {
   private final def increaseUsage(isParameter: Boolean): TypeUsage => TypeUsage =
     if (isParameter) _.increaseParameterUsage else _.increaseResultUsage
 
-  private final def analyzeType(usage: Map[String, TypeUsage], ty: Type, isParameter: Boolean = false): Map[String, TypeUsage] = {
+  private final def analyzeType(usage: Map[String, TypeUsage],
+    ty: Type,
+    isParameter: Boolean = false): Map[String, TypeUsage] = {
     ty match {
       case Constructor(sym, args@_*) =>
         args.foldLeft(usage.updated(sym, increaseUsage(isParameter)(usage(sym)))) {
@@ -41,8 +44,8 @@ class TypeNameStatistics[A](repository: ReflectedRepository[A]) {
       case (s, (_, ci)) => ci.semanticType.map(analyzeType(s, _)).getOrElse(s)
     }
 
-  def ofNativeType[A](implicit tyTag: WeakTypeTag[A]): TypeUsage =
-    nativeTypes(ReflectedRepository.nativeTypeOf[A].name)
+  def ofNativeType[T](implicit tyTag: WeakTypeTag[T]): TypeUsage =
+    nativeTypes(ReflectedRepository.nativeTypeOf[T].name)
   def ofSemanticType(ty: Symbol): TypeUsage =
     semanticTypes(ty.toString)
 

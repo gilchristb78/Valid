@@ -1,4 +1,4 @@
-@(NameOfTheGame: String, NumColumns:Expression, NumHomePiles: Expression, NumFreePiles: Expression)
+@(NameOfTheGame: SimpleName, NumColumns:Expression, NumHomePiles: Expression, NumFreePiles: Expression)
 
 //how to set up the cards for FREE CELL
 deck = new Deck ("deck");

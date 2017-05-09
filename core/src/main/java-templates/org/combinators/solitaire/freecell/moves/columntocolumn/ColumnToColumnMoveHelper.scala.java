@@ -1,4 +1,4 @@
-@(Name: NameExpr)
+@(Name: SimpleName)
 
 Column movingColumn;
 

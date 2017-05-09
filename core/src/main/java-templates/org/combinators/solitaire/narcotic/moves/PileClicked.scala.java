@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, NameOfTheGame: NameExpr)
+@(RootPackage: Name, NameOfTheGame: SimpleName)
 // Try to make the move
 Move m =
     new @{Java(RootPackage)}.model.MoveRemoveCards(

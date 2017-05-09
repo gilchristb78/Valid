@@ -1,5 +1,5 @@
-@(RootPackage: NameExpr,
-        NameOfTheGame: NameExpr,
+@(RootPackage: Name,
+        NameOfTheGame: SimpleName,
         DeckMousePressed: Seq[Statement])
 package @{Java(RootPackage)}.controller;
 

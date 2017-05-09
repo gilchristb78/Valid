@@ -1,6 +1,6 @@
-@(RootPackage: NameExpr,
-        MoveName: NameExpr,
-        Helper: Seq[BodyDeclaration],
+@(RootPackage: Name,
+        MoveName: SimpleName,
+        Helper: Seq[BodyDeclaration[_]],
         Do: Seq[Statement],
         Undo: Seq[Statement],
         CheckValid: Seq[Statement])

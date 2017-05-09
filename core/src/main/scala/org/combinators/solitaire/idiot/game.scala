@@ -2,16 +2,13 @@ package org.combinators.solitaire.idiot
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, NameExpr}
-
-import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
+import com.github.javaparser.ast.expr.{Expression, Name, NameExpr, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
-import org.combinators.solitaire.shared.GameTemplate
-import org.combinators.solitaire.shared.Score52
+import org.combinators.solitaire.shared.{GameTemplate, Score52}
 
 
 trait Game extends GameTemplate with Score52 {
@@ -22,21 +19,17 @@ trait Game extends GameTemplate with Score52 {
   }
 
   @combinator object RootPackage {
-    def apply: NameExpr = {
-      Java("org.combinators.solitaire.idiot").nameExpression
-    }
+    def apply: Name = Java("org.combinators.solitaire.idiot").name()
     val semanticType: Type = 'RootPackage
   }
 
   @combinator object NameOfTheGame {
-    def apply: NameExpr = {
-      Java("Idiot").nameExpression
-    }
+    def apply: SimpleName = Java("Idiot").simpleName()
     val semanticType: Type = 'NameOfTheGame
   }
 
   @combinator object Initialization {
-    def apply(rootPackage: NameExpr, numberOfColumns: Expression): Seq[Statement] = {
+    def apply(rootPackage: Name, numberOfColumns: Expression): Seq[Statement] = {
       java.Initialization.render(rootPackage, numberOfColumns).statements()
     }
     val semanticType: Type = 'RootPackage =>: 'NumColumns =>: 'Initialization :&: 'NonEmptySeq
@@ -55,7 +48,7 @@ trait Game extends GameTemplate with Score52 {
     val semanticType: Type = 'MoveRemoveCards =>: 'ShortCut
   }
   */
-  
+
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = Seq.empty
     val semanticType: Type = 'ExtraMethods

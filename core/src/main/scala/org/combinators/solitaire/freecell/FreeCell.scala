@@ -12,8 +12,6 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import org.webjars.play.RequireJS
-import _root_.java.nio.file._                              // overloaded so go to _root_
-import com.github.javaparser.ast.stmt.Statement
 
 // domain
 import domain._
@@ -32,10 +30,14 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   
   lazy val repository = new GameDomain(s) with ColumnMoves with PileMoves with ColumnController with PileController {}
   object RuntimeCombinator {
-    def apply(): CompilationUnit = Java(s"""
-      package org.combinators.solitaire;
-      public class IAmRuntimeCreated {}
-      """).compilationUnit()
+    def apply(): CompilationUnit = {
+      Java(
+        s"""
+           |package org.combinators.solitaire;
+           |public class IAmRuntimeCreated {}
+           """.stripMargin).compilationUnit()
+    }
+
     val semanticType: Type = 'RuntimeCombinatorClass
   }
   lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader).addCombinator(RuntimeCombinator)
