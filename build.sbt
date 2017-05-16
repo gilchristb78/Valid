@@ -53,7 +53,7 @@ lazy val core = (Project(id = "nextgen-solitaire", base = file("core")))
     moduleName := "nextgen-solitaire",
 
     libraryDependencies ++= Seq(
-      "de.tu_dortmund.cs.ls14" %% "cls-scala" % "1.1.0-SNAPSHOT"
+      "de.tu_dortmund.cs.ls14" %% "cls-scala" % "1.1.1-SNAPSHOT"
     ),
 
     sourceDirectories in (Compile, TwirlKeys.compileTemplates) := Seq(sourceDirectory.value / "main" / "java-templates"),
@@ -71,7 +71,7 @@ lazy val core = (Project(id = "nextgen-solitaire", base = file("core")))
   )
 
 
-lazy val root = (project in file("."))
+lazy val root = (Project(id = "nextgen-solitaire-root", base = file(".")))
   .settings(commonSettings: _*)
   .aggregate(infrastructure, core)
   .settings(
