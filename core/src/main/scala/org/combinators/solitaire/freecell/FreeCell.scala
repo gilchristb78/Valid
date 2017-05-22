@@ -47,29 +47,28 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   // NOTE: How to stage these multiple times so I don't have to bundle everything up
   // together. That is, I want to first inhabit SolitaireVariation, then go and 
   // inhabit the controllers, then inhabit all the moves, based upon the domain model.
-  lazy val results = Results
-    .add(Gamma.inhabit[CompilationUnit]('SolitaireVariation ))
-    .add(Gamma.inhabit[CompilationUnit]('Controller('FreeCellColumn)))
-    .add(Gamma.inhabit[CompilationUnit]('Controller('FreePile)))
-    .add(Gamma.inhabit[CompilationUnit]('Controller('HomePile)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToColumn :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToColumn :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToColumn :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToFreePile :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToFreePile :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToHomePile :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToHomePile :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToHomePile :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToHomePile :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToFreePile :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToFreePile :&: 'GenericMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('RuntimeCombinatorClass))
+
+  lazy val jobs =
+    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
+      .addJob[CompilationUnit]('Controller('FreeCellColumn))
+      .addJob[CompilationUnit]('Controller('FreePile))
+      .addJob[CompilationUnit]('Controller('HomePile))
+      .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('FreePileToColumn :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('FreePileToColumn :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('ColumnToFreePile :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('ColumnToFreePile :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('ColumnToHomePile :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('ColumnToHomePile :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('FreePileToHomePile :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('FreePileToHomePile :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('FreePileToFreePile :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('FreePileToFreePile :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('RuntimeCombinatorClass)
+
+  lazy val results = Results.addAll(jobs.run())
+
       
       // Here is how you launch directly and it gets placed into file
       //.add(Gamma.inhabit[Seq[Statement]]('Something), Paths.get("somePlace"))
