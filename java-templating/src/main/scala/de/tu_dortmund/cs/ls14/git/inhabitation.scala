@@ -14,6 +14,8 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.webjars.play.RequireJS
 import play.api.mvc._
 
+
+
 abstract class InhabitationController(webJars: WebJarAssets, requireJS: RequireJS) extends Controller {
   private lazy val root = Files.createTempDirectory("inhabitants")
   private lazy val git = Git.init().setDirectory(root.toFile()).call()
@@ -27,6 +29,31 @@ abstract class InhabitationController(webJars: WebJarAssets, requireJS: RequireJ
   val combinators: Map[String, Type]
 
   val sourceDirectory = Paths.get("src", "main", "java")
+
+  sealed trait InhabitationResultVector[R] {
+    def add(newResults: R, oldResults: Results): Results
+  }
+
+  sealed trait InhabitationResultVectorInstances {
+    implicit def persistable[R](implicit persist: Persistable.Aux[R]): InhabitationResultVector[InhabitationResult[R]] =
+      new InhabitationResultVector[InhabitationResult[R]] {
+        def add(newResults: InhabitationResult[R], oldResults: Results): Results =
+          oldResults.add[R](newResults)(persist)
+      }
+
+    implicit def product[L, R]
+      (implicit persist: Persistable.Aux[R],
+        vector: InhabitationResultVector[L]) =
+      new InhabitationResultVector[(L, InhabitationResult[R])] {
+        def add(newResults: (L, InhabitationResult[R]), oldResults: Results): Results =
+          vector.add(newResults._1, oldResults).add[R](newResults._2)(persist)
+      }
+  }
+
+  object InhabitationResultVector extends InhabitationResultVectorInstances {
+    def apply[R](implicit vectorInst: InhabitationResultVector[R]): InhabitationResultVector[R] =
+      vectorInst
+  }
 
   sealed trait Results { self =>
     val targets: Seq[Type]
@@ -57,6 +84,9 @@ abstract class InhabitationController(webJars: WebJarAssets, requireJS: RequireJ
         }
         val infinite = self.infinite || inhabitationResult.isInfinite
       }
+
+    def addAll[R](results: R)(implicit canAddAll: InhabitationResultVector[R]): Results =
+      canAddAll.add(results, this)
   }
   object Results extends Results {
     val targets = Seq.empty
