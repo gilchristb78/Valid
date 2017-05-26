@@ -83,6 +83,7 @@ public class Solitaire implements Iterable<Container> {
     public void   setWaste(Waste w) { waste = w; }
 
     // any variation-specific game state is placed here.
+    // 
     State         state;
 
 }

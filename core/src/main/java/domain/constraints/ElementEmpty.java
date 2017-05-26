@@ -4,12 +4,13 @@ import domain.*;
 
 public class ElementEmpty extends Constraint {
 
-    public ElementEmpty () {
+    final String element;
+
+    public ElementEmpty (String element) {
         super();
+	this.element = element;
     }
 
-    public ElementEmpty (Constraint c) {
-        super(c);
-    }
+    public String getElement() { return element; }
 
 }

@@ -8,7 +8,4 @@ public class OneHigherRankSameSuit extends Constraint {
 	super();
     }
 
-    public OneHigherRankSameSuit (Constraint c) {
-	super(c);
-    }
 }

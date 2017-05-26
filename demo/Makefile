@@ -1,6 +1,7 @@
 .PHONY: freecell
 freecell: freecell/src/main/java/org/combinators/solitaire/freecell/FreeCell.java
 	javac -cp standAlone.jar:./freecell/src/main/java freecell/src/main/java/org/combinators/solitaire/freecell/FreeCell.java
+	javac -cp standAlone.jar:./freecell/src/main/java freecell/src/main/java/org/combinators/solitaire/freecell/model/*.java
 
 run-freecell: freecell
 	java -cp standAlone.jar:./freecell/src/main/java org/combinators/solitaire/freecell/FreeCell

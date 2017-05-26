@@ -22,7 +22,8 @@ trait GameTemplate {
       'Solitaire ('Tableau ('None)) :&:
         'Solitaire ('Foundation ('None)) :&:
         'Solitaire ('Reserve ('None)) :&:
-        'Solitaire ('Layout ('None))
+        'Solitaire ('Layout ('None)) :&:
+        'Solitaire ('Rules ('None))
   }
 
   class NColumnTableau(n: Int, nAsType: Type) {
@@ -59,39 +60,6 @@ trait GameTemplate {
 
     val semanticType: Type = 'Layout ('Valid :&: 'FoundationReserveTableau)
   }
-
-
-  //
-  //  // generic 4-pile Foundation
-  //  @combinator object FourPileFoundation {
-  //    def apply(): Foundation = {
-  //       val f = new Foundation()
-  //       f.add (new Pile())    // put into for-loop soon.
-  //       f.add (new Pile())
-  //       f.add (new Pile())
-  //       f.add (new Pile())
-  //
-  //       // also use scalaList and work with it
-  //       val scalaList = f.iterator.toList
-  //
-  //       // Layout for any container which horizontal placement of widgets within. Spacing can
-  //       // be computed from the bounds
-  //       val it = f.iterator()
-  //       while (it.hasNext()) {
-  //         val p = it.next()
-  //
-  ////          val winStmts =
-  ////          JavaParser.parseStatement("{ int x = 42; int z = -1; z++; foo(x, z); }")
-  ////            .asInstanceOf[com.github.javaparser.ast.stmt.BlockStmt]
-  ////            .stmts
-  ////
-  //       }
-  //
-  //       f
-  //    }
-  //
-  //    val semanticType:Type = 'Foundation('Valid :&: 'Four :&: 'Pile)
-  //  }
 
 
   @combinator object MainGame {

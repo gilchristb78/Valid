@@ -9,7 +9,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared
 
-trait Controller {
+trait Controller extends Base {
 
   class ColumnController(columnNameType: Type) {
     def apply(rootPackage: Name,
