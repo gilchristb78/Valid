@@ -15,6 +15,15 @@ public class OrConstraint extends Constraint {
         this.c2 = c2;
     }
 
+    public static UnaryOrConstraint builder(Constraint c) {
+       return new UnaryOrConstraint(c);
+    }
+
+    /** Add OrConstraints to the right. */
+    public OrConstraint add(Constraint c) {
+      return new OrConstraint (c, this);
+    }
+
     public Constraint getC1() {
         return c1;
     }

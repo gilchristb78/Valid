@@ -2,7 +2,7 @@ package domain;
 
 import java.util.*;
 
-public class Rules {
+public class Rules implements Iterable<Move> {
     
     /** Winning logic. */
     Logic    logic;
@@ -12,6 +12,6 @@ public class Rules {
     /** Eligible moves. */
     ArrayList<Move> moves = new ArrayList<Move>();
     public void addMove(Move m) { moves.add(m); }
-    public Iterator<Move> getMoves() { return moves.iterator(); }
+    public Iterator<Move> iterator() { return moves.iterator(); }
 
 }

@@ -47,6 +47,21 @@ public class Container implements Iterable<Element> {
 		return true;
 	}
 
+        /**
+         * Return iterator of unique types. Likely easier way
+         * of doing this in Scala... Also, outputs SimpleName for simplicity
+         */
+	public Iterator<String> types() {
+	   ArrayList<String> elems = new ArrayList<String>();
+	   for (Element e : elements) {
+		String name = e.getClass().getSimpleName();
+		if (!elems.contains(name)) {
+		   elems.add(name);
+		}
+           }
+	   return elems.iterator();
+	}
+
 	/** 
 	 * iterator over all elements. 
 	 */

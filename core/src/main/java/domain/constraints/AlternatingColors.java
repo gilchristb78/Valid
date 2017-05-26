@@ -2,11 +2,11 @@ package domain.constraints;
 
 import domain.*;
 
-public class ElementEmpty extends Constraint {
+public class AlternatingColors extends Constraint {
 
     final String element;
 
-    public ElementEmpty (String element) {
+    public AlternatingColors (String element) {
         super();
 	this.element = element;
     }

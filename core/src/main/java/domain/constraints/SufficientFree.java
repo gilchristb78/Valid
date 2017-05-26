@@ -8,8 +8,5 @@ public class SufficientFree extends Constraint {
 	super();
     }
 
-    public SufficientFree (Constraint c) {
-	super(c);
-    }
 
 }

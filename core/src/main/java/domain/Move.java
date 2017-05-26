@@ -1,9 +1,10 @@
 package domain;
 
 /**
- * A Move represents a potential move in a solitaire game. It consists
- * of two separate concepts.  First there is the logical construct
- * defining a source Element, the target Element, and
+ * A Move represents a potential move in a solitaire game. 
+ *
+ * A Move consists of two separate concepts.  First there is the 
+ * logical construct defining a source Element, the target Element, and
  * constraints/properties on the card(s) to be allowed to move between
  * them.
  *  
@@ -35,5 +36,12 @@ package domain;
  */
 public abstract class Move {
 
+   /** Get the source element of this move type. */
+   public abstract Element   getSource();
 
+   /** Get the target element of this move type. */
+   public abstract Element   getTarget();
+
+   /** Get element being moved. */
+   public abstract Element   getMovableElement(); 
 }

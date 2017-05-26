@@ -1,5 +1,6 @@
 package domain.constraints;
 
+import java.util.*;
 import domain.Constraint;
 
 /**
@@ -13,6 +14,15 @@ public class AndConstraint extends Constraint {
         super();
         this.c1 = c1;
         this.c2 = c2;
+    }
+
+    public static UnaryAndConstraint builder(Constraint c) {
+       return new UnaryAndConstraint(c);
+    } 
+
+    /** Add AndConstraints to the right. */
+    public AndConstraint add(Constraint c) {
+      return new AndConstraint (c, this);
     }
 
     public Constraint getC1() {

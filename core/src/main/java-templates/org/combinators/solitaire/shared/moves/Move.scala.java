@@ -68,6 +68,6 @@ public class @Java(MoveName) extends ks.common.model.Move {
     public boolean valid(Solitaire game) {
 
         @Java(CheckValid)
-        return false;
+       // return false;   NOT NEEDED WITH NEW CONSTRAINT execution
     }
 }

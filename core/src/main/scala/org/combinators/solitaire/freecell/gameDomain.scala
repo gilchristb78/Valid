@@ -8,42 +8,15 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
-import org.combinators.solitaire.shared.{GameTemplate, Score52}
+import org.combinators.solitaire.shared._
 
 // domain
 import domain._
 
-// this now becomes available
-class GameDomain(val solitaire: Solitaire) extends GameTemplate with Score52 {
+// Looks awkward how solitaire val is defined, but I think I need to do this
+// to get the code to compile 
+class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 {
 
-
-  // Be sure to avoid 'var' within the exterior of a combinator.
-  //	@combinator object NumHomePiles {
-  //		def apply: Expression = {
-  //			val f = solitaire.getFoundation()
-  //					Java("" + f.size()).expression()
-  //	}
-  //	val semanticType: Type = 'NumHomePiles
-  //	}
-
-  //	@combinator object NumFreePiles {
-  //		def apply: Expression = {
-  //			val r = solitaire.getReserve()
-  //					Java("" + r.size()).expression()
-  //	}
-  //	val semanticType: Type = 'NumFreePiles
-  //	}
-
-  //	@combinator object NumColumns {
-  //		def apply: Expression = {
-  //			val t = solitaire.getTableau()
-  //					Java("" + t.size()).expression()
-  //	}
-  //
-  //	val semanticType: Type = 'NumColumns
-  //	}
-
-  // Mapping into Java is a concern for this scala trait.
 
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.freecell").name()
@@ -55,16 +28,6 @@ class GameDomain(val solitaire: Solitaire) extends GameTemplate with Score52 {
     val semanticType: Type = 'NameOfTheGame
   }
 
-  // @(NameOfTheGame: String, NumColumns:Expression, NumHomePiles: Expression, NumFreePiles: Expression)
-
-
-  //  @combinator object Initialization {
-  //    def apply(nameOfTheGame: NameExpr, numColumns:Expression, numHomePiles:Expression, numFreePiles: Expression): Seq[Statement] = {
-  //
-  //      java.Initialization.render(nameOfTheGame.toString(), numColumns, numHomePiles, numFreePiles).statements()
-  //    }
-  //    val semanticType: Type = 'NameOfTheGame =>: 'NumColumns =>: 'NumHomePiles =>: 'NumFreePiles =>: 'Initialization :&: 'NonEmptySeq
-  //  }
 
   // FreeCell model derived from the domain model
   @combinator object FreeCellInitModel {
@@ -143,7 +106,7 @@ class GameDomain(val solitaire: Solitaire) extends GameTemplate with Score52 {
             s"""
                |fieldHomePileViews[$idx].setBounds(${r.x}, ${r.y}, cw, ch);
                |addViewWidget(fieldHomePileViews[$idx]);
-							 """.stripMargin).statements()
+	       """.stripMargin).statements()
 
         idx = idx + 1
         stmts = stmts ++ s
@@ -276,12 +239,10 @@ class GameDomain(val solitaire: Solitaire) extends GameTemplate with Score52 {
     val semanticType: Type = 'ExtraMethods :&: 'Column ('FreeCellColumn, 'AutoMovesAvailable)
   }
 
-
   @combinator object EmptyExtraMethods {
     def apply(): Seq[MethodDeclaration] = Seq.empty
     val semanticType: Type = 'ExtraMethodsBad
   }
-
 
   // This maps the elements in the Solitaire domain model into actual java fields.
   @combinator object ExtraFields {

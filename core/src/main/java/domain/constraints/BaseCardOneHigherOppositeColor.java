@@ -8,7 +8,4 @@ public class BaseCardOneHigherOppositeColor extends Constraint {
 	super();
     }
 
-    public BaseCardOneHigherOppositeColor (Constraint c) {
-	super(c);
-    }
 }

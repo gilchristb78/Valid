@@ -2,11 +2,11 @@ package domain.constraints;
 
 import domain.*;
 
-public class ElementEmpty extends Constraint {
+public class Descending extends Constraint {
 
     final String element;
 
-    public ElementEmpty (String element) {
+    public Descending (String element) {
         super();
 	this.element = element;
     }

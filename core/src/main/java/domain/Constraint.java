@@ -10,31 +10,31 @@ import domain.constraints.*;
  *    "Descending in order and alternating colors"
  *    "A single card"
  */
-public abstract class Constraint implements Iterable<Constraint> { 
+public abstract class Constraint { 
 
-	final Constraint next;
+//	final Constraint next;
 
 	public Constraint() { 
-		next = null;
+//		next = null;
 	}
 
 	/** Compose new constraints from old constraints. */
-	public Constraint(Constraint c) {
-		next = c;
-	}
+//	public Constraint(Constraint c) {
+//		next = c;
+//	}
+//
+//	public Iterator<Constraint> iterator () {
+//		return new ConstraintIterator(this);
+//	}
 
-	public Iterator<Constraint> iterator () {
-		return new ConstraintIterator(this);
-	}
-
-	public Constraint getNext() { return next; }
+//	public Constraint getNext() { return next; }
 	
 
 	public String toString() {
-		if (next == null) {
+//		if (next == null) {
 			return this.getClass().getName();
-		}
-		return this.getClass().getName() + " & " + next.toString();
+//		}
+//		return this.getClass().getName() + " & " + next.toString();
 	}
 
 }

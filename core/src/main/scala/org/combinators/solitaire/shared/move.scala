@@ -11,7 +11,7 @@ import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type}
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared
 
-trait Moves {
+trait Moves extends Base {
   class Move(semanticMoveNameType: Type) {
     def apply(rootPackage: Name,
       moveName: SimpleName,
