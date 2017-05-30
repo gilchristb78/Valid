@@ -10,6 +10,7 @@ import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.java.Persistable
 import de.tu_dortmund.cs.ls14.html
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.ResetCommand.ResetType
 import org.eclipse.jgit.revwalk.RevCommit
 import org.webjars.play.RequireJS
 import play.api.mvc._
@@ -102,6 +103,9 @@ abstract class InhabitationController(webJars: WebJarAssets, requireJS: RequireJ
       .checkout()
       .setOrphan(true)
       .setName(s"variation_$id")
+      .call()
+    git.reset()
+      .setMode(ResetType.HARD)
       .call()
   }
 
