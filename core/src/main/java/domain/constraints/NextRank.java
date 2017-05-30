@@ -2,7 +2,7 @@ package domain.constraints;
 
 import domain.*;
 
-public class NextRank extends Constraint {
+public class NextRank extends ConstraintExpr {
 
     final String element1; 
     final String element2;

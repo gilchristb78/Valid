@@ -2,7 +2,7 @@ package domain.constraints;
 
 import domain.*;
 
-public class OppositeColor extends Constraint {
+public class OppositeColor extends ConstraintExpr {
 
     final String element1; 
     final String element2;

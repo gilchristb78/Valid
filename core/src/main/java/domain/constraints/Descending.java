@@ -2,7 +2,7 @@ package domain.constraints;
 
 import domain.*;
 
-public class Descending extends Constraint {
+public class Descending extends ConstraintExpr {
 
     final String element;
 

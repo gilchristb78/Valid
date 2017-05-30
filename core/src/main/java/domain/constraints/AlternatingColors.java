@@ -2,7 +2,7 @@ package domain.constraints;
 
 import domain.*;
 
-public class AlternatingColors extends Constraint {
+public class AlternatingColors extends ConstraintExpr {
 
     final String element;
 

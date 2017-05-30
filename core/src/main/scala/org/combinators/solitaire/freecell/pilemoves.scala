@@ -22,66 +22,93 @@ trait PileMoves extends shared.Moves {
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
       var updated = super.init(gamma, s)
       println (">>>> PileMoves dynamic combinators")
-
-      // Column To Free Pile Logic
+      
+      val truth = new ReturnConstraint (new ReturnTrueExpression)
+      val falsehood = new ReturnConstraint (new ReturnFalseExpression)
       val isEmpty = new ElementEmpty ("destination")
+
+         
+      // FreePile to FreePile logic
+      val if0 = new IfConstraint(isEmpty)
+      updated = updated
+         .addCombinator (new StatementCombinator (if0,
+			 'Move ('FreePileToFreePile, 'CheckValidStatements)))
+
+ 
+      // Column To Free Pile Logic
       val isSingle = new ExpressionConstraint("movingColumn.count()", "==", "1")
-      val and = new AndConstraint(isEmpty, isSingle)
+      val if1 = new IfConstraint(isEmpty, 
+		  new IfConstraint(isSingle),
+                falsehood)
 
       updated = updated
-          .addCombinator (new ConstructorCombinator (and, 
+          .addCombinator (new StatementCombinator (if1, 
 	   	          'Move ('ColumnToFreePile, 'CheckValidStatements)))
 
       // Column To Home Pile logic. Just grab first column
       val aCol = s.getTableau().iterator().next()
-      val aCard = new Card
-      val branch1 = AndConstraint.builder(isEmpty)
-                       .add(new IsAce(aCol, "movingColumn"))
 
-      val nonEmpty = new ExpressionConstraint("destination.count()", "!=", "0")
+      val if2 = 
+        new IfConstraint(isEmpty, 
+           new IfConstraint(new IsAce(aCol, "movingColumn")),
+           new IfConstraint(new NextRank("movingColumn.peek()", "destination.peek()"),
+	       new IfConstraint(new SameSuit("movingColumn.peek()", "destination.peek()")),
+	       falsehood))
 
-      val branch2 = AndConstraint.builder(nonEmpty)
-                   .add(new NextRank("movingColumn.peek()", "destination.peek()"))
-                   .add(new SameSuit("movingColumn.peek()", "destination.peek()"))
-      val or = new OrConstraint(branch1, branch2)
       updated = updated
-          .addCombinator (new ConstructorCombinator(or, 
+          .addCombinator (new StatementCombinator(if2, 
 			 'Move ('ColumnToHomePile, 'CheckValidStatements)))
 
       // FreePile to HomePile 
-      val fp_or = OrConstraint.builder(AndConstraint.builder(isEmpty)
-                                       .add(new IsAce(aCard, "movingCard")))
-                                  .add(AndConstraint.builder(nonEmpty)
-                                       .add(new NextRank("movingCard", "destination.peek()"))
-                                       .add(new SameSuit("movingCard", "destination.peek()")))
- 
+      val aCard = new Card
+      val nonEmpty = new ExpressionConstraint("destination.count()", "!=", "0")
+
+      val if3 = 
+         new IfConstraint(isEmpty,
+	    new IfConstraint(new IsAce(aCard, "movingCard")),
+            new IfConstraint(new NextRank("movingCard", "destination.peek()"),
+	      new IfConstraint(new SameSuit("movingCard", "destination.peek()")),
+            falsehood))
 
       updated = updated
-          .addCombinator (new ConstructorCombinator(fp_or,
+          .addCombinator (new StatementCombinator(if3,
                          'Move ('FreePileToHomePile, 'CheckValidStatements)))
 
       // Column to Column. These values are used by the conditionals. Too java-specific
-      val inits = Java(s""" 
-           |Card topCard = destination.peek();
-           |Card movingCard = movingColumn.peek(0);
-	   |// Compute number of vacant: take care not to double-count destination!
-	   |//int numVacant = ((FreeCell) game).numberVacant();
-	   |//if (destination.empty()) { numVacant--; }
-           """.stripMargin).statements()
       val descend = new Descending("movingColumn")
       val alternating = new AlternatingColors("movingColumn")
       val cc_and = new AndConstraint (descend, alternating)
 
-      val hp_or = OrConstraint.builder(isEmpty)
-                                  .add(AndConstraint.builder(nonEmpty)
-                                       .add(new OppositeColor("movingColumn.peek(0)", "destination.peek()"))
-                                       .add(new NextRank("destination.peek()", "movingCard")))
+    val if4_inner = 
+        new IfConstraint(new OppositeColor("movingColumn.peek(0)", "destination.peek()"),
+          new IfConstraint(new NextRank("destination.peek()", "movingColumn.peek(0)")),
+          falsehood)
+
+     val if4 = 
+	new IfConstraint(descend,
+          new IfConstraint(alternating,
+            new IfConstraint(isEmpty, 
+              truth,   // not yet check number free
+	      if4_inner),
+            falsehood),
+            falsehood)
 
       updated = updated
-          .addCombinator (new ConstructorCombinator(hp_or,
-                         'Move ('ColumnToColumn, 'CheckValidStatements), inits))
+          .addCombinator (new StatementCombinator(if4,
+                         'Move ('ColumnToColumn, 'CheckValidStatements)))
 
+      // FreePile to Column.
+     val if5_inner =
+          new IfConstraint(new OppositeColor("movingCard", "destination.peek()"),
+            new IfConstraint(new NextRank("destination.peek()", "movingCard")),
+            falsehood)
+
+      val if5 = new IfConstraint(isEmpty, truth, if5_inner)
  
+      updated = updated
+          .addCombinator (new StatementCombinator (if5, 
+			  'Move ('FreePileToColumn, 'CheckValidStatements)))
+
       updated
   }
  
@@ -252,12 +279,12 @@ trait PileMoves extends shared.Moves {
     val semanticType: Type = 'Move ('FreePileToFreePile, 'UndoStatements)
   }
 
-  @combinator object PileToColumnValid {
-    def apply(): Seq[Statement] = {
-      moves.piletocolumn.java.PileToColumnValid.render().statements()
-    }
-    val semanticType: Type = 'Move ('FreePileToColumn, 'CheckValidStatements)
-  }
+//  @combinator object PileToColumnValid {
+//    def apply(): Seq[Statement] = {
+//      moves.piletocolumn.java.PileToColumnValid.render().statements()
+//    }
+//    val semanticType: Type = 'Move ('FreePileToColumn, 'CheckValidStatements)
+//  }
 
 //  @combinator object ColumnToHomePileValid {
 //    def apply(): Seq[Statement] = {
@@ -293,10 +320,10 @@ trait PileMoves extends shared.Moves {
 
 
 
-  @combinator object FreePileToFreePileValid {
-    def apply(): Seq[Statement] = {
-      moves.freepiletofreepile.java.FreePileToFreePileValid.render().statements()
-    }
-    val semanticType: Type = 'Move ('FreePileToFreePile, 'CheckValidStatements)
-  }
+//  @combinator object FreePileToFreePileValid {
+//    def apply(): Seq[Statement] = {
+//      moves.freepiletofreepile.java.FreePileToFreePileValid.render().statements()
+//    }
+//    val semanticType: Type = 'Move ('FreePileToFreePile, 'CheckValidStatements)
+//  }
 }

@@ -2,7 +2,7 @@ package domain.constraints;
 
 import domain.*;
 
-public class SameSuit extends Constraint {
+public class SameSuit extends ConstraintExpr {
 
     final String element1; 
     final String element2;

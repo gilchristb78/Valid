@@ -2,7 +2,7 @@ package domain.constraints;
 
 import domain.*;
 
-public class IsAce extends Constraint {
+public class IsAce extends ConstraintExpr {
 
     final Element type; 
     final String element;

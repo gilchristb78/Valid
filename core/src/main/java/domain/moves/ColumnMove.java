@@ -10,12 +10,12 @@ public class ColumnMove extends Move {
 
 	Container src;
 	Container target;
-	Constraint constraint;
+	ConstraintExpr constraint;
 
 	/** 
 	 * Determine conditions for moving column of cards from src to target. 
 	 */
-	public ColumnMove (Container src, Container target, Constraint constraint) {
+	public ColumnMove (Container src, Container target, ConstraintExpr constraint) {
 		this.src        = src;
 		this.target     = target;
 		this.constraint = constraint;

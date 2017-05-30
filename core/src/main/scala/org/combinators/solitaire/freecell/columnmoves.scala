@@ -60,27 +60,4 @@ trait ColumnMoves extends shared.Moves {
     val semanticType: Type = 'Move ('ColumnToColumn, 'UndoStatements)
   }
 
-//  @combinator object ColumnToColumnValid {
-//    def apply(pkg: Name, name: SimpleName): Seq[Statement] = {
-//      moves.columntocolumn.java.ColumnToColumnValid.render(pkg, name).statements()
-//    }
-//    val semanticType: Type = 'RootPackage =>: 'NameOfTheGame =>: 'Move ('ColumnToColumn, 'CheckValidStatements)
-//  }
-
-//  @combinator object ShortCut {
-//    def apply(n0: Seq[Statement], n1: SimpleName, n5: Seq[Statement]): CompilationUnit = {
-//      Java("public class A{}").compilationUnit()
-//    }
-//    val semanticType: Type =
-//
-//      'Move ('ColumnToColumn, 'UndoStatements) =>:
-//        'Move ('ColumnToColumn, 'ClassName) =>:
-//        'Move ('ColumnToColumn, 'CheckValidStatements) =>:
-//        'ShortCut
-//  }
-
-  // to define this new class, don't we have to specify the 'FreCellColumnToColumn is a type of generic move?
-  //	override val moveTaxonomy: Taxonomy =
-  //    Taxonomy("GenericMove")
-  //      .addSubtype("FreeCellColumnToColumn")
 }
