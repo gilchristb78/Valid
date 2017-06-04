@@ -127,7 +127,7 @@ class OppositeColorCodeGen(c:OppositeColor) extends ConstraintCodeGen {
   }
 }
 
-/** Handles the IsAce Constraint. */
+/** Handles the IsAce Constraint which can be applied to single card or a column. */
 class IsAceCodeGen(c:IsAce) extends ConstraintCodeGen {
   override def toCode(): Expression = {
     c.getType match {

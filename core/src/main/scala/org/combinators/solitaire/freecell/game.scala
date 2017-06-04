@@ -49,7 +49,6 @@ trait Game extends GameTemplate with Score52 {
       s.setLayout(lay)
       s.setRules(rules)
 
-      //       Solitaire.setInstance(s)
       s
     }
 
@@ -68,9 +67,6 @@ trait Game extends GameTemplate with Score52 {
       val reserve = solitaire.getReserve
       val found = solitaire.getFoundation
 
-//      val c1 = new AlternatingDescending("movingColumn")
-//      val c2 = new AndConstraint (new BaseCardOneHigherOppositeColor(), c1)
-//      val c2a = new AndConstraint (new SufficientFree(), c2)
       val c2a = AndConstraint.builder(new AlternatingColors("movingColumn"))
                 .add(new Descending("movingColumn"))
 		.add(new BaseCardOneHigherOppositeColor())

@@ -12,7 +12,7 @@ import org.combinators.generic
 import org.combinators.solitaire.shared
 
 trait PileToPileMoves extends shared.Moves with generic.JavaIdioms {
-  @combinator object ReservePileToFoundationPileMove extends Move('ReservePileToFoundationPile)
+  @combinator object ReservePileToFoundationPileMove extends SolitaireMove('ReservePileToFoundationPile)
 
   @combinator object ReservePileToFoundationName {
     def apply(): SimpleName = Java("ReservePileToFoundation").simpleName()
@@ -94,7 +94,7 @@ trait PileToPileMoves extends shared.Moves with generic.JavaIdioms {
 
   /// ----------------------- THESE ARE TO THE RESERVE ------------------
 
-  @combinator object ReservePileToReservePileMove extends Move('ReservePileToReservePile)
+  @combinator object ReservePileToReservePileMove extends SolitaireMove('ReservePileToReservePile)
 
   // THIS WAS MISSING apply() but rather had apply without () and no error/warning.
   @combinator object ReservePileToReserveName {

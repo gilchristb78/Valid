@@ -11,12 +11,14 @@ import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.Constructor
+import com.github.javaparser.ast.body.BodyDeclaration
 
 import domain._
 import domain.constraints._
+import domain.moves._
 
 
-trait PileController extends shared.Controller {
+trait PileController extends shared.Controller with shared.Moves {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
@@ -38,7 +40,8 @@ trait PileController extends shared.Controller {
        val tgtBase = move.getTarget.getClass().getSimpleName()
        val movable = move.getMovableElement.getClass().getSimpleName()
 
-       val moveSymbol = Symbol(srcBase + "To" + tgtBase)
+       val moveString = srcBase + "To" + tgtBase
+       val moveSymbol = Symbol(moveString)
        println (moveSymbol + ":" + move + ":" + movable)
 
        // have to "map" HomePile => Pile, and FreePile => Pile.
@@ -62,19 +65,95 @@ trait PileController extends shared.Controller {
               .addCombinator(new TargetWidgetNameDef(moveSymbol, tgtBase))
        }
 
-       //val constraint = 'Constraint
-       //val constraint = move.constraint
-       //updated = updated.addCombinator (new PlainCombinator(c, 'Something))
-         
-       // Each move is defined as follows
+       // Each move is defined as follows:
        updated = updated
           .addCombinator(new MoveWidgetToWidgetStatements(moveSymbol))
-          .addCombinator(new ClassNameDef(moveSymbol, srcBase + "To" + tgtBase))
+          .addCombinator(new ClassNameDef(moveSymbol, moveString))
           .addCombinator(new MovableElementNameDef(moveSymbol, movable))
+
+       // undo & do generation
+       updated = updated
+          .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
+          .addCombinator(new UndoGenerator(move, 
+				'Move (moveSymbol, 'UndoStatements)))
+          .addCombinator(new DoGenerator(move,
+				'Move (moveSymbol, 'DoStatements)))
+          .addCombinator(new PotentialDraggingVariableGenerator (move,
+                                'Move (moveSymbol, 'DraggingCardVariableName)))
+          .addCombinator(new MoveHelper(move, new SimpleName(moveString), moveSymbol))
+
+          .addCombinator(new SolitaireMove(moveSymbol))
+// @combinator object FreeCellColumnToColumnMoveObject extends Move('ColumnToColumn)
+
+
      }
     
    updated
   }
+
+
+class ClassNameGenerator(moveSymbol:Symbol, name:String) {
+    def apply: SimpleName = Java(s"""$name""").simpleName()
+    val semanticType: Type = 'Move (moveSymbol, 'ClassName)
+  }
+
+class PotentialDraggingVariableGenerator(m:Move, constructor:Constructor) {
+  def apply(): SimpleName = {
+    m match {
+      case single: SingleCardMove => Java(s"""movingCard""").simpleName()
+      case column: ColumnMove     => Java(s"""movingColumn""").simpleName()
+    }
+  }
+    val semanticType: Type = constructor
+  }
+
+/** When given a Move (SingleCardMove or ColumnMove) ascribes proper Undo. */
+/** Same code, just by coincidence. */
+class UndoGenerator(m:Move, constructor:Constructor) {
+    def apply(): Seq[Statement] = {
+    m match {
+      case single: SingleCardMove => Java(s"""source.add(destination.get());""").statements()
+      case column: ColumnMove     => Java(s"""source.add(destination.get());""").statements()
+    }
+  }
+    val semanticType: Type = constructor
+  }
+
+/** When given a Move (SingleCardMove or ColumnMove) ascribes proper Do. */
+/** Same code, just by coincidence. */
+class DoGenerator(m:Move, constructor:Constructor) {
+    def apply(): Seq[Statement] = {
+    m match {
+      case single: SingleCardMove => Java(s"""destination.add(movingCard);""").statements()
+      case column: ColumnMove     => Java(s"""destination.push(movingColumn);""").statements()
+    }
+  }
+    val semanticType: Type = constructor
+  }
+
+/** Every move class needs a constructor with helper fields. */
+class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
+  def apply() : Seq[BodyDeclaration[_]] = {
+      m match {
+	case single : SingleCardMove => 
+          Java(s"""|Card movingCard;
+                   |public $name(Stack from, Card card, Stack to) {
+		   |  this(from, to);
+		   |  this.movingCard = card;
+ 		   |}""".stripMargin).classBodyDeclarations()
+	case column : ColumnMove     =>
+          Java(s"""|Column movingColumn;
+		   |int numInColumn;
+	 	   |public $name(Stack from, Column cards, Stack to) {
+		   |  this(from, to);
+		   |  this.movingColumn = cards;
+		   |  this.numInColumn = cards.count();
+		   |}""".stripMargin).classBodyDeclarations()
+    }
+  } 
+
+ val semanticType: Type = 'Move (moveSymbol, 'HelperMethods)
+}
 
 // column move designated combinators
   @combinator object ColumnControllerDef extends ColumnController('FreeCellColumn)

@@ -14,7 +14,7 @@ import org.combinators.solitaire.shared
 trait ColumnToPileMoves extends shared.Moves with generic.JavaIdioms {
 
 
-  @combinator object ColumnToFoundationPileMove extends Move('ColumnToFoundationPile)
+  @combinator object ColumnToFoundationPileMove extends SolitaireMove('ColumnToFoundationPile)
 
   @combinator object ColumnToFoundationName {
     def apply(): SimpleName = Java("ColumnToFoundation").simpleName()
@@ -102,7 +102,7 @@ trait ColumnToPileMoves extends shared.Moves with generic.JavaIdioms {
 
   /// ----------------------- THESE ARE TO THE RESERVE ------------------
 
-  @combinator object ColumnToReservePileMove extends Move('ColumnToReservePile)
+  @combinator object ColumnToReservePileMove extends SolitaireMove('ColumnToReservePile)
 
   @combinator object ColumnToReserveName {
     def apply(): SimpleName = Java("ColumnToReserve").simpleName()

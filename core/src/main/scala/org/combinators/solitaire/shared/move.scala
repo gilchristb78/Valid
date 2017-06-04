@@ -12,7 +12,8 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared
 
 trait Moves extends Base {
-  class Move(semanticMoveNameType: Type) {
+  // renamed to avoid name clash with Java-domain 'Move' class
+  class SolitaireMove(semanticMoveNameType: Type) {
     def apply(rootPackage: Name,
       moveName: SimpleName,
       helper: Seq[BodyDeclaration[_]],
