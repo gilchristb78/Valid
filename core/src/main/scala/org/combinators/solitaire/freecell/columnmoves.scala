@@ -18,7 +18,6 @@ import de.tu_dortmund.cs.ls14.cls.types.Constructor
 
 
 trait ColumnMoves extends shared.Moves {
-  //val solitaire: Solitaire // the overall class provides this once woven in
 
  // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
@@ -57,14 +56,6 @@ trait ColumnMoves extends shared.Moves {
     }
  
 
-/////  @combinator object FreeCellColumnToColumnMoveObject extends SolitaireMove('ColumnToColumn)
-
-//  @combinator object FreeCellColumnToColumn {
-//    def apply: SimpleName = Java("ColumnToColumn").simpleName()
-//
-//    val semanticType: Type = 'Move ('ColumnToColumn, 'ClassName)
-//  }
-
   @combinator object PotentialColumnToColumnMoveObject extends PotentialMoveOneCardFromStack('ColumnToColumn)
 
   @combinator object PotentialStackMoveColumn {
@@ -76,29 +67,5 @@ trait ColumnMoves extends shared.Moves {
     def apply(): SimpleName = Java("movingColumn").simpleName()
     val semanticType: Type = 'Move ('ColumnToColumn, 'DraggingCardVariableName)
   }
-
-
-//  @combinator object ColumnToColumnMoveHelper {
-//    def apply(name: SimpleName): Seq[BodyDeclaration[_]] = {
-//      moves.columntocolumn.java.ColumnToColumnMoveHelper.render(name).classBodyDeclarations()
-//    }
-//    val semanticType: Type = 'Move ('ColumnToColumn, 'ClassName) =>: 'Move ('ColumnToColumn, 'HelperMethods)
-//  }
-
-//  @combinator object ColumnToColumnMoveDo {
-//    def apply(): Seq[Statement] = Java("destination.push(movingColumn);").statements()
-//    val semanticType: Type = 'Move ('ColumnToColumn, 'DoStatements)
-//  }
-//
-//  @combinator object ColumnToColumnMoveUndo {
-//    def apply(): Seq[Statement] = {
-//      Java(
-//        s"""
-//           |destination.select(numInColumn);
-//           |source.push(destination.getSelected());
-//           """.stripMargin).statements()
-//    }
-//    val semanticType: Type = 'Move ('ColumnToColumn, 'UndoStatements)
-//  }
 
 }

@@ -16,9 +16,6 @@ import domain.moves._
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 
 
-// 'FreeCellColumn
-// change to just 'Column
-
 trait ColumnController extends shared.Controller with generic.JavaIdioms {
 
  // dynamic combinators added as needed
@@ -30,7 +27,6 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
       updated
     }
 
-
   @combinator object ColumnPressedHandler {
     def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
@@ -38,13 +34,8 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
     }
     val semanticType: Type =
       'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        'Column ('FreeCellColumn, 'Pressed) :&: 'NonEmptySeq
+        'Column ('Column, 'Pressed) :&: 'NonEmptySeq   // FCC
   }
-
-//  @combinator object ColumnClickedHandler {
-//    def apply(): Seq[Statement] = Seq.empty
-//    val semanticType: Type = 'Column ('FreeCellColumn, 'Clicked) :&: 'NonEmptySeq
-//  }
 
   // w instanceof ColumnView
   @combinator object ColumnViewCheck {
@@ -63,12 +54,7 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
 
   @combinator object CombinedHandlers extends StatementCombiner('Combined1, 'Combined2, 'Combined3)
 
-  // Column('FreeCellColumn, 'Released))
-  @combinator object CombinedHandlers2 extends StatementCombiner('Combined3, 'AutoMoveColumn, 'Column ('FreeCellColumn, 'Released))
-
-  //	@combinator object CombinedHandlers extends StatementCombiner('MoveWidget('ColumnToColumn), 'MoveWidget('FreePileToColumn), 'Combined1)
-  //
-  //	@combinator object CombinedHandlers2 extends StatementCombiner('IfCombined1, 'AutoMoveColumn, 'Column('FreeCellColumn, 'Released))
+  @combinator object CombinedHandlers2 extends StatementCombiner('Combined3, 'AutoMoveColumn, 'Column ('Column, 'Released))    // FCC
 
   @combinator object AutoMoveSequence {
     def apply(pkgName: Name, name: SimpleName): Seq[Statement] = {
@@ -77,6 +63,4 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
     val semanticType: Type =
       'RootPackage =>: 'NameOfTheGame =>: 'AutoMoveColumn
   }
-
-
 }

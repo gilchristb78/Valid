@@ -81,7 +81,7 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   // inhabit the controllers, then inhabit all the moves, based upon the domain model.
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-      .addJob[CompilationUnit]('Controller('FreeCellColumn))
+      .addJob[CompilationUnit]('Controller('Column))   // FCC
       .addJob[CompilationUnit]('Controller('FreePile))
       .addJob[CompilationUnit]('Controller('HomePile))
       .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove))
@@ -104,8 +104,6 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
       //.add(Gamma.inhabit[Seq[Statement]]('Something), Paths.get("somePlace"))
       //
       
-      
-      //.add(Gamma.inhabit[CompilationUnit]('Move('FreeCellColumnToColumn, 'CompleteMove)))
 }
 
 // any way to do partial intermediate step (i.e., 

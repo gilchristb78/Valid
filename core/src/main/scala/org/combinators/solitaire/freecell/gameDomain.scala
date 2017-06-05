@@ -17,6 +17,40 @@ import domain._
 // to get the code to compile 
 class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 {
 
+  /** Field Declarations. */
+  def fieldGen(name:String, modelType:String, viewType:String, num:Int):Seq[FieldDeclaration] = {
+      Java(s"""
+	     |protected static final String field${name}sPrefix = "$name";
+	     |public $modelType[] field${name}s = new $modelType[$num];
+	     |protected $viewType[] field${name}Views = new $viewType[$num];
+             |""".stripMargin)
+             .classBodyDeclarations()
+             .map(_.asInstanceOf[FieldDeclaration])
+  }
+
+  /** Useful for constructing controller initializations. */
+  def loopControllerGen(cont: Container, viewName : String, contName:String): Seq[Statement] = {
+        val nc = cont.size()
+        Java(
+        s"""
+           |for (int j = 0; j < $nc; j++) {
+           |  $viewName[j].setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
+           |  $viewName[j].setUndoAdapter (new SolitaireUndoAdapter (this));
+           |  $viewName[j].setMouseAdapter (new $contName (this, $viewName[j]));
+           |}""".stripMargin).statements()
+     }
+
+  /** Ueful for constructing view initializations. */
+  def loopConstructGen(cont: Container, modelName: String, viewName : String, typ:String): Seq[Statement] = {
+        val nc = cont.size()
+        Java(
+        s"""
+           |for (int j = 0; j < $nc; j++) {
+           |  $modelName[j] = new $typ(${modelName}Prefix + (j+1));
+           |  addModelElement ($modelName[j]);
+           |  $viewName[j] = new ${typ}View($modelName[j]);
+           |}""".stripMargin).statements()
+     }
 
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.freecell").name()
@@ -41,33 +75,20 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       val NumHomePiles = solitaire.getFoundation.size()
       val NumColumns = solitaire.getTableau.size()
 
-      Java(
+      val head = Java(
         s"""
            |// Basic start of pretty much any solitaire game that requires a deck.
            |deck = new Deck ("deck");
            |int seed = getSeed();
            |deck.create(seed);
            |addModelElement (deck);
-           |
-           | /* construct model elements */
-           |for (int i = 0; i < $NumColumns; i++) {
-           |  fieldColumns[i] = new Column(ColumnsPrefix + (i+1));
-           |  addModelElement (fieldColumns[i]);
-           |  fieldColumnViews[i] = new ColumnView(fieldColumns[i]);
-           |}
-           |
-           |for (int i = 0; i < $NumFreePiles; i++) {
-           |  fieldFreePiles[i] = new Pile (FreePilesPrefix + (i+1));
-           |  addModelElement (fieldFreePiles[i]);
-           |  fieldFreePileViews[i] = new PileView (fieldFreePiles[i]);
-           |}
-           |
-           |for (int i = 0; i < $NumHomePiles; i++) {
-           |  fieldHomePiles[i] = new Pile (HomePilesPrefix + (i+1));
-           |  addModelElement (fieldHomePiles[i]);
-           |  fieldHomePileViews[i] = new PileView(fieldHomePiles[i]);
-           |}
-           """.stripMargin).statements()
+           |""".stripMargin).statements()
+
+      val colGen = loopConstructGen(solitaire.getTableau(), "fieldColumns", "fieldColumnViews", "Column")
+      val resGen = loopConstructGen(solitaire.getReserve(), "fieldFreePiles", "fieldFreePileViews", "Pile")
+      val foundGen = loopConstructGen(solitaire.getFoundation(), "fieldHomePiles", "fieldHomePileViews", "Pile")
+
+      head ++ colGen ++ resGen ++ foundGen
     }
 
     val semanticType: Type = 'Init ('Model)
@@ -156,26 +177,11 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       val nf = solitaire.getReserve.size()
       val name = NameOfGame.toString()
 
-      Java(
-        s"""
-           |// setup controllers
-           |for (int i = 0; i < $nc; i++) {
-           |  fieldColumnViews[i].setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
-           |	fieldColumnViews[i].setUndoAdapter (new SolitaireUndoAdapter (this));
-           |	fieldColumnViews[i].setMouseAdapter (new ${name}ColumnController (this, fieldColumnViews[i]));
-           |}
-           |for (int i = 0; i < $np; i++) {
-           |  fieldHomePileViews[i].setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
-           |  fieldHomePileViews[i].setUndoAdapter (new SolitaireUndoAdapter (this));
-           |  fieldHomePileViews[i].setMouseAdapter (new HomePileController (this, fieldHomePileViews[i]));
-           |}
-           |for (int i = 0; i < $nf; i++) {
-           |  fieldFreePileViews[i].setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
-           |  fieldFreePileViews[i].setUndoAdapter (new SolitaireUndoAdapter (this));
-           |  fieldFreePileViews[i].setMouseAdapter (new FreeCellPileController (this, fieldFreePileViews[i]));
-           |}
-           """.stripMargin).statements()
+      val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", name + "ColumnController")
+      val freesetup = loopControllerGen(solitaire.getReserve, "fieldFreePileViews", "FreeCellPileController")
+      val homesetup = loopControllerGen(solitaire.getFoundation, "fieldHomePileViews", "HomePileController")
 
+       colsetup ++ freesetup ++ homesetup
     }
 
     val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
@@ -209,7 +215,6 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       cinit: Seq[Statement],
       layout: Seq[Statement]): Seq[Statement] = {
 
-      // @(ModelInit: Seq[Statement], ViewInit: Seq[Statement], ControlInit : Seq[Statement], SetupInitialState : Seq[Statement])
       java.DomainInit.render(minit, vinit, cinit, layout).statements()
     }
     val semanticType: Type = 'Init ('Model) =>: 'Init ('View) =>: 'Init ('Control) =>: 'Init ('Layout) =>: 'Initialization :&: 'NonEmptySeq
@@ -236,7 +241,7 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
       java.ExtraMethods.render(numFreePiles, numColumns).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
     }
-    val semanticType: Type = 'ExtraMethods :&: 'Column ('FreeCellColumn, 'AutoMovesAvailable)
+    val semanticType: Type = 'ExtraMethods :&: 'Column ('Column, 'AutoMovesAvailable)   // FCC
   }
 
   @combinator object EmptyExtraMethods {
@@ -266,20 +271,9 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
           Java("Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
         }
 
-      val fieldFreePiles = java.FieldsTemplate
-        .render("FreePile", Java("Pile").tpe(), Java("PileView").tpe(), Java(reserve.size().toString).expression())
-        .classBodyDeclarations()
-        .map(_.asInstanceOf[FieldDeclaration])
-
-      val fieldHomePiles = java.FieldsTemplate
-        .render("HomePile", Java("Pile").tpe(), Java("PileView").tpe(), Java(found.size().toString).expression())
-        .classBodyDeclarations()
-        .map(_.asInstanceOf[FieldDeclaration])
-
-      val fieldColumns = java.FieldsTemplate
-        .render("Column", Java("Column").tpe(), Java("ColumnView").tpe(), Java(tableau.size().toString).expression())
-        .classBodyDeclarations()
-        .map(_.asInstanceOf[FieldDeclaration])
+      val fieldFreePiles = fieldGen("FreePile", "Pile", "PileView", reserve.size())
+      val fieldHomePiles = fieldGen("HomePile", "Pile", "PileView", found.size())
+      val fieldColumns = fieldGen("Column", "Column", "ColumnView", tableau.size())
 
       decks ++ fields ++ fieldFreePiles ++ fieldHomePiles ++ fieldColumns
     }
