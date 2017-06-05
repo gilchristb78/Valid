@@ -84,13 +84,62 @@ trait PileController extends shared.Controller with shared.Moves {
 
           .addCombinator(new SolitaireMove(moveSymbol))
 // @combinator object FreeCellColumnToColumnMoveObject extends Move('ColumnToColumn)
-
-
      }
-    
+   
+     // Each move has a source and a target. The SOURCE is the locus
+     // for the PRESS while the TARGET is the locus for the RELEASE.
+     updated = updated
+       .addCombinator (new IgnorePressedHandler('Pile, 'HomePile))
+       .addCombinator (new IgnoreClickedHandler('Pile, 'HomePile))
+       .addCombinator (new SingleCardMoveHandler('FreePile))
+       .addCombinator (new IgnoreClickedHandler('Pile, 'FreePile))
+       .addCombinator (new IgnoreClickedHandler('Column, 'FreeCellColumn))
+
    updated
   }
 
+/**
+ * When a Press can be ignored, use this 
+ */
+class IgnorePressedHandler(widgetType:Symbol, source:Symbol) {
+    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+        Java(s"""$ignoreWidgetVariableName = true;""").statements()
+    }
+
+    val semanticType: Type =
+      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+        widgetType (source, 'Pressed) :&: 'NonEmptySeq
+  }
+
+/** 
+ * When a single card is being removed from the top card of a pile.
+ */
+class SingleCardMoveHandler(source:Symbol) {
+  def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+        Java(s"""|$ignoreWidgetVariableName = false;
+		 |Pile srcPile = (Pile) src.getModelElement();
+		 |
+		 |// Return in the case that the pile clicked on is empty
+		 |if (srcPile.count() == 0) {
+        	 |  return;
+		 |}
+		 |$widgetVariableName = src.getCardViewForTopCard(me);
+		 |if ($widgetVariableName == null) {
+		 |  return;
+		 |}""".stripMargin).statements()
+  }
+
+  val semanticType: Type =
+    'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+      'Pile (source, 'Pressed) :&: 'NonEmptySeq
+}
+
+class IgnoreClickedHandler(widgetType:Symbol, source:Symbol) {
+    def apply(): Seq[Statement] = Seq.empty
+    val semanticType: Type = widgetType (source, 'Clicked) :&: 'NonEmptySeq
+  }
 
 class ClassNameGenerator(moveSymbol:Symbol, name:String) {
     def apply: SimpleName = Java(s"""$name""").simpleName()
@@ -141,6 +190,7 @@ class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
 		   |  this(from, to);
 		   |  this.movingCard = card;
  		   |}""".stripMargin).classBodyDeclarations()
+
 	case column : ColumnMove     =>
           Java(s"""|Column movingColumn;
 		   |int numInColumn;
@@ -181,37 +231,38 @@ class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
   }
 
 
-  @combinator object PilePressedHandler {
-    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
-      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
-        controller.pile.java.FreeCellPilePressed.render(widgetVariableName, ignoreWidgetVariableName).statements()
-    }
+//  @combinator object PilePressedHandler {
+//    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+//      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+//        controller.pile.java.FreeCellPilePressed.render(widgetVariableName, ignoreWidgetVariableName).statements()
+//    }
+//
+//    val semanticType: Type =
+//      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+//        'Pile ('FreePile, 'Pressed) :&: 'NonEmptySeq
+//  }
 
-    val semanticType: Type =
-      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        'Pile ('FreePile, 'Pressed) :&: 'NonEmptySeq
-  }
+//  @combinator object FreeCellPileClickedHandler {
+//    def apply(): Seq[Statement] = Seq.empty
+//    val semanticType: Type = 'Pile ('FreePile, 'Clicked) :&: 'NonEmptySeq
+//  }
 
-  @combinator object FreeCellPileClickedHandler {
-    def apply(): Seq[Statement] = Seq.empty
-    val semanticType: Type = 'Pile ('FreePile, 'Clicked) :&: 'NonEmptySeq
-  }
+  // can detect that NO PRESS possible from F pile. So inject following:
+//  @combinator object HomePilePressedHandler {
+//    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+//      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+//        controller.pile.java.HomePilePressed.render(widgetVariableName, ignoreWidgetVariableName).statements()
+//    }
+//
+//    val semanticType: Type =
+//      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+//        'Pile ('HomePile, 'Pressed) :&: 'NonEmptySeq
+//  }
 
-  @combinator object HomePilePressedHandler {
-    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
-      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
-        controller.pile.java.HomePilePressed.render(widgetVariableName, ignoreWidgetVariableName).statements()
-    }
-
-    val semanticType: Type =
-      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        'Pile ('HomePile, 'Pressed) :&: 'NonEmptySeq
-  }
-
-  @combinator object HomePileClickedHandler {
-    def apply(): Seq[Statement] = Seq.empty
-    val semanticType: Type = 'Pile ('HomePile, 'Clicked) :&: 'NonEmptySeq
-  }
+//  @combinator object HomePileClickedHandler {
+//    def apply(): Seq[Statement] = Seq.empty
+//    val semanticType: Type = 'Pile ('HomePile, 'Clicked) :&: 'NonEmptySeq
+//  }
 
 
   // release must take into account both FROMPILE and FROMCOLUMN events.

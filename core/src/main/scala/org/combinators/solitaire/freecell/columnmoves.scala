@@ -59,11 +59,11 @@ trait ColumnMoves extends shared.Moves {
 
 /////  @combinator object FreeCellColumnToColumnMoveObject extends SolitaireMove('ColumnToColumn)
 
-///  @combinator object FreeCellColumnToColumn {
-///    def apply: SimpleName = Java("ColumnToColumn").simpleName()
-///
-///    val semanticType: Type = 'Move ('ColumnToColumn, 'ClassName)
-///  }
+//  @combinator object FreeCellColumnToColumn {
+//    def apply: SimpleName = Java("ColumnToColumn").simpleName()
+//
+//    val semanticType: Type = 'Move ('ColumnToColumn, 'ClassName)
+//  }
 
   @combinator object PotentialColumnToColumnMoveObject extends PotentialMoveOneCardFromStack('ColumnToColumn)
 

@@ -41,10 +41,10 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
         'Column ('FreeCellColumn, 'Pressed) :&: 'NonEmptySeq
   }
 
-  @combinator object ColumnClickedHandler {
-    def apply(): Seq[Statement] = Seq.empty
-    val semanticType: Type = 'Column ('FreeCellColumn, 'Clicked) :&: 'NonEmptySeq
-  }
+//  @combinator object ColumnClickedHandler {
+//    def apply(): Seq[Statement] = Seq.empty
+//    val semanticType: Type = 'Column ('FreeCellColumn, 'Clicked) :&: 'NonEmptySeq
+//  }
 
   // w instanceof ColumnView
   @combinator object ColumnViewCheck {
