@@ -1,6 +1,9 @@
 package org.combinators.solitaire.freecell
 import com.github.javaparser.ast.CompilationUnit
 
+// name clash
+import com.github.javaparser.ast.`type`.{Type => JType}
+
 import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
@@ -78,8 +81,19 @@ trait PileController extends shared.Controller with shared.Moves with generic.Ja
           .addCombinator(new PotentialDraggingVariableGenerator (move,
                                 'Move (moveSymbol, 'DraggingCardVariableName)))
           .addCombinator(new MoveHelper(move, new SimpleName(moveString), moveSymbol))
-
           .addCombinator(new SolitaireMove(moveSymbol))
+
+        // potential move structure
+        move match {
+          case single: SingleCardMove => {
+             updated = updated
+               .addCombinator (new PotentialMove(moveSymbol))
+          }
+          case column: ColumnMove     => {
+             updated = updated
+               .addCombinator (new PotentialMoveOneCardFromStack(moveSymbol))
+          }
+        }
      }
    
      // Each move has a source and a target. The SOURCE is the locus
@@ -92,11 +106,18 @@ trait PileController extends shared.Controller with shared.Moves with generic.Ja
        .addCombinator (new IgnoreClickedHandler('Pile, 'FreePile))
        .addCombinator (new IgnoreClickedHandler('Column, 'Column))  
 
-   // get all types from the various containers (somehow)
+   // get all types from the various containers (somehow). TO BE DONE
    updated = updated
        .addCombinator (new PileController('HomePile))
        .addCombinator (new PileController('FreePile))
        .addCombinator (new ColumnController('Column))
+
+   // Potential moves clarify structure (by type not instance). FIX ME
+   // FIX ME FIX ME FIX ME
+   updated = updated
+       .addCombinator (new PotentialTypeConstructGen('ColumnToColumn))
+       .addCombinator (new PotentialTypeConstructGen('ColumnToFreePile))
+       .addCombinator (new PotentialTypeConstructGen('ColumnToHomePile))
 
    // these identify the controller names
    updated = updated
@@ -202,8 +223,6 @@ class GuardGenerator(m:Move) {
   }
 }
 
-
-
 /**
  * When a Press can be ignored, use this 
  */
@@ -260,7 +279,16 @@ class PotentialDraggingVariableGenerator(m:Move, constructor:Constructor) {
     }
   }
     val semanticType: Type = constructor
-  }
+}
+
+// Note: while I can have code within the apply() method, the semanticType
+// is static, so that must be passed in as is. These clarify that a
+// potential moveOneCardFromStack is still a Column Type.
+class PotentialTypeConstructGen(constructor:Constructor) {
+    def apply(): JType = Java("Column").tpe()
+    val semanticType: Type = 'Move (constructor, 'TypeConstruct)
+}
+
 
 /** When given a Move (SingleCardMove or ColumnMove) ascribes proper Undo. */
 /** Same code, just by coincidence. */
@@ -314,32 +342,6 @@ class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
  val semanticType: Type = 'Move (moveSymbol, 'HelperMethods)
 }
 
-// release must take into account both FROMPILE and FROMCOLUMN events.
-//class ReleaseHandler(columnMoveType: Symbol, pileMoveType: Symbol, pileType: Symbol) {
-//   def apply(fromColumn: Seq[Statement], fromPile: Seq[Statement]): Seq[Statement] = {
-//       val one = Java(s"""
-//            |// Column moving to Column on FreeCell tableau
-//            |if (w instanceof ColumnView) {
-//            |  ${fromColumn.mkString("\n")}
-//            |}""".stripMargin).statements()
-//
-//       val two = Java(s"""
-//            |if (w instanceof CardView) {
-//            |  ${fromPile.mkString("\n")}
-//            |}
-//            """.stripMargin).statements()
-//
-//       one ++ two
-//     }
-// 
-//   val semanticType: Type =
-//       'MoveWidget (columnMoveType) =>:
-//        'MoveWidget (pileMoveType) =>:
-//         'Pile (pileType, 'Released) :&: 'NonEmptySeq
-// }
-//
-//   @combinator object FreeCellPileReleasedHandler extends ReleaseHandler('ColumnToFreePile, 'FreePileToFreePile, 'FreePile)
-//   @combinator object HomePileReleasedHandler extends ReleaseHandler('ColumnToHomePile, 'FreePileToHomePile, 'HomePile)
 }
 
 

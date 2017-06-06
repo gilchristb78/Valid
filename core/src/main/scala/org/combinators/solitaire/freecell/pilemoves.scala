@@ -89,20 +89,4 @@ trait PileMoves extends shared.Moves {
       updated
   }
 
-
-  @combinator object PotentialPileToColumnMoveObject extends PotentialMove('FreePileToColumn)
-  @combinator object PotentialFreePileToHomePileMoveObject extends PotentialMove('FreePileToHomePile)
-  @combinator object PotentialFreePileToFreePileMoveObject extends PotentialMove('FreePileToFreePile)
-
- @combinator object PotentialColumnToFreePileMoveObject extends PotentialMoveOneCardFromStack('ColumnToFreePile)
-  @combinator object PotentialColumnToHomePileMoveObject extends PotentialMoveOneCardFromStack('ColumnToHomePile)
-
-  @combinator object PotentialStackMoveFree {
-    def apply(): JType = Java("Column").tpe()
-    val semanticType: Type = 'Move ('ColumnToFreePile, 'TypeConstruct)
-  }
-  @combinator object PotentialStackMoveHome {
-    def apply(): JType = Java("Column").tpe()
-    val semanticType: Type = 'Move ('ColumnToHomePile, 'TypeConstruct)
-  }
 }

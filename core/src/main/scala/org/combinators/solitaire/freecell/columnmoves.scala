@@ -25,7 +25,7 @@ trait ColumnMoves extends shared.Moves {
       var updated = super.init(gamma, s)
       println (">>> ColumnMoves dynamic combinators.")
 
- // Column to Column. These values are used by the conditionals. Too java-specific
+ // Column to Column. These values are used by the conditionals. 
       val truth = new ReturnConstraint (new ReturnTrueExpression)
       val falsehood = new ReturnConstraint (new ReturnFalseExpression)
       val isEmpty = new ElementEmpty ("destination")
@@ -34,19 +34,31 @@ trait ColumnMoves extends shared.Moves {
       val alternating = new AlternatingColors("movingColumn")
       val cc_and = new AndConstraint (descend, alternating)
 
+     // need constraint for sufficient space. Must write custom 
+     // ConstraintGen that uses special method. However, this
+     // would require modifying the generic constraints logic
+     // which has a 'match' structure .
+     val sufficientFreeToEmpty = 
+         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant() - 1", ">=", "movingColumn.count()")
+
+     val sufficientFree = 
+         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant()", ">=", "movingColumn.count() - 1")
+
       val if4_inner =
         new IfConstraint(new OppositeColor("movingColumn.peek(0)", "destination.peek()"),
-          new IfConstraint(new NextRank("destination.peek()", "movingColumn.peek(0)")),
+          new IfConstraint(new NextRank("destination.peek()", "movingColumn.peek(0)"),
+            new IfConstraint(sufficientFree),
+            falsehood),
           falsehood)
 
      val if4 =
         new IfConstraint(descend,
           new IfConstraint(alternating,
             new IfConstraint(isEmpty,
-              truth,   // not yet check number free
+              new IfConstraint(sufficientFreeToEmpty),
               if4_inner),
             falsehood),
-            falsehood)
+          falsehood)
 
       updated = updated
           .addCombinator (new StatementCombinator(if4,
@@ -54,19 +66,5 @@ trait ColumnMoves extends shared.Moves {
 
       updated
     }
- 
-
-  // haven't converted potentials yet...
-  @combinator object PotentialColumnToColumnMoveObject extends PotentialMoveOneCardFromStack('ColumnToColumn)
-
-  @combinator object PotentialStackMoveColumn {
-    def apply(): JType = Java("Column").tpe()
-    val semanticType: Type = 'Move ('ColumnToColumn, 'TypeConstruct)
-  }
-
-  @combinator object PotentialColumnDraggingVariable {
-    def apply(): SimpleName = Java("movingColumn").simpleName()
-    val semanticType: Type = 'Move ('ColumnToColumn, 'DraggingCardVariableName)
-  }
 
 }

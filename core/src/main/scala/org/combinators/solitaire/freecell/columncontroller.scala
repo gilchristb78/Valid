@@ -38,14 +38,7 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
   }
 
 
-//  @combinator object IfStart1 extends IfBlock('GuardColumnView, 'MoveWidget ('ColumnToColumn), 'Combined1)
-//
-//  @combinator object IfStart2 extends IfBlock('GuardCardView, 'MoveWidget ('FreePileToColumn), 'Combined2)
-//
-//  @combinator object CombinedHandlers extends StatementCombiner('Combined1, 'Combined2, 'Combined3)
-//
-//  @combinator object CombinedHandlers2 extends StatementCombiner('Combined3, 'AutoMoveColumn, 'Column ('Column, 'Released))    // FCC
-
+  // NOT YET WORKED IN .....
   @combinator object AutoMoveSequence {
     def apply(pkgName: Name, name: SimpleName): Seq[Statement] = {
       Java(s"""(($pkgName.$name)theGame).tryAutoMoves();""").statements()
