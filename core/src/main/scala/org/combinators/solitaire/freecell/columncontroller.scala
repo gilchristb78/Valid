@@ -34,27 +34,17 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
     }
     val semanticType: Type =
       'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        'Column ('Column, 'Pressed) :&: 'NonEmptySeq   // FCC
+        'Column ('Column, 'Pressed) :&: 'NonEmptySeq   
   }
 
-  // w instanceof ColumnView
-  @combinator object ColumnViewCheck {
-    def apply: Expression = Java("w instanceof ColumnView").expression()
-    val semanticType: Type = 'GuardColumnView
-  }
 
-  @combinator object CardViewCheck {
-    def apply: Expression = Java("w instanceof CardView").expression()
-    val semanticType: Type = 'GuardCardView
-  }
-
-  @combinator object IfStart1 extends IfBlock('GuardColumnView, 'MoveWidget ('ColumnToColumn), 'Combined1)
-
-  @combinator object IfStart2 extends IfBlock('GuardCardView, 'MoveWidget ('FreePileToColumn), 'Combined2)
-
-  @combinator object CombinedHandlers extends StatementCombiner('Combined1, 'Combined2, 'Combined3)
-
-  @combinator object CombinedHandlers2 extends StatementCombiner('Combined3, 'AutoMoveColumn, 'Column ('Column, 'Released))    // FCC
+//  @combinator object IfStart1 extends IfBlock('GuardColumnView, 'MoveWidget ('ColumnToColumn), 'Combined1)
+//
+//  @combinator object IfStart2 extends IfBlock('GuardCardView, 'MoveWidget ('FreePileToColumn), 'Combined2)
+//
+//  @combinator object CombinedHandlers extends StatementCombiner('Combined1, 'Combined2, 'Combined3)
+//
+//  @combinator object CombinedHandlers2 extends StatementCombiner('Combined3, 'AutoMoveColumn, 'Column ('Column, 'Released))    // FCC
 
   @combinator object AutoMoveSequence {
     def apply(pkgName: Name, name: SimpleName): Seq[Statement] = {

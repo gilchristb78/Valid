@@ -8,33 +8,30 @@ import java.util.*;
  */
 public class ColumnMove extends Move {
 
-	Container src;
-	Container target;
 	ConstraintExpr constraint;
 
 	/** 
 	 * Determine conditions for moving column of cards from src to target. 
 	 */
 	public ColumnMove (Container src, Container target, ConstraintExpr constraint) {
-		this.src        = src;
-		this.target     = target;
-		this.constraint = constraint;
+           super(src, target);
+	   this.constraint = constraint;
 	}
 
 	public String toString() {
-		return src + " -> " + target + " : " + constraint;
+	  return super.toString() + " : " + constraint;
 	}
 
  /** Get the source element of this move type. */
    public Element   getSource() {
-      Iterator<Element> it = src.iterator();
+      Iterator<Element> it = getSourceContainer().iterator();
       if (it == null || !it.hasNext()) { return null; }
       return it.next();
    }
 
    /** Get the target element of this move type. */
    public Element   getTarget() {
-      Iterator<Element> it = target.iterator();
+      Iterator<Element> it = getTargetContainer().iterator();
       if (it == null || !it.hasNext()) { return null; }
       return it.next();
    }

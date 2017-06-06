@@ -26,35 +26,9 @@ class AnotherCombinator(idx:Int)  {
         val semanticType: Type = 'SecondOne
       }
 
-// all I care about is that this is a SolitaireDomain extension
-// object sample {
-//  def initCombinators[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
-//      ReflectedRepository[G] = {
-//    val f = s.getFoundation()
-//    val it = f.iterator()
-//    var idx = 0
-//    var updated = gamma
-//    while (it.hasNext()) {
-//      val p = it.next()
-//      idx = idx + 1 
-     
-     // de-duplication eliminates this from working... 
-//     val newCombinator = new AnotherCombinator(idx)
- 
-//     updated = updated.addCombinator(newCombinator)
- 
-//     println (p.toString() + ":" + idx)
-//    } 
-
- 
-
    // see what's in there.
 //   for ((k,v) <- updated.combinators) printf("key: %s, value: %s\n", k, v)
 
-   //updated 
-//  updated 
-//  }
-//}
 
 class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
   lazy val repositoryPre = new Game {}
@@ -67,7 +41,6 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   // FreeCellDomain is base class for the solitaire variation. Note that this class is used (essentially)
   // as a placeholder for the solitaire val, which can then be referred to anywhere as needed.
   lazy val repository = new FreeCellDomain(s) with ColumnMoves with PileMoves with ColumnController with PileController {}
-  //lazy val Gamma = sample.initCombinators(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
   /** This needs to be defined, and it is set from Gamma. */
@@ -106,5 +79,3 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
       
 }
 
-// any way to do partial intermediate step (i.e., 
-//import com.github.javaparser.ast.body.{BodyDeclaration}

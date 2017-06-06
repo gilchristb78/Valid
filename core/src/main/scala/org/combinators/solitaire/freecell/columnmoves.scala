@@ -56,6 +56,7 @@ trait ColumnMoves extends shared.Moves {
     }
  
 
+  // haven't converted potentials yet...
   @combinator object PotentialColumnToColumnMoveObject extends PotentialMoveOneCardFromStack('ColumnToColumn)
 
   @combinator object PotentialStackMoveColumn {

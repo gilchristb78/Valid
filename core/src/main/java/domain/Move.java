@@ -36,6 +36,26 @@ package domain;
  */
 public abstract class Move {
 
+   public final Container srcContainer;
+
+   public final Container targetContainer;
+        
+   public Move (Container src, Container target) {
+      srcContainer = src;
+      targetContainer = target;
+   }
+
+   public String toString() {
+      return srcContainer + " -> " + targetContainer;
+   }
+
+
+   /** Get container. */
+   public Container getSourceContainer() { return srcContainer; }
+
+   /** Get container for the target. */
+   public Container getTargetContainer() { return targetContainer; }
+
    /** Get the source element of this move type. */
    public abstract Element   getSource();
 

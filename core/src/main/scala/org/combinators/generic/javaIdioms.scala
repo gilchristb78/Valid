@@ -79,6 +79,15 @@ trait JavaIdioms {
     val semanticType: Type = sem1 =>: sem2 =>: sem3
   }
 
+  /**
+   * If dynamic combinator has already been added, this converts into proper type.
+   */
+class StatementConverter(sem1: Constructor, sem2: Constructor) {
+    def apply(stmts: Seq[Statement]): Seq[Statement] = stmts
+    val semanticType: Type = sem1 =>: sem2
+  }
+
+
 
   // combinator that deals with IF (GUARD) THEN
   // could also have IF (GUARD) THEN X ELSE Y

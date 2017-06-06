@@ -21,6 +21,15 @@ public class Container implements Iterable<Element> {
 		return elements.size();
 	}
 
+  	/** Same type. */
+	public boolean isSame(Container c) {
+	  if (c == null) { return false; }
+	  if (this.getClass() == c.getClass()) { 
+             return true; 
+          }
+	  return false;
+	}
+
 	/**
 	 * Attempt to add element to Container, returning true if 
 	 * successful; false if a duplicate.
