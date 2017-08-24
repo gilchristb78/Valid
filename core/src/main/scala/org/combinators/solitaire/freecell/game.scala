@@ -9,6 +9,7 @@ import org.combinators.solitaire.shared.{GameTemplate, Score52}
 import domain._
 import domain.constraints._
 import domain.moves._
+import domain.ui._
 import domain.freeCell.{FreePile, HomePile}
 
 trait Game extends GameTemplate with Score52 {
@@ -42,11 +43,10 @@ trait Game extends GameTemplate with Score52 {
   }
 
 
-
   // Free cell is an example solitaire game that uses Foundation, Reserve, and Tableau.
   @combinator object FreeCellConstruction {
-    def apply(s: Solitaire, lay: Layout, rules: Rules): Solitaire = {
-      s.setLayout(lay)
+    def apply(s: Solitaire, rules: Rules, layout:Layout): Solitaire = {
+      s.setLayout(layout)
       s.setRules(rules)
 
       s
@@ -54,10 +54,11 @@ trait Game extends GameTemplate with Score52 {
 
     val semanticType: Type =
       'Solitaire ('Structure ('FreeCell)) =>:
-        'Layout ('Valid :&: 'FoundationReserveTableau) =>:
-        'Rules('FreeCell) =>: 
-        'FreeCellVariation
+        'Rules('FreeCell) =>:  
+        'Layout ('Valid :&: 'FoundationReserveTableau) =>:  
+        'Variation('FreeCell)
   }
+
 
   // HACK: non-compositional
   @combinator object FreeCellRules {
@@ -65,40 +66,86 @@ trait Game extends GameTemplate with Score52 {
       val rules = new Rules()
       val tableau = solitaire.getTableau
       val reserve = solitaire.getReserve
-      val found = solitaire.getFoundation
+      val found   = solitaire.getFoundation
 
-      val c2a = AndConstraint.builder(new AlternatingColors("movingColumn"))
-                .add(new Descending("movingColumn"))
-		.add(new BaseCardOneHigherOppositeColor())
-		.add(new SufficientFree())
-		
-      rules.addMove(new ColumnMove(tableau, tableau, c2a))
-      rules.addMove(new SingleCardMove(reserve, tableau, c2a))
+      val truth = new ReturnConstraint (new ReturnTrueExpression)
+      val falsehood = new ReturnConstraint (new ReturnFalseExpression)
+      val isEmpty = new ElementEmpty ("destination")
 
-      // can move a column from tableau to reserve, if empty
-      // can move a single card from reserve to reserve, if empty
-      val c3 = new ElementEmpty("destination")
-      rules.addMove(new ColumnMove(tableau, reserve, c3))
-      rules.addMove(new SingleCardMove(reserve, reserve, c3))
+      // FreePile to FreePile
+      val freePileToFreePile = new SingleCardMove(reserve, reserve, new IfConstraint(isEmpty))
+      rules.addDragMove(freePileToFreePile)
 
-      val aCol = new Column
+      // Column To Free Pile Logic
+      val isSingle = new ExpressionConstraint("movingColumn.count()", "==", "1")
+      val if1 = new IfConstraint(isEmpty,
+                  new IfConstraint(isSingle),
+                  falsehood)
+      val columnToFreePileMove = new ColumnMove(tableau, reserve, if1)
+      rules.addDragMove(columnToFreePileMove)
+
+      // Column To Home Pile logic. Just grab first column
+      val aCol = tableau.iterator().next()
+      val if2 =
+        new IfConstraint(isEmpty,
+           new IfConstraint(new IsAce(aCol,"movingColumn")),
+             new IfConstraint(new NextRank("movingColumn.peek()", "destination.peek()"),
+               new IfConstraint(new SameSuit("movingColumn.peek()", "destination.peek()")),
+               falsehood))
+      val columnToHomePile = new ColumnMove(tableau, found, if2)
+      rules.addDragMove(columnToHomePile)
+
+      // FreePile to HomePile
       val aCard = new Card
+      val nonEmpty = new ExpressionConstraint("destination.count()", "!=", "0")
+      val if3 =
+         new IfConstraint(isEmpty,
+           new IfConstraint(new IsAce(aCard, "movingCard")),
+             new IfConstraint(new NextRank("movingCard", "destination.peek()"),
+               new IfConstraint(new SameSuit("movingCard", "destination.peek()")),
+             falsehood))
 
-      val c4b_column = AndConstraint.builder(new IsAce(aCol, "movingColumn"))
-		   .add(new ElementEmpty("destination"))      
+      val freePileToHomePile = new SingleCardMove(reserve, found, if3)
+      rules.addDragMove(freePileToHomePile)
 
-      val c4b_card = AndConstraint.builder(new IsAce(aCard, "movingCard"))
-                   .add(new ElementEmpty("destination"))
+     // FreePile to Column.
+      val if5_inner =
+          new IfConstraint(new OppositeColor("movingCard", "destination.peek()"),
+            new IfConstraint(new NextRank("destination.peek()", "movingCard")),
+              falsehood)
 
-      val c4d = AndConstraint.builder(new ExpressionConstraint("destination.count()", "!=", "0"))
-		   .add(new NextRank("destination.peek()", "movingColumn.peek()"))
-		   .add(new SameSuit("destination.peek()", "movingColumn.peek()"))
+      val if5 = new IfConstraint(isEmpty, truth, if5_inner)
+      val freePileToColumnPile = new SingleCardMove(reserve, tableau, if5)
+      rules.addDragMove(freePileToColumnPile)
 
-      val c4_col = new OrConstraint(c4b_column, c4d)
-      val c4_card = new OrConstraint(c4b_card, c4d)
- 
-      rules.addMove(new ColumnMove(tableau, found, c4_col))
-      rules.addMove(new SingleCardMove(reserve, found, c4_card))
+     // column to column
+     val descend = new Descending("movingColumn")
+     val alternating = new AlternatingColors("movingColumn")
+      
+     val sufficientFreeToEmpty =
+         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant() - 1", ">=", "movingColumn.count()")
+
+     val sufficientFree =
+         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant()", ">=", "movingColumn.count() - 1")
+
+      val if4_inner =
+        new IfConstraint(new OppositeColor("movingColumn.peek(0)", "destination.peek()"),
+          new IfConstraint(new NextRank("destination.peek()", "movingColumn.peek(0)"),
+            new IfConstraint(sufficientFree),
+            falsehood),
+          falsehood)
+
+     val if4 =
+        new IfConstraint(descend,
+          new IfConstraint(alternating,
+            new IfConstraint(isEmpty,
+              new IfConstraint(sufficientFreeToEmpty),
+              if4_inner),
+            falsehood),
+          falsehood)
+		
+      val columnToColumn = new ColumnMove(tableau, tableau, if4)
+      rules.addDragMove(columnToColumn)
 
       rules
     }

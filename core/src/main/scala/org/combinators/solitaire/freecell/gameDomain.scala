@@ -9,48 +9,15 @@ import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared._
+import org.combinators.solitaire.shared
 
 // domain
 import domain._
+import domain.ui._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
 class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 {
-
-  /** Field Declarations. */
-  def fieldGen(name:String, modelType:String, viewType:String, num:Int):Seq[FieldDeclaration] = {
-      Java(s"""
-	     |protected static final String field${name}sPrefix = "$name";
-	     |public $modelType[] field${name}s = new $modelType[$num];
-	     |protected $viewType[] field${name}Views = new $viewType[$num];
-             |""".stripMargin)
-             .classBodyDeclarations()
-             .map(_.asInstanceOf[FieldDeclaration])
-  }
-
-  /** Useful for constructing controller initializations. */
-  def loopControllerGen(cont: Container, viewName : String, contName:String): Seq[Statement] = {
-        val nc = cont.size()
-        Java(
-        s"""
-           |for (int j = 0; j < $nc; j++) {
-           |  $viewName[j].setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
-           |  $viewName[j].setUndoAdapter (new SolitaireUndoAdapter (this));
-           |  $viewName[j].setMouseAdapter (new $contName (this, $viewName[j]));
-           |}""".stripMargin).statements()
-     }
-
-  /** Ueful for constructing view initializations. */
-  def loopConstructGen(cont: Container, modelName: String, viewName : String, typ:String): Seq[Statement] = {
-        val nc = cont.size()
-        Java(
-        s"""
-           |for (int j = 0; j < $nc; j++) {
-           |  $modelName[j] = new $typ(${modelName}Prefix + (j+1));
-           |  addModelElement ($modelName[j]);
-           |  $viewName[j] = new ${typ}View($modelName[j]);
-           |}""".stripMargin).statements()
-     }
 
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.freecell").name()
@@ -62,7 +29,6 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = 'NameOfTheGame
   }
 
-
   // FreeCell model derived from the domain model
   @combinator object FreeCellInitModel {
 
@@ -71,9 +37,9 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
     def apply(): Seq[Statement] = {
 
-      val NumFreePiles = solitaire.getReserve.size()
-      val NumHomePiles = solitaire.getFoundation.size()
-      val NumColumns = solitaire.getTableau.size()
+//      val NumFreePiles = solitaire.getReserve.size()
+//      val NumHomePiles = solitaire.getFoundation.size()
+//      val NumColumns = solitaire.getTableau.size()
 
       val head = Java(
         s"""
@@ -93,29 +59,19 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
     val semanticType: Type = 'Init ('Model)
   }
+
   @combinator object FreeCellInitView {
     def apply(): Seq[Statement] = {
 
       //val found = Solitaire.getInstance().getFoundation()
       val found = solitaire.getFoundation
       val tableau = solitaire.getTableau
-      val NumColumns = tableau.size
+//      val NumColumns = tableau.size
       val free = solitaire.getReserve
       val lay = solitaire.getLayout
-      val rectFound = lay.get(Layout.Foundation)
-      val rectFree = lay.get(Layout.Reserve)
-      val rectTableau = lay.get(Layout.Tableau)
-
-      // (a) do the computations natively in scala to generate java code
-      // (b) delegation to Layout class, but then needs to pull back into
-      //     scala anyway
-      //
-      // card is 73 x 97
 
       var stmts = Seq.empty[Statement]
 
-      // This could be a whole lot simpler! This places cards within Foundation rectangle
-      // with card width of 97 cards each. Gap is fixed and determined by this function
       // Missing: Something that *maps* the domain model to 'fieldHomePileViews' and construction
       val it = lay.placements(Layout.Foundation, found, 97)
       var idx = 0
@@ -133,14 +89,15 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
         stmts = stmts ++ s
       }
 
-      // would be useful to have Scala utility for appending statements to single body.
+      val itr = lay.placements(Layout.Reserve, free, 97)
       idx = 0
-      while (idx < found.size()) {
-        val xfree = rectFree.x + 15 * idx + idx * 73
+      while (itr.hasNext) {
+        val r = itr.next()
+
         val s =
           Java(
             s"""
-               |fieldFreePileViews[$idx].setBounds($xfree, 20, cw, ch);
+               |fieldFreePileViews[$idx].setBounds(${r.x}, ${r.y}, cw, ch);
                |addViewWidget(fieldFreePileViews[$idx]);
                """.stripMargin).statements()
 
@@ -148,14 +105,15 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
         stmts = stmts ++ s
       }
 
-      // now column placement
+      val itt = lay.placements(Layout.Tableau, tableau, 13*97)
       idx = 0
-      while (idx < tableau.size()) {
-        val xtabl = rectTableau.x + 15 * idx + idx * 73
+      while (itt.hasNext) {
+        val r = itt.next()
+
         val s =
           Java(
             s"""
-               |fieldColumnViews[$idx].setBounds($xtabl, 40 + ch, cw, 13*ch);
+               |fieldColumnViews[$idx].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
                |addViewWidget(fieldColumnViews[$idx]);
                """.stripMargin).statements()
 
@@ -177,6 +135,8 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       val nf = solitaire.getReserve.size()
       val name = NameOfGame.toString()
 
+      // this could be controlled from the UI model. That is, it would
+      // map GUI elements into fields in the classes.
       val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", name + "ColumnController")
       val freesetup = loopControllerGen(solitaire.getReserve, "fieldFreePileViews", "FreeCellPileController")
       val homesetup = loopControllerGen(solitaire.getFoundation, "fieldHomePileViews", "HomePileController")
@@ -215,7 +175,7 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       cinit: Seq[Statement],
       layout: Seq[Statement]): Seq[Statement] = {
 
-      java.DomainInit.render(minit, vinit, cinit, layout).statements()
+      shared.java.DomainInit.render(minit, vinit, cinit, layout).statements()
     }
     val semanticType: Type = 'Init ('Model) =>: 'Init ('View) =>: 'Init ('Control) =>: 'Init ('Layout) =>: 'Initialization :&: 'NonEmptySeq
   }
@@ -249,7 +209,8 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = 'ExtraMethodsBad
   }
 
-  // This maps the elements in the Solitaire domain model into actual java fields.
+  // This maps the elements in the Solitaire domain model into actual java 
+  // fields. Not really compositional.
   @combinator object ExtraFields {
     def apply(): Seq[FieldDeclaration] = {
       val fields =

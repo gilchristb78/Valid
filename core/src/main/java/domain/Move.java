@@ -1,5 +1,7 @@
 package domain;
 
+import java.util.Optional;
+
 /**
  * A Move represents a potential move in a solitaire game. 
  *
@@ -30,31 +32,52 @@ package domain;
  * 
  * Note a UnaryMove class is a simpler concept required for moves
  * initiated without need for a terminating action. This includes (for
- * example), flipping a card.
+ * example), flipping a card or dealing cards from the stock to tableau.
  * 
  * @author heineman
  */
 public abstract class Move {
 
-   public final Container srcContainer;
+   /** Assume always a source. */
+   public final Container        srcContainer;
 
-   public final Container targetContainer;
-        
-   public Move (Container src, Container target) {
+   /** Optionally there may be a target. */
+   public final Optional<Container>        targetContainer;
+   public final ConstraintStmt   constraint;
+    
+       
+   //public Move (Container src, Container target) {
+   //   this(src, target, null);
+   //}
+ 
+   /** Constraint a move where target is missing. */
+   public Move (Container src, ConstraintStmt cons) {
       srcContainer = src;
-      targetContainer = target;
+      targetContainer = Optional.empty();
+      constraint = cons;
+   }
+
+   /** Constraint a move with (src, target) and constraint. */
+   public Move (Container src, Container target, ConstraintStmt cons) {
+      srcContainer = src;
+      targetContainer = Optional.of(target);
+      this.constraint = cons;
    }
 
    public String toString() {
       return srcContainer + " -> " + targetContainer;
    }
 
+   /** Extract constraint associated with move. */
+   public ConstraintStmt getConstraint() { return constraint; }
 
    /** Get container. */
    public Container getSourceContainer() { return srcContainer; }
 
    /** Get container for the target. */
-   public Container getTargetContainer() { return targetContainer; }
+   public Optional<Container> getTargetContainer() { 
+	return targetContainer; 
+   }
 
    /** Get the source element of this move type. */
    public abstract Element   getSource();

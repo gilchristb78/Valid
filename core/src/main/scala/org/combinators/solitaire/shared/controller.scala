@@ -11,6 +11,7 @@ import org.combinators.solitaire.shared
 
 trait Controller extends Base {
 
+
   class ColumnController(columnNameType: Type) {
     def apply(rootPackage: Name,
       columnDesignate: SimpleName,
@@ -66,7 +67,7 @@ trait Controller extends Base {
         'Controller (pileNameType)
   }
 
-  @combinator object DeckController {
+  class DeckController(deckNameType: Type) {
     def apply(rootPackage: Name,
       nameOfTheGame: SimpleName,
       deckMousePressed: Seq[Statement]): CompilationUnit = {
@@ -77,7 +78,7 @@ trait Controller extends Base {
       ).compilationUnit()
     }
     val semanticType: Type =
-      'RootPackage =>: 'NameOfTheGame =>: 'Deck ('Pressed) =>: 'Controller ('Deck)
+      'RootPackage =>: 'NameOfTheGame =>: 'Deck ('Pressed) =>: 'Controller (deckNameType)
   }
 
 

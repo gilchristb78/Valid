@@ -2,7 +2,14 @@ package domain;
 
 import java.util.*;
 
-public class Rules implements Iterable<Move> {
+/**
+ * Rules are divided into two sets
+ *
+ * Drag rules are those that respond to PRESS -> RELEASE on another widget
+ * Press rules are those that respond to PRESS events on a single widget
+ * Click rules are those that respond to CLICK events on a single widget
+ */
+public class Rules {
     
     /** Winning logic. */
     Logic    logic;
@@ -10,8 +17,17 @@ public class Rules implements Iterable<Move> {
     public Logic  getLogic() { return logic; }
 
     /** Eligible moves. */
-    ArrayList<Move> moves = new ArrayList<Move>();
-    public void addMove(Move m) { moves.add(m); }
-    public Iterator<Move> iterator() { return moves.iterator(); }
+    List<Move> dragMoves  = new ArrayList<Move>();
+    List<Move> pressMoves = new ArrayList<Move>();
+    List<Move> clickMoves = new ArrayList<Move>();
+
+    /** Add designated move to specific action type. */
+    public void addDragMove(Move m)  { dragMoves.add(m); }
+    public void addPressMove(Move m) { pressMoves.add(m); }
+    public void addClickMove(Move m) { clickMoves.add(m); }
+
+    public Iterator<Move> presses() { return pressMoves.iterator(); }
+    public Iterator<Move> drags() { return dragMoves.iterator(); }
+    public Iterator<Move> clicks() { return clickMoves.iterator(); }
 
 }

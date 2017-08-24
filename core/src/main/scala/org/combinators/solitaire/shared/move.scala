@@ -12,6 +12,33 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared
 
 trait Moves extends Base {
+
+  class MultiMove(semanticMoveNameType: Type) {
+    def apply(rootPackage: Name,
+      moveName: SimpleName,
+      helper: Seq[BodyDeclaration[_]],
+      doStmts: Seq[Statement],
+      undoStmts: Seq[Statement],
+      checkValid: Seq[Statement]): CompilationUnit = {
+      shared.moves.java.MultiMove.render(
+        RootPackage = rootPackage,
+        MoveName = moveName,
+        Helper = helper,
+        Do = doStmts,
+        Undo = undoStmts,
+        CheckValid = checkValid
+      ).compilationUnit()
+    }
+    val semanticType: Type =
+      'RootPackage =>:
+        'Move (semanticMoveNameType, 'ClassName) =>:
+        'Move (semanticMoveNameType, 'HelperMethods) =>:
+        'Move (semanticMoveNameType, 'DoStatements) =>:
+        'Move (semanticMoveNameType, 'UndoStatements) =>:
+        'Move (semanticMoveNameType, 'CheckValidStatements) =>:
+        'Move (semanticMoveNameType :&: 'GenericMove, 'CompleteMove)
+  }
+
   // renamed to avoid name clash with Java-domain 'Move' class
   class SolitaireMove(semanticMoveNameType: Type) {
     def apply(rootPackage: Name,
@@ -115,6 +142,15 @@ trait Moves extends Base {
     def apply(): Seq[Statement] = Java("game.updateNumberCardsLeft(-1);").statements()
     val semanticType: Type = 'DecrementNumberCardsLeft
   }
+
+  // Useful generic move for removing a single card from a stack
+  @combinator object RemoveSingleCard {
+    def apply(rootPackage: Name): CompilationUnit = {
+      shared.moves.java.RemoveSingleCard.render(rootPackage).compilationUnit()
+    }
+    val semanticType: Type = 'RootPackage =>: 'Move ('RemoveSingleCard, 'CompleteMove)
+  }
+
 
   @combinator object RemovedCard {
     def apply(rootPackage: Name): CompilationUnit = {

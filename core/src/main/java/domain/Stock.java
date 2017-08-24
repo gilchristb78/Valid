@@ -14,11 +14,15 @@ public class Stock extends Container {
 	/** Default stock has single deck. */
 	public Stock () {
 		numDecks = 1;
+		add(new Deck());
 	}
 
 	/** Create stock from any number of decks. */
 	public Stock (int numDecks) {
 		this.numDecks = numDecks; 
+		for (int i = 0; i < numDecks; i++) {
+		  add(new Deck());
+		}
 	}
 
 	public int getNumDecks () {

@@ -152,11 +152,25 @@ class NextRankCodeGen(c:NextRank) extends ConstraintCodeGen {
   }
 }
 
+/** Handles the HigherRank Constraint. */
+class HigherRankCodeGen(c:HigherRank) extends ConstraintCodeGen {
+  override def toCode(): Expression = {
+    Java(s"""${c.getElement1()}.getRank() > ${c.getElement2()}.getRank()""").expression()
+  }
+}
+
 
 class ExpressionCodeGen(c:ExpressionConstraint) extends ConstraintCodeGen {
   override def toCode(): Expression = {
      Java(s"""${c.getLHS()} ${c.getOp()} ${c.getRHS}""").expression()
   }
+}
+
+class BooleanExpressionCodeGen(b:BooleanExpression) extends ConstraintCodeGen {
+  override def toCode(): Expression = {
+     Java(s"""${b.getExpression()}""").expression()
+  }
+
 }
 
 /**
@@ -219,12 +233,14 @@ object ConstraintCodeGen {
       case retTrue : ReturnTrueExpression => new ReturnTrueCodeGen(retTrue)
       case emptyConstraint: ElementEmpty => new ElementEmptyCodeGen(emptyConstraint)
       case aceConstraint : IsAce => new IsAceCodeGen(aceConstraint)
+      case higherRankConstraint : HigherRank => new HigherRankCodeGen(higherRankConstraint)
       case nextRankConstraint : NextRank => new NextRankCodeGen(nextRankConstraint)
       case descendingConstraint : Descending => new DescendingCodeGen(descendingConstraint)
       case oppositeConstraint : OppositeColor => new OppositeColorCodeGen(oppositeConstraint)
       case alternatingConstraint : AlternatingColors => new AlternatingColorsCodeGen(alternatingConstraint)
       case sameSuitConstraint : SameSuit => new SameSuitCodeGen(sameSuitConstraint)
       case exprConstraint: ExpressionConstraint => new ExpressionCodeGen(exprConstraint)
+      case boolConstraint : BooleanExpression => new BooleanExpressionCodeGen(boolConstraint)
       case orConstraint: OrConstraint => new OrConstraintCodeGen(orConstraint)
       case andConstraint: AndConstraint => new AndConstraintCodeGen(andConstraint)
  //     case notConstraint: NotConstraint => new NotConstraintCodeGen(notConstraint)

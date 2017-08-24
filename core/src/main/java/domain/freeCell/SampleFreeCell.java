@@ -24,7 +24,7 @@ public class SampleFreeCell extends Solitaire {
 		System.out.println("Win:" + sfc.getRules().getLogic());
 		
 		System.out.println("Available Moves:");
-		for (Iterator<Move> it = sfc.getRules().iterator(); it.hasNext(); ) {
+		for (Iterator<Move> it = sfc.getRules().drags(); it.hasNext(); ) {
 			System.out.println("  " + it.next());
 		}
 	}

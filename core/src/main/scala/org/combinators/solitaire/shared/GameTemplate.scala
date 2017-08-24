@@ -8,8 +8,11 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared
+import de.tu_dortmund.cs.ls14.twirl.Java
+
 // domain
 import domain._
+import domain.ui._
 
 trait GameTemplate {
 
@@ -43,6 +46,19 @@ trait GameTemplate {
   // generic 4-column tableau
   @combinator object FourColumnTableau extends NColumnTableau(4, 'Four)
 
+  // Deck on the left and four columns to the right
+  @combinator object StockTableauLayout {
+    def apply(): Layout = {
+      val lay = new Layout()
+      lay.add(Layout.Stock, 15, 20, 73, 97)
+      lay.add(Layout.Tableau, 120, 20, 1360, 13*97)
+   
+      lay
+    }
+
+    val semanticType: Type = 'Layout ('Valid :&: 'StockTableau)
+  }
+
   // Standard Layout with Tableau below a Reserve (Left) and Foundation (Right)
   @combinator object FoundationReserveTableauLayout {
     def apply(): Layout = {
@@ -61,6 +77,76 @@ trait GameTemplate {
     val semanticType: Type = 'Layout ('Valid :&: 'FoundationReserveTableau)
   }
 
+  // these next three functions help map domain model to Java code
+  // not entirely sure this is 'GUI' stuff.
+
+  /** Field Declarations: Used to create fields in subclass. */
+  def fieldGen(name:String, modelType:String, viewType:String, num:Int):Seq[FieldDeclaration] = {
+      Java(s"""
+             |protected static final String field${name}sPrefix = "$name";
+             |public $modelType[] field${name}s = new $modelType[$num];
+             |protected $viewType[] field${name}Views = new $viewType[$num];
+             |""".stripMargin)
+             .classBodyDeclarations()
+             .map(_.asInstanceOf[FieldDeclaration])
+  }
+
+  /** Insert code for basic controllers on a widget. */
+  def controllerGen(viewName:String, contName:String) : Seq[Statement] = {
+     Java(
+        s"""
+           |  $viewName.setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
+           |  $viewName.setUndoAdapter (new SolitaireUndoAdapter (this));
+           |  $viewName.setMouseAdapter (new $contName (this, $viewName));
+           |}""".stripMargin).statements()
+
+  }
+
+  /** Useful for constructing controller initializations. */
+  def loopControllerGen(cont: Container, viewName : String, contName:String): Seq[Statement] = {
+        val nc = cont.size()
+        val inner = controllerGen(viewName + "[j]", contName)
+
+        Java(
+        s"""
+           |for (int j = 0; j < $nc; j++) {
+           |  ${inner.mkString("\n")}
+           |}""".stripMargin).statements()
+     }
+
+  def constructGen(modelName:String, viewName:String, typ:String):Seq[Statement] = {
+    Java(
+        s"""
+           |  $modelName = new $typ(${modelName}Prefix + (j+1));
+           |  addModelElement ($modelName);
+           |  $viewName = new ${typ}View($modelName);
+           |}""".stripMargin).statements()
+
+  }
+
+  /** Generate a deck which has special requirements. */
+  def deckGen (modelName:String, viewName:String):Seq[Statement] = {
+     Java(
+        s"""|// Basic start of pretty much any solitaire game that requires a deck.
+            |$modelName = new Deck ("deck");
+            |$viewName = new DeckView($modelName);
+            |int seed = getSeed();
+            |$modelName.create(seed);
+            |addModelElement ($modelName);
+            |""".stripMargin).statements()
+  }
+
+  /** Useful for constructing view initializations. */
+  def loopConstructGen(cont: Container, modelName: String, viewName : String, typ:String): Seq[Statement] = {
+        val nc = cont.size()
+        Java(
+        s"""
+           |for (int j = 0; j < $nc; j++) {
+           |  $modelName[j] = new $typ(${modelName}Prefix + (j+1));
+           |  addModelElement ($modelName[j]);
+           |  $viewName[j] = new ${typ}View($modelName[j]);
+           |}""".stripMargin).statements()
+     }
 
   @combinator object MainGame {
 

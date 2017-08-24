@@ -17,30 +17,20 @@ import org.combinators.solitaire.shared._
 // domain
 import domain._
 
-class AnotherCombinator(idx:Int)  {
-        def apply() : CompilationUnit = {
-           Java(s"""package org.combinators.solitaire;
-                    public class SecondOne$idx {}""".stripMargin).compilationUnit()
-        }
-
-        val semanticType: Type = 'SecondOne
-      }
-
-   // see what's in there.
 //   for ((k,v) <- updated.combinators) printf("key: %s, value: %s\n", k, v)
-
 
 class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
   lazy val repositoryPre = new Game {}
   lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
 
-  lazy val reply = GammaPre.inhabit[Solitaire]('FreeCellVariation)
+  lazy val reply = GammaPre.inhabit[Solitaire]('Variation('FreeCell))
   lazy val it = reply.interpretedTerms.values.flatMap(_._2).iterator
   lazy val s = it.next()
-  
-  // FreeCellDomain is base class for the solitaire variation. Note that this class is used (essentially)
-  // as a placeholder for the solitaire val, which can then be referred to anywhere as needed.
-  lazy val repository = new FreeCellDomain(s) with ColumnMoves with PileMoves with ColumnController with PileController {}
+ 
+  // FreeCellDomain is base class for the solitaire variation. Note that this
+  // class is used (essentially) as a placeholder for the solitaire val,
+  // which can then be referred to anywhere as needed.
+  lazy val repository = new FreeCellDomain(s) with  ColumnController with PileControllerTrait {}
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
   /** This needs to be defined, and it is set from Gamma. */
@@ -54,7 +44,7 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   // inhabit the controllers, then inhabit all the moves, based upon the domain model.
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-      .addJob[CompilationUnit]('Controller('Column))   // FCC
+      .addJob[CompilationUnit]('Controller('Column))   
       .addJob[CompilationUnit]('Controller('FreePile))
       .addJob[CompilationUnit]('Controller('HomePile))
       .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove))
