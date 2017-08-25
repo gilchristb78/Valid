@@ -201,23 +201,25 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
    // identify all unique pairs and be sure to generate handler for 
    // these cases. NOTE: TAKE FROM RULES NOT FROM S since that doesn't
    // have the proper instantiations of the elements inside
-   var handler_map:Map[Container,List[Move]] = Map()
-//UI   val inner_rules_it = s.getRules.iterator
-//UI   while (inner_rules_it.hasNext()) {
-  //UI    val inner_move = inner_rules_it.next()
+   var drag_handler_map:Map[Container,List[Move]] = Map()
+   val inner_rules_it = s.getRules.drags
+   while (inner_rules_it.hasNext()) {
+      val inner_move = inner_rules_it.next()
 
-//UI      val tgtBase = inner_move.getTargetContainer
+      val tgtBaseHolder = inner_move.getTargetContainer
+      val srcBase = inner_move.getSourceContainer
 
-//UI     // make sure has value
-//UI     if (!handler_map.contains(tgtBase)) {
-//UI         handler_map += (tgtBase -> List(inner_move))
-//UI     } else {
-//UI         val old:List[Move] = handler_map(tgtBase)
-//UI         val newList:List[Move] = old :+ inner_move
- //UI        handler_map -= tgtBase
-//UI         handler_map += (tgtBase -> newList)
-//UI     }
-//UI   }
+      val tgtBase = tgtBaseHolder.get()
+      // make sure has value
+      if (!drag_handler_map.contains(tgtBase)) {
+         drag_handler_map += (tgtBase -> List(inner_move))
+      } else {
+         val old:List[Move] = drag_handler_map(tgtBase)
+         val newList:List[Move] = old :+ inner_move
+         drag_handler_map -= tgtBase
+         drag_handler_map += (tgtBase -> newList)
+     }
+   }
 
    // NOTE:This only is used to deal with release events. Note that in FreeCell, all
    // events are drag events.
@@ -225,13 +227,13 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
    // 
 
    // key is Container, value is List of moves
-   handler_map.keys.foreach{ k =>  
+   drag_handler_map.keys.foreach{ k =>  
      // print( "Key = " + k )   // key is Container
      // println(" Value = " + handler_map(k))   // value is List of movesa
 
       // iterate over moves in the handler_map(k)
       var lastID:Option[Symbol] = None
-      handler_map(k).foreach { m =>
+      drag_handler_map(k).foreach { m =>
 
         val srcBase = m.getSourceContainer
         val srcElementBase = m.getSource.getClass().getSimpleName()
@@ -266,6 +268,7 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
       val mappedElement = mapString(originalTarget)   // maps 'HomePile -> 'Pile
       val typ = Symbol(mappedElement) 
       val item = typ (Symbol(originalTarget), 'Released)
+      print ("try item:" + item + "," + lastID.get)
       updated = updated
          .addCombinator (new StatementConverter(lastID.get, item))
    }
@@ -283,6 +286,7 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
 
    updated
   }
+
 
 class ControllerNaming(typ:Symbol, subType:Symbol, ident:String) {
    def apply(): SimpleName = Java(ident).simpleName()
