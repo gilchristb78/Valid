@@ -4,6 +4,7 @@ import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{IntegerLiteralExpr, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
+import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
@@ -51,8 +52,8 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
            |""".stripMargin).statements()
 
       val colGen = loopConstructGen(solitaire.getTableau(), "fieldColumns", "fieldColumnViews", "Column")
-      val resGen = loopConstructGen(solitaire.getReserve(), "fieldFreePiles", "fieldFreePileViews", "Pile")
-      val foundGen = loopConstructGen(solitaire.getFoundation(), "fieldHomePiles", "fieldHomePileViews", "Pile")
+      val resGen = loopConstructGen(solitaire.getReserve(), "fieldFreePiles", "fieldFreePileViews", "FreePile")
+      val foundGen = loopConstructGen(solitaire.getFoundation(), "fieldHomePiles", "fieldHomePileViews", "HomePile")
 
       head ++ colGen ++ resGen ++ foundGen
     }
@@ -168,17 +169,17 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = 'Init ('Layout)
   }
 
-  // create three separate blocks based on the domain model.
-  @combinator object Initialization {
-    def apply(minit: Seq[Statement],
-      vinit: Seq[Statement],
-      cinit: Seq[Statement],
-      layout: Seq[Statement]): Seq[Statement] = {
-
-      shared.java.DomainInit.render(minit, vinit, cinit, layout).statements()
-    }
-    val semanticType: Type = 'Init ('Model) =>: 'Init ('View) =>: 'Init ('Control) =>: 'Init ('Layout) =>: 'Initialization :&: 'NonEmptySeq
-  }
+//  // create three separate blocks based on the domain model.
+//  @combinator object Initialization {
+//    def apply(minit: Seq[Statement],
+//      vinit: Seq[Statement],
+//      cinit: Seq[Statement],
+//      layout: Seq[Statement]): Seq[Statement] = {
+//
+//      shared.java.DomainInit.render(minit, vinit, cinit, layout).statements()
+//    }
+//    val semanticType: Type = 'Init ('Model) =>: 'Init ('View) =>: 'Init ('Control) =>: 'Init ('Layout) =>: 'Initialization :&: 'NonEmptySeq
+//  }
 
   // vagaries of java imports means these must be defined as well.
   @combinator object ExtraImports {
@@ -204,10 +205,52 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = 'ExtraMethods :&: 'Column ('Column, 'AutoMovesAvailable)   // FCC
   }
 
-  @combinator object EmptyExtraMethods {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
-    val semanticType: Type = 'ExtraMethodsBad
+//  @combinator object EmptyExtraMethods {
+//    def apply(): Seq[MethodDeclaration] = Seq.empty
+//    val semanticType: Type = 'ExtraMethodsBad
+//  }
+
+  class ExtendModel(parent: String, subclass: String, typ:Symbol) {
+
+    def apply(rootPackage: Name): CompilationUnit = {
+       val name = rootPackage.toString()
+       Java(s"""package $name;
+                import ks.common.model.*;
+                public class $subclass extends $parent {
+		  public $subclass (String name) {
+		    super(name);
+		  }
+		}
+	     """).compilationUnit
+    }
+
+    val semanticType : Type = 'RootPackage =>: typ 
   }
+
+   class ExtendView(parent: String, subclass: String, model: String, typ:Symbol) {
+
+    def apply(rootPackage: Name): CompilationUnit = {
+       val name = rootPackage.toString()
+       Java(s"""package $name;
+                import ks.common.view.*;
+                public class $subclass extends $parent {
+                  public $subclass ($model element) {
+                    super(element);
+                  }
+                }
+             """).compilationUnit
+    }
+
+    val semanticType : Type = 'RootPackage =>: typ
+  }
+
+   @combinator object MakeHomePile extends ExtendModel("Pile", "HomePile", 'HomePileClass)
+
+   @combinator object MakeFreePile extends ExtendModel("Pile", "FreePile", 'FreePileClass)
+
+   @combinator object MakeHomePileView extends ExtendView("PileView", "HomePileView", "HomePile", 'HomePileViewClass)
+
+   @combinator object MakeFreePileView extends ExtendView("PileView", "FreePileView", "FreePile", 'FreePileViewClass)
 
   // This maps the elements in the Solitaire domain model into actual java 
   // fields. Not really compositional.
@@ -232,8 +275,9 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
           Java("Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
         }
 
-      val fieldFreePiles = fieldGen("FreePile", "Pile", "PileView", reserve.size())
-      val fieldHomePiles = fieldGen("HomePile", "Pile", "PileView", found.size())
+      // HACK: eventually remove 1 of first 2 parameters
+      val fieldFreePiles = fieldGen("FreePile", "FreePile", "FreePileView", reserve.size())
+      val fieldHomePiles = fieldGen("HomePile", "HomePile", "HomePileView", found.size())
       val fieldColumns = fieldGen("Column", "Column", "ColumnView", tableau.size())
 
       decks ++ fields ++ fieldFreePiles ++ fieldHomePiles ++ fieldColumns

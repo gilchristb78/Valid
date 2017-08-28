@@ -25,48 +25,6 @@ import domain.ui._
 
 trait PileControllerTrait extends shared.Controller with shared.Moves with generic.JavaIdioms  {
 
-  // return Option with everything that earlier would have been inserted into Hashmap.
-  object ReleaseContainer {
- 
-    def unapply(m: Move): Option[Container] = {
-       val tgt = m.getTargetContainer()
-
-       if (tgt.isPresent) {
-         return Option(tgt.get)     // Some(tgt).get
-       }
-
-       None
-    }
-  }
-
-// Container,List[Move] 
-// moves.filter(_.getTargetContainer.isPresent).groupBy(_.getTargetContainer.get)
-
-  def assign_ui[G <: SolitaireDomain](rules:Rules, ui:UserInterface, repo:ReflectedRepository[G]): ReflectedRepository[G] = {
-   // structural. Need to assign user actions for each of the moves.
-   // iterate over all moves, match from those specific ones and assign
-   // GUI actions to them.
-   // http://docs.scala-lang.org/tutorials/tour/extractor-objects.html
-   // when operated over move
-   val it = rules.drags
-   while (it.hasNext) {
-     val rule = it.next
-     rule match {
-       case ReleaseContainer(container) => {
-         //val tgt = single.getTargetContainer().get()
-
-
-       }
-
-       case column:ColumnMove => {
-       }
-       case _ => {} 
-     }
-   }
-
-    repo
-
-  }
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
@@ -92,59 +50,61 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
        return updated
      }
 
-     val rules_it = s.getRules.drags
-     while (rules_it.hasNext()) {
-       val move = rules_it.next()
-       val srcBase = move.getSource.getClass().getSimpleName()
-       val tgtBase = move.getTarget.getClass().getSimpleName()
-       val movable = move.getMovableElement.getClass().getSimpleName()
-
-       val moveString = srcBase + "To" + tgtBase
-       val moveSymbol = Symbol(moveString)
-       //println (moveSymbol + ":" + move + ":" + movable)
-
-       // create code for the move validation, based on the constraints with each move
-        updated = updated
-          .addCombinator (new StatementCombinator (move.getConstraint,
-                          'Move (moveSymbol, 'CheckValidStatements)))
-   
-       updated = updated
-           .addCombinator(new SourceWidgetNameDef(moveSymbol, 
-                                                    mapString(srcBase)))
-           .addCombinator(new TargetWidgetNameDef(moveSymbol,
-                                                    mapString(tgtBase)))
-
-       // Each move is defined as follows:
-       updated = updated
-          .addCombinator(new MoveWidgetToWidgetStatements(moveSymbol))
-          .addCombinator(new ClassNameDef(moveSymbol, moveString))
-          .addCombinator(new MovableElementNameDef(moveSymbol, movable))
-
-       // undo & do generation
-       updated = updated
-          .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
-          .addCombinator(new UndoGenerator(move, 
-				'Move (moveSymbol, 'UndoStatements)))
-          .addCombinator(new DoGenerator(move,
-				'Move (moveSymbol, 'DoStatements)))
-          .addCombinator(new PotentialDraggingVariableGenerator (move,
-                                'Move (moveSymbol, 'DraggingCardVariableName)))
-          .addCombinator(new MoveHelper(move, new SimpleName(moveString), moveSymbol))
-          .addCombinator(new SolitaireMove(moveSymbol))
-
-        // potential move structure varies based on kind of move
-        move match {
-          case single: SingleCardMove => {
-             updated = updated
-               .addCombinator (new PotentialMove(moveSymbol))
-          }
-          case column: ColumnMove     => {
-             updated = updated
-               .addCombinator (new PotentialMoveOneCardFromStack(moveSymbol))
-          }
-        }
-     }
-  
+     updated = createDragLogic (updated, s)
+      
+//     val rules_it = s.getRules.drags
+//     while (rules_it.hasNext()) {
+//       val move = rules_it.next()
+//       val srcBase = move.getSource.getClass().getSimpleName()
+//       val tgtBase = move.getTarget.getClass().getSimpleName()
+//       val movable = move.getMovableElement.getClass().getSimpleName()
+//
+//       val moveString = srcBase + "To" + tgtBase
+//       val moveSymbol = Symbol(moveString)
+//       //println (moveSymbol + ":" + move + ":" + movable)
+//
+//       // create code for the move validation, based on the constraints with each move
+//        updated = updated
+//          .addCombinator (new StatementCombinator (move.getConstraint,
+//                          'Move (moveSymbol, 'CheckValidStatements)))
+//   
+//       updated = updated
+//           .addCombinator(new SourceWidgetNameDef(moveSymbol, 
+//                                                    mapString(srcBase)))
+//           .addCombinator(new TargetWidgetNameDef(moveSymbol,
+//                                                    mapString(tgtBase)))
+//
+//       // Each move is defined as follows:
+//       updated = updated
+//          .addCombinator(new MoveWidgetToWidgetStatements(moveSymbol))
+//          .addCombinator(new ClassNameDef(moveSymbol, moveString))
+//          .addCombinator(new MovableElementNameDef(moveSymbol, movable))
+//
+//       // undo & do generation
+//       updated = updated
+//          .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
+//          .addCombinator(new UndoGenerator(move, 
+//				'Move (moveSymbol, 'UndoStatements)))
+//          .addCombinator(new DoGenerator(move,
+//				'Move (moveSymbol, 'DoStatements)))
+//          .addCombinator(new PotentialDraggingVariableGenerator (move,
+//                                'Move (moveSymbol, 'DraggingCardVariableName)))
+//          .addCombinator(new MoveHelper(move, new SimpleName(moveString), moveSymbol))
+//          .addCombinator(new SolitaireMove(moveSymbol))
+//
+//        // potential move structure varies based on kind of move
+//        move match {
+//          case single: SingleCardMove => {
+//             updated = updated
+//               .addCombinator (new PotentialMove(moveSymbol))
+//          }
+//          case column: ColumnMove     => {
+//             updated = updated
+//               .addCombinator (new PotentialMoveOneCardFromStack(moveSymbol))
+//          }
+//        }
+//     }
+//  
      // NOTE : NEED TO CREATE UI-SPECIFIC MODEL FROM WHICH ALL ARE EXPORTED
      //
      // Source {Free, Column} x { Free, Column, Home }
@@ -159,7 +119,7 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
      updated = updated
        .addCombinator (new IgnorePressedHandler('Pile, 'HomePile))
        .addCombinator (new IgnoreClickedHandler('Pile, 'HomePile))
-       .addCombinator (new SingleCardMoveHandler('FreePile))         // ONLY PILE PRESS
+       .addCombinator (new SingleCardMoveHandler('FreePile)) // ONLY PILE PRESS
        .addCombinator (new IgnoreClickedHandler('Pile, 'FreePile))
        .addCombinator (new IgnoreClickedHandler('Column, 'Column))  
 
@@ -185,18 +145,15 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
    // Go through and assign GUI interactions for each of the known moves. 
    val ui = new UserInterface(s)
    val els_it = ui.controllers
-     while (els_it.hasNext()) {
-       val el = els_it.next()
+   while (els_it.hasNext()) {
+     val el = els_it.next()
 
-       if (el == "HomePile" || el == "FreePile") {
-         updated = updated.addCombinator (new PileController(Symbol(el)))
-       } else if (el == "Column") {
-         updated = updated.addCombinator (new ColumnController(Symbol(el)))
-       }
+     if (el == "HomePile" || el == "FreePile") {
+       updated = updated.addCombinator (new PileController(Symbol(el)))
+     } else if (el == "Column") {
+       updated = updated.addCombinator (new ColumnController(Symbol(el)))
      }
-
-   updated = assign_ui(s.getRules, ui, updated)
-
+   }
 
    // identify all unique pairs and be sure to generate handler for 
    // these cases. NOTE: TAKE FROM RULES NOT FROM S since that doesn't
@@ -221,10 +178,8 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
      }
    }
 
-   // NOTE:This only is used to deal with release events. Note that in FreeCell, all
-   // events are drag events.
-
-   // 
+   // NOTE:This only is used to deal with release events. Note that in FreeCell
+   // all events are drag events.
 
    // key is Container, value is List of moves
    drag_handler_map.keys.foreach{ k =>  
@@ -263,7 +218,6 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
         }
       }
 
-
       val originalTarget = k.types().next()
       val mappedElement = mapString(originalTarget)   // maps 'HomePile -> 'Pile
       val typ = Symbol(mappedElement) 
@@ -272,7 +226,6 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
       updated = updated
          .addCombinator (new StatementConverter(lastID.get, item))
    }
-
 
 // Make the parameter a Type and then it can be passed in.
 
@@ -368,15 +321,15 @@ class ClassNameGenerator(moveSymbol:Symbol, name:String) {
     val semanticType: Type = 'Move (moveSymbol, 'ClassName)
   }
 
-class PotentialDraggingVariableGenerator(m:Move, constructor:Constructor) {
-  def apply(): SimpleName = {
-    m match {
-      case single: SingleCardMove => Java(s"""movingCard""").simpleName()
-      case column: ColumnMove     => Java(s"""movingColumn""").simpleName()
-    }
-  }
-    val semanticType: Type = constructor
-}
+//class PotentialDraggingVariableGenerator(m:Move, constructor:Constructor) {
+//  def apply(): SimpleName = {
+//    m match {
+//      case single: SingleCardMove => Java(s"""movingCard""").simpleName()
+//      case column: ColumnMove     => Java(s"""movingColumn""").simpleName()
+//    }
+//  }
+//    val semanticType: Type = constructor
+//}
 
 // Note: while I can have code within the apply() method, the semanticType
 // is static, so that must be passed in as is. These clarify that a

@@ -29,7 +29,7 @@ trait Game extends GameTemplate with Score52 {
     val semanticType: Type = 'NameOfTheGame
   }
 
-  @combinator object Initialization {
+  @combinator object InitializationCode {
     def apply(rootPackage: Name, numberOfPiles: Expression): Seq[Statement] = {
       java.Initialization.render(rootPackage, numberOfPiles).statements()
     }

@@ -41,11 +41,6 @@ class Idiot @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends Inhab
       .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove))
       .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'GenericMove,   'CompleteMove))
       .addJob[CompilationUnit]('Move('DeckToColumn   :&: 'GenericMove,   'CompleteMove))
-	// no need for potential move for DeckToColumn since no dragging occuring
-
-//      .addJob[CompilationUnit]('MoveRemoveCards)
-//      .addJob[CompilationUnit]('Move('DealStacks, 'CompleteMove))
-//      .addJob[CompilationUnit]('Move('ResetDeck, 'CompleteMove))
 
   lazy val results = Results.addAll(jobs.run())
 

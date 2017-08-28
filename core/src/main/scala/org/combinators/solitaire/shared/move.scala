@@ -156,7 +156,7 @@ trait Moves extends Base {
     def apply(rootPackage: Name): CompilationUnit = {
       shared.moves.java.RemovedCard.render(rootPackage).compilationUnit()
     }
-    val semanticType: Type = 'RootPackage =>: 'Move ('RemoveCard, 'CompleteMove)
+    val semanticType: Type = 'RootPackage =>: 'Move ('RemovedCard, 'CompleteMove)
   }
 
   /**

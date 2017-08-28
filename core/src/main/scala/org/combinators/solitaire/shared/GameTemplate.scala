@@ -22,7 +22,7 @@ trait GameTemplate {
   @combinator object NewEmptySolitaire {
     def apply(): Solitaire = new Solitaire()
     val semanticType: Type =
-      'Solitaire ('Tableau ('None)) :&:
+        'Solitaire ('Tableau ('None)) :&:
         'Solitaire ('Foundation ('None)) :&:
         'Solitaire ('Reserve ('None)) :&:
         'Solitaire ('Layout ('None)) :&:
@@ -77,27 +77,38 @@ trait GameTemplate {
     val semanticType: Type = 'Layout ('Valid :&: 'FoundationReserveTableau)
   }
 
+  // create three separate blocks based on the domain model.
+  @combinator object Initialization {
+    def apply(minit: Seq[Statement],
+      vinit: Seq[Statement],
+      cinit: Seq[Statement],
+      layout: Seq[Statement]): Seq[Statement] = {
+
+      shared.java.DomainInit.render(minit, vinit, cinit, layout).statements()
+    }
+    val semanticType: Type = 'Init ('Model) =>: 'Init ('View) =>: 'Init ('Control) =>: 'Init ('Layout) =>: 'Initialization :&: 'NonEmptySeq
+  }
+
   // these next three functions help map domain model to Java code
   // not entirely sure this is 'GUI' stuff.
 
   /** Field Declarations: Used to create fields in subclass. */
   def fieldGen(name:String, modelType:String, viewType:String, num:Int):Seq[FieldDeclaration] = {
-      Java(s"""
-             |protected static final String field${name}sPrefix = "$name";
-             |public $modelType[] field${name}s = new $modelType[$num];
-             |protected $viewType[] field${name}Views = new $viewType[$num];
-             |""".stripMargin)
-             .classBodyDeclarations()
-             .map(_.asInstanceOf[FieldDeclaration])
+     Java(s"""
+           |public static final String field${name}sPrefix = "$name";
+           |public $modelType[] field${name}s = new $modelType[$num];
+           |public $viewType[] field${name}Views = new $viewType[$num];
+           |""".stripMargin)
+           .classBodyDeclarations()
+           .map(_.asInstanceOf[FieldDeclaration])
   }
 
   /** Insert code for basic controllers on a widget. */
   def controllerGen(viewName:String, contName:String) : Seq[Statement] = {
-     Java(
-        s"""
-           |  $viewName.setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
-           |  $viewName.setUndoAdapter (new SolitaireUndoAdapter (this));
-           |  $viewName.setMouseAdapter (new $contName (this, $viewName));
+     Java(s"""
+           |$viewName.setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
+           |$viewName.setUndoAdapter (new SolitaireUndoAdapter (this));
+           |$viewName.setMouseAdapter (new $contName (this, $viewName));
            |}""".stripMargin).statements()
 
   }
@@ -107,19 +118,17 @@ trait GameTemplate {
         val nc = cont.size()
         val inner = controllerGen(viewName + "[j]", contName)
 
-        Java(
-        s"""
+        Java(s"""
            |for (int j = 0; j < $nc; j++) {
            |  ${inner.mkString("\n")}
            |}""".stripMargin).statements()
      }
 
   def constructGen(modelName:String, viewName:String, typ:String):Seq[Statement] = {
-    Java(
-        s"""
-           |  $modelName = new $typ(${modelName}Prefix + (j+1));
-           |  addModelElement ($modelName);
-           |  $viewName = new ${typ}View($modelName);
+    Java(s"""
+           |$modelName = new $typ(${modelName}Prefix + (j+1));
+           |addModelElement ($modelName);
+           |$viewName = new ${typ}View($modelName);
            |}""".stripMargin).statements()
 
   }

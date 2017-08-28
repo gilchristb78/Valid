@@ -39,7 +39,7 @@ trait Game extends GameTemplate with Score52 with generic.JavaIdioms {
   }
 
   // NumColumns: Expression, NumReservePiles: Expression, NumFoundations: Expression)
-  @combinator object Initialization {
+  @combinator object InitializationCode {
     def apply(numColumns: Expression, numReservePiles: Expression, numFoundations: Expression): Seq[Statement] = {
       java.Initialization.render(numColumns, numReservePiles, numFoundations).statements()
     }
