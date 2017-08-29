@@ -1,6 +1,6 @@
-@(RootPackage: NameExpr,
-        MoveName: NameExpr,
-        Helper: Seq[BodyDeclaration],
+@(RootPackage: Name,
+        MoveName: SimpleName,
+        Helper: Seq[BodyDeclaration[_]],
         Do: Seq[Statement],
         Undo: Seq[Statement],
         CheckValid: Seq[Statement])
@@ -68,6 +68,6 @@ public class @Java(MoveName) extends ks.common.model.Move {
     public boolean valid(Solitaire game) {
 
         @Java(CheckValid)
-        return false;
+       // return false;   NOT NEEDED WITH NEW CONSTRAINT execution
     }
 }

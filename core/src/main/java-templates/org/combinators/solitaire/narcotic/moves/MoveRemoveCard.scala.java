@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, NumPiles: Expression)
+@(RootPackage: Name, NumPiles: Expression)
 package @{Java(RootPackage)}.model;
 
 import ks.common.games.*;

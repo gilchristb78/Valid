@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, NameOfTheGame: NameExpr)
+@(RootPackage: Name, NameOfTheGame: SimpleName)
 Move mx =
     new @{Java(RootPackage)}.model.DealStacksMove(
         ((@{Java(RootPackage)}.@{Java(NameOfTheGame)})theGame).deck,

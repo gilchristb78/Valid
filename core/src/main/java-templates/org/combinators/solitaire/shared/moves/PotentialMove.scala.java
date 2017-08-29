@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, MoveName: NameExpr, DraggingCardVariableName: NameExpr)
+@(RootPackage: Name, MoveName: SimpleName, DraggingCardVariableName: SimpleName)
 package @{Java(RootPackage)}.model;
 
 import ks.common.model.*;

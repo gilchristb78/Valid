@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr)
+@(RootPackage: Name)
 package @{Java(RootPackage)}.model;
 
 import ks.common.model.*;

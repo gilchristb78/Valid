@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, NumPiles: Expression)
+@(RootPackage: Name, NumPiles: Expression)
 // Fields
 CardImages ci = getCardImages();
 

@@ -5,7 +5,7 @@ import scala.collection.JavaConverters._
 import java.nio.file.{FileAlreadyExistsException, Files, Path, Paths}
 
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.expr.{NameExpr, QualifiedNameExpr}
+import com.github.javaparser.ast.expr.{NameExpr, Name}
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter
 
 trait Persistable {
@@ -55,13 +55,15 @@ object Persistable {
       override def rawText(compilationUnit: CompilationUnit) = compilationUnit.toString
       override def path(compilationUnit: CompilationUnit) = {
         val pkg: Seq[String] =
-          compilationUnit.getPackage match {
+          compilationUnit.getPackageDeclaration.orElse(null) match {
             case null => Seq.empty
             case somePkg =>
               somePkg.accept(new GenericVisitorAdapter[Seq[String], Unit] {
-                  override def visit(name: NameExpr, arg: Unit): Seq[String] = Seq(name.getName)
-                  override def visit(name: QualifiedNameExpr, arg: Unit): Seq[String] =
-                    name.getQualifier.accept(this, arg) :+ name.getName
+                  override def visit(name: NameExpr, arg: Unit): Seq[String] = Seq(name.getNameAsString)
+                  override def visit(name: Name, arg: Unit): Seq[String] =
+                    Option(name.getQualifier.orElse(null))
+                      .map((q: Name) => q.accept(this, arg))
+                      .getOrElse(Seq.empty[String]) :+ name.getIdentifier
                 },
                 ()
               )

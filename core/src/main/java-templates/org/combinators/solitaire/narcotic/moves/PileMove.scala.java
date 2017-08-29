@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, PileToPileCondition: Seq[Statement])
+@(RootPackage: Name, PileToPileCondition: Seq[Statement])
 package @{Java(RootPackage)}.moves;
 
 import ks.common.model.*;

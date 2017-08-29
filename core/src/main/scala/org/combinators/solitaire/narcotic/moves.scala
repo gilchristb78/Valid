@@ -1,7 +1,7 @@
 package org.combinators.solitaire.narcotic
 
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.expr.{Expression, NameExpr}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type
@@ -11,14 +11,14 @@ import org.combinators.solitaire.shared
 
 trait Moves extends shared.Controller with shared.Moves {
   @combinator object RemoveCard {
-    def apply(rootPackage: NameExpr, numPiles: Expression): CompilationUnit = {
+    def apply(rootPackage: Name, numPiles: Expression): CompilationUnit = {
       moves.java.MoveRemoveCard.render(rootPackage, numPiles).compilationUnit()
     }
     val semanticType: Type = 'RootPackage =>: 'NumPiles =>: 'MoveRemoveCards
   }
 
   @combinator object PileMove {
-    def apply(rootPackage: NameExpr, pileCondition: Seq[Statement]): CompilationUnit = {
+    def apply(rootPackage: Name, pileCondition: Seq[Statement]): CompilationUnit = {
       moves.java.PileMove.render(rootPackage, pileCondition).compilationUnit()
     }
     val semanticType: Type = 'RootPackage =>: 'PileToPileCondition =>: 'PileMove
@@ -32,44 +32,42 @@ trait Moves extends shared.Controller with shared.Moves {
   }
 
   @combinator object DeckPressedHandler {
-    def apply(rootPackage: NameExpr, nameOfTheGame: NameExpr): Seq[Statement] = {
+    def apply(rootPackage: Name, nameOfTheGame: SimpleName): Seq[Statement] = {
       moves.java.DeckPressed.render(rootPackage, nameOfTheGame).statements()
     }
-    val semanticType: Type = 'RootPackage =>: 'NameOfTheGame =>: 'Deck('Pressed)
+    val semanticType: Type = 'RootPackage =>: 'NameOfTheGame =>: 'Deck ('Pressed)
   }
 
   @combinator object NarcoticPileController extends PileController('NarcoticPile)
 
   @combinator object NarcoticPile {
-    def apply(): NameExpr = {
-      Java("Narcotic").nameExpression()
-    }
-    val semanticType: Type = 'Pile('NarcoticPile, 'ClassName)
+    def apply(): SimpleName = Java("Narcotic").simpleName()
+    val semanticType: Type = 'Pile ('NarcoticPile, 'ClassName)
   }
 
   @combinator object PilePressedHandler {
-    def apply(): (NameExpr, NameExpr) => Seq[Statement] = {
-      (widgetVariableName: NameExpr, ignoreWidgetVariableName: NameExpr) =>
+    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
         moves.java.PilePressed.render(widgetVariableName, ignoreWidgetVariableName).statements()
     }
     val semanticType: Type =
-      'Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        'Pile('NarcoticPile, 'Pressed) :&: 'NonEmptySeq
+      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+        'Pile ('NarcoticPile, 'Pressed) :&: 'NonEmptySeq
   }
 
   @combinator object PiledClickedHandler {
-    def apply(rootPackage: NameExpr, nameOfTheGame: NameExpr): Seq[Statement] = {
+    def apply(rootPackage: Name, nameOfTheGame: SimpleName): Seq[Statement] = {
       moves.java.PileClicked.render(rootPackage, nameOfTheGame).statements()
     }
     val semanticType: Type =
-      'RootPackage =>: 'NameOfTheGame =>: 'Pile('NarcoticPile, 'Clicked) :&: 'NonEmptySeq
+      'RootPackage =>: 'NameOfTheGame =>: 'Pile ('NarcoticPile, 'Clicked) :&: 'NonEmptySeq
   }
 
   @combinator object PileReleasedHandler {
-    def apply(rootPackage: NameExpr): Seq[Statement] = {
+    def apply(rootPackage: Name): Seq[Statement] = {
       moves.java.PileReleased.render(rootPackage).statements()
     }
     val semanticType: Type =
-      'RootPackage =>: 'Pile('NarcoticPile, 'Released) :&: 'NonEmptySeq
+      'RootPackage =>: 'Pile ('NarcoticPile, 'Released) :&: 'NonEmptySeq
   }
 }

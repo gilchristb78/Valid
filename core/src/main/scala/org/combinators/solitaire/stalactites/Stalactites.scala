@@ -10,15 +10,12 @@ import de.tu_dortmund.cs.ls14.git.InhabitationController
 import org.combinators.TypeNameStatistics
 import org.webjars.play.RequireJS
 
-
-
-
 class Stalactites @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
   lazy val repository = new Game with Moves with StalactitesColumnController with  FoundationPileController with ReservePileController with PileToPileMoves with ColumnToPileMoves {}
-  lazy val Gamma = ReflectedRepository(repository)
+  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
   lazy val statistics = new TypeNameStatistics(Gamma)
-  println(statistics.overview)
-  println(statistics.warnings)
+  /*println(statistics.overview)
+  println(statistics.warnings)*/
   lazy val combinators = Gamma.combinators
   lazy val results =
     Results

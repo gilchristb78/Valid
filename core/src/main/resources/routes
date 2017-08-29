@@ -2,25 +2,21 @@
 ->    /                              shared.Routes
 
 GET   /narcotic                      org.combinators.solitaire.narcotic.Narcotic.overview()
-GET   /narcotic/                     org.combinators.solitaire.narcotic.Narcotic.overview()
 GET   /narcotic/raw_:number          org.combinators.solitaire.narcotic.Narcotic.raw(number: Long)
 GET   /narcotic/prepare              org.combinators.solitaire.narcotic.Narcotic.prepare(number: Long)
 GET   /narcotic/narcotic.git/*file   org.combinators.solitaire.narcotic.Narcotic.serveFile(file)
 
 GET   /freecell                      org.combinators.solitaire.freecell.FreeCell.overview()
-GET   /freecell/                     org.combinators.solitaire.freecell.FreeCell.overview()
 GET   /freecell/raw_:number          org.combinators.solitaire.freecell.FreeCell.raw(number: Long)
 GET   /freecell/prepare              org.combinators.solitaire.freecell.FreeCell.prepare(number: Long)
 GET   /freecell/freecell.git/*file   org.combinators.solitaire.freecell.FreeCell.serveFile(file)
 
 GET   /idiot                      org.combinators.solitaire.idiot.Idiot.overview()
-GET   /idiot/                     org.combinators.solitaire.idiot.Idiot.overview()
 GET   /idiot/raw_:number          org.combinators.solitaire.idiot.Idiot.raw(number: Long)
 GET   /idiot/prepare              org.combinators.solitaire.idiot.Idiot.prepare(number: Long)
 GET   /idiot/idiot.git/*file  	  org.combinators.solitaire.idiot.Idiot.serveFile(file)
 
 GET   /stalactites                      org.combinators.solitaire.stalactites.Stalactites.overview()
-GET   /stalactites/                     org.combinators.solitaire.stalactites.Stalactites.overview()
 GET   /stalactites/raw_:number          org.combinators.solitaire.stalactites.Stalactites.raw(number: Long)
 GET   /stalactites/prepare              org.combinators.solitaire.stalactites.Stalactites.prepare(number: Long)
 GET   /stalactites/stalactites.git/*file  	  org.combinators.solitaire.stalactites.Stalactites.serveFile(file)

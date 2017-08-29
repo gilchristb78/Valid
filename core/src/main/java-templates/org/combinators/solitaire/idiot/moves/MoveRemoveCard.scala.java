@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, NumColumns: Expression)
+@(RootPackage: Name, NumColumns: Expression)
 package @{Java(RootPackage)}.model;
 
 import ks.common.games.*;

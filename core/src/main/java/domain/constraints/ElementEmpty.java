@@ -2,14 +2,15 @@ package domain.constraints;
 
 import domain.*;
 
-public class ElementEmpty extends Constraint {
+public class ElementEmpty extends ConstraintExpr {
 
-    public ElementEmpty () {
-	super();
+    final String element;
+
+    public ElementEmpty (String element) {
+        super();
+	this.element = element;
     }
 
-    public ElementEmpty (Constraint c) {
-	super(c);
-    }
+    public String getElement() { return element; }
 
 }

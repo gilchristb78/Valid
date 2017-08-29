@@ -1,4 +1,4 @@
-@(WidgetVariable: NameExpr, IgnoreWidgetVariable: NameExpr)
+@(WidgetVariable: SimpleName, IgnoreWidgetVariable: SimpleName)
 // Ask PileView to retrieve the top card as a CardView Widget
 @Java(WidgetVariable) = src.getCardViewForTopCard(me);
 @Java(IgnoreWidgetVariable) = false;

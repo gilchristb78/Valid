@@ -1,10 +1,11 @@
-@(RootPackage: NameExpr,
-        NameOfTheGame: NameExpr,
+@(RootPackage: Name,
+        NameOfTheGame: SimpleName,
         DeckMousePressed: Seq[Statement])
 package @{Java(RootPackage)}.controller;
 
 // try this out...
 import @{Java(RootPackage)}.*;
+import @{Java(RootPackage)}.model.*;    // where move classes are placed.
 
 import java.awt.event.MouseEvent;
 import ks.common.model.*;
@@ -19,10 +20,14 @@ import ks.common.controller.*;
 public class DeckController extends SolitaireReleasedAdapter {
 	protected @Java(NameOfTheGame) theGame;
 
-	public DeckController(@Java(NameOfTheGame) theGame) {
+        /** The DeckView being controlled */
+        protected DeckView src;
+
+	public DeckController(@Java(NameOfTheGame) theGame, DeckView src) {
 		super(theGame);
 
 		this.theGame = theGame;
+		this.src = src;
 	}
 
 	// Deal cards

@@ -11,7 +11,7 @@ import org.webjars.play.RequireJS
 
 class Narcotic @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
   lazy val repository = new Game with Moves {}
-  lazy val Gamma = ReflectedRepository(repository)
+  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
 
   lazy val combinators = Gamma.combinators
   lazy val results =
