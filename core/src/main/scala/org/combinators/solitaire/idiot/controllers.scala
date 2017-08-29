@@ -52,62 +52,6 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
        return updated
      }
 
-     // All moves (regardless of press/drag/click) all have to define a class.
-     // FIX ME FIX ME FIX ME
-//     var combined = ListBuffer[Move]()
-//     val it1 = s.getRules.drags
-//     while (it1.hasNext()) {
- //       combined += it1.next()
-//     }
-//     val it2 = s.getRules.presses
-//     while (it2.hasNext()) {
-//        combined += it2.next()
-//     }
-//     val it3 = s.getRules.clicks
-//     while (it3.hasNext()) {
-//        combined += it3.next()
-//     }
-//
-//     val rules_1 = combined.iterator
-//     while (rules_1.hasNext) {
-//       val move = rules_1.next()
-//       println ("move:" + move.getSource)
-//       val srcBase = move.getSource.getClass().getSimpleName()
-//       val target = move.getTarget
-//       if (target == null) {
-//          println ("  empty target. Skip" + move);
-//       } else {
-//          val tgtBase = move.getTarget.getClass().getSimpleName()
-//          val movable = move.getMovableElement.getClass().getSimpleName()
-//
-//          val moveString = srcBase + "To" + tgtBase
-//          val moveSymbol = Symbol(moveString)
-//
-//          // undo & do generation
-//          println ("    -- " + moveSymbol + " defined")
-//          updated = updated
-//             .addCombinator(new ClassNameDef(moveSymbol, moveString))
-//             .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
-//             .addCombinator(new UndoGenerator(move, 'Move (moveSymbol, 'UndoStatements)))
-//             .addCombinator(new DoGenerator(move, 'Move (moveSymbol, 'DoStatements)))
-//             .addCombinator(new MoveHelper(move, new SimpleName(moveString), moveSymbol))
-//             .addCombinator(new StatementCombinator (move.getConstraint,
-//                             'Move (moveSymbol, 'CheckValidStatements)))
-//
-//	  move match {
-//            case single : SingleCardMove => {
-//                updated = updated.addCombinator(new SolitaireMove(moveSymbol))
-//            }
-//            case column : ColumnMove => {
- //               updated = updated.addCombinator(new SolitaireMove(moveSymbol))
- //           }
-//            case deck : DeckDealMove => {
-//                updated = updated.addCombinator(new MultiMove(moveSymbol))
-//            }
-//         }
-//       }
-//    }
-
      updated = createMoveClasses(updated, s)
 
      // this section attempts to construct code for all DRAG moves,

@@ -91,18 +91,6 @@ trait Controller extends Base with shared.Moves {
 
    // HACK: NEEDS TO BE REMOVED
    // helper function for dealing with domain-specific mapping; that is, 
-      // domain makes division between "HomePile" and "FreePile" but the
-      // common element within KS will be Pile.
-//      def mapString(s:String):String = {
-//         if (s == "HomePile") {
-//           "Pile"
-//         } else if (s == "FreePile") {
-//           "Pile"
-//         } else {
-//           s
-//         }
-//      }
-
 
    val rules_it = s.getRules.drags
    while (rules_it.hasNext()) {
@@ -113,7 +101,6 @@ trait Controller extends Base with shared.Moves {
 
        val moveString = srcBase + "To" + tgtBase
        val moveSymbol = Symbol(moveString)
-       //println (moveSymbol + ":" + move + ":" + movable)
 
        // create code for the move validation, based on the constraints with each move
         updated = updated
@@ -125,9 +112,7 @@ trait Controller extends Base with shared.Moves {
        // HACK: WHAT TO DO? 
        updated = updated
            .addCombinator(new SourceWidgetNameDef(moveSymbol, srcBase))
-//                                                    mapString(srcBase)))
            .addCombinator(new TargetWidgetNameDef(moveSymbol, tgtBase))
-//                                                    mapString(tgtBase)))
 
        // Each move is defined as follows:
        updated = updated

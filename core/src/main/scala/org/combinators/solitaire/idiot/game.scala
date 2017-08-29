@@ -59,8 +59,6 @@ trait Game extends GameTemplate with Score52 {
       val isEmpty = new ElementEmpty ("destination")
 
       val if_move = new IfConstraint(isEmpty)
-// new IfConstraint(new SameSuit("movingCard", "destination.peek()"),
-//             new IfConstraint(new HigherRank("destination.peek()", "movingCard")),
 
       // Tableau to Tableau
       val tableauToTableau = new SingleCardMove(tableau, tableau, if_move)
