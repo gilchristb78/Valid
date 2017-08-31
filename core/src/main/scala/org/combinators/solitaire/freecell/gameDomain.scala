@@ -169,17 +169,6 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = 'Init ('Layout)
   }
 
-//  // create three separate blocks based on the domain model.
-//  @combinator object Initialization {
-//    def apply(minit: Seq[Statement],
-//      vinit: Seq[Statement],
-//      cinit: Seq[Statement],
-//      layout: Seq[Statement]): Seq[Statement] = {
-//
-//      shared.java.DomainInit.render(minit, vinit, cinit, layout).statements()
-//    }
-//    val semanticType: Type = 'Init ('Model) =>: 'Init ('View) =>: 'Init ('Control) =>: 'Init ('Layout) =>: 'Initialization :&: 'NonEmptySeq
-//  }
 
   // vagaries of java imports means these must be defined as well.
   @combinator object ExtraImports {

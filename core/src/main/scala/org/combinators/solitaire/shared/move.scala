@@ -8,8 +8,14 @@ import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type}
+import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared
+
+import domain._
+import domain.constraints._
+import domain.moves._
+import domain.ui._
 
 trait Moves extends Base {
 
@@ -168,6 +174,52 @@ trait Moves extends Base {
     }
     val semanticType: Type = 'RootPackage =>: 'Move ('DealStacks, 'CompleteMove)
   }
+
+class PotentialDraggingVariableGenerator(m:Move, constructor:Constructor) {
+  def apply(): SimpleName = {
+    m match {
+      case single: SingleCardMove => Java(s"""movingCard""").simpleName()
+      case column: ColumnMove     => Java(s"""movingColumn""").simpleName()
+    }
+  }
+    val semanticType: Type = constructor
+}
+
+// Note: while I can have code within the apply() method, the semanticType
+// is static, so that must be passed in as is. These clarify that a
+// potential moveOneCardFromStack is still a Column Type.
+class PotentialTypeConstructGen(typ:String, constructor:Constructor) {
+    def apply(): JType = Java(typ).tpe()
+    val semanticType: Type = 'Move (constructor, 'TypeConstruct)
+}
+
+/**
+ * When a single card is being removed from the top card of a widget,
+ * either a Column or a Pile
+ */
+class SingleCardMoveHandler(typ:Symbol, source:Symbol) {
+  def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+      var realType = typ.toString()
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+        Java(s"""|$ignoreWidgetVariableName = false;
+                 |$realType srcElement = ($realType) src.getModelElement();
+                 |
+                 |// Return in the case that the widget clicked on is empty
+                 |if (srcElement.count() == 0) {
+                 |  return;
+                 |}
+                 |$widgetVariableName = src.getCardViewForTopCard(me);
+                 |if ($widgetVariableName == null) {
+                 |  return;
+                 |}""".stripMargin).statements()
+  }
+
+ val semanticType: Type =
+    'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+      typ (source, 'Pressed) :&: 'NonEmptySeq
+}
+
+
 
   val moveTaxonomy: Taxonomy =
     Taxonomy("GenericMove")

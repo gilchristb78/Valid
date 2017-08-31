@@ -12,7 +12,7 @@ import org.combinators.solitaire.shared
 trait FoundationPileController extends shared.Controller with generic.JavaIdioms {
 
   // column move designated combinators
-  @combinator object FoundationPileControllerDef extends PileController('FoundationPile)
+  @combinator object FoundationPileControllerDef extends WidgetController('FoundationPile, 'FoundationPile)
 
   @combinator object FoundationPile {
     def apply(): SimpleName = Java("FoundationPile").simpleName()

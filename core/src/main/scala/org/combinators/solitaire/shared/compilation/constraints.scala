@@ -152,6 +152,14 @@ class NextRankCodeGen(c:NextRank) extends ConstraintCodeGen {
   }
 }
 
+/** Handles the SameRank Constraint. */
+class SameRankCodeGen(c:SameRank) extends ConstraintCodeGen {
+  override def toCode(): Expression = {
+    Java(s"""${c.getElement1()}.getRank() == ${c.getElement2()}.getRank()""").expression()
+  }
+}
+
+
 /** Handles the HigherRank Constraint. */
 class HigherRankCodeGen(c:HigherRank) extends ConstraintCodeGen {
   override def toCode(): Expression = {
@@ -235,6 +243,7 @@ object ConstraintCodeGen {
       case aceConstraint : IsAce => new IsAceCodeGen(aceConstraint)
       case higherRankConstraint : HigherRank => new HigherRankCodeGen(higherRankConstraint)
       case nextRankConstraint : NextRank => new NextRankCodeGen(nextRankConstraint)
+      case sameRankConstraint : SameRank => new SameRankCodeGen(sameRankConstraint)
       case descendingConstraint : Descending => new DescendingCodeGen(descendingConstraint)
       case oppositeConstraint : OppositeColor => new OppositeColorCodeGen(oppositeConstraint)
       case alternatingConstraint : AlternatingColors => new AlternatingColorsCodeGen(alternatingConstraint)

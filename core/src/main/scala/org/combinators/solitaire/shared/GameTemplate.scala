@@ -40,11 +40,30 @@ trait GameTemplate {
     val semanticType: Type = 'Tableau ('Valid :&: nAsType :&: 'Column)
   }
 
+ class NPileTableau(n: Int, nAsType: Type) {
+    def apply(): Tableau = {
+      val t = new Tableau()
+      for (_ <- 1 to n)
+        t.add(new Pile())
+      t
+    }
+
+    val semanticType: Type = 'Tableau ('Valid :&: nAsType :&: 'Pile)
+  }
+
+
   // generic 8-column tableau
   @combinator object EightColumnTableau extends NColumnTableau(8, 'Eight)
 
   // generic 4-column tableau
   @combinator object FourColumnTableau extends NColumnTableau(4, 'Four)
+
+  // generic 8-pile tableau
+  @combinator object EightPileTableau extends NPileTableau(8, 'Eight)
+
+  // generic 4-column tableau
+  @combinator object FourPileTableau extends NPileTableau(4, 'Four)
+
 
   // Deck on the left and four columns to the right
   @combinator object StockTableauLayout {

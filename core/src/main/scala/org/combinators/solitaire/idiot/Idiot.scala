@@ -29,14 +29,12 @@ class Idiot @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends Inhab
   lazy val repository = new IdiotDomain(s) with Controllers {}
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
-  // lazy val repository = new Game with Moves with ColumnController {}
-  // lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
-
   lazy val combinators = Gamma.combinators
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
       .addJob[CompilationUnit]('Controller('Deck))
       .addJob[CompilationUnit]('Controller('Column))
+//.addJob[CompilationUnit]('Debug)
       .addJob[CompilationUnit]('Move ('RemoveSingleCard, 'CompleteMove))
       .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove))
       .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'GenericMove,   'CompleteMove))

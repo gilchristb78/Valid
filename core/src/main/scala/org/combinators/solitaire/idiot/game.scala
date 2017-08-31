@@ -68,7 +68,8 @@ trait Game extends GameTemplate with Score52 {
       val sameSuitHigherRankVisible =
          new BooleanExpression("((org.combinators.solitaire.idiot.Idiot)game).isHigher(source)")
 
-      // remove a card
+      // remove a card: FIX ME! MOVE LOGIC OUT OF CONTROLLER AND
+      // INTO THIS MOVE CLASS. THIS ISN'T RIGHT
       val ifr_move = new IfConstraint (new ElementEmpty("source"),
                       new IfConstraint (sameSuitHigherRankVisible), 
                      falsehood)
