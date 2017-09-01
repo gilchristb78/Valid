@@ -6,6 +6,7 @@ import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Java
 import com.github.javaparser.ast.stmt.Statement
+import org.combinators.TypeNameStatistics
 // strange name-clash with 'controllers'. Compiles but in eclipse shows errors :)
 import _root_.controllers.WebJarAssets
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
@@ -32,9 +33,11 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   // which can then be referred to anywhere as needed.
   lazy val repository = new FreeCellDomain(s) with  ColumnController with PileControllerTrait {}
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+  println(new TypeNameStatistics(Gamma).warnings)
 
   /** This needs to be defined, and it is set from Gamma. */
   lazy val combinators = Gamma.combinators
+
 
   // also make sure to synthesize inhabitation requests
  
