@@ -19,6 +19,10 @@ import domain.ui._
 
 trait Moves extends Base {
 
+  /* 
+   * From one source to many destinations. 
+   * Or from many destinations to one source. 
+   */
   class MultiMove(semanticMoveNameType: Type) {
     def apply(rootPackage: Name,
       moveName: SimpleName,
@@ -46,6 +50,7 @@ trait Moves extends Base {
   }
 
   // renamed to avoid name clash with Java-domain 'Move' class
+  /* From one source to another source. */
   class SolitaireMove(semanticMoveNameType: Type) {
     def apply(rootPackage: Name,
       moveName: SimpleName,
@@ -197,9 +202,8 @@ class PotentialTypeConstructGen(typ:String, constructor:Constructor) {
  * When a single card is being removed from the top card of a widget,
  * either a Column or a Pile
  */
-class SingleCardMoveHandler(typ:Symbol, source:Symbol) {
+class SingleCardMoveHandler(realType:String, typ:Symbol, source:Symbol) {
   def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
-      var realType = typ.toString()
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
         Java(s"""|$ignoreWidgetVariableName = false;
                  |$realType srcElement = ($realType) src.getModelElement();

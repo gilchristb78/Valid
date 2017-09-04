@@ -46,6 +46,13 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = 'Init ('Model)
   }
 
+   // generic deal cards from deck into the tableau
+   @combinator object NarcoticInitLayout {
+    def apply(): Seq[Statement] = Seq.empty
+
+    val semanticType: Type = 'Init ('InitialDeal)
+  }
+
   @combinator object NarcoticInitView {
     def apply(): Seq[Statement] = {
 
@@ -67,7 +74,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
       // this can all be retrieved from the solitaire domain model by 
       // checking if a tableau is present, then do the following, etc... for others
-      val itt = lay.placements(Layout.Tableau, tableau, 13*97)
+      val itt = lay.placements(Layout.Tableau, tableau, 97)
       var idx = 0
       while (itt.hasNext) {
         val r = itt.next()
@@ -94,7 +101,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      val pilesetup = loopControllerGen(solitaire.getTableau, "fieldPileViews", name + "PileController")
+      val pilesetup = loopControllerGen(solitaire.getTableau, "fieldPileViews",  "PileController")
 
       // add controllers for the DeckView here...
       val decksetup = controllerGen("deckView", "DeckController")
@@ -104,14 +111,6 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
     val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
   }
-
-  // generic deal cards from deck into the tableau
-  @combinator object NarcoticInitLayout {
-    def apply(): Seq[Statement] = Seq.empty
-
-    val semanticType: Type = 'Init ('Layout)
-  }
-
 
   // vagaries of java imports means these must be defined as well.
   @combinator object ExtraImports {
@@ -126,7 +125,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
-      Java(s"""|public boolean toLeftOf(Pile target, Pile src) {
+      Java(s"""|public boolean toLeftOf(Stack target, Stack src) {
                |  // Check whether target is to left of src
 	       |  for (int i = 0; i < fieldPiles.length; i++) {
 	       |    if (fieldPiles[i] == target) { 	

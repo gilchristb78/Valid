@@ -138,8 +138,8 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", name + "ColumnController")
-      val freesetup = loopControllerGen(solitaire.getReserve, "fieldFreePileViews", "FreeCellPileController")
+      val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", "ColumnController")
+      val freesetup = loopControllerGen(solitaire.getReserve, "fieldFreePileViews", "FreePileController")
       val homesetup = loopControllerGen(solitaire.getFoundation, "fieldHomePileViews", "HomePileController")
 
        colsetup ++ freesetup ++ homesetup
@@ -166,7 +166,7 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
            """.stripMargin).statements()
     }
 
-    val semanticType: Type = 'Init ('Layout)
+    val semanticType: Type = 'Init ('InitialDeal)
   }
 
 

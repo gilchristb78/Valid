@@ -31,16 +31,13 @@ class Narcotic @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   lazy val combinators = Gamma.combinators
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-      .addJob[CompilationUnit]('SolitaireVariation)
       .addJob[CompilationUnit]('Controller('Deck))
       .addJob[CompilationUnit]('Controller('Pile))
-      .addJob[CompilationUnit]('Move ('RemoveSingleCard, 'CompleteMove))
-
-//    .add(Gamma.inhabit[CompilationUnit]('MoveRemoveCards))
-//      .add(Gamma.inhabit[CompilationUnit]('PileMove))
-//      .add(Gamma.inhabit[CompilationUnit]('Controller('NarcoticPile)))
-//      .add(Gamma.inhabit[CompilationUnit]('Move('DealStacks, 'CompleteMove)))
-//      .add(Gamma.inhabit[CompilationUnit]('Move('ResetDeck, 'CompleteMove)))
+      .addJob[CompilationUnit]('Move('RemoveSingleCard, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('DeckToPile :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('PileToPile :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('PileToPile :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('ResetDeck :&: 'GenericMove, 'CompleteMove))
 
    lazy val results = Results.addAll(jobs.run())
 

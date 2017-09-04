@@ -42,8 +42,8 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
        // Each of these controllers are expected in the game.
        if (el == "Deck") {
 	 updated = updated.    // HACK. Why special for Deck???
-             addCombinator (new WidgetControllerJustPress(Symbol(el), Symbol(el)))
-       } else if (el == "Column") {
+             addCombinator (new DeckController(Symbol(el)))
+       } else if (el == "Pile") {
          updated = updated.
              addCombinator (new WidgetController(Symbol(el), Symbol(el)))
        }
@@ -65,7 +65,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
      // These are handling the PRESS events... SHOULD BE ABLE TO 
      // INFER THESE FROM THE AVAILABLE MOVES
      updated = updated
-       .addCombinator (new SingleCardMoveHandler('Pile, 'Pile))
+       .addCombinator (new SingleCardMoveHandler("Pile", 'Pile, 'Pile))
        .addCombinator (new DealToTableauHandlerLocal())
        .addCombinator (new TryRemoveCardHandlerLocal('Pile, 'Pile))
 
@@ -89,7 +89,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
  */
 class DealToTableauHandlerLocal() {
  def apply():Seq[Statement] = {
-        Java(s"""|m = new DeckToColumn(theGame.deck, theGame.piles);
+        Java(s"""|m = new DeckToPile(theGame.deck, theGame.fieldPiles);
                  |if (m.doMove(theGame)) {
 		 |   theGame.pushMove(m);
                  |}""".stripMargin).statements()

@@ -98,6 +98,19 @@ trait Game extends GameTemplate with Score52 {
       val tableauToTableau = new SingleCardMove(tableau, tableau, tt_move)
       rules.addDragMove(tableauToTableau)
 
+      // deal four cards from Stock
+      val deck_move = new IfConstraint(new ElementEmpty ("source"),
+          falsehood, truth)
+      val deckDeal = new DeckDealMove(stock, tableau, deck_move)
+      println ("stock:" + stock.getClass() + ", tableau:" + tableau)
+      rules.addPressMove(deckDeal)
+
+      // reset deck if empty
+      val reset_move = new IfConstraint(new ElementEmpty ("source"),
+          truth, falsehood)
+      val deckReset = new ResetDeckMove(stock, tableau, reset_move)
+      rules.addPressMove(deckReset)
+
       rules
    }
 

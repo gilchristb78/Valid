@@ -94,7 +94,7 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", name + "ColumnController")
+      val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", "ColumnController")
 
       // add controllers for the DeckView here...
       val decksetup = controllerGen("deckView", "DeckController")
@@ -109,7 +109,7 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
   @combinator object IdiotInitLayout {
     def apply(): Seq[Statement] = Seq.empty
 
-    val semanticType: Type = 'Init ('Layout)
+    val semanticType: Type = 'Init ('InitialDeal)
   }
 
 

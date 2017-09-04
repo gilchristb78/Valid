@@ -77,6 +77,9 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
             }
             case deck : DeckDealMove => {
                 updated = updated.addCombinator(new MultiMove(moveSymbol))
+            } 
+	    case move : ResetDeckMove => {
+                updated = updated.addCombinator(new MultiMove(moveSymbol))
             }
           }
         }
@@ -239,6 +242,8 @@ class UndoGenerator(m:Move, constructor:Constructor) {
     m match {
       case single: SingleCardMove => Java(s"""source.add(destination.get());""").statements()
 
+      case deck: ResetDeckMove => Seq.empty
+
       case deck: DeckDealMove => Java(s"""
                 |for (Stack s : destinations) {
                 |  source.add(s.get());
@@ -259,6 +264,15 @@ class DoGenerator(m:Move, constructor:Constructor) {
     def apply(): Seq[Statement] = {
     m match {
       case single: SingleCardMove => Java(s"""destination.add(movingCard);""").statements()
+
+      case deck: ResetDeckMove => Java(s"""
+		|// Note destinations contain the stacks that are to
+		|// be reformed into a single deck.
+		|for (Stack s : destinations) {
+		|  while (!s.empty()) {
+		|	deck.add(s.get());
+		|  }
+		|}""".stripMargin).statements()
 
       case deck: DeckDealMove => Java(s"""
                 |for (Stack s : destinations) {
@@ -284,6 +298,8 @@ class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
 
         case deck : DeckDealMove => Seq.empty
 
+	case deck : ResetDeckMove => Seq.empty
+
         case column : ColumnMove     =>
           Java(s"""|Column movingColumn;
                    |int numInColumn;
@@ -298,35 +314,35 @@ class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
  val semanticType: Type = 'Move (moveSymbol, 'HelperMethods)
 }
 
-class WidgetController(columnNameType: Type, symbol:Symbol) {
+class WidgetController(elementType: Type, symbol:Symbol) {
     def apply(rootPackage: Name,
-      columnDesignate: SimpleName,
+      designate: SimpleName,
       nameOfTheGame: SimpleName,
-      columnMouseClicked: Seq[Statement],
-      columnMouseReleased: Seq[Statement],
-      columnMousePressed: (SimpleName, SimpleName) => Seq[Statement]): CompilationUnit = {
+      mouseClicked: Seq[Statement],
+      mouseReleased: Seq[Statement],
+      mousePressed: (SimpleName, SimpleName) => Seq[Statement]): CompilationUnit = {
 
-      shared.controller.java.ColumnController.render(
+      shared.controller.java.Controller.render(
         RootPackage = rootPackage,
-        ColumnDesignate = columnDesignate,
+        Designate = new SimpleName(elementType.toString),
         NameOfTheGame = nameOfTheGame,
         AutoMoves = Seq.empty,
-        ColumnMouseClicked = columnMouseClicked,
-        ColumnMousePressed = columnMousePressed,
-        ColumnMouseReleased = columnMouseReleased
+        MouseClicked = mouseClicked,
+        MousePressed = mousePressed,
+        MouseReleased = mouseReleased
       ).compilationUnit()
     }
     val semanticType: Type =
       'RootPackage =>:
-        symbol (columnNameType, 'ClassName) =>:
+        symbol (elementType, 'ClassName) =>:
         'NameOfTheGame =>:
-        symbol (columnNameType, 'Clicked) :&: 'NonEmptySeq =>:
-        symbol (columnNameType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
-        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: symbol (columnNameType, 'Pressed) :&: 'NonEmptySeq) =>:
-        'Controller (columnNameType)
+        symbol (elementType, 'Clicked) :&: 'NonEmptySeq =>:
+        symbol (elementType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
+        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: symbol (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
+        'Controller (elementType)
   }
 
-
+/******************************
   class toRemoveColumnController(columnNameType: Type) {
     def apply(rootPackage: Name,
       columnDesignate: SimpleName,
@@ -382,6 +398,9 @@ class WidgetController(columnNameType: Type, symbol:Symbol) {
         'Controller (pileNameType)
   }
 
+******************************/
+
+/********************
   class WidgetControllerJustPress(nameType: Type, symbol: Symbol) {
     def apply(rootPackage: Name,
       nameOfTheGame: SimpleName,
@@ -395,7 +414,7 @@ class WidgetController(columnNameType: Type, symbol:Symbol) {
     val semanticType: Type =
       'RootPackage =>: 'NameOfTheGame =>: symbol ('Pressed) =>: 'Controller (nameType)
   }
-
+************************/
 
   class DeckController(deckNameType: Type) {
     def apply(rootPackage: Name,
@@ -479,7 +498,7 @@ class ReleaseHandlerDef(typ:Symbol, entity:Symbol, stmts:Seq[Statement]) {
 
 // Guards to ensure statements execute only for ColumnView (multiCard move)
 @combinator object ColumnViewCheck {
-  def apply: Expression = Java("w instance of ColumnView").expression()
+  def apply: Expression = Java("w instanceof ColumnView").expression()
   val semanticType: Type = 'GuardColumnView
 }
 

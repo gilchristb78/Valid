@@ -74,6 +74,7 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
      val el = els_it.next()
 
      // generic widget controller
+     print ("   ** " + el + ":WidgetController")
      updated = updated.
         addCombinator(new WidgetController(Symbol(el), Symbol(el)))
    }

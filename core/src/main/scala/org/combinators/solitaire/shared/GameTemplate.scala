@@ -105,7 +105,7 @@ trait GameTemplate {
 
       shared.java.DomainInit.render(minit, vinit, cinit, layout).statements()
     }
-    val semanticType: Type = 'Init ('Model) =>: 'Init ('View) =>: 'Init ('Control) =>: 'Init ('Layout) =>: 'Initialization :&: 'NonEmptySeq
+    val semanticType: Type = 'Init ('Model) =>: 'Init ('View) =>: 'Init ('Control) =>: 'Init ('InitialDeal) =>: 'Initialization :&: 'NonEmptySeq
   }
 
   // these next three functions help map domain model to Java code

@@ -34,7 +34,6 @@ class Idiot @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends Inhab
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
       .addJob[CompilationUnit]('Controller('Deck))
       .addJob[CompilationUnit]('Controller('Column))
-//.addJob[CompilationUnit]('Debug)
       .addJob[CompilationUnit]('Move ('RemoveSingleCard, 'CompleteMove))
       .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove))
       .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'GenericMove,   'CompleteMove))

@@ -42,7 +42,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
        // Each of these controllers are expected in the game.
        if (el == "Deck") {
 	 updated = updated.    // HACK. Why special for Deck???
-             addCombinator (new WidgetControllerJustPress(Symbol(el), Symbol(el)))
+             addCombinator (new DeckController(Symbol(el)))
        } else if (el == "Column") {
          updated = updated.
              addCombinator (new WidgetController(Symbol(el), Symbol(el)))

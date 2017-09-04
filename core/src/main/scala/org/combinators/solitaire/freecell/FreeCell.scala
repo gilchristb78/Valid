@@ -30,7 +30,7 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
-  lazy val repository = new FreeCellDomain(s) with  ColumnController with PileControllerTrait {}
+  lazy val repository = new FreeCellDomain(s) with ColumnController with PileControllerTrait {}
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
   /** This needs to be defined, and it is set from Gamma. */
