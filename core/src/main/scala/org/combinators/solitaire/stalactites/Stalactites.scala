@@ -16,7 +16,7 @@ class Stalactites @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends
   lazy val statistics = new TypeNameStatistics(Gamma)
   /*println(statistics.overview)
   println(statistics.warnings)*/
-  lazy val combinators = Gamma.combinators
+  lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val results =
     Results
       .add(Gamma.inhabit[CompilationUnit]('increment('SolitaireVariation)))

@@ -32,11 +32,15 @@ class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
   lazy val repository = new FreeCellDomain(s) with  ColumnController with PileControllerTrait {}
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
-  println(new TypeNameStatistics(Gamma).warnings)
+  lazy val Gamma = {
+    val r = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+    println(new TypeNameStatistics(r).warnings)
+    r
+  }
+
 
   /** This needs to be defined, and it is set from Gamma. */
-  lazy val combinators = Gamma.combinators
+  lazy val combinatorComponents = Gamma.combinatorComponents
 
 
   // also make sure to synthesize inhabitation requests

@@ -5,7 +5,7 @@ import java.nio.file._
 import controllers.{Assets, WebJarAssets}
 import shapeless.feat.Enumeration
 import de.tu_dortmund.cs.ls14.cls.inhabitation.Tree
-import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
+import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.java.Persistable
 import de.tu_dortmund.cs.ls14.html
@@ -27,7 +27,7 @@ abstract class InhabitationController(webJars: WebJarAssets, requireJS: RequireJ
   }
   init()
 
-  val combinators: Map[String, Type]
+  val combinatorComponents: Map[String, CombinatorInfo]
 
   val sourceDirectory = Paths.get("src", "main", "java")
 
@@ -143,6 +143,14 @@ abstract class InhabitationController(webJars: WebJarAssets, requireJS: RequireJ
   }
 
   def overview() = Action { request =>
+    val combinators = combinatorComponents.mapValues {
+      case staticInfo: StaticCombinatorInfo =>
+        (ReflectedRepository.fullTypeOf(staticInfo),
+          s"${scala.reflect.runtime.universe.show(staticInfo.fullSignature)}")
+      case dynamicInfo: DynamicCombinatorInfo[_] =>
+        (ReflectedRepository.fullTypeOf(dynamicInfo),
+          dynamicInfo.position.mkString("\n"))
+    }
     Ok(html.overview.render(request.path, webJars, requireJS, combinators, results.targets, results.raw, computedVariations.toSet, results.infinite))
   }
   def raw(id: Long) = {

@@ -28,7 +28,7 @@ class Narcotic @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
   lazy val repository = new NarcoticDomain(s) with Controllers {}
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
-  lazy val combinators = Gamma.combinators
+  lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
       .addJob[CompilationUnit]('SolitaireVariation)

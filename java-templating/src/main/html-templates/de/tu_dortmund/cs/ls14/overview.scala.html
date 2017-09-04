@@ -1,5 +1,5 @@
-@import de.tu_dortmund.cs.ls14.cls.types.Type
 @import de.tu_dortmund.cs.ls14.cls.inhabitation.Tree
+@import de.tu_dortmund.cs.ls14.cls.types.Type
 @import shapeless.feat.Enumeration
 @import controllers.WebJarAssets
 @import scala.language.reflectiveCalls
@@ -7,7 +7,7 @@
 @(path: String,
     webJars: WebJarAssets,
     requireJS: org.webjars.play.RequireJS,
-    combinators: Map[String, Type],
+    combinators: Map[String, (Type, String)],
     targets: Seq[Type],
     rawTerms: Enumeration[Seq[Tree]],
     computedVariations: Set[Long],
@@ -88,8 +88,8 @@
 <h3>Repository:</h3>
 <pre>
     &Gamma; = {
-    @for((name, ty) <- combinators) {
-        @name : @ty
+    @for((name, (ty, position)) <- combinators) {
+        <span data-toggle="tooltip" title="@position">@name : @ty</span>
     }
     }
 </pre>
