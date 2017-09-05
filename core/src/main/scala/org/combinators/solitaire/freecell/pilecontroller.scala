@@ -57,9 +57,9 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
    // Potential moves clarify structure (by type not instance). FIX ME
    // FIX ME FIX ME FIX ME
    updated = updated
-       .addCombinator (new PotentialTypeConstructGen('ColumnToColumn))
-       .addCombinator (new PotentialTypeConstructGen('ColumnToFreePile))
-       .addCombinator (new PotentialTypeConstructGen('ColumnToHomePile))
+       .addCombinator (new PotentialTypeConstructGen('PlaceColumn))
+       .addCombinator (new PotentialTypeConstructGen('MoveColumn))
+       .addCombinator (new PotentialTypeConstructGen('BuildColumn))
 
    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
    updated = updated
@@ -73,16 +73,15 @@ trait PileControllerTrait extends shared.Controller with shared.Moves with gener
    while (els_it.hasNext()) {
      val el = els_it.next()
 
-     // generic widget controller
+     // generic widget controller with auto moves available since we
+     // have that provided by our variation (see extra methods)
      print ("   ** " + el + ":WidgetController")
      updated = updated.
-        addCombinator(new WidgetController(Symbol(el), Symbol(el)))
+        addCombinator(new WidgetControllerWithAutoMoves(Symbol(el), Symbol(el)))
    }
 
-// Make the parameter a Type and then it can be passed in.
-
   // CASE STUDY: Add Automove logic at end of release handlers
-
+  // this is done by manipulating the chosen combinator.
    updated
   }
 

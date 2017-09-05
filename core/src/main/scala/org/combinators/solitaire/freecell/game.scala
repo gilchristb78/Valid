@@ -49,6 +49,7 @@ trait Game extends GameTemplate with Score52 {
       s.setLayout(layout)
       s.setRules(rules)
 
+      s.setAutoMoves (true);  // we have auto moves.
       s
     }
 
@@ -73,7 +74,7 @@ trait Game extends GameTemplate with Score52 {
       val isEmpty = new ElementEmpty ("destination")
 
       // FreePile to FreePile
-      val freePileToFreePile = new SingleCardMove(reserve, reserve, new IfConstraint(isEmpty))
+      val freePileToFreePile = new SingleCardMove("ShuffleFreePile", reserve, reserve, new IfConstraint(isEmpty))
       rules.addDragMove(freePileToFreePile)
 
       // Column To Free Pile Logic
@@ -81,7 +82,7 @@ trait Game extends GameTemplate with Score52 {
       val if1 = new IfConstraint(isEmpty,
                   new IfConstraint(isSingle),
                   falsehood)
-      val columnToFreePileMove = new ColumnMove(tableau, reserve, if1)
+      val columnToFreePileMove = new ColumnMove("PlaceColumn", tableau, reserve, if1)
       rules.addDragMove(columnToFreePileMove)
 
       // Column To Home Pile logic. Just grab first column
@@ -92,7 +93,7 @@ trait Game extends GameTemplate with Score52 {
              new IfConstraint(new NextRank("movingColumn.peek()", "destination.peek()"),
                new IfConstraint(new SameSuit("movingColumn.peek()", "destination.peek()")),
                falsehood))
-      val columnToHomePile = new ColumnMove(tableau, found, if2)
+      val columnToHomePile = new ColumnMove("BuildColumn", tableau, found, if2)
       rules.addDragMove(columnToHomePile)
 
       // FreePile to HomePile
@@ -105,7 +106,7 @@ trait Game extends GameTemplate with Score52 {
                new IfConstraint(new SameSuit("movingCard", "destination.peek()")),
              falsehood))
 
-      val freePileToHomePile = new SingleCardMove(reserve, found, if3)
+      val freePileToHomePile = new SingleCardMove("BuildFreePileCard", reserve, found, if3)
       rules.addDragMove(freePileToHomePile)
 
      // FreePile to Column.
@@ -115,7 +116,7 @@ trait Game extends GameTemplate with Score52 {
               falsehood)
 
       val if5 = new IfConstraint(isEmpty, truth, if5_inner)
-      val freePileToColumnPile = new SingleCardMove(reserve, tableau, if5)
+      val freePileToColumnPile = new SingleCardMove("PlaceFreePileCard", reserve, tableau, if5)
       rules.addDragMove(freePileToColumnPile)
 
      // column to column
@@ -144,7 +145,7 @@ trait Game extends GameTemplate with Score52 {
             falsehood),
           falsehood)
 		
-      val columnToColumn = new ColumnMove(tableau, tableau, if4)
+      val columnToColumn = new ColumnMove("MoveColumn", tableau, tableau, if4)
       rules.addDragMove(columnToColumn)
 
       rules

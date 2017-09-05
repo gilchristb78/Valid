@@ -9,12 +9,11 @@ import java.util.*;
  */
 public class DeckDealMove extends Move {
 
-
     /** 
      * Determine conditions for moving column of cards from src to target. 
      */
-    public DeckDealMove (Container src, Container target, ConstraintStmt constraint) {
-	super(src, target, constraint);
+    public DeckDealMove (String name, Container src, Container target, ConstraintStmt constraint) {
+	super(name, src, target, constraint);
     }
 
     public String toString() {

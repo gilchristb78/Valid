@@ -17,14 +17,17 @@ class Example @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends Inh
   // which can then be referred to anywhere as needed.
   lazy val repository = new SomeCombinators with OtherCombinators {}
 
+  
+ 
   // not needed yet since we do not have dynamic combinators
-  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
+  // kinding is just a field access.
+  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader, kinding=repository.kindingSpecial.merge(repository.kindingAnother), semanticTaxonomy=repository.taxonomySpecial.merge(repository.taxonomyAnother))
 
   /** This needs to be defined, and it is set from Gamma. */
-  lazy val combinators = Gamma.combinators
+  lazy val combinatorComponents = Gamma.combinatorComponents
 
   lazy val jobs =
-    Gamma.InhabitationBatchJob[CompilationUnit]('TemperatureInterface)
+    Gamma.InhabitationBatchJob[CompilationUnit]('TemperatureInterface('Temperature))
 
 //  Add more jobs as necessary
       //.addJob[CompilationUnit](SEMANTIC-TYPE)

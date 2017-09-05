@@ -54,7 +54,8 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
           val tgtBase = move.getTarget.getClass().getSimpleName()
           val movable = move.getMovableElement.getClass().getSimpleName()
 
-          val moveString = srcBase + "To" + tgtBase
+          ///val moveString = srcBase + "To" + tgtBase
+	  val moveString = move.getName
           val moveSymbol = Symbol(moveString)
 
           // undo & do generation
@@ -104,8 +105,10 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
        val tgtBase = move.getTarget.getClass().getSimpleName()
        val movable = move.getMovableElement.getClass().getSimpleName()
 
-       val moveString = srcBase + "To" + tgtBase
+       ///val moveString = srcBase + "To" + tgtBase
+       val moveString = move.getName
        val moveSymbol = Symbol(moveString)
+
 
        // capture information about the source and target of each move
        updated = updated
@@ -182,16 +185,19 @@ def generateMoveLogic[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:So
         val srcElementBase = m.getSource.getClass().getSimpleName()
         val tgtElementBase = m.getTarget.getClass().getSimpleName()
 
-        val moveString = srcElementBase + "To" + tgtElementBase
+       /// val moveString = srcElementBase + "To" + tgtElementBase
+       val moveString = m.getName
+       val moveSymbol = Symbol(moveString)
+
         val curID = Symbol("ComponentOf-" + UUID.randomUUID().toString())
 
-        val moveSymbol = Symbol(moveString)
         val viewType =
            m match {
               case singleMove : SingleCardMove => 'GuardCardView
               case colummMove : ColumnMove => 'GuardColumnView
            }
 
+        println (moveSymbol + ":" + viewType)
         updated = updated
            .addCombinator (new IfBlock(viewType, 'MoveWidget(moveSymbol), curID))
 
@@ -209,7 +215,7 @@ def generateMoveLogic[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:So
       val originalTarget = k.types().next()
       val typ = Symbol(originalTarget)     
       val item = typ (Symbol(originalTarget), 'Released)
-      val cmp = 'Column ('Column, 'Released)
+      val cmp = 'Pile ('Pile, 'Released)
       val isSame = (cmp == item)
       print ("try item:" + item + "," + lastID.get + ",comp=" + isSame + ".\n")
       updated = updated
@@ -270,7 +276,7 @@ class DoGenerator(m:Move, constructor:Constructor) {
 		|// be reformed into a single deck.
 		|for (Stack s : destinations) {
 		|  while (!s.empty()) {
-		|	deck.add(s.get());
+		|	source.add(s.get());
 		|  }
 		|}""".stripMargin).statements()
 
@@ -342,63 +348,36 @@ class WidgetController(elementType: Type, symbol:Symbol) {
         'Controller (elementType)
   }
 
-/******************************
-  class toRemoveColumnController(columnNameType: Type) {
+class WidgetControllerWithAutoMoves(elementType: Type, symbol:Symbol) {
     def apply(rootPackage: Name,
-      columnDesignate: SimpleName,
+      designate: SimpleName,
       nameOfTheGame: SimpleName,
-      columnMouseClicked: Seq[Statement],
-      columnMouseReleased: Seq[Statement],
-      columnMousePressed: (SimpleName, SimpleName) => Seq[Statement]): CompilationUnit = {
+      autoMoves: Seq[Statement],
+      mouseClicked: Seq[Statement],
+      mouseReleased: Seq[Statement],
+      mousePressed: (SimpleName, SimpleName) => Seq[Statement]): CompilationUnit = {
 
-      shared.controller.java.ColumnController.render(
+      shared.controller.java.Controller.render(
         RootPackage = rootPackage,
-        ColumnDesignate = columnDesignate,
+        Designate = new SimpleName(elementType.toString),
         NameOfTheGame = nameOfTheGame,
-        AutoMoves = Seq.empty,
-        ColumnMouseClicked = columnMouseClicked,
-        ColumnMousePressed = columnMousePressed,
-        ColumnMouseReleased = columnMouseReleased
+        AutoMoves = autoMoves,
+        MouseClicked = mouseClicked,
+        MousePressed = mousePressed,
+        MouseReleased = mouseReleased
       ).compilationUnit()
     }
     val semanticType: Type =
       'RootPackage =>:
-        'Column (columnNameType, 'ClassName) =>:
+        symbol (elementType, 'ClassName) =>:
         'NameOfTheGame =>:
-        'Column (columnNameType, 'Clicked) :&: 'NonEmptySeq =>:
-        'Column (columnNameType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
-        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Column (columnNameType, 'Pressed) :&: 'NonEmptySeq) =>:
-        'Controller (columnNameType)
+        'AutoMoves =>: 
+        symbol (elementType, 'Clicked) :&: 'NonEmptySeq =>:
+        symbol (elementType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
+        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: symbol (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
+        'Controller (elementType)
   }
 
-
-  class toRemovePileController(pileNameType: Type) {
-    def apply(rootPackage: Name,
-      pileDesignate: SimpleName,
-      nameOfTheGame: SimpleName,
-      pileMouseClicked: Seq[Statement],
-      pileMouseReleased: Seq[Statement],
-      pileMousePressed: (SimpleName, SimpleName) => Seq[Statement]): CompilationUnit = {
-      shared.controller.java.PileController.render(
-        RootPackage = rootPackage,
-        PileDesignate = pileDesignate,
-        NameOfTheGame = nameOfTheGame,
-        PileMouseClicked = pileMouseClicked,
-        PileMousePressed = pileMousePressed,
-        PileMouseReleased = pileMouseReleased
-      ).compilationUnit()
-    }
-    val semanticType: Type =
-      'RootPackage =>:
-        'Pile (pileNameType, 'ClassName) =>:
-        'NameOfTheGame =>:
-        'Pile (pileNameType, 'Clicked) :&: 'NonEmptySeq =>:
-        'Pile (pileNameType, 'Released) =>:
-        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Pile (pileNameType, 'Pressed) :&: 'NonEmptySeq) =>:
-        'Controller (pileNameType)
-  }
-
-******************************/
 
 /********************
   class WidgetControllerJustPress(nameType: Type, symbol: Symbol) {

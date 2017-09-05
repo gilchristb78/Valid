@@ -13,6 +13,17 @@ import domain.ui._
 
 trait Game extends GameTemplate with Score52 {
 
+  // force you to use the proper arity type.. and avoid typos.
+  object typeDeclarations {
+    val column:Type = 'Column 
+    def constr(a:Type, b:Type):Type = 'ParamColumn (a, b)
+    val p1:Type = 'P1
+    def p2(a:Type):Type = 'P2(a)  
+    
+  }
+
+  import typeDeclarations._
+
   // Idiot is an example solitaire game that uses Deck and Tableau.
   @combinator object IdiotCellStructure {
     def apply(s: Solitaire, t: Tableau, st: Stock): Solitaire = {
@@ -61,7 +72,7 @@ trait Game extends GameTemplate with Score52 {
       val if_move = new IfConstraint(isEmpty)
 
       // Tableau to Tableau
-      val tableauToTableau = new SingleCardMove(tableau, tableau, if_move)
+      val tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, if_move)
       rules.addDragMove(tableauToTableau)
 
       // this special method is added by gameDomain to be accessible here.
@@ -74,7 +85,7 @@ trait Game extends GameTemplate with Score52 {
                       new IfConstraint (sameSuitHigherRankVisible), 
                      falsehood)
 
-      val removeCardFromTableau = new SingleCardMove(tableau, ifr_move)
+      val removeCardFromTableau = new SingleCardMove("RemoveCard", tableau, ifr_move)
       rules.addClickMove(removeCardFromTableau)
 
       // Remove a card from the tableau? This can be optimized by a click
@@ -85,7 +96,7 @@ trait Game extends GameTemplate with Score52 {
       // deal four cards from Stock
       val deck_move = new IfConstraint(new ElementEmpty ("source"),
           falsehood, truth)
-      val deckDeal = new DeckDealMove(stock, tableau, deck_move)
+      val deckDeal = new DeckDealMove("DealDeck", stock, tableau, deck_move)
       println ("stock:" + stock.getClass() + ", tableau:" + tableau)
       rules.addPressMove(deckDeal)
 //move.getSource.getClass().

@@ -44,6 +44,6 @@ trait ColumnController extends shared.Controller with generic.JavaIdioms {
       Java(s"""(($pkgName.$name)theGame).tryAutoMoves();""").statements()
     }
     val semanticType: Type =
-      'RootPackage =>: 'NameOfTheGame =>: 'AutoMoveColumn
+      'RootPackage =>: 'NameOfTheGame =>: 'AutoMoves
   }
 }

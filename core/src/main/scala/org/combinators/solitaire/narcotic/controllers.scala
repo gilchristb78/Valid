@@ -65,7 +65,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
      // These are handling the PRESS events... SHOULD BE ABLE TO 
      // INFER THESE FROM THE AVAILABLE MOVES
      updated = updated
-       .addCombinator (new SingleCardMoveHandler("Pile", 'Pile, 'Pile))
+       .addCombinator (new SingleCardMoveHandlerLocal("Pile", 'Pile, 'Pile))
        .addCombinator (new DealToTableauHandlerLocal())
        .addCombinator (new TryRemoveCardHandlerLocal('Pile, 'Pile))
 
@@ -89,7 +89,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
  */
 class DealToTableauHandlerLocal() {
  def apply():Seq[Statement] = {
-        Java(s"""|m = new DeckToPile(theGame.deck, theGame.fieldPiles);
+        Java(s"""|m = new DealDeck(theGame.deck, theGame.fieldPiles);
                  |if (m.doMove(theGame)) {
 		 |   theGame.pushMove(m);
                  |}""".stripMargin).statements()
@@ -100,8 +100,8 @@ class DealToTableauHandlerLocal() {
 
 class TryRemoveCardHandlerLocal(widgetType:Symbol, source:Symbol) {
   def apply():Seq[Statement] = {
-      Java(s"""|Column srcColumn = (Column) src.getModelElement();
-	       |Move m = new RemoveSingleCard(srcColumn);
+      Java(s"""|Pile srcPile = (Pile) src.getModelElement();
+	       |Move m = new RemoveSingleCard(srcPile);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
                |}
@@ -111,18 +111,49 @@ class TryRemoveCardHandlerLocal(widgetType:Symbol, source:Symbol) {
   val semanticType: Type = widgetType (source, 'Clicked) :&: 'NonEmptySeq
 }
 
+class TryDebugReleased(typ:Symbol) {
+
+  def apply(columnMouseReleased: Seq[Statement]) = {
+    Java(s"""package anything;public class Any { }""").compilationUnit()
+  }
+
+  val semanticType:Type = 'Pile (typ, 'Released) =>: 'Debug
+
+}
+/******
+@combinator object GenReleased {
+   def apply():Seq[Statement] = Seq.empty
+
+   val semanticType:Type = 'Pile('Pile, 'Released)
+}
+
+***********/
+class TryDebugPressed(columnType:Symbol) {
+
+  def apply(columnMousePressed: (SimpleName, SimpleName) => Seq[Statement]) = {
+    Java(s"""package anything;public class Any { }""").compilationUnit()
+  }
+
+  val semanticType:Type = ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Pile (columnType, 'Pressed) :&: 'NonEmptySeq) =>: 'Debug
+
+}
+
+//@combinator object RealDebug extends TryDebug('Column)
+//@combinator object RealDebug2 extends TryDebug2('Column)
+//@combinator object RealDebug3 extends TryDebugReleased('Pile)
+
 
 /** 
  * When a single card is being removed from the top card of a pile.
  */
-class SingleCardMoveHandlerLocal(t:Symbol, source:Symbol) {
+class SingleCardMoveHandlerLocal(xyz:String, t:Symbol, source:Symbol) {
   def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
         Java(s"""|$ignoreWidgetVariableName = false;
-		 |Column srcColumn = (Column) src.getModelElement();
+		 |Pile srcPile = (Pile) src.getModelElement();
 		 |
 		 |// Return in the case that the pile clicked on is empty
-		 |if (srcColumn.count() == 0) {
+		 |if (srcPile.count() == 0) {
         	 |  return;
 		 |}
 		 |$widgetVariableName = src.getCardViewForTopCard(me);
@@ -133,7 +164,7 @@ class SingleCardMoveHandlerLocal(t:Symbol, source:Symbol) {
 
  val semanticType: Type =
     'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-      'Column (source, 'Pressed) :&: 'NonEmptySeq
+      'Pile (source, 'Pressed) :&: 'NonEmptySeq
 }
 
 

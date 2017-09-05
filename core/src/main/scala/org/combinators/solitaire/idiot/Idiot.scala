@@ -29,7 +29,7 @@ class Idiot @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends Inhab
   lazy val repository = new IdiotDomain(s) with Controllers {}
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
-  lazy val combinators = Gamma.combinators
+  lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
       .addJob[CompilationUnit]('Controller('Deck))

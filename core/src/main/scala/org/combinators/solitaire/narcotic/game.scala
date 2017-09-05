@@ -95,20 +95,21 @@ trait Game extends GameTemplate with Score52 {
 		    falsehood)
 		    )
 
-      val tableauToTableau = new SingleCardMove(tableau, tableau, tt_move)
+      val tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, tt_move)
       rules.addDragMove(tableauToTableau)
 
       // deal four cards from Stock
       val deck_move = new IfConstraint(new ElementEmpty ("source"),
           falsehood, truth)
-      val deckDeal = new DeckDealMove(stock, tableau, deck_move)
+      val deckDeal = new DeckDealMove("DealDeck", stock, tableau, deck_move)
       println ("stock:" + stock.getClass() + ", tableau:" + tableau)
       rules.addPressMove(deckDeal)
 
-      // reset deck if empty
+      // reset deck if empty. Move is triggered by press on stock.
+      // this creates DeckToPile, as in the above DeckDealMove.
       val reset_move = new IfConstraint(new ElementEmpty ("source"),
           truth, falsehood)
-      val deckReset = new ResetDeckMove(stock, tableau, reset_move)
+      val deckReset = new ResetDeckMove("ResetDeck", stock, tableau, reset_move)
       rules.addPressMove(deckReset)
 
       rules
