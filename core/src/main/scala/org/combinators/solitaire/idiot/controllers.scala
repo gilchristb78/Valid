@@ -121,7 +121,7 @@ class TryDebug(columnType:Symbol) {
  */
 class DealToTableauHandlerLocal() {
  def apply():Seq[Statement] = {
-        Java(s"""|m = new DeckToColumn(theGame.deck, theGame.fieldColumns);
+        Java(s"""|m = new DealDeck(theGame.deck, theGame.fieldColumns);
                  |if (m.doMove(theGame)) {
 		 |   theGame.pushMove(m);
                  |}""".stripMargin).statements()

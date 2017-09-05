@@ -34,10 +34,9 @@ class Idiot @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends Inhab
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
       .addJob[CompilationUnit]('Controller('Deck))
       .addJob[CompilationUnit]('Controller('Column))
-      .addJob[CompilationUnit]('Move ('RemoveSingleCard, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('ColumnToColumn :&: 'GenericMove,   'CompleteMove))
-      .addJob[CompilationUnit]('Move('DeckToColumn   :&: 'GenericMove,   'CompleteMove))
+      .addJob[CompilationUnit]('Move('RemoveSingleCard , 'CompleteMove))
+      .addJob[CompilationUnit]('Move('MoveCard :&: 'GenericMove,   'CompleteMove))
+      .addJob[CompilationUnit]('Move('DealDeck  :&: 'GenericMove,   'CompleteMove))
 
   lazy val results = Results.addAll(jobs.run())
 
