@@ -125,18 +125,31 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
-      Java(s"""|public boolean toLeftOf(Stack target, Stack src) {
-               |  // Check whether target is to left of src
-	       |  for (int i = 0; i < fieldPiles.length; i++) {
-	       |    if (fieldPiles[i] == target) { 	
-	       |      return true;   // found target first (in left-right)
-	       |    }  
-	       |    if (fieldPiles[i] == src) { 
-               |      return false;  // found src first
-  	       |    }
-	       |  }
-               |  return false; // will never get here
-               |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+       Java(s"""|public boolean toLeftOf(Stack target, Stack src) {
+                |  // Check whether target is to left of src
+	        |  for (int i = 0; i < fieldPiles.length; i++) {
+	        |    if (fieldPiles[i] == target) { 	
+	        |      return true;   // found target first (in left-right)
+	        |    }  
+	        |    if (fieldPiles[i] == src) { 
+                |      return false;  // found src first
+  	        |    }
+	        |  }
+                |  return false; // will never get here
+                |}
+	        |
+		| public boolean allSameRank() {
+		|   if (fieldPiles[0].empty()) { return false; }
+    		|   // Check whether tops of all piles are same rank
+		|   for (int i = 1; i < fieldPiles.length; i++) {
+		|      if (fieldPiles[i].empty()) { return false; }
+            	|      if (fieldPiles[i].rank() != fieldPiles[i-1].rank()) {
+                |        return false;
+            	|      }
+		|   }
+        	|  // looks good
+		|  return true;
+    		|}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
 
     }
     

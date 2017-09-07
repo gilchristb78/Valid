@@ -74,7 +74,17 @@ trait JavaIdioms {
   /**
     * Combine two Seq[Statements], one after the other, and type accordingly
     */
+/**************
   class StatementCombiner(sem1: Constructor, sem2: Constructor, sem3: Constructor) {
+    def apply(head: Seq[Statement], tail: Seq[Statement]): Seq[Statement] = head ++ tail
+    val semanticType: Type = sem1 =>: sem2 =>: sem3
+  }
+******************/
+
+   /**
+    * Combine two Seq[Statements], one after the other, and type accordingly
+    */
+  class StatementCombiner(sem1: Type, sem2: Type, sem3: Type) {
     def apply(head: Seq[Statement], tail: Seq[Statement]): Seq[Statement] = head ++ tail
     val semanticType: Type = sem1 =>: sem2 =>: sem3
   }

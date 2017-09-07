@@ -48,11 +48,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
        println ("move:" + move.getSource)
        val srcBase = move.getSource.getClass().getSimpleName()
        val target = move.getTarget
-       if (target == null) {
-          println ("  empty target. Skip" + move);
+       // All moves are now available....
+       if (target != target) { // null) {
+          println ("  empty target. Skip " + move.getName);
        } else {
-          val tgtBase = move.getTarget.getClass().getSimpleName()
-          val movable = move.getMovableElement.getClass().getSimpleName()
+          ///val tgtBase = move.getTarget.getClass().getSimpleName()
+          ///val movable = move.getMovableElement.getClass().getSimpleName()
 
           ///val moveString = srcBase + "To" + tgtBase
 	  val moveString = move.getName
@@ -82,6 +83,9 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
 	    case move : ResetDeckMove => {
                 updated = updated.addCombinator(new MultiMove(moveSymbol))
             }
+	    case removed: RemoveMultipleCardsMove => {
+		updated = updated.addCombinator(new MultiMove(moveSymbol))
+	    }
           }
         }
      }
@@ -248,7 +252,14 @@ class UndoGenerator(m:Move, constructor:Constructor) {
     m match {
       case single: SingleCardMove => Java(s"""source.add(destination.get());""").statements()
 
+      // No means for undoing the reset of a deck.
       case deck: ResetDeckMove => Seq.empty
+
+      // reinsert the cards that had been removed into removedCards
+      case removed: RemoveMultipleCardsMove => Java(s"""
+		|for (Stack s : destinations) {
+		|  s.add(removedCards.remove(0));
+		|}""".stripMargin).statements()
 
       case deck: DeckDealMove => Java(s"""
                 |for (Stack s : destinations) {
@@ -271,6 +282,12 @@ class DoGenerator(m:Move, constructor:Constructor) {
     m match {
       case single: SingleCardMove => Java(s"""destination.add(movingCard);""").statements()
 
+      // remove cards and prent any attempt for undo.
+      case removed: RemoveMultipleCardsMove => Java(s"""
+		|for (Stack s : destinations) {
+		|  removedCards.add(s.get());
+		|}""".stripMargin).statements()
+
       case deck: ResetDeckMove => Java(s"""
 		|// Note destinations contain the stacks that are to
 		|// be reformed into a single deck.
@@ -285,7 +302,7 @@ class DoGenerator(m:Move, constructor:Constructor) {
                 |  s.add (source.get());
                 |}""".stripMargin).statements()
 
-      case column: ColumnMove     => Java(s"""destination.push(movingColumn);""").statements()
+      case column: ColumnMove => Java(s"""destination.push(movingColumn);""").statements()
     }
   }
     val semanticType: Type = constructor
@@ -303,6 +320,14 @@ class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
                    |}""".stripMargin).classBodyDeclarations()
 
         case deck : DeckDealMove => Seq.empty
+
+ 	// place to store removed cards.
+        case removed : RemoveMultipleCardsMove => Java(s"""
+		   |java.util.ArrayList<Card> removedCards = new java.util.ArrayList<Card>();
+		   |public $name(Stack dests[]) {
+		   |  this(null, dests);
+		   |}
+		   |""".stripMargin).classBodyDeclarations()
 
 	case deck : ResetDeckMove => Seq.empty
 

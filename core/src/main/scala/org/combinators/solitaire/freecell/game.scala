@@ -122,7 +122,11 @@ trait Game extends GameTemplate with Score52 {
      // column to column
      val descend = new Descending("movingColumn")
      val alternating = new AlternatingColors("movingColumn")
-      
+     
+     // HACK! When all freecells are filled, and there is an empty
+     // column on the board, the following logic fails. Need to more
+     // carefully check case when this happens.
+ 
      val sufficientFreeToEmpty =
          new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant() - 1", ">=", "movingColumn.count()")
 

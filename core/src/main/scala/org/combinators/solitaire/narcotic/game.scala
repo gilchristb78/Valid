@@ -98,6 +98,11 @@ trait Game extends GameTemplate with Score52 {
       val tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, tt_move)
       rules.addDragMove(tableauToTableau)
 
+      val allSameRank =
+         new BooleanExpression("((org.combinators.solitaire.narcotic.Narcotic)game).allSameRank()")
+      val tableauRemove = new RemoveMultipleCardsMove("RemoveAllCards", tableau, new IfConstraint(allSameRank))
+      rules.addPressMove(tableauRemove)
+
       // deal four cards from Stock
       val deck_move = new IfConstraint(new ElementEmpty ("source"),
           falsehood, truth)

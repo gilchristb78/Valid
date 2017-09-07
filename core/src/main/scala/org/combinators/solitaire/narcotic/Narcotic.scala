@@ -34,7 +34,9 @@ class Narcotic @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends In
       .addJob[CompilationUnit]('Controller('Deck))
 //	.addJob[CompilationUnit]('Debug)
         .addJob[CompilationUnit]('Controller('Pile))
-      .addJob[CompilationUnit]('Move('RemoveSingleCard, 'CompleteMove))
+
+      // To define RemoveFourCards, observe all parts that are necessary.
+      .addJob[CompilationUnit]('Move('RemoveAllCards :&: 'GenericMove, 'CompleteMove))
       .addJob[CompilationUnit]('Move('DealDeck :&: 'GenericMove, 'CompleteMove))
       .addJob[CompilationUnit]('Move('MoveCard :&: 'PotentialMove, 'CompleteMove))
       .addJob[CompilationUnit]('Move('MoveCard :&: 'GenericMove, 'CompleteMove))
