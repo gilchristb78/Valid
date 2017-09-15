@@ -36,7 +36,7 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
     // visit the domain model. That is an alternative worth considering.
 
     def apply(): Seq[Statement] = {
-      val deck = deckGen("deck", "deckView")
+      val deck = deckGen("deck")
 
       val colGen = loopConstructGen(solitaire.getTableau(), "fieldColumns", "fieldColumnViews", "Column")
 
@@ -59,6 +59,7 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
       val r = itd.next()
 
       val s = Java(s"""
+               |deckView = new DeckView(deck);
                |deckView.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
                |addViewWidget(deckView);
                """.stripMargin).statements()

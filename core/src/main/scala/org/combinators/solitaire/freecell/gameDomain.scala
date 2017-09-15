@@ -20,11 +20,17 @@ import domain.ui._
 // to get the code to compile 
 class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 {
 
+  /**
+    * Every solitaire variation exists within a designated Java package.
+    */
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.freecell").name()
     val semanticType: Type = 'RootPackage
   }
 
+  /**
+    * Each solitaire variation has a name.
+    */
   @combinator object NameOfTheGame {
     def apply: SimpleName = Java("FreeCell").simpleName()
     val semanticType: Type = 'NameOfTheGame
@@ -37,25 +43,22 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     // visit the domain model. That is an alternative worth considering.
 
     def apply(): Seq[Statement] = {
+//
+//      val head = Java(
+//        s"""
+//           |// Basic start of pretty much any solitaire game that requires a deck.
+//           |deck = new Deck ("deck");
+//           |int seed = getSeed();
+//           |deck.create(seed);
+//           |addModelElement (deck);
+//           |""".stripMargin).statements()
 
-//      val NumFreePiles = solitaire.getReserve.size()
-//      val NumHomePiles = solitaire.getFoundation.size()
-//      val NumColumns = solitaire.getTableau.size()
-
-      val head = Java(
-        s"""
-           |// Basic start of pretty much any solitaire game that requires a deck.
-           |deck = new Deck ("deck");
-           |int seed = getSeed();
-           |deck.create(seed);
-           |addModelElement (deck);
-           |""".stripMargin).statements()
-
+      val dg = deckGen ("deck")
       val colGen = loopConstructGen(solitaire.getTableau(), "fieldColumns", "fieldColumnViews", "Column")
       val resGen = loopConstructGen(solitaire.getReserve(), "fieldFreePiles", "fieldFreePileViews", "FreePile")
       val foundGen = loopConstructGen(solitaire.getFoundation(), "fieldHomePiles", "fieldHomePileViews", "HomePile")
 
-      head ++ colGen ++ resGen ++ foundGen
+      dg ++ colGen ++ resGen ++ foundGen
     }
 
     val semanticType: Type = 'Init ('Model)
@@ -64,10 +67,8 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   @combinator object FreeCellInitView {
     def apply(): Seq[Statement] = {
 
-      //val found = Solitaire.getInstance().getFoundation()
       val found = solitaire.getFoundation
       val tableau = solitaire.getTableau
-//      val NumColumns = tableau.size
       val free = solitaire.getReserve
       val lay = solitaire.getLayout
 
@@ -90,6 +91,7 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
         stmts = stmts ++ s
       }
 
+      // really this should be handled better...
       val itr = lay.placements(Layout.Reserve, free, 97)
       idx = 0
       while (itr.hasNext) {

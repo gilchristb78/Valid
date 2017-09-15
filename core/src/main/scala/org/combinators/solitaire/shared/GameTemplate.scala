@@ -230,14 +230,12 @@ trait GameTemplate {
     * the model and initializes it to be ready.
     *
     * @param modelName
-    * @param viewName
     * @return
     */
-  def deckGen (modelName:String, viewName:String):Seq[Statement] = {
+  def deckGen (modelName:String):Seq[Statement] = {
     Java(
       s"""|// Basic start of pretty much any solitaire game that requires a deck.
           |$modelName = new Deck ("deck");
-          |$viewName = new DeckView($modelName);
           |int seed = getSeed();
           |$modelName.create(seed);
           |addModelElement ($modelName);

@@ -36,7 +36,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     // visit the domain model. That is an alternative worth considering.
 
     def apply(): Seq[Statement] = {
-      val deck = deckGen("deck", "deckView")
+      val deck = deckGen("deck")
 
       val pileGen = loopConstructGen(solitaire.getTableau(), "fieldPiles", "fieldPileViews", "Pile")
 
@@ -66,6 +66,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       val r = itd.next()
 
       val s = Java(s"""
+               |deckView = new DeckView(deck);
                |deckView.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
                |addViewWidget(deckView);
                """.stripMargin).statements()
