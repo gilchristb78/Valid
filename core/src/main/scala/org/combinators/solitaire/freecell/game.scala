@@ -22,16 +22,19 @@ trait Game extends GameTemplate with Score52 {
       .addOption('FourColumnTableau)
       .addOption('EightColumnTableau)
 
-    // Free cell is an example solitaire game that uses Foundation, Reserve, and Tableau.
+  /**
+    * A FreeCell variation contains a Foundation (build up from aces), a reserve of four piles,
+    * A Tableau of eight columns, and a single stock deck which is dealt out.
+    */
   @combinator object FreeCellStructure {
-    def apply(s: Solitaire, f: Foundation, r: Reserve, t: Tableau, st: Stock): Solitaire = {
-      s.setFoundation(f)
-      s.setReserve(r)
-      s.setTableau(t)
-      s.setStock(st)
+      def apply(s: Solitaire, f: Foundation, r: Reserve, t: Tableau, st: Stock): Solitaire = {
+        s.setFoundation(f)
+        s.setReserve(r)
+        s.setTableau(t)
+        s.setStock(st)
 
-      s
-    }
+        s
+      }
 
     val semanticType: Type =
       'Solitaire ('Tableau ('None)) :&: 'Solitaire ('Foundation ('None)) :&: 'Solitaire ('Reserve ('None)) :&: 'Solitaire ('Layout ('None)) :&: 'Solitaire ('Rules('None)) =>:
@@ -43,7 +46,10 @@ trait Game extends GameTemplate with Score52 {
   }
 
 
-  // Free cell is an example solitaire game that uses Foundation, Reserve, and Tableau.
+  /**
+    * Once the structure of Freecell is done, take the FreeCell rules and standard layout
+    * of Reserve, Tableau, Foundation and assemble the final variation.
+    */
   @combinator object FreeCellConstruction {
     def apply(s: Solitaire, rules: Rules, layout:Layout): Solitaire = {
       s.setLayout(layout)
@@ -123,15 +129,16 @@ trait Game extends GameTemplate with Score52 {
      val descend = new Descending("movingColumn")
      val alternating = new AlternatingColors("movingColumn")
      
-     // HACK! When all freecells are filled, and there is an empty
-     // column on the board, the following logic fails. Need to more
-     // carefully check case when this happens.
- 
-     val sufficientFreeToEmpty =
-         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant() - 1", ">=", "movingColumn.count()")
+     // If destination is EMPTY, then can't count it as vacant
+     // If source is EMPTY (b/c move created it) then can't count it as vacant either.
+      val oneIsEmpty = new OrConstraint(isEmpty, new ElementEmpty ("source"))
+     val sufficientWithEmpty =
+         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant()", ">=", "movingColumn.count()")
 
      val sufficientFree =
-         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant()", ">=", "movingColumn.count() - 1")
+         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant() + 1", ">=", "movingColumn.count()")
+
+
 
       val if4_inner =
         new IfConstraint(new OppositeColor("movingColumn.peek(0)", "destination.peek()"),
@@ -143,8 +150,8 @@ trait Game extends GameTemplate with Score52 {
      val if4 =
         new IfConstraint(descend,
           new IfConstraint(alternating,
-            new IfConstraint(isEmpty,
-              new IfConstraint(sufficientFreeToEmpty),
+            new IfConstraint(oneIsEmpty,
+              new IfConstraint(sufficientWithEmpty),
               if4_inner),
             falsehood),
           falsehood)

@@ -37,8 +37,8 @@ trait GameTemplate {
   /**
     * Class for constructing Tableau from n Columns.
     *
-    * @param n
-    * @param nAsType
+    * param n             number of columns to create
+    * @param nAsType      type of Column within the semantic type 'Tableau ('Valid :&: typ)
     */
   class NColumnTableau(n: Int, nAsType: Type) {
     def apply(): Tableau = {
@@ -54,8 +54,8 @@ trait GameTemplate {
   /**
     * Class for constructing Tableau from n Piles.
     *
-    * @param n
-    * @param nAsType
+    * @param n            number of piles to create
+    * @param nAsType      type of Pile within the semantic type 'Tableau ('Valid :&: typ)
     */
  class NPileTableau(n: Int, nAsType: Type) {
     def apply(): Tableau = {

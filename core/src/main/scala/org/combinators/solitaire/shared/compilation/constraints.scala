@@ -199,9 +199,9 @@ class BooleanExpressionCodeGen(b:BooleanExpression) extends ConstraintCodeGen {
  */
 class OrConstraintCodeGen(constraint: OrConstraint) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    val left = ConstraintCodeGen(constraint.getC1)
-    val right = ConstraintCodeGen(constraint.getC2)
-    val exp:Expression = Java(s"""$left && $right""").expression()
+    val left = ConstraintCodeGen(constraint.getC1).toCode
+    val right = ConstraintCodeGen(constraint.getC2).toCode
+    val exp:Expression = Java(s"""($left) || ($right)""").expression()
     exp
   }
 }
@@ -210,9 +210,9 @@ class OrConstraintCodeGen(constraint: OrConstraint) extends ConstraintCodeGen {
 // Altered based on n-ary logic?
 class AndConstraintCodeGen(constraint: AndConstraint) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    val left = ConstraintCodeGen(constraint.getC1)
-    val right = ConstraintCodeGen(constraint.getC2)
-    val exp:Expression = Java(s"""$left !! $right""").expression()
+    val left = ConstraintCodeGen(constraint.getC1).toCode
+    val right = ConstraintCodeGen(constraint.getC2).toCode
+    val exp:Expression = Java(s"""($left) && ($right)""").expression()
     exp
   }
 }
