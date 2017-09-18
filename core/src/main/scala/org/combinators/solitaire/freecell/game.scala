@@ -41,7 +41,7 @@ trait Game extends GameTemplate with Score52 {
         'Foundation ('Valid :&: 'HomePile) =>:
         'Reserve ('Valid :&: 'FreePile) =>:
         'Tableau ('Valid :&: 'Eight :&: 'Column) =>:
-        'Stock ('Valid :&: 'OneDeck) =>:
+        'Stock ('Valid :&: 'One :&: 'Deck) =>:
         'Solitaire ('Structure ('FreeCell))
   }
 
@@ -212,13 +212,6 @@ trait Game extends GameTemplate with Score52 {
     }
 
     val semanticType: Type = 'Reserve ('Valid :&: 'Four :&: 'FreePile)
-  }
-
-  // in FreeCell we need a stock composed of a single deck.
-  @combinator object SingleDeckStock {
-    def apply(): Stock = new Stock()
-
-    val semanticType: Type = 'Stock ('Valid :&: 'OneDeck)
   }
 
 

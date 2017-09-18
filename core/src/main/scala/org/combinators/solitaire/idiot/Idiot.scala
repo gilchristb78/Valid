@@ -31,12 +31,13 @@ class Idiot @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends Inhab
 
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
-    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
+    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation :&: 'Solvable)
       .addJob[CompilationUnit]('Controller('Deck))
       .addJob[CompilationUnit]('Controller('Column))
-      .addJob[CompilationUnit]('Move('RemoveSingleCard , 'CompleteMove))
+      .addJob[CompilationUnit]('Move('RemoveCard :&: 'GenericMove , 'CompleteMove))
       .addJob[CompilationUnit]('Move('MoveCard :&: 'GenericMove,   'CompleteMove))
-      .addJob[CompilationUnit]('Move('DealDeck  :&: 'GenericMove,   'CompleteMove))
+      .addJob[CompilationUnit]('Move('MoveCard :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('DealDeck :&: 'GenericMove,   'CompleteMove))
 
   lazy val results = Results.addAll(jobs.run())
 

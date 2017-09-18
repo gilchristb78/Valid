@@ -76,6 +76,23 @@ trait GameTemplate {
   @combinator object EightPileTableau extends NPileTableau(8, 'Eight)
   @combinator object FourPileTableau extends NPileTableau(4, 'Four)
 
+  /**
+    * Combinator for creating a one-deck stock
+    */
+  @combinator object SingleDeckStock {
+    def apply(): Stock = new Stock()
+
+    val semanticType: Type = 'Stock ('Valid :&: 'One :&: 'Deck)
+  }
+
+  /**
+    * Combinator for creating a two-deck stock
+    */
+  @combinator object TwoDeckStock {
+    def apply(): Stock = new Stock(2)
+
+    val semanticType: Type = 'Stock ('Valid :&: 'Two :&: 'Deck)
+  }
 
   /**
     * Common layout for solitaire games with just Stcok on left and tableau on right.
@@ -226,10 +243,10 @@ trait GameTemplate {
      }
 
   /**
-    * Generate statements that constructs a single Deck (and associated Widget view), adds it to
+    * Generate statements that constructs a single Deck (but no view), adds it to
     * the model and initializes it to be ready.
     *
-    * @param modelName
+    * @param modelName    name of model element to create
     * @return
     */
   def deckGen (modelName:String):Seq[Statement] = {
@@ -242,6 +259,18 @@ trait GameTemplate {
           |""".stripMargin).statements()
   }
 
+
+  /**
+    * Generate statements that constructs a single Deck (and associated Widget view), adds it to
+    * the model and initializes it to be ready. Use this for solitaire variations that need
+    * a DeckView to be present.
+    *
+    * @param modelName    name of model element to create
+    * @return
+    */
+  def deckGenWithView (modelName:String, viewName:String):Seq[Statement] = {
+    deckGen(modelName) ++ Java(s"""$viewName = new DeckView($modelName);""".stripMargin).statements()
+  }
 
   /**
     * Primary combinator which constructs the subclass of Solitaire to represent the
@@ -310,5 +339,74 @@ trait GameTemplate {
         'Initialization :&: 'NonEmptySeq =>:
         'WinConditionChecking :&: 'NonEmptySeq =>:
         'SolitaireVariation :&: 'Solvable
+  }
+
+  /**
+    * Place single item, drawn from the given container and of type 'label'.
+    *
+    * Invoke as, example:  layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
+    *
+    * Feels like too many parameters...
+    * @return
+    */
+  def layout_place_one (lay: Layout, c: Container, label:String, view:Name, height:Int): Seq[Statement] = {
+    val itd = lay.placements(label, c, height)
+    val r = itd.next()
+
+    Java(s"""|$view.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
+             |addViewWidget($view);
+       """.stripMargin).statements()
+  }
+
+  /**
+    * Place multiple items, drawn from the given container and of type 'label'.
+    *
+    * Invoke as, example:  layout_place_many(lay, tableau, Layout.Tableau, Java("fieldColumnViews").name(), 13*97)
+    *
+    * Feels like too many parameters...
+    * @return
+    */
+  def layout_place_many (lay: Layout, c:Container, label:String, view:Name, height:Int): Seq[Statement] = {
+    // this can all be retrieved from the solitaire domain model by
+    // checking if a tableau is present, then do the following, etc... for others
+    val itt = lay.placements(label, c, height)
+    var stmts = Java("").statements()     // MUST BE SOME BETTER WAY OF GETTING EMPTY STATEMENTS
+    while (itt.hasNext) {
+      val r = itt.next()
+
+      val s = Java(s"""
+                      |$view[${r.idx}].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
+                      |addViewWidget($view[${r.idx}]);
+               """.stripMargin).statements()
+
+      stmts = stmts ++ s
+    }
+
+    stmts
+  }
+
+  /**
+    * Define fields for Deck (and DeckView) if a stock is defined in the Solitaire domain.
+    *
+    * Properly handles MultiDeck and Deck. Constructs with names 'deck' and 'deckView'
+    *
+    * @param s   Solitaire instance
+    * @return
+    */
+  def deckGen(s:Solitaire) : Seq[FieldDeclaration] = {
+    val stock = s.getStock
+    if (stock == null) {
+      return Seq.empty
+    }
+
+    val decks =
+      if (stock.getNumDecks > 1) {
+        Java("public MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+      } else {
+        Java("public Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+      }
+    val deckViews = Java("DeckView deckView;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+
+    decks ++ deckViews
   }
 }

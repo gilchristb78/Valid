@@ -25,7 +25,7 @@ trait Game extends GameTemplate with Score52 {
     val semanticType: Type =
       'Solitaire ('Tableau ('None)) :&: 'Solitaire ('Layout ('None)) :&: 'Solitaire ('Rules('None)) =>:
         'Tableau ('Valid :&: 'Four :&: 'Pile) =>:
-        'Stock ('Valid :&: 'OneDeck) =>:
+        'Stock ('Valid :&: 'One :&: 'Deck) =>:
         'Solitaire ('Structure ('Narcotic))
   }
 
@@ -44,14 +44,6 @@ trait Game extends GameTemplate with Score52 {
         'Layout ('Valid :&: 'StockTableau) =>:   
         'Variation('Narcotic)
   }
-
-  // This should be moved to shared area rather than being copied.
-  @combinator object SingleDeckStock {
-    def apply(): Stock = new Stock()
-
-    val semanticType: Type = 'Stock ('Valid :&: 'OneDeck)
-  }
-
 
   // in Narcotic we need a valid tableau. Not sure why we have to
   // restrict that here to be 4; could still be searched

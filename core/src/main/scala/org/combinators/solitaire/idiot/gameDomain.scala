@@ -19,33 +19,41 @@ import domain.ui._
 // to get the code to compile 
 class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
 
+  /**
+    * Every solitaire variation belongs in its own package.
+    */
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.idiot").name()
     val semanticType: Type = 'RootPackage
   }
 
+  /**
+    * Every solitaire variation has its own subclass with given name
+    */
   @combinator object NameOfTheGame {
     def apply: SimpleName = Java("Idiot").simpleName()
     val semanticType: Type = 'NameOfTheGame
   }
 
-  // Idiot model derived from the domain model
+  /**
+    * Idiot has a deck and a collection of Columns.
+    */
   @combinator object IdiotInitModel {
 
-    // note: we could avoid passing in these parameters and just solely
-    // visit the domain model. That is an alternative worth considering.
-
     def apply(): Seq[Statement] = {
-      val deck = deckGen("deck")
+      val deck = deckGenWithView("deck", "deckView")
 
       val colGen = loopConstructGen(solitaire.getTableau(), "fieldColumns", "fieldColumnViews", "Column")
 
-      deck ++ colGen 
+      deck ++ colGen
     }
 
     val semanticType: Type = 'Init ('Model)
   }
 
+  /**
+    * Layout properly positions deck in left and columns on right.
+    */
   @combinator object IdiotInitView {
     def apply(): Seq[Statement] = {
 
@@ -53,34 +61,12 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
       val stock = solitaire.getStock
       val lay = solitaire.getLayout
 
-      var stmts = Seq.empty[Statement]
-      
-      val itd = lay.placements(Layout.Stock, stock, 97)
-      val r = itd.next()
+      // start by constructing the DeckView
+      var stmts = Java("deckView = new DeckView(deck);").statements()
 
-      val s = Java(s"""
-               |deckView = new DeckView(deck);
-               |deckView.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-               |addViewWidget(deckView);
-               """.stripMargin).statements()
-      stmts = stmts ++ s
-
-
-      // this can all be retrieved from the solitaire domain model by 
-      // checking if a tableau is present, then do the following, etc... for others
-      val itt = lay.placements(Layout.Tableau, tableau, 13*97)
-      var idx = 0
-      while (itt.hasNext) {
-        val r = itt.next()
-
-        val s = Java(s"""
-               |fieldColumnViews[$idx].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-               |addViewWidget(fieldColumnViews[$idx]);
-               """.stripMargin).statements()
-
-        idx = idx + 1
-        stmts = stmts ++ s
-      }
+      // when placing a single element in Layout, use this API
+      stmts = stmts ++ layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
+      stmts = stmts ++ layout_place_many(lay, tableau, Layout.Tableau, Java("fieldColumnViews").name(), 13*97)
 
       stmts
     }
@@ -88,6 +74,9 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
     val semanticType: Type = 'Init ('View)
   }
 
+  /**
+    * Controllers are associated with each view widget by name.
+    */
   @combinator object IdiotInitControl {
     def apply(NameOfGame: SimpleName): Seq[Statement] = {
       val name = NameOfGame.toString()
@@ -100,13 +89,15 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
       // add controllers for the DeckView here...
       val decksetup = controllerGen("deckView", "DeckController")
 
-       colsetup ++ decksetup
+      colsetup ++ decksetup
     }
 
     val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
   }
 
-  // generic deal cards from deck into the tableau
+  /**
+    * No need to deal cards in Idiot; let player click on deck to deal first four.
+    */
   @combinator object IdiotInitLayout {
     def apply(): Seq[Statement] = Seq.empty
 
@@ -114,7 +105,9 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
   }
 
 
-  // vagaries of java imports means these must be defined as well.
+  /**
+    * Vagaries of java imports means these must be defined as well.
+    */
   @combinator object ExtraImports {
     def apply(nameExpr: Name): Seq[ImportDeclaration] = {
       Seq(
@@ -125,35 +118,90 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
     val semanticType: Type = 'RootPackage =>: 'ExtraImports
   }
 
+  /**
+    * In Idiot, need to be able to tell if there exists a column (other than from) which contains
+    * a top-facing card of same suit and higher rank than from.
+    *
+    * Note the SemanticType of this combinator has been specialized to include 'AvailableMoves for Solvable
+    */
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
       Java(s"""|public boolean isHigher(Column from) {
                |  // empty columns are not eligible.
-	       |  if (from.empty()) { return false; }
-	       |  if (from.rank() == Card.ACE) { return false; }	
-	       |  for (int i = 0; i < fieldColumns.length; i++) {
-	       |    // skip 'from' column and empty ones
-	       |    if (fieldColumns[i] == from ||
-               |        fieldColumns[i].empty()) continue;
-	       |    // must be same suit
-	       |    if (fieldColumns[i].suit() != from.suit()) continue;
-  	       |    // if the current column (has same suit) and has
+               |  if (from.empty()) { return false; }
+               |  if (from.rank() == Card.ACE) { return false; }
+               |  for (int i = 0; i < fieldColumns.length; i++) {
+               |    // skip 'from' column and empty ones
+               |    if (fieldColumns[i] == from || fieldColumns[i].empty()) continue;
+               |    // must be same suit
+               |    if (fieldColumns[i].suit() != from.suit()) continue;
+               |    // if the current column (has same suit) and has
                |    // higher rank than the from column, we can remove.
-	       |    // Note ACES handles specially.
-   	       |    if (fieldColumns[i].rank() > from.rank() || fieldColumns[i].rank() == Card.ACE) {
-	       |	return true;
-   	       |    }
-	       |  }
+               |    // Note ACES handles specially.
+               |    if (fieldColumns[i].rank() > from.rank() || fieldColumns[i].rank() == Card.ACE) {
+               |	    return true;
+               |    }
+               |  }
                |  return false;
-               |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+               |}
+               |
+               |// Available moves based on this variation. Note this was hard-coded in generated code
+               |// and then manually moved into this combinator.
+               |public java.util.Enumeration<Move> availableMoves() {
+               |		java.util.Vector<Move> v = new java.util.Vector<Move>();
+               |
+               |		// try all column moves
+               |		for (int i = 0; i < fieldColumns.length; i++) {
+               |			if (isHigher(fieldColumns[i])) {
+               |				RemoveCard rc = new RemoveCard(fieldColumns[i]);
+               |				if (rc.valid(this)) {
+               |					v.add(rc);
+               |				}
+               |			}
+               |		}
+               |
+               |		// try moving from a column just to an empty space; if one exists, move highest card
+               |		// that has more than one card in the column
+               |		Column emptyColumn = null;
+               |		int maxRank = 0;
+               |		int maxIdx = -1;
+               |		for (int i = 0; i < fieldColumns.length; i++) {
+               |			if (fieldColumns[i].empty()) {
+               |				emptyColumn = fieldColumns[i];
+               |			} else {
+               |				if (fieldColumns[i].rank() > maxRank && fieldColumns[i].count() > 1) {
+               |					maxRank = fieldColumns[i].rank();
+               |					maxIdx = i;
+               |				}
+               |			}
+               |		}
+               |		if (emptyColumn != null && maxIdx >= 0) {
+               |			// find column with highest rank, and try to move it.
+               |			PotentialMoveCard mc = new PotentialMoveCard(fieldColumns[maxIdx], emptyColumn);
+               |			if (mc.valid(this)) {
+               |				v.add(mc);
+               |			}
+               |		}
+               |
+               |		// finally, request to deal four
+               |		if (!this.deck.empty()) {
+               |			DealDeck dd = new DealDeck(deck, fieldColumns);
+               |			if (dd.valid(this)) {
+               |				v.add(dd);
+               |			}
+               |		}
+               |		return v.elements();
+               |	}
+               |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
 
     }
-    
-    val semanticType: Type = 'ExtraMethods 
+
+    val semanticType: Type = 'ExtraMethods :&: 'AvailableMoves
   }
 
-  // This maps the elements in the Solitaire domain model into actual java 
-  // fields. Not really compositional.
+  /**
+    * Create the necessary fields, including ScoreView and NumLeftView
+    */
   @combinator object ExtraFields {
     def apply(): Seq[FieldDeclaration] = {
       val fields =
@@ -163,22 +211,12 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
              |IntegerView numLeftView;
              """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val found = solitaire.getFoundation
-      val reserve = solitaire.getReserve
       val tableau = solitaire.getTableau
-      val stock = solitaire.getStock
-
-      val decks =
-        if (stock.getNumDecks > 1) {
-          Java("public MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-        } else {
-          Java("public Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-        }
-      val deckViews = Java("DeckView deckView;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
       val fieldColumns = fieldGen("Column", "Column", "ColumnView", tableau.size())
+      val decks = deckGen(solitaire)
 
-      decks ++ fields ++ fieldColumns ++ deckViews
+      decks ++ fields ++ fieldColumns
     }
 
     val semanticType: Type = 'ExtraFields

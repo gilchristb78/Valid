@@ -15,16 +15,19 @@ trait Game extends GameTemplate with Score52 {
 
   // force you to use the proper arity type.. and avoid typos.
   object typeDeclarations {
-    val column:Type = 'Column 
+    val column:Type = 'Column
     def constr(a:Type, b:Type):Type = 'ParamColumn (a, b)
     val p1:Type = 'P1
-    def p2(a:Type):Type = 'P2(a)  
-    
+    def p2(a:Type):Type = 'P2(a)
+
   }
 
   import typeDeclarations._
 
-  // Idiot is an example solitaire game that uses Deck and Tableau.
+  /**
+    * Given an empty Solitaire domain object, construct the structure of Idiot by taking a 4-column tableau
+    * and a one-deck Stock.
+    */
   @combinator object IdiotCellStructure {
     def apply(s: Solitaire, t: Tableau, st: Stock): Solitaire = {
       s.setTableau(t)
@@ -36,7 +39,7 @@ trait Game extends GameTemplate with Score52 {
     val semanticType: Type =
       'Solitaire ('Tableau ('None)) :&: 'Solitaire ('Layout ('None)) :&: 'Solitaire ('Rules('None)) =>:
         'Tableau ('Valid :&: 'Four :&: 'Column) =>:
-        'Stock ('Valid :&: 'OneDeck) =>:
+        'Stock ('Valid :&: 'One :&: 'Deck) =>:
         'Solitaire ('Structure ('Idiot))
   }
 
@@ -51,7 +54,7 @@ trait Game extends GameTemplate with Score52 {
 
     val semanticType: Type =
       'Solitaire ('Structure ('Idiot)) =>:
-        'Rules('Idiot) =>:  
+        'Rules('Idiot) =>:
         'Layout ('Valid :&: 'StockTableau) =>:     // NOTHING TO CAUSE THIS.
         'Variation('Idiot)
   }
@@ -77,15 +80,13 @@ trait Game extends GameTemplate with Score52 {
 
       // this special method is added by gameDomain to be accessible here.
       val sameSuitHigherRankVisible =
-         new BooleanExpression("((org.combinators.solitaire.idiot.Idiot)game).isHigher(source)")
+        new BooleanExpression("((org.combinators.solitaire.idiot.Idiot)game).isHigher((Column)source)")
 
-      // remove a card: FIX ME! MOVE LOGIC OUT OF CONTROLLER AND
-      // INTO THIS MOVE CLASS. THIS ISN'T RIGHT
       val ifr_move = new IfConstraint (new ElementEmpty("source"),
-                      new IfConstraint (sameSuitHigherRankVisible), 
-                     falsehood)
+          falsehood,
+          new IfConstraint (sameSuitHigherRankVisible))
 
-      val removeCardFromTableau = new SingleCardMove("RemoveCard", tableau, ifr_move)
+      val removeCardFromTableau = new RemoveSingleCardMove("RemoveCard", tableau, ifr_move)
       rules.addClickMove(removeCardFromTableau)
 
       // Remove a card from the tableau? This can be optimized by a click
@@ -95,24 +96,15 @@ trait Game extends GameTemplate with Score52 {
 
       // deal four cards from Stock
       val deck_move = new IfConstraint(new ElementEmpty ("source"),
-          falsehood, truth)
+        falsehood, truth)
       val deckDeal = new DeckDealMove("DealDeck", stock, tableau, deck_move)
-      println ("stock:" + stock.getClass() + ", tableau:" + tableau)
       rules.addPressMove(deckDeal)
-//move.getSource.getClass().
+
       rules
     }
 
     val semanticType:Type = 'Solitaire('Structure('Idiot)) =>: 'Rules('Idiot)
   }
- 
-  // in Idiot we need a stock composed of a single deck.
-  @combinator object SingleDeckStock {
-    def apply(): Stock = new Stock()
-
-    val semanticType: Type = 'Stock ('Valid :&: 'OneDeck)
-  }
-
 
   // in Idiot we need a valid tableau. Not sure why we have to
   // restrict that here to be 4; could still be searched
