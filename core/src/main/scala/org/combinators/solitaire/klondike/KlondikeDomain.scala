@@ -37,6 +37,10 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = 'NameOfTheGame
   }
 
+  @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
+  @combinator object MakeWastePileView extends ExtendView("PileView", "WastePileView", "WastePile", 'WastePileViewClass)
+
+
   /**
     * Idiot has a deck and a collection of Columns.
     */

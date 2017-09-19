@@ -38,8 +38,6 @@ trait Game extends GameTemplate with Score52 {
   }
 
   @combinator object SevenColumnTableau extends NColumnTableau(7, 'Seven)
-  @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
-  @combinator object MakeWastePileView extends ExtendView("PileView", "WastePileView", "WastePile", 'WastePileViewClass)
 
   // 4-HomePile Foundation
   @combinator object WastePileStructure {
