@@ -12,8 +12,9 @@ import org.combinators.solitaire.shared
 trait FoundationPileController extends shared.Controller with generic.JavaIdioms {
 
   // column move designated combinators
-  @combinator object FoundationPileControllerDef extends WidgetController('FoundationPile, 'FoundationPile)
+  @combinator object FoundationPileControllerDef extends WidgetController('FoundationPile)
 
+  /** For FoundationPile controller, this declares name of the class. */
   @combinator object FoundationPile {
     def apply(): SimpleName = Java("FoundationPile").simpleName()
     val semanticType: Type = 'Pile ('FoundationPile, 'ClassName)

@@ -34,6 +34,41 @@ trait GameTemplate {
         'Solitaire ('Rules ('None))
   }
 
+  class ExtendModel(parent: String, subclass: String, typ:Symbol) {
+
+    def apply(rootPackage: Name): CompilationUnit = {
+      val name = rootPackage.toString()
+      Java(s"""package $name;
+                import ks.common.model.*;
+                public class $subclass extends $parent {
+		  public $subclass (String name) {
+		    super(name);
+		  }
+		}
+	     """).compilationUnit()
+    }
+
+    val semanticType : Type = 'RootPackage =>: typ
+  }
+
+  class ExtendView(parent: String, subclass: String, model: String, typ:Symbol) {
+
+    def apply(rootPackage: Name): CompilationUnit = {
+      val name = rootPackage.toString()
+      Java(s"""package $name;
+                import ks.common.view.*;
+                public class $subclass extends $parent {
+                  public $subclass ($model element) {
+                    super(element);
+                  }
+                }
+             """).compilationUnit()
+    }
+
+    val semanticType : Type = 'RootPackage =>: typ
+  }
+
+
   /**
     * Class for constructing Tableau from n Columns.
     *

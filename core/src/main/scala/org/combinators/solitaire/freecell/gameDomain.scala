@@ -201,46 +201,10 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 //    val semanticType: Type = 'ExtraMethodsBad
 //  }
 
-  class ExtendModel(parent: String, subclass: String, typ:Symbol) {
-
-    def apply(rootPackage: Name): CompilationUnit = {
-       val name = rootPackage.toString()
-       Java(s"""package $name;
-                import ks.common.model.*;
-                public class $subclass extends $parent {
-		  public $subclass (String name) {
-		    super(name);
-		  }
-		}
-	     """).compilationUnit
-    }
-
-    val semanticType : Type = 'RootPackage =>: typ 
-  }
-
-   class ExtendView(parent: String, subclass: String, model: String, typ:Symbol) {
-
-    def apply(rootPackage: Name): CompilationUnit = {
-       val name = rootPackage.toString()
-       Java(s"""package $name;
-                import ks.common.view.*;
-                public class $subclass extends $parent {
-                  public $subclass ($model element) {
-                    super(element);
-                  }
-                }
-             """).compilationUnit
-    }
-
-    val semanticType : Type = 'RootPackage =>: typ
-  }
 
    @combinator object MakeHomePile extends ExtendModel("Pile", "HomePile", 'HomePileClass)
-
    @combinator object MakeFreePile extends ExtendModel("Pile", "FreePile", 'FreePileClass)
-
    @combinator object MakeHomePileView extends ExtendView("PileView", "HomePileView", "HomePile", 'HomePileViewClass)
-
    @combinator object MakeFreePileView extends ExtendView("PileView", "FreePileView", "FreePile", 'FreePileViewClass)
 
   // This maps the elements in the Solitaire domain model into actual java 

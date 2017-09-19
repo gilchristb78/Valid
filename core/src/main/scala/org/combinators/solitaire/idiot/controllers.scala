@@ -44,7 +44,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
           addCombinator (new DeckController(Symbol(el)))
       } else if (el == "Column") {
         updated = updated.
-          addCombinator (new WidgetController(Symbol(el), Symbol(el)))
+          addCombinator (new WidgetController(Symbol(el)))
       }
     }
 

@@ -343,7 +343,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     val semanticType: Type = 'Move (moveSymbol, 'HelperMethods)
   }
 
-  class WidgetController(elementType: Type, symbol:Symbol) {
+  class WidgetController(elementType: Symbol) {
     def apply(rootPackage: Name,
               designate: SimpleName,
               nameOfTheGame: SimpleName,
@@ -353,7 +353,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
 
       shared.controller.java.Controller.render(
         RootPackage = rootPackage,
-        Designate = new SimpleName(elementType.toString),
+        Designate = new SimpleName(elementType.name),   // was toString but that worked with Type
         NameOfTheGame = nameOfTheGame,
         AutoMoves = Seq.empty,
         MouseClicked = mouseClicked,
@@ -363,15 +363,23 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     }
     val semanticType: Type =
       'RootPackage =>:
-        symbol (elementType, 'ClassName) =>:
+        elementType (elementType, 'ClassName) =>:   // 1st was sumbol
         'NameOfTheGame =>:
-        symbol (elementType, 'Clicked) :&: 'NonEmptySeq =>:
-        symbol (elementType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
-        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: symbol (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
+        elementType (elementType, 'Clicked) :&: 'NonEmptySeq =>:    // 1st was symbol
+        elementType (elementType, 'Released) =>:     // 1st was symbol     // pressed was symbol
+        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: elementType (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
         'Controller (elementType)
   }
 
-  class WidgetControllerWithAutoMoves(elementType: Type, symbol:Symbol) {
+  /**
+    * TODO: Note only difference with WidgetController is requirement to add 'AutoMove' as part of the
+    * release handler; really need a better way to implement this. Could it be done with
+    * more refined intersection type on the 'Released term?
+    *
+    * @param elementType
+    * @param symbol
+    */
+  class WidgetControllerWithAutoMoves(elementType: Symbol) {
     def apply(rootPackage: Name,
               designate: SimpleName,
               nameOfTheGame: SimpleName,
@@ -382,7 +390,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
 
       shared.controller.java.Controller.render(
         RootPackage = rootPackage,
-        Designate = new SimpleName(elementType.toString),
+        Designate = new SimpleName(elementType.name),
         NameOfTheGame = nameOfTheGame,
         AutoMoves = autoMoves,
         MouseClicked = mouseClicked,
@@ -392,12 +400,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     }
     val semanticType: Type =
       'RootPackage =>:
-        symbol (elementType, 'ClassName) =>:
+        elementType (elementType, 'ClassName) =>:
         'NameOfTheGame =>:
         'AutoMoves =>:
-        symbol (elementType, 'Clicked) :&: 'NonEmptySeq =>:
-        symbol (elementType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
-        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: symbol (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
+        elementType (elementType, 'Clicked) :&: 'NonEmptySeq =>:
+        elementType (elementType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
+        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: elementType (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
         'Controller (elementType)
   }
 
@@ -472,6 +480,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
         widgetType (source, 'Pressed) :&: 'NonEmptySeq
   }
 
+  /** Essential combinator for naming the ClassName for a controller. */
   class ControllerNaming(typ:Symbol, subType:Symbol, ident:String) {
     def apply(): SimpleName = Java(ident).simpleName()
     val semanticType: Type = typ (subType, 'ClassName)
