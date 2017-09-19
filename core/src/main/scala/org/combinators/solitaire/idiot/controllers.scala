@@ -1,27 +1,15 @@
 package org.combinators.solitaire.idiot
-import com.github.javaparser.ast.CompilationUnit
 
-// name clash
-import com.github.javaparser.ast.`type`.{Type => JType}
-
-import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
-import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.generic
-import _root_.java.util.UUID
 import domain._
-import domain.constraints._
-import domain.moves._
 import domain.ui._
-import scala.collection.mutable.ListBuffer
 
 trait Controllers extends shared.Controller with shared.Moves with generic.JavaIdioms  {
 
@@ -35,7 +23,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
     val ui = new UserInterface(s)
 
     val els_it = ui.controllers
-    while (els_it.hasNext()) {
+    while (els_it.hasNext) {
       val el = els_it.next()
 
       // Each of these controllers are expected in the game.
@@ -89,7 +77,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
     def apply():Seq[Statement] = {
       Java(s"""|m = new DealDeck(theGame.deck, theGame.fieldColumns);
                |if (m.doMove(theGame)) {
-               		 |   theGame.pushMove(m);
+               |   theGame.pushMove(m);
                |}""".stripMargin).statements()
     }
 
@@ -106,35 +94,13 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
   class TryRemoveCardHandlerLocal(widgetType:Symbol, source:Symbol) {
     def apply():Seq[Statement] = {
       Java(s"""|Column srcColumn = (Column) src.getModelElement();
-               |if (((org.combinators.solitaire.idiot.Idiot)theGame).isHigher(srcColumn)) {
                |Move m = new RemoveCard(srcColumn);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
-               |}
-               |}
                |}""".stripMargin).statements()
     }
 
     val semanticType: Type = widgetType (source, 'Clicked) :&: 'NonEmptySeq
-  }
-
-
-  class PotentialDraggingVariableGeneratorLocal(m:Move, constructor:Constructor) {
-    def apply(): SimpleName = {
-      m match {
-        case single: SingleCardMove => Java(s"""movingCard""").simpleName()
-        case column: ColumnMove     => Java(s"""movingColumn""").simpleName()
-      }
-    }
-    val semanticType: Type = constructor
-  }
-
-  // Note: while I can have code within the apply() method, the semanticType
-  // is static, so that must be passed in as is. These clarify that a
-  // potential moveOneCardFromStack is still a Column Type.
-  class PotentialTypeConstructGenLocal(s:String, constructor:Constructor) {
-    def apply(): JType = Java("Column").tpe()
-    val semanticType: Type = 'Move (constructor, 'TypeConstruct)
   }
 }
 

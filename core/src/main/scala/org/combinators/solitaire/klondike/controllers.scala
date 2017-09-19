@@ -19,7 +19,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
     val ui = new UserInterface(s)
 
     val els_it = ui.controllers
-    while (els_it.hasNext()) {
+    while (els_it.hasNext) {
       val el = els_it.next()
 
       // Each of these controllers are expected in the game.

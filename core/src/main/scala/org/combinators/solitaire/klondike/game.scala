@@ -7,8 +7,6 @@ import org.combinators.solitaire.shared.{GameTemplate, Score52}
 
 // domain
 import domain._
-import domain.constraints._
-import domain.moves._
 import domain.ui._
 
 trait Game extends GameTemplate with Score52 {

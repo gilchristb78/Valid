@@ -128,29 +128,29 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     def apply(): Seq[MethodDeclaration] = {
        Java(s"""|public boolean toLeftOf(Stack target, Stack src) {
                 |  // Check whether target is to left of src
-	        |  for (int i = 0; i < fieldPiles.length; i++) {
-	        |    if (fieldPiles[i] == target) { 	
-	        |      return true;   // found target first (in left-right)
-	        |    }  
-	        |    if (fieldPiles[i] == src) { 
+                |  for (int i = 0; i < fieldPiles.length; i++) {
+                |    if (fieldPiles[i] == target) {
+                |      return true;   // found target first (in left-right)
+                |    }
+                |    if (fieldPiles[i] == src) {
                 |      return false;  // found src first
-  	        |    }
-	        |  }
+                |    }
+                |  }
                 |  return false; // will never get here
                 |}
-	        |
-		| public boolean allSameRank() {
-		|   if (fieldPiles[0].empty()) { return false; }
-    		|   // Check whether tops of all piles are same rank
-		|   for (int i = 1; i < fieldPiles.length; i++) {
-		|      if (fieldPiles[i].empty()) { return false; }
-            	|      if (fieldPiles[i].rank() != fieldPiles[i-1].rank()) {
+                |
+                | public boolean allSameRank() {
+                |   if (fieldPiles[0].empty()) { return false; }
+                |   // Check whether tops of all piles are same rank
+                |   for (int i = 1; i < fieldPiles.length; i++) {
+                |      if (fieldPiles[i].empty()) { return false; }
+                |      if (fieldPiles[i].rank() != fieldPiles[i-1].rank()) {
                 |        return false;
-            	|      }
-		|   }
-        	|  // looks good
-		|  return true;
-    		|}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+                |      }
+                |   }
+                |  // looks good
+                |  return true;
+                |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
 
     }
     
@@ -162,14 +162,9 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   @combinator object ExtraFields {
     def apply(): Seq[FieldDeclaration] = {
       val fields =
-        Java(
-          s"""
-             |IntegerView scoreView;
-             |IntegerView numLeftView;
-             """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+        Java(s"""|IntegerView scoreView;
+                 |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val found = solitaire.getFoundation
-      val reserve = solitaire.getReserve
       val tableau = solitaire.getTableau
       val stock = solitaire.getStock
 

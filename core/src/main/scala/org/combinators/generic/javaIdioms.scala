@@ -104,13 +104,10 @@ class StatementConverter(sem1: Constructor, sem2: Constructor) {
 
   class IfBlock(guard: Constructor, block: Constructor, sem3: Constructor) {
     def apply(guardExpr: Expression, blockStmts: Seq[Statement]): Seq[Statement] = {
-	println ("\n**** " + guard.toString + "::" + guardExpr.toString + "***")
-      Java(
-        s"""
-          |if (${guardExpr}) {
-          |  ${blockStmts.mkString("\n")}
-          |}
-	 """.stripMargin).statements()
+
+      Java(s"""|if (${guardExpr}) {
+               |  ${blockStmts.mkString("\n")}
+               |}""".stripMargin).statements()
     }
     val semanticType: Type = guard =>: block =>: sem3
   }
