@@ -51,7 +51,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
       val colGen = loopConstructGen(solitaire.getTableau, "fieldColumns", "fieldColumnViews", "Column")
       val foundGen = loopConstructGen(solitaire.getFoundation, "fieldPiles", "fieldPileViews", "Pile")
-      val wastePileGen = loopConstructGen(solitaire.getWaste, "wastePile", "wastePileView", "WastePile")
+      val wastePileGen = loopConstructGen(solitaire.getWaste, "fieldWastePiles", "fieldWastePileViews", "WastePile")
 
       deck ++ colGen ++ foundGen ++ wastePileGen
     }
@@ -74,7 +74,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
       // when placing a single element in Layout, use this API
       val ds = layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
-      val ws = layout_place_one(lay, stock, Layout.WastePile, Java("wastePileView").name(), 97)
+      val ws = layout_place_one(lay, stock, Layout.WastePile, Java("fieldWastePileViews[0]").name(), 97)
       val cs = layout_place_many(lay, tableau, Layout.Tableau, Java("fieldColumnViews").name(), 13*97)
 
       ds ++ ws ++ cs
@@ -88,18 +88,18 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     */
   @combinator object InitControl {
     def apply(NameOfGame: SimpleName): Seq[Statement] = {
-      val name = NameOfGame.toString()
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", "ColumnController")
-      val foundsetup = loopControllerGen(solitaire.getFoundation, "pileViews", "PileController")
-      val wastesetup = loopControllerGen(solitaire.getFoundation, "wastePileView", "WastePileController")
+      //val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", "ColumnController")
+      //val foundsetup = loopControllerGen(solitaire.getFoundation, "pileViews", "PileController")
+      //val wastesetup = loopControllerGen(solitaire.getFoundation, "wastePileView", "WastePileController")
 
       // add controllers for the DeckView here...
-      val decksetup = controllerGen("deckView", "DeckController")
+      //val decksetup = controllerGen("deckView", "DeckController")
 
-      colsetup ++ decksetup ++ foundsetup ++ wastesetup
+      //colsetup ++ decksetup ++ foundsetup ++ wastesetup
+      Seq.empty
     }
 
     val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
@@ -119,10 +119,8 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     */
   @combinator object ExtraImports {
     def apply(nameExpr: Name): Seq[ImportDeclaration] = {
-      Seq(
-        Java(s"import $nameExpr.controller.*;").importDeclaration(),
-        Java(s"import $nameExpr.model.*;").importDeclaration()
-      )
+
+      Seq.empty
     }
     val semanticType: Type = 'RootPackage =>: 'ExtraImports
   }
