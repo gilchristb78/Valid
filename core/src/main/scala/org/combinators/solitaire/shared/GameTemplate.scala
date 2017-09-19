@@ -104,6 +104,40 @@ trait GameTemplate {
   }
 
   /**
+    * Class for constructing Foundation from n Piles.
+    *
+    * @param n            number of piles to create
+    * @param nAsType      type of Pile within the semantic type 'Foundation ('Valid :&: typ)
+    */
+  class NPileFoundation(n: Int, nAsType: Type) {
+    def apply(): Foundation = {
+      val t = new Foundation()
+      for (_ <- 1 to n)
+        t.add(new Pile())
+      t
+    }
+
+    val semanticType: Type = 'Foundation ('Valid :&: nAsType :&: 'Pile)
+  }
+
+  /**
+    * Class for constructing Reserve from n Piles.
+    *
+    * @param n            number of piles to create
+    * @param nAsType      type of Pile within the semantic type 'Reserve ('Valid :&: typ)
+    */
+  class NPileReserve(n: Int, nAsType: Type) {
+    def apply(): Reserve = {
+      val t = new Reserve()
+      for (_ <- 1 to n)
+        t.add(new Pile())
+      t
+    }
+
+    val semanticType: Type = 'Reserve ('Valid :&: nAsType :&: 'Pile)
+  }
+
+  /**
     * Specialized combinators for common scenarios of tableaus from piles and columns.
     */
   @combinator object EightColumnTableau extends NColumnTableau(8, 'Eight)
