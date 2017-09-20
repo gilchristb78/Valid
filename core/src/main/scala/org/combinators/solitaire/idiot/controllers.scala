@@ -11,8 +11,7 @@ import org.combinators.generic
 import domain._
 import domain.ui._
 
-trait Controllers extends shared.Controller with shared.Moves with generic.JavaIdioms  {
-
+trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :  ReflectedRepository[G] = {

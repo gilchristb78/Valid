@@ -2,14 +2,13 @@ package org.combinators.solitaire.narcotic
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{IntegerLiteralExpr, Name, SimpleName}
+import com.github.javaparser.ast.expr.{Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared
 
 // domain
 import domain._
@@ -17,7 +16,7 @@ import domain.ui._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
-class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
+class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
 
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.narcotic").name()
@@ -38,7 +37,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     def apply(): Seq[Statement] = {
       val deck = deckGen("deck")
 
-      val pileGen = loopConstructGen(solitaire.getTableau(), "fieldPiles", "fieldPileViews", "Pile")
+      val pileGen = loopConstructGen(solitaire.getTableau, "fieldPiles", "fieldPileViews", "Pile")
 
       deck ++ pileGen 
     }
@@ -97,7 +96,6 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
   @combinator object NarcoticInitControl {
     def apply(NameOfGame: SimpleName): Seq[Statement] = {
-      val name = NameOfGame.toString()
 
 
       // this could be controlled from the UI model. That is, it would

@@ -1,5 +1,4 @@
 package org.combinators.solitaire.freecell
-import com.github.javaparser.ast.CompilationUnit
 
 // name clash
 import com.github.javaparser.ast.`type`.{Type => JType}
@@ -18,7 +17,7 @@ import domain._
 import domain.ui._
 
 
-trait PileControllerTrait extends shared.Controller with shared.Moves with generic.JavaIdioms  {
+trait pilecontroller extends shared.Controller with shared.Moves with generic.JavaIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :

@@ -6,6 +6,7 @@ import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Java
 import com.github.javaparser.ast.stmt.Statement
+import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
 import org.combinators.TypeNameStatistics
 // strange name-clash with 'controllers'. Compiles but in eclipse shows errors :)
 import _root_.controllers.WebJarAssets
@@ -21,17 +22,17 @@ import domain._
 //   for ((k,v) <- updated.combinators) printf("key: %s, value: %s\n", k, v)
 
 class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
-  lazy val repositoryPre = new Game {}
+  lazy val repositoryPre = new game {}
   lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
 
-  lazy val reply = GammaPre.inhabit[Solitaire]('Variation('FreeCell))
-  lazy val it = reply.interpretedTerms.values.flatMap(_._2).iterator
-  lazy val s = it.next()
+  lazy val reply:InhabitationResult[Solitaire] = GammaPre.inhabit[Solitaire]('Variation('FreeCell))
+  lazy val it:Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
+  lazy val s:Solitaire = it.next()
  
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
-  lazy val repository = new FreeCellDomain(s) with  ColumnController with PileControllerTrait {}
+  lazy val repository = new gameDomain(s) with columnController with pilecontroller {}
   lazy val Gamma = {
     val r = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
     println(new TypeNameStatistics(r).warnings)

@@ -11,13 +11,10 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.solitaire.shared
-import org.combinators.solitaire.shared._
 import _root_.java.util.UUID
 import org.combinators.generic
 import domain._
-import domain.constraints._
 import domain.moves._
-import domain.ui._
 import scala.collection.mutable.ListBuffer
 
 trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
@@ -29,23 +26,22 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     var updated = gamma
     var combined = ListBuffer[Move]()
     val it1 = s.getRules.drags
-    while (it1.hasNext()) {
+    while (it1.hasNext) {
       combined += it1.next()
     }
     val it2 = s.getRules.presses
-    while (it2.hasNext()) {
+    while (it2.hasNext) {
       combined += it2.next()
     }
     val it3 = s.getRules.clicks
-    while (it3.hasNext()) {
+    while (it3.hasNext) {
       combined += it3.next()
     }
 
     val rules_1 = combined.iterator
     while (rules_1.hasNext) {
       val move = rules_1.next()
-      println ("move:" + move.getSource)
-      val srcBase = move.getSource.getClass().getSimpleName()
+
       val target = move.getTarget
       // All moves are now available....
       if (target != target) { // null) {
@@ -127,14 +123,13 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
       // potential move structure varies based on kind of move: not
       // yet dealing with DeckDealMove...
       move match {
-        case single: SingleCardMove => {
+        case _ : SingleCardMove =>
           updated = updated
             .addCombinator (new PotentialMove(moveSymbol))
-        }
-        case column: ColumnMove     => {
+
+        case _ : ColumnMove =>
           updated = updated
             .addCombinator (new PotentialMoveOneCardFromStack(moveSymbol))
-        }
       }
     }
 
@@ -192,7 +187,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
           .addCombinator (new IfBlock(viewType, 'MoveWidget(moveSymbol), curID))
 
         if (lastID.nonEmpty) {
-          val subsequentID = Symbol("ComponentOf-" + UUID.randomUUID().toString())
+          val subsequentID = Symbol("ComponentOf-" + UUID.randomUUID().toString)
           updated = updated
             .addCombinator (new StatementCombiner(lastID.get, curID, subsequentID))
 
@@ -343,6 +338,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     val semanticType: Type = 'Move (moveSymbol, 'HelperMethods)
   }
 
+  /**
+    * Combinator defines the structure of a controller, which needs to handle press, release and click
+    * events.
+    *
+    * @param elementType     Type of Element for which controller is synthesized.
+    */
   class WidgetController(elementType: Symbol) {
     def apply(rootPackage: Name,
               designate: SimpleName,
@@ -376,8 +377,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     * release handler; really need a better way to implement this. Could it be done with
     * more refined intersection type on the 'Released term?
     *
-    * @param elementType
-    * @param symbol
+    * @param elementType     Type of Element for which controller is synthesized.
     */
   class WidgetControllerWithAutoMoves(elementType: Symbol) {
     def apply(rootPackage: Name,

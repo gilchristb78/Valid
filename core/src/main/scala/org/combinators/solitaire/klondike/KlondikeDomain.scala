@@ -140,12 +140,8 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   @combinator object ExtraFields {
     def apply(): Seq[FieldDeclaration] = {
       val fields =
-        Java(
-          s"""
-             |IntegerView scoreView;
-             |IntegerView numLeftView;
-             """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-
+        Java(s"""|IntegerView scoreView;
+                 |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
       val fieldColumns = fieldGen("Column", "Column", "ColumnView", solitaire.getTableau.size)
       val foundPiles = fieldGen("Pile", "Pile", "PileView", solitaire.getFoundation.size)

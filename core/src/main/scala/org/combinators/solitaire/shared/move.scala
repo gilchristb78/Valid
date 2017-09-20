@@ -3,19 +3,17 @@ package org.combinators.solitaire.shared
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.`type`.{Type => JType}
 import com.github.javaparser.ast.body.BodyDeclaration
-import com.github.javaparser.ast.expr.{Name, NameExpr, SimpleName}
+import com.github.javaparser.ast.expr.{Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type}
+import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared
 
 import domain._
-import domain.constraints._
 import domain.moves._
-import domain.ui._
 
 /**
   * This trait contains combinators related to moves in a solitaire variation.
@@ -222,8 +220,8 @@ trait Moves extends Base {
   class PotentialDraggingVariableGenerator(m:Move, constructor:Constructor) {
     def apply(): SimpleName = {
       m match {
-        case single: SingleCardMove => Java(s"""movingCard""").simpleName()
-        case column: ColumnMove     => Java(s"""movingColumn""").simpleName()
+        case _ : SingleCardMove => Java(s"""movingCard""").simpleName()
+        case _ : ColumnMove     => Java(s"""movingColumn""").simpleName()
       }
     }
     val semanticType: Type = constructor

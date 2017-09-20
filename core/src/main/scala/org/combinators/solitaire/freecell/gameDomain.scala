@@ -1,16 +1,14 @@
 package org.combinators.solitaire.freecell
 
-import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{IntegerLiteralExpr, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
-import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
+import com.github.javaparser.ast.ImportDeclaration
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared
 
 // domain
 import domain._
@@ -18,7 +16,7 @@ import domain.ui._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
-class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 {
+class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 {
 
   /**
     * Every solitaire variation exists within a designated Java package.
@@ -54,9 +52,9 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 //           |""".stripMargin).statements()
 
       val dg = deckGen ("deck")
-      val colGen = loopConstructGen(solitaire.getTableau(), "fieldColumns", "fieldColumnViews", "Column")
-      val resGen = loopConstructGen(solitaire.getReserve(), "fieldFreePiles", "fieldFreePileViews", "FreePile")
-      val foundGen = loopConstructGen(solitaire.getFoundation(), "fieldHomePiles", "fieldHomePileViews", "HomePile")
+      val colGen = loopConstructGen(solitaire.getTableau, "fieldColumns", "fieldColumnViews", "Column")
+      val resGen = loopConstructGen(solitaire.getReserve, "fieldFreePiles", "fieldFreePileViews", "FreePile")
+      val foundGen = loopConstructGen(solitaire.getFoundation, "fieldHomePiles", "fieldHomePileViews", "HomePile")
 
       dg ++ colGen ++ resGen ++ foundGen
     }
@@ -133,10 +131,10 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   @combinator object FreeCellInitControl {
     def apply(NameOfGame: SimpleName): Seq[Statement] = {
 
-      val nc = solitaire.getTableau.size()
-      val np = solitaire.getFoundation.size()
-      val nf = solitaire.getReserve.size()
-      val name = NameOfGame.toString()
+//      val nc = solitaire.getTableau.size()
+//      val np = solitaire.getFoundation.size()
+//      val nf = solitaire.getReserve.size()
+//      val name = NameOfGame.toString()
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
@@ -155,7 +153,7 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     def apply(): Seq[Statement] = {
       val tableau = solitaire.getTableau
       // standard logic to deal to all tableau cards
-      var numColumns = tableau.size
+      val numColumns = tableau.size
       Java(
         s"""
            |int col = 0;

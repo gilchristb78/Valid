@@ -9,7 +9,6 @@ import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared
 
 // domain
 import domain._
@@ -17,7 +16,7 @@ import domain.ui._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
-class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
+class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
 
   /**
     * Every solitaire variation belongs in its own package.
@@ -43,7 +42,7 @@ class IdiotDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
     def apply(): Seq[Statement] = {
       val deck = deckGenWithView("deck", "deckView")
 
-      val colGen = loopConstructGen(solitaire.getTableau(), "fieldColumns", "fieldColumnViews", "Column")
+      val colGen = loopConstructGen(solitaire.getTableau, "fieldColumns", "fieldColumnViews", "Column")
 
       deck ++ colGen
     }

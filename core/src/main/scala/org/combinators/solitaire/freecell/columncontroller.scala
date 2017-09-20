@@ -16,7 +16,7 @@ import domain.moves._
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 
 
-trait ColumnController extends shared.Controller with generic.JavaIdioms {
+trait columnController extends shared.Controller with generic.JavaIdioms {
 
  // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :

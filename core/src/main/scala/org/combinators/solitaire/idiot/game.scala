@@ -11,7 +11,7 @@ import domain.constraints._
 import domain.moves._
 import domain.ui._
 
-trait Game extends GameTemplate with Score52 {
+trait game extends GameTemplate with Score52 {
 
   // force you to use the proper arity type.. and avoid typos.
   object typeDeclarations {
@@ -22,7 +22,7 @@ trait Game extends GameTemplate with Score52 {
 
   }
 
-  import typeDeclarations._
+  ///import typeDeclarations._
 
   /**
     * Given an empty Solitaire domain object, construct the structure of Idiot by taking a 4-column tableau

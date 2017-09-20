@@ -12,7 +12,7 @@ import domain.moves._
 import domain.ui._
 import domain.freeCell.{FreePile, HomePile}
 
-trait Game extends GameTemplate with Score52 {
+trait game extends GameTemplate with Score52 {
 
   //lazy val alpha = Variable("alpha")
 

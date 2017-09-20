@@ -230,11 +230,10 @@ trait GameTemplate {
     *
     * Note: prefix is used when constructing these elements to ensure unique names.
     *
-    * @param name
-    * @param modelType
-    * @param viewType
-    * @param num
-    * @return
+    * @param name         Name of model element to create. Will be prefaced by "field..." in final name
+    * @param modelType    Class name of model element
+    * @param viewType     Class name of view widget
+    * @param num          number of elements/widgets to create
     */
   def fieldGen(name:String, modelType:String, viewType:String, num:Int):Seq[FieldDeclaration] = {
      Java(s"""
@@ -253,8 +252,8 @@ trait GameTemplate {
     * The default adapters (for mouse motion and undo) are registered, and the designated
     * controller is passed in as a parameter to be used and associated with the widgets.
     *
-    * @param viewName
-    * @param contName
+    * @param viewName    Name of widget variable name storing these view widgets
+    * @param contName    Name of container holding these view widgets
     * @return
     */
   def controllerGen(viewName:String, contName:String) : Seq[Statement] = {
@@ -271,9 +270,10 @@ trait GameTemplate {
     * and assign controllers based on the given type.
     *
     * Iterates over variable 'j' just to be different ;)
-    * @param cont
-    * @param viewName
-    * @param contName
+    *
+    * @param cont        Actual container holding these widgets
+    * @param viewName    The name of the variable name being index over (by j)
+    * @param contName    Name of container holding these view widgets
     * @return
     */
   def loopControllerGen(cont: Container, viewName : String, contName:String): Seq[Statement] = {
@@ -294,11 +294,10 @@ trait GameTemplate {
     * to iterate over the elements, and the need to compute a unique name (based on the prefix)
     * for each of the j elements.
     *
-    * @param cont
-    * @param modelName
-    * @param viewName
-    * @param typ
-    * @return
+    * @param cont        Actual container holding these widgets
+    * @param modelName   The name of the variable name holding the element
+    * @param viewName    The name of the variable name holding the widget
+    * @param typ         The name of the Element class
     */
   def loopConstructGen(cont: Container, modelName: String, viewName : String, typ:String): Seq[Statement] = {
         val nc = cont.size()
@@ -316,7 +315,6 @@ trait GameTemplate {
     * the model and initializes it to be ready.
     *
     * @param modelName    name of model element to create
-    * @return
     */
   def deckGen (modelName:String):Seq[Statement] = {
     Java(
@@ -335,7 +333,6 @@ trait GameTemplate {
     * a DeckView to be present.
     *
     * @param modelName    name of model element to create
-    * @return
     */
   def deckGenWithView (modelName:String, viewName:String):Seq[Statement] = {
     deckGen(modelName) ++ Java(s"""$viewName = new DeckView($modelName);""".stripMargin).statements()

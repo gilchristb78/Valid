@@ -2,15 +2,13 @@ package domain.constraints;
 
 import domain.*;
 
-public class Descending extends ConstraintExpr {
-
-    final String element;
+/**
+ * A Constraint which is based on the inherent properties of a Stack of cards,
+ * which must contain cards of descending ranks (by one).
+ */
+public class Descending extends UnaryConstraintExpr {
 
     public Descending (String element) {
-        super();
-	this.element = element;
+        super(element);
     }
-
-    public String getElement() { return element; }
-
 }

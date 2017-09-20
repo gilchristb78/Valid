@@ -11,7 +11,7 @@ import domain.constraints._
 import domain.moves._
 import domain.ui._
 
-trait Game extends GameTemplate with Score52 {
+trait game extends GameTemplate with Score52 {
 
   // Narcotic is an example solitaire game that uses Deck and Tableau.
   @combinator object NarcoticCellStructure {
@@ -28,7 +28,6 @@ trait Game extends GameTemplate with Score52 {
         'Stock ('Valid :&: 'One :&: 'Deck) =>:
         'Solitaire ('Structure ('Narcotic))
   }
-
 
   @combinator object NarcoticConstruction {
     def apply(s: Solitaire, rules: Rules, layout:Layout): Solitaire = {
@@ -99,7 +98,6 @@ trait Game extends GameTemplate with Score52 {
       val deck_move = new IfConstraint(new ElementEmpty ("source"),
           falsehood, truth)
       val deckDeal = new DeckDealMove("DealDeck", stock, tableau, deck_move)
-      println ("stock:" + stock.getClass() + ", tableau:" + tableau)
       rules.addPressMove(deckDeal)
 
       // reset deck if empty. Move is triggered by press on stock.
@@ -114,7 +112,4 @@ trait Game extends GameTemplate with Score52 {
 
    val semanticType:Type = 'Solitaire('Structure('Narcotic)) =>: 'Rules('Narcotic)
   }
-
-
-
 }

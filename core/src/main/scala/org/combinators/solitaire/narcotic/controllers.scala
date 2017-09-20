@@ -23,8 +23,7 @@ import domain.moves._
 import domain.ui._
 import scala.collection.mutable.ListBuffer
 
-trait Controllers extends shared.Controller with shared.Moves with generic.JavaIdioms  {
-
+trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
@@ -36,7 +35,7 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
     val ui = new UserInterface(s)
 
     val els_it = ui.controllers
-    while (els_it.hasNext()) {
+    while (els_it.hasNext) {
       val el = els_it.next()
 
       // Each of these controllers are expected in the game.

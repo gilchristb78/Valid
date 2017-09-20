@@ -1,16 +1,11 @@
 package domain.constraints;
 
-import domain.*;
-
-public class ElementEmpty extends ConstraintExpr {
-
-    final String element;
+/**
+ * Determines whether a stack of cards is empty.
+ */
+public class ElementEmpty extends UnaryConstraintExpr {
 
     public ElementEmpty (String element) {
-        super();
-	this.element = element;
+        super(element);
     }
-
-    public String getElement() { return element; }
-
 }

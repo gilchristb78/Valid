@@ -9,8 +9,7 @@ import org.combinators.solitaire.shared.{GameTemplate, Score52}
 import domain._
 import domain.ui._
 
-trait Game extends GameTemplate with Score52 {
-
+trait game extends GameTemplate with Score52 {
 
   /**
     * Given an empty Solitaire domain object, construct the structure of Klondike using a WastePile,
