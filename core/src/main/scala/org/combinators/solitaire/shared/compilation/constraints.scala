@@ -152,6 +152,14 @@ class NextRankCodeGen(c:NextRank) extends ConstraintCodeGen {
   }
 }
 
+/** Handles the SameRank Constraint. */
+class SameRankCodeGen(c:SameRank) extends ConstraintCodeGen {
+  override def toCode(): Expression = {
+    Java(s"""${c.getElement1()}.getRank() == ${c.getElement2()}.getRank()""").expression()
+  }
+}
+
+
 /** Handles the HigherRank Constraint. */
 class HigherRankCodeGen(c:HigherRank) extends ConstraintCodeGen {
   override def toCode(): Expression = {
@@ -191,9 +199,9 @@ class BooleanExpressionCodeGen(b:BooleanExpression) extends ConstraintCodeGen {
  */
 class OrConstraintCodeGen(constraint: OrConstraint) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    val left = ConstraintCodeGen(constraint.getC1)
-    val right = ConstraintCodeGen(constraint.getC2)
-    val exp:Expression = Java(s"""$left && $right""").expression()
+    val left = ConstraintCodeGen(constraint.getC1).toCode
+    val right = ConstraintCodeGen(constraint.getC2).toCode
+    val exp:Expression = Java(s"""($left) || ($right)""").expression()
     exp
   }
 }
@@ -202,9 +210,9 @@ class OrConstraintCodeGen(constraint: OrConstraint) extends ConstraintCodeGen {
 // Altered based on n-ary logic?
 class AndConstraintCodeGen(constraint: AndConstraint) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    val left = ConstraintCodeGen(constraint.getC1)
-    val right = ConstraintCodeGen(constraint.getC2)
-    val exp:Expression = Java(s"""$left !! $right""").expression()
+    val left = ConstraintCodeGen(constraint.getC1).toCode
+    val right = ConstraintCodeGen(constraint.getC2).toCode
+    val exp:Expression = Java(s"""($left) && ($right)""").expression()
     exp
   }
 }
@@ -229,20 +237,21 @@ object ConstraintCodeStmtGen {
 object ConstraintCodeGen {
   def apply(constraint: ConstraintExpr): ConstraintCodeGen =
     constraint match {
+      case alternatingConstraint : AlternatingColors => new AlternatingColorsCodeGen(alternatingConstraint)
+      case andConstraint: AndConstraint => new AndConstraintCodeGen(andConstraint)
+      case boolConstraint : BooleanExpression => new BooleanExpressionCodeGen(boolConstraint)
+      case descendingConstraint : Descending => new DescendingCodeGen(descendingConstraint)
+      case emptyConstraint: ElementEmpty => new ElementEmptyCodeGen(emptyConstraint)
+      case exprConstraint: ExpressionConstraint => new ExpressionCodeGen(exprConstraint)
+      case higherRankConstraint : HigherRank => new HigherRankCodeGen(higherRankConstraint)
+      case isAceConstraint : IsAce => new IsAceCodeGen(isAceConstraint)
+      case nextRankConstraint : NextRank => new NextRankCodeGen(nextRankConstraint)
+      case oppositeConstraint : OppositeColor => new OppositeColorCodeGen(oppositeConstraint)
+      case orConstraint: OrConstraint => new OrConstraintCodeGen(orConstraint)
       case retFalse : ReturnFalseExpression => new ReturnFalseCodeGen(retFalse)
       case retTrue : ReturnTrueExpression => new ReturnTrueCodeGen(retTrue)
-      case emptyConstraint: ElementEmpty => new ElementEmptyCodeGen(emptyConstraint)
-      case aceConstraint : IsAce => new IsAceCodeGen(aceConstraint)
-      case higherRankConstraint : HigherRank => new HigherRankCodeGen(higherRankConstraint)
-      case nextRankConstraint : NextRank => new NextRankCodeGen(nextRankConstraint)
-      case descendingConstraint : Descending => new DescendingCodeGen(descendingConstraint)
-      case oppositeConstraint : OppositeColor => new OppositeColorCodeGen(oppositeConstraint)
-      case alternatingConstraint : AlternatingColors => new AlternatingColorsCodeGen(alternatingConstraint)
+      case sameRankConstraint : SameRank => new SameRankCodeGen(sameRankConstraint)
       case sameSuitConstraint : SameSuit => new SameSuitCodeGen(sameSuitConstraint)
-      case exprConstraint: ExpressionConstraint => new ExpressionCodeGen(exprConstraint)
-      case boolConstraint : BooleanExpression => new BooleanExpressionCodeGen(boolConstraint)
-      case orConstraint: OrConstraint => new OrConstraintCodeGen(orConstraint)
-      case andConstraint: AndConstraint => new AndConstraintCodeGen(andConstraint)
  //     case notConstraint: NotConstraint => new NotConstraintCodeGen(notConstraint)
     }
 }

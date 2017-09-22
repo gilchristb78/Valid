@@ -1,10 +1,10 @@
 @(RootPackage: Name,
-        ColumnDesignate: SimpleName,
-        NameOfTheGame : SimpleName,
-        AutoMoves : Seq[Statement],
-        ColumnMouseClicked: Seq[Statement],
-        ColumnMousePressed: (SimpleName, SimpleName) => Seq[Statement],
-        ColumnMouseReleased: Seq[Statement])
+   Designate: SimpleName,
+   NameOfTheGame : SimpleName,
+   AutoMoves : Seq[Statement],
+   MouseClicked: Seq[Statement],
+   MousePressed: (SimpleName, SimpleName) => Seq[Statement],
+   MouseReleased: Seq[Statement])
 package @{Java(RootPackage)}.controller;
 
 import @{Java(RootPackage)}.*;
@@ -15,13 +15,13 @@ import ks.common.view.*;
 import ks.common.games.*;
 import ks.common.controller.*;
 
-public class @{Java(ColumnDesignate)}ColumnController extends SolitaireReleasedAdapter {
+public class @{Java(Designate)}Controller extends SolitaireReleasedAdapter {
 	protected @Java(NameOfTheGame) theGame;
 
-	/** The ColumnView being controlled */
-	protected ColumnView src;
+	/** The View being controlled */
+	protected @{Java(Designate)}View src;
 
-	public @{Java(ColumnDesignate)}ColumnController(@Java(NameOfTheGame) theGame, ColumnView src) {
+	public @{Java(Designate)}Controller(@Java(NameOfTheGame) theGame, @{Java(Designate)}View src) {
 		super(theGame);
 
 		this.theGame = theGame;
@@ -29,7 +29,7 @@ public class @{Java(ColumnDesignate)}ColumnController extends SolitaireReleasedA
 	}
 
 	public void mouseClicked(MouseEvent me) {
-		@Java(ColumnMouseClicked)
+		@Java(MouseClicked)
 	}
 
 	public void mousePressed(MouseEvent me) {
@@ -47,7 +47,7 @@ public class @{Java(ColumnDesignate)}ColumnController extends SolitaireReleasedA
 		Widget me_widget = null;
 
 		// must both define me_ignore to false and set me_widget to valid widget
-		@Java(ColumnMousePressed(Java("me_widget").simpleName(), Java("me_ignore").simpleName()))
+		@Java(MousePressed(Java("me_widget").simpleName(), Java("me_ignore").simpleName()))
 
 		if (me_ignore) {
 			return;
@@ -71,7 +71,7 @@ public class @{Java(ColumnDesignate)}ColumnController extends SolitaireReleasedA
 			return;
 		}
 
-		@Java(ColumnMouseReleased)
+		@Java(MouseReleased)
 
 		@Java(AutoMoves)
 

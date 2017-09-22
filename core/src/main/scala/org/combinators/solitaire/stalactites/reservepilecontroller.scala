@@ -12,7 +12,7 @@ import org.combinators.solitaire.shared
 trait ReservePileController extends shared.Controller with generic.JavaIdioms {
 
   // column move designated combinators
-  @combinator object ReservePileControllerDef extends PileController('ReservePile)
+  @combinator object ReservePileControllerDef extends WidgetController('ReservePile)
 
   @combinator object ReservePile {
     def apply(): SimpleName = Java("ReservePile").simpleName()

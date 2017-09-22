@@ -31,6 +31,10 @@ import domain.ui.*;
   mouse events (Press, Click, Release) are responsible for which
   moves.
 
+  A variation may have automoves computed (that is, it defines
+  a method tryAutoMoves() in the base class. Record this fact in 
+  the domain.
+
 */
 
 public class Solitaire implements Iterable<Container> {
@@ -45,6 +49,10 @@ public class Solitaire implements Iterable<Container> {
 	if (waste != null) { ar.add(waste); }
 	return ar.iterator();
     }
+
+    boolean autoMovesAvailable = false;
+    public boolean hasAutoMoves() { return autoMovesAvailable; }
+    public void setAutoMoves(boolean b) { autoMovesAvailable = b; }
 
     Tableau       tableau;
     public Tableau getTableau () { return tableau; }

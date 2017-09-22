@@ -12,7 +12,7 @@ import domain.moves._
 import domain.ui._
 import domain.freeCell.{FreePile, HomePile}
 
-trait Game extends GameTemplate with Score52 {
+trait game extends GameTemplate with Score52 {
 
   //lazy val alpha = Variable("alpha")
 
@@ -22,33 +22,40 @@ trait Game extends GameTemplate with Score52 {
       .addOption('FourColumnTableau)
       .addOption('EightColumnTableau)
 
-    // Free cell is an example solitaire game that uses Foundation, Reserve, and Tableau.
+  /**
+    * A FreeCell variation contains a Foundation (build up from aces), a reserve of four piles,
+    * A Tableau of eight columns, and a single stock deck which is dealt out.
+    */
   @combinator object FreeCellStructure {
-    def apply(s: Solitaire, f: Foundation, r: Reserve, t: Tableau, st: Stock): Solitaire = {
-      s.setFoundation(f)
-      s.setReserve(r)
-      s.setTableau(t)
-      s.setStock(st)
+      def apply(s: Solitaire, f: Foundation, r: Reserve, t: Tableau, st: Stock): Solitaire = {
+        s.setFoundation(f)
+        s.setReserve(r)
+        s.setTableau(t)
+        s.setStock(st)
 
-      s
-    }
+        s
+      }
 
     val semanticType: Type =
       'Solitaire ('Tableau ('None)) :&: 'Solitaire ('Foundation ('None)) :&: 'Solitaire ('Reserve ('None)) :&: 'Solitaire ('Layout ('None)) :&: 'Solitaire ('Rules('None)) =>:
         'Foundation ('Valid :&: 'HomePile) =>:
         'Reserve ('Valid :&: 'FreePile) =>:
         'Tableau ('Valid :&: 'Eight :&: 'Column) =>:
-        'Stock ('Valid :&: 'OneDeck) =>:
+        'Stock ('Valid :&: 'One :&: 'Deck) =>:
         'Solitaire ('Structure ('FreeCell))
   }
 
 
-  // Free cell is an example solitaire game that uses Foundation, Reserve, and Tableau.
+  /**
+    * Once the structure of Freecell is done, take the FreeCell rules and standard layout
+    * of Reserve, Tableau, Foundation and assemble the final variation.
+    */
   @combinator object FreeCellConstruction {
     def apply(s: Solitaire, rules: Rules, layout:Layout): Solitaire = {
       s.setLayout(layout)
       s.setRules(rules)
 
+      s.setAutoMoves (true);  // we have auto moves.
       s
     }
 
@@ -73,7 +80,7 @@ trait Game extends GameTemplate with Score52 {
       val isEmpty = new ElementEmpty ("destination")
 
       // FreePile to FreePile
-      val freePileToFreePile = new SingleCardMove(reserve, reserve, new IfConstraint(isEmpty))
+      val freePileToFreePile = new SingleCardMove("ShuffleFreePile", reserve, reserve, new IfConstraint(isEmpty))
       rules.addDragMove(freePileToFreePile)
 
       // Column To Free Pile Logic
@@ -81,7 +88,7 @@ trait Game extends GameTemplate with Score52 {
       val if1 = new IfConstraint(isEmpty,
                   new IfConstraint(isSingle),
                   falsehood)
-      val columnToFreePileMove = new ColumnMove(tableau, reserve, if1)
+      val columnToFreePileMove = new ColumnMove("PlaceColumn", tableau, reserve, if1)
       rules.addDragMove(columnToFreePileMove)
 
       // Column To Home Pile logic. Just grab first column
@@ -92,7 +99,7 @@ trait Game extends GameTemplate with Score52 {
              new IfConstraint(new NextRank("movingColumn.peek()", "destination.peek()"),
                new IfConstraint(new SameSuit("movingColumn.peek()", "destination.peek()")),
                falsehood))
-      val columnToHomePile = new ColumnMove(tableau, found, if2)
+      val columnToHomePile = new ColumnMove("BuildColumn", tableau, found, if2)
       rules.addDragMove(columnToHomePile)
 
       // FreePile to HomePile
@@ -105,7 +112,7 @@ trait Game extends GameTemplate with Score52 {
                new IfConstraint(new SameSuit("movingCard", "destination.peek()")),
              falsehood))
 
-      val freePileToHomePile = new SingleCardMove(reserve, found, if3)
+      val freePileToHomePile = new SingleCardMove("BuildFreePileCard", reserve, found, if3)
       rules.addDragMove(freePileToHomePile)
 
      // FreePile to Column.
@@ -115,18 +122,23 @@ trait Game extends GameTemplate with Score52 {
               falsehood)
 
       val if5 = new IfConstraint(isEmpty, truth, if5_inner)
-      val freePileToColumnPile = new SingleCardMove(reserve, tableau, if5)
+      val freePileToColumnPile = new SingleCardMove("PlaceFreePileCard", reserve, tableau, if5)
       rules.addDragMove(freePileToColumnPile)
 
      // column to column
      val descend = new Descending("movingColumn")
      val alternating = new AlternatingColors("movingColumn")
-      
-     val sufficientFreeToEmpty =
-         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant() - 1", ">=", "movingColumn.count()")
+     
+     // If destination is EMPTY, then can't count it as vacant
+     // If source is EMPTY (b/c move created it) then can't count it as vacant either.
+      val oneIsEmpty = new OrConstraint(isEmpty, new ElementEmpty ("source"))
+     val sufficientWithEmpty =
+         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant()", ">=", "movingColumn.count()")
 
      val sufficientFree =
-         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant()", ">=", "movingColumn.count() - 1")
+         new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant() + 1", ">=", "movingColumn.count()")
+
+
 
       val if4_inner =
         new IfConstraint(new OppositeColor("movingColumn.peek(0)", "destination.peek()"),
@@ -138,13 +150,13 @@ trait Game extends GameTemplate with Score52 {
      val if4 =
         new IfConstraint(descend,
           new IfConstraint(alternating,
-            new IfConstraint(isEmpty,
-              new IfConstraint(sufficientFreeToEmpty),
+            new IfConstraint(oneIsEmpty,
+              new IfConstraint(sufficientWithEmpty),
               if4_inner),
             falsehood),
           falsehood)
 		
-      val columnToColumn = new ColumnMove(tableau, tableau, if4)
+      val columnToColumn = new ColumnMove("MoveColumn", tableau, tableau, if4)
       rules.addDragMove(columnToColumn)
 
       rules
@@ -200,13 +212,6 @@ trait Game extends GameTemplate with Score52 {
     }
 
     val semanticType: Type = 'Reserve ('Valid :&: 'Four :&: 'FreePile)
-  }
-
-  // in FreeCell we need a stock composed of a single deck.
-  @combinator object SingleDeckStock {
-    def apply(): Stock = new Stock()
-
-    val semanticType: Type = 'Stock ('Valid :&: 'OneDeck)
   }
 
 

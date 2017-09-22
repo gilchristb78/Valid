@@ -41,31 +41,36 @@ public abstract class Move {
    /** Assume always a source. */
    public final Container        srcContainer;
 
+   /** Each move has a unique name, declared by invoker. */
+   public final String name;
+
    /** Optionally there may be a target. */
    public final Optional<Container>        targetContainer;
    public final ConstraintStmt   constraint;
-    
-       
-   //public Move (Container src, Container target) {
-   //   this(src, target, null);
-   //}
  
-   /** Constraint a move where target is missing. */
-   public Move (Container src, ConstraintStmt cons) {
-      srcContainer = src;
-      targetContainer = Optional.empty();
-      constraint = cons;
+   /** Constraint for a move with no target. */
+   public Move (String name, Container src, ConstraintStmt cons) {
+      this.name = name;
+      this.srcContainer = src;
+      this.targetContainer = Optional.empty();
+      this.constraint = cons;
    }
 
-   /** Constraint a move with (src, target) and constraint. */
-   public Move (Container src, Container target, ConstraintStmt cons) {
-      srcContainer = src;
-      targetContainer = Optional.of(target);
+   /** Constraint for a move with (src, target) and constraint. */
+   public Move (String name, Container src, Container target, ConstraintStmt cons) {
+      this.name = name;
+      this.srcContainer = src;
+      this.targetContainer = Optional.of(target);
       this.constraint = cons;
    }
 
    public String toString() {
       return srcContainer + " -> " + targetContainer;
+   }
+
+   /** Return name of move. */
+   public String getName() {
+     return name;
    }
 
    /** Extract constraint associated with move. */

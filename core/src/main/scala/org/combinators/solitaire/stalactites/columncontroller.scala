@@ -12,7 +12,7 @@ import org.combinators.solitaire.shared
 trait StalactitesColumnController extends shared.Controller with generic.JavaIdioms {
 
   // column move designated combinators
-  @combinator object ColumnControllerDef extends ColumnController('StalactitesColumn)
+  @combinator object ColumnControllerDef extends WidgetController('StalactitesColumn)
 
   @combinator object StalactitesColumn {
     def apply(): SimpleName = Java("Stalactites").simpleName()

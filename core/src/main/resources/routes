@@ -20,3 +20,13 @@ GET   /stalactites                      org.combinators.solitaire.stalactites.St
 GET   /stalactites/raw_:number          org.combinators.solitaire.stalactites.Stalactites.raw(number: Long)
 GET   /stalactites/prepare              org.combinators.solitaire.stalactites.Stalactites.prepare(number: Long)
 GET   /stalactites/stalactites.git/*file  	  org.combinators.solitaire.stalactites.Stalactites.serveFile(file)
+
+GET   /klondike                      org.combinators.solitaire.klondike.Klondike.overview()
+GET   /klondike/raw_:number          org.combinators.solitaire.klondike.Klondike.raw(number: Long)
+GET   /klondike/prepare              org.combinators.solitaire.klondike.Klondike.prepare(number: Long)
+GET   /klondike/klondike.git/*file  	  org.combinators.solitaire.klondike.Klondike.serveFile(file)
+
+GET   /example                      example.Example.overview()
+GET   /example/raw_:number          example.Example.raw(number: Long)
+GET   /example/prepare              example.Example.prepare(number: Long)
+GET   /example/example.git/*file    example.Example.serveFile(file)

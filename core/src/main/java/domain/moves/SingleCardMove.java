@@ -12,18 +12,15 @@ import java.util.*;
  */
 public class SingleCardMove extends Move {
 
-    //ConstraintStmt constraint;
-
     /** 
      * Determine conditions for moving column of cards from src to target. 
      */
-    public SingleCardMove (Container src, Container target, ConstraintStmt constraint) {
-	super(src, target, constraint);
-	//this.constraint = constraint;
+    public SingleCardMove (String name, Container src, Container target, ConstraintStmt constraint) {
+	super(name, src, target, constraint);
     }
 
-    public SingleCardMove (Container src, ConstraintStmt constraint) {
-       super(src, constraint); 
+    public SingleCardMove (String name, Container src, ConstraintStmt constraint) {
+       super(name,src, constraint); 
     }
 
     /** Extract constraint associated with move. */

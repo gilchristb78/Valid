@@ -9,9 +9,9 @@ trait Base {
 
   // to be overridden by sub-typed traits
   def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
-      ReflectedRepository[G] = {
-     println(">>>> IN BASE")
-     gamma
+  ReflectedRepository[G] = {
+    println(">>>> IN BASE")
+    gamma
   }
 
 }
@@ -19,6 +19,6 @@ trait Base {
 // This class exists so the 'def init' methods can be included in any trait that wishes
 // to add dynamic traits to the repository. Otherwise nothing is included here (for now)
 class SolitaireDomain(val solitaire:Solitaire) {
-   // assumed access to solitaire. Or at least, make it available
+  // assumed access to solitaire. Or at least, make it available
 }
 
