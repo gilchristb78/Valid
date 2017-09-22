@@ -3,26 +3,25 @@ package org.combinators.solitaire.freecell
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
+import org.webjars.play.WebJarsUtil
 
 // strange name-clash with 'controllers'. Compiles but in eclipse shows errors :)
-import _root_.controllers.WebJarAssets
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
-import org.webjars.play.RequireJS
 import _root_.java.nio.file._                              // overloaded so go to _root_
 import com.github.javaparser.ast.stmt.Statement
 
 // domain
 import domain._
 
-class FreeCell @Inject()(webJars: WebJarAssets, requireJS: RequireJS) extends InhabitationController(webJars, requireJS) {
+class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
   lazy val repositoryPre = new Game {}
   lazy val GammaPre = ReflectedRepository(repositoryPre)
 
-  var reply = GammaPre.inhabit[Solitaire]('FreeCellVariation)
-  val it = reply.interpretedTerms.values.flatMap(_._2).iterator
-  val s = it.next()
+  lazy val reply = GammaPre.inhabit[Solitaire]('FreeCellVariation)
+  lazy val it = reply.interpretedTerms.values.flatMap(_._2).iterator
+  lazy val s = it.next()
   //Solitaire.setInstance(s)
   
   // We can generate any number of these possibilities by inspecting the domain model.

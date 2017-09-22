@@ -1,11 +1,9 @@
 @import de.tu_dortmund.cs.ls14.cls.types.Type
 @import de.tu_dortmund.cs.ls14.cls.inhabitation.Tree
 @import shapeless.feat.Enumeration
-@import controllers.WebJarAssets
 
 @(path: String,
-    webJars: WebJarAssets,
-    requireJS: org.webjars.play.RequireJS,
+    webJars: org.webjars.play.WebJarsUtil,
     combinators: Map[String, Type],
     targets: Seq[Type],
     rawTerms: Enumeration[Seq[Tree]],
@@ -25,7 +23,7 @@
     <title>Inhabitation</title>
     <!-- Bootstrap core CSS -->
     <link href='/webjars/@webJars.locate("css/bootstrap.min.css")' rel="stylesheet">
-    @Html(requireJS.setup(Class.forName("controllers.routes", true, this.getClass.getClassLoader).getDeclaredField("Assets").get(null).asInstanceOf[{ def at(path: String): Call }].at("ui_init.js")))
+    @Html(webJars.requireJs(routes.Assets.versioned("ui_init.js")))
     <style>
         .glyphicon-refresh-animate {
             -animation: spin .7s infinite linear;

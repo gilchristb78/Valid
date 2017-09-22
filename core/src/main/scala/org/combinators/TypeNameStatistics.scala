@@ -13,7 +13,7 @@ class TypeNameStatistics[A](repository: ReflectedRepository[A]) {
   }
 
   private lazy val subtypeEnv =
-    SubtypeEnvironment(repository.nativeTypeTaxonomy.taxonomy.merge(repository.semanticTaxonomy))
+    SubtypeEnvironment(repository.nativeTypeTaxonomy.taxonomy.merge(repository.semanticTaxonomy).underlyingMap)
 
   private final def increaseUsage(isParameter: Boolean): TypeUsage => TypeUsage =
     if (isParameter) _.increaseParameterUsage else _.increaseResultUsage

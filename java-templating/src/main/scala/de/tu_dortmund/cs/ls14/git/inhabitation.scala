@@ -2,7 +2,6 @@ package de.tu_dortmund.cs.ls14.git
 
 import java.nio.file._
 
-import controllers.{Assets, WebJarAssets}
 import shapeless.feat.Enumeration
 import de.tu_dortmund.cs.ls14.cls.inhabitation.Tree
 import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
@@ -11,10 +10,10 @@ import de.tu_dortmund.cs.ls14.java.Persistable
 import de.tu_dortmund.cs.ls14.html
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
-import org.webjars.play.RequireJS
+import org.webjars.play.{RequireJS, WebJarsUtil}
 import play.api.mvc._
 
-abstract class InhabitationController(webJars: WebJarAssets, requireJS: RequireJS) extends Controller {
+abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedController {
   private lazy val root = Files.createTempDirectory("inhabitants")
   private lazy val git = Git.init().setDirectory(root.toFile()).call()
   private lazy val computedVariations = collection.mutable.Set.empty[Long]
@@ -109,7 +108,7 @@ abstract class InhabitationController(webJars: WebJarAssets, requireJS: RequireJ
   }
 
   def overview() = Action { request =>
-    Ok(html.overview.render(request.path, webJars, requireJS, combinators, results.targets, results.raw, computedVariations.toSet, results.infinite))
+    Ok(html.overview.render(request.path, webJars, combinators, results.targets, results.raw, computedVariations.toSet, results.infinite))
   }
   def raw(id: Long) = {
     TODO
