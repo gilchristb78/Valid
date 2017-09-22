@@ -1,6 +1,6 @@
-@(rootPackage:NameExpr,
+@(rootPackage:Name,
     extraImports:Seq[ImportDeclaration],
-    nameParameter:NameExpr,
+    nameParameter:SimpleName,
     extraFields:Seq[FieldDeclaration],
     extraMethods:Seq[MethodDeclaration],
     winParameter:Seq[Statement],

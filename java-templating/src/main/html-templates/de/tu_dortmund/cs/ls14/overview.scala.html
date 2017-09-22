@@ -1,10 +1,11 @@
-@import de.tu_dortmund.cs.ls14.cls.types.Type
 @import de.tu_dortmund.cs.ls14.cls.inhabitation.Tree
+@import de.tu_dortmund.cs.ls14.cls.types.Type
 @import shapeless.feat.Enumeration
+
 
 @(path: String,
     webJars: org.webjars.play.WebJarsUtil,
-    combinators: Map[String, Type],
+    combinators: Map[String, (Type, String)],
     targets: Seq[Type],
     rawTerms: Enumeration[Seq[Tree]],
     computedVariations: Set[Long],
@@ -22,8 +23,8 @@
 
     <title>Inhabitation</title>
     <!-- Bootstrap core CSS -->
-    <link href='/webjars/@webJars.locate("css/bootstrap.min.css")' rel="stylesheet">
-    @Html(webJars.requireJs(routes.Assets.versioned("ui_init.js")))
+    @Html(webJars.css("css/bootstrap.min.css"))
+    @Html(webJars.requireJs(routes.Assets.at("ui_init.js")))
     <style>
         .glyphicon-refresh-animate {
             -animation: spin .7s infinite linear;
@@ -85,8 +86,8 @@
 <h3>Repository:</h3>
 <pre>
     &Gamma; = {
-    @for((name, ty) <- combinators) {
-        @name : @ty
+    @for((name, (ty, position)) <- combinators) {
+        <span data-toggle="tooltip" title="@position">@name : @ty</span>
     }
     }
 </pre>

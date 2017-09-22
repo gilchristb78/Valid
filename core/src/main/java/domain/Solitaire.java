@@ -1,6 +1,7 @@
 package domain;
 
 import java.util.*;
+import domain.ui.*;
 
 /**
 
@@ -26,22 +27,18 @@ import java.util.*;
   domain. It may not be necessary to name the classes according to
   any existing name of classes.
 
+  User Experience Model defines the interaction, explaining which
+  mouse events (Press, Click, Release) are responsible for which
+  moves.
+
+  A variation may have automoves computed (that is, it defines
+  a method tryAutoMoves() in the base class. Record this fact in 
+  the domain.
+
 */
 
 public class Solitaire implements Iterable<Container> {
 	
-    // Hack. Stash the constructed Solitaire object here 
-    // will remove eventually
-    //static Solitaire _inst = null;
-    //public static void setInstance (Solitaire s) { _inst = s; System.out.println (_inst); }
-    //public static Solitaire getInstance() { return _inst; }
-
-    // number of decks
-    //    int  numDecks = 1;   // default to 1
-    //    public void setNumberDecks(int nd) { numDecks = nd; }
-    //    public int  getNumberDecks() { return numDecks; }
-
-
     /** Hack. */
     public Iterator<Container> iterator() { 
 	ArrayList<Container> ar = new ArrayList<Container>();
@@ -52,6 +49,10 @@ public class Solitaire implements Iterable<Container> {
 	if (waste != null) { ar.add(waste); }
 	return ar.iterator();
     }
+
+    boolean autoMovesAvailable = false;
+    public boolean hasAutoMoves() { return autoMovesAvailable; }
+    public void setAutoMoves(boolean b) { autoMovesAvailable = b; }
 
     Tableau       tableau;
     public Tableau getTableau () { return tableau; }
@@ -73,7 +74,9 @@ public class Solitaire implements Iterable<Container> {
     public Rules  getRules() { return rules; }
     public void   setRules(Rules r) { rules = r; }
 
-    // Chosen by player
+    // A bit of a hack. UI should be separate from Solitaire, but for the 
+    // purposes of the synthesized code, it makes it easier to be able to
+    // navigate to the UI from the solitaire game. 
     Layout        layout;
     public Layout getLayout() { return layout; }
     public void   setLayout(Layout lay) { layout = lay; }
@@ -83,6 +86,7 @@ public class Solitaire implements Iterable<Container> {
     public void   setWaste(Waste w) { waste = w; }
 
     // any variation-specific game state is placed here.
+    // 
     State         state;
 
 }

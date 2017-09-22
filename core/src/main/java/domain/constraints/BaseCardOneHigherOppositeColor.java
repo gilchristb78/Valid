@@ -2,13 +2,12 @@ package domain.constraints;
 
 import domain.*;
 
-public class BaseCardOneHigherOppositeColor extends Constraint {
+/** Not yet used. */
+@Deprecated
+public class BaseCardOneHigherOppositeColor extends ConstraintExpr {
 
     public BaseCardOneHigherOppositeColor () {
 	super();
     }
 
-    public BaseCardOneHigherOppositeColor (Constraint c) {
-	super(c);
-    }
 }

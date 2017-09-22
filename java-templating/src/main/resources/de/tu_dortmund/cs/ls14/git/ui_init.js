@@ -25,6 +25,7 @@ require(['bootstrap'], function(bootstrap) {
                                 "# clone into new git:\n" +
                                 "git clone -b variation_" + i + " " + fullPath + "\n" +
                                 "# checkout branch in existing git:\n" +
+                                "git fetch origin\n" +
                                 "git checkout -b variation_" + i + " origin/variation_" + i + "\n";
                             $("#solution_" + i).html(text);
                         } else {

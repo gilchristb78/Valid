@@ -1,8 +1,8 @@
-@(RootPackage: NameExpr,
-        PileDesignate: NameExpr,
-        NameOfTheGame: NameExpr,
+@(RootPackage: Name,
+        PileDesignate: SimpleName,
+        NameOfTheGame: SimpleName,
         PileMouseClicked: Seq[Statement],
-        PileMousePressed: (NameExpr, NameExpr) => Seq[Statement],
+        PileMousePressed: (SimpleName, SimpleName) => Seq[Statement],
         PileMouseReleased: Seq[Statement])
 package @{Java(RootPackage)}.controller;
 
@@ -42,7 +42,7 @@ public class @{Java(PileDesignate)}PileController extends SolitaireReleasedAdapt
     Widget me_widget = null;
 
     // must both define me_ignore to false and set me_widget to valid widget
-    @Java(PileMousePressed(Java("me_widget").nameExpression(), Java("me_ignore").nameExpression()))
+    @Java(PileMousePressed(Java("me_widget").simpleName(), Java("me_ignore").simpleName()))
 
     if (me_ignore) {
         return;

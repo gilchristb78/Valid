@@ -1,73 +1,123 @@
 package org.combinators.solitaire.idiot
 
-import com.github.javaparser.ast.ImportDeclaration
-import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, NameExpr}
-
-import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
-import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Java
-import org.combinators.solitaire.shared.GameTemplate
-import org.combinators.solitaire.shared.Score52
+import org.combinators.solitaire.shared.{GameTemplate, Score52}
 
+// domain
+import domain._
+import domain.constraints._
+import domain.moves._
+import domain.ui._
 
-trait Game extends GameTemplate with Score52 {
+trait game extends GameTemplate with Score52 {
 
-  @combinator object NumIdiotColumns {
-    def apply: Expression = Java("4").expression()
-    val semanticType: Type = 'NumColumns
+  // force you to use the proper arity type.. and avoid typos.
+  object typeDeclarations {
+    val column:Type = 'Column
+    def constr(a:Type, b:Type):Type = 'ParamColumn (a, b)
+    val p1:Type = 'P1
+    def p2(a:Type):Type = 'P2(a)
+
   }
 
-  @combinator object RootPackage {
-    def apply: NameExpr = {
-      Java("org.combinators.solitaire.idiot").nameExpression
+  ///import typeDeclarations._
+
+  /**
+    * Given an empty Solitaire domain object, construct the structure of Idiot by taking a 4-column tableau
+    * and a one-deck Stock.
+    */
+  @combinator object IdiotCellStructure {
+    def apply(s: Solitaire, t: Tableau, st: Stock): Solitaire = {
+      s.setTableau(t)
+      s.setStock(st)
+
+      s
     }
-    val semanticType: Type = 'RootPackage
+
+    val semanticType: Type =
+      'Solitaire ('Tableau ('None)) :&: 'Solitaire ('Layout ('None)) :&: 'Solitaire ('Rules('None)) =>:
+        'Tableau ('Valid :&: 'Four :&: 'Column) =>:
+        'Stock ('Valid :&: 'One :&: 'Deck) =>:
+        'Solitaire ('Structure ('Idiot))
   }
 
-  @combinator object NameOfTheGame {
-    def apply: NameExpr = {
-      Java("Idiot").nameExpression
+
+  @combinator object IdiotConstruction {
+    def apply(s: Solitaire, rules: Rules, layout:Layout): Solitaire = {
+      s.setLayout(layout)
+      s.setRules(rules)
+
+      s
     }
-    val semanticType: Type = 'NameOfTheGame
+
+    val semanticType: Type =
+      'Solitaire ('Structure ('Idiot)) =>:
+        'Rules('Idiot) =>:
+        'Layout ('Valid :&: 'StockTableau) =>:     // NOTHING TO CAUSE THIS.
+        'Variation('Idiot)
   }
 
-  @combinator object Initialization {
-    def apply(rootPackage: NameExpr, numberOfColumns: Expression): Seq[Statement] = {
-      java.Initialization.render(rootPackage, numberOfColumns).statements()
+
+  // HACK: non-compositional. Also embeds UI indications here as well,
+  // but that is just a convenience. Can be moved elsewhere.
+  @combinator object IdiotRules {
+    def apply(solitaire:Solitaire): Rules = {
+      val rules = new Rules()
+      val tableau = solitaire.getTableau
+      val stock = solitaire.getStock
+
+      val truth = new ReturnConstraint (new ReturnTrueExpression)
+      val falsehood = new ReturnConstraint (new ReturnFalseExpression)
+      val isEmpty = new ElementEmpty ("destination")
+
+      val if_move = new IfConstraint(isEmpty)
+
+      // Tableau to Tableau
+      val tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, if_move)
+      rules.addDragMove(tableauToTableau)
+
+      // this special method is added by gameDomain to be accessible here.
+      val sameSuitHigherRankVisible =
+        new BooleanExpression("((org.combinators.solitaire.idiot.Idiot)game).isHigher((Column)source)")
+
+      val ifr_move = new IfConstraint (new ElementEmpty("source"),
+          falsehood,
+          new IfConstraint (sameSuitHigherRankVisible))
+
+      val removeCardFromTableau = new RemoveSingleCardMove("RemoveCard", tableau, ifr_move)
+      rules.addClickMove(removeCardFromTableau)
+
+      // Remove a card from the tableau? This can be optimized by a click
+      // do I allow another Rule? Or reuse existing one?
+      // Not sure how to deal with MOVE with a single PRESS
+      // That is, this won't be the head part of a 'drag' operation.
+
+      // deal four cards from Stock
+      val deck_move = new IfConstraint(new ElementEmpty ("source"),
+        falsehood, truth)
+      val deckDeal = new DeckDealMove("DealDeck", stock, tableau, deck_move)
+      rules.addPressMove(deckDeal)
+
+      rules
     }
-    val semanticType: Type = 'RootPackage =>: 'NumColumns =>: 'Initialization :&: 'NonEmptySeq
+
+    val semanticType:Type = 'Solitaire('Structure('Idiot)) =>: 'Rules('Idiot)
   }
 
-  @combinator object ExtraImports {
-    def apply(): Seq[ImportDeclaration] = Seq.empty
-    val semanticType: Type = 'ExtraImports
-  }
-
-  /*
-  @combinator object ShortCut {
-    def apply(seq : Seq[Statement]): CompilationUnit = {
-      Java("public class A{}").compilationUnit()
+  // in Idiot we need a valid tableau. Not sure why we have to
+  // restrict that here to be 4; could still be searched
+  @combinator object AddFourColumnTableau {
+    def apply(s: Solitaire, tab: Tableau): Solitaire = {
+      s.setTableau(tab)
+      println("setting four-column tableau")
+      s
     }
-    val semanticType: Type = 'MoveRemoveCards =>: 'ShortCut
-  }
-  */
-  
-  @combinator object ExtraMethods {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
-    val semanticType: Type = 'ExtraMethods
+
+    val semanticType: Type =
+      'Solitaire ('Tableau ('None)) =>: 'Tableau ('Valid :&: 'Column) =>:
+        'Solitaire ('Tableau ('Valid :&: 'Column))
   }
 
-  @combinator object ExtraFields {
-    def apply(numberOfColumns: Expression): Seq[FieldDeclaration] = {
-      java.ExtraFields
-        .render(numberOfColumns)
-        .classBodyDeclarations()
-        .map(_.asInstanceOf[FieldDeclaration])
-    }
-    val semanticType: Type = 'NumColumns =>: 'ExtraFields
-  }
 }

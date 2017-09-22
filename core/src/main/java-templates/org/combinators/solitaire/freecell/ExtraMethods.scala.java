@@ -84,7 +84,7 @@ public Move autoMoveAvailable() {
 				throw new IllegalStateException ("ACE is available to play but no open destination piles.");
 			}
 
-			return new PotentialColumnToHomePile (fieldColumns[c], emptyDest);
+			return new PotentialBuildColumn (fieldColumns[c], emptyDest);
 		}
 
 		Card cc = fieldColumns[c].peek();
@@ -93,7 +93,7 @@ public Move autoMoveAvailable() {
 		Move theMove = null;
 		boolean foundMove = false;
 		for (int b = 0; b<fieldHomePiles.length; b++) {
-			theMove = new PotentialColumnToHomePile (fieldColumns[c], fieldHomePiles[b]);
+			theMove = new PotentialBuildColumn (fieldColumns[c], fieldHomePiles[b]);
 			if (theMove.valid (this)) {
 				foundMove = true;
 				break;
@@ -132,7 +132,7 @@ public Move autoMoveAvailable() {
 
 		// try to find a destination it goes to.
 		for (int b = 0; b<fieldHomePiles.length; b++) {
-			theMove = new PotentialFreePileToHomePile (fieldFreePiles[f], fieldHomePiles[b]);
+			theMove = new PotentialBuildFreePileCard (fieldFreePiles[f], fieldHomePiles[b]);
 			if (theMove.valid (this)) {
 				bc = fieldFreePiles[f].peek();
 				foundMove = true;

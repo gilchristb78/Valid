@@ -9,7 +9,12 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 trait Score52 {
   @combinator object Score52 {
     def apply(): Seq[Statement] = {
-      Java("if (getScoreValue() == 52) { return true; }").statements()
+      Java(
+        s"""
+           |if (getScoreValue() == 52) {
+           |  return true;
+           |}
+           """.stripMargin).statements()
     }
     val semanticType: Type = 'WinConditionChecking :&: 'NonEmptySeq
   }

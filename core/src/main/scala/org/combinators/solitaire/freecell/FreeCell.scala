@@ -4,67 +4,76 @@ import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
 import org.webjars.play.WebJarsUtil
-
+import de.tu_dortmund.cs.ls14.cls.types.Type
+import de.tu_dortmund.cs.ls14.twirl.Java
+import com.github.javaparser.ast.stmt.Statement
+import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
+import org.combinators.TypeNameStatistics
 // strange name-clash with 'controllers'. Compiles but in eclipse shows errors :)
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
-import _root_.java.nio.file._                              // overloaded so go to _root_
-import com.github.javaparser.ast.stmt.Statement
+import org.combinators.solitaire.shared._
 
 // domain
 import domain._
 
 class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
-  lazy val repositoryPre = new Game {}
-  lazy val GammaPre = ReflectedRepository(repositoryPre)
+  lazy val repositoryPre = new game {}
+  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
 
-  lazy val reply = GammaPre.inhabit[Solitaire]('FreeCellVariation)
-  lazy val it = reply.interpretedTerms.values.flatMap(_._2).iterator
-  lazy val s = it.next()
-  //Solitaire.setInstance(s)
-  
-  // We can generate any number of these possibilities by inspecting the domain model.
-  // This is where the mapping comes from
-  
-  lazy val repository = new GameDomain(s) with ColumnMoves with PileMoves with ColumnController with PileController {}
-  lazy val Gamma = ReflectedRepository(repository)
-  lazy val combinators = Gamma.combinators
+  lazy val reply:InhabitationResult[Solitaire] = GammaPre.inhabit[Solitaire]('Variation('FreeCell))
+  lazy val it:Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
+  lazy val s:Solitaire = it.next()
+ 
+  // FreeCellDomain is base class for the solitaire variation. Note that this
+  // class is used (essentially) as a placeholder for the solitaire val,
+  // which can then be referred to anywhere as needed.
+  lazy val repository = new gameDomain(s) with columnController with pilecontroller {}
+  lazy val Gamma = {
+    val r = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+    println(new TypeNameStatistics(r).warnings)
+    r
+  }
+  /** This needs to be defined, and it is set from Gamma. */
+  lazy val combinatorComponents = Gamma.combinatorComponents
 
+
+  // also make sure to synthesize inhabitation requests
+ 
   // key is to get variation in place first.
   // NOTE: How to stage these multiple times so I don't have to bundle everything up
   // together. That is, I want to first inhabit SolitaireVariation, then go and 
   // inhabit the controllers, then inhabit all the moves, based upon the domain model.
-  lazy val results = Results
-    .add(Gamma.inhabit[CompilationUnit]('SolitaireVariation ))
-    .add(Gamma.inhabit[CompilationUnit]('Controller('FreeCellColumn)))
-    .add(Gamma.inhabit[CompilationUnit]('Controller('FreePile)))
-    .add(Gamma.inhabit[CompilationUnit]('Controller('HomePile)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToColumn :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToColumn :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToColumn :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToColumn :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToFreePile :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToFreePile :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToHomePile :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('ColumnToHomePile :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToHomePile :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToHomePile :&: 'GenericMove, 'CompleteMove)))
-      
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToFreePile :&: 'PotentialMove, 'CompleteMove)))
-      .add(Gamma.inhabit[CompilationUnit]('Move('FreePileToFreePile :&: 'GenericMove, 'CompleteMove)))
-      
+  lazy val jobs =
+    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
+      .addJob[CompilationUnit]('Controller('Column))   
+      .addJob[CompilationUnit]('Controller('FreePile))
+      .addJob[CompilationUnit]('Controller('HomePile))
+      .addJob[CompilationUnit]('HomePileClass)
+      .addJob[CompilationUnit]('FreePileClass)
+      .addJob[CompilationUnit]('HomePileViewClass)
+      .addJob[CompilationUnit]('FreePileViewClass)
+      .addJob[CompilationUnit]('Move('MoveColumn :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('BuildFreePileCard  :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('PlaceColumn :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('BuildColumn :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('PlaceFreePileCard :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('ShuffleFreePile :&: 'GenericMove, 'CompleteMove))
+      //.addJob[CompilationUnit]('RuntimeCombinatorClass)
+//      .addJob[CompilationUnit]('Move('MoveColumn :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('BuildFreePileCard :&: 'PotentialMove, 'CompleteMove))
+//      .addJob[CompilationUnit]('Move('PlaceColumn :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('BuildColumn :&: 'PotentialMove, 'CompleteMove))
+//      .addJob[CompilationUnit]('Move('PlaceFreePileCard :&: 'PotentialMove, 'CompleteMove))
+//      .addJob[CompilationUnit]('Move('ShuffleFreePile :&: 'PotentialMove, 'CompleteMove))
+
+ 
+  lazy val results = Results.addAll(jobs.run())
+
       // Here is how you launch directly and it gets placed into file
       //.add(Gamma.inhabit[Seq[Statement]]('Something), Paths.get("somePlace"))
       //
       
-      
-      //.add(Gamma.inhabit[CompilationUnit]('Move('FreeCellColumnToColumn, 'CompleteMove)))
 }
 
-// any way to do partial intermediate step (i.e., 
-//import com.github.javaparser.ast.body.{BodyDeclaration}

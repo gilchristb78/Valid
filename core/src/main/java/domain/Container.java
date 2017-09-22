@@ -21,6 +21,15 @@ public class Container implements Iterable<Element> {
 		return elements.size();
 	}
 
+  	/** Same type. */
+	public boolean isSame(Container c) {
+	  if (c == null) { return false; }
+	  if (this.getClass() == c.getClass()) { 
+             return true; 
+          }
+	  return false;
+	}
+
 	/**
 	 * Attempt to add element to Container, returning true if 
 	 * successful; false if a duplicate.
@@ -45,6 +54,21 @@ public class Container implements Iterable<Element> {
 
 		elements.remove(e);
 		return true;
+	}
+
+        /**
+         * Return iterator of unique types. Likely easier way
+         * of doing this in Scala... Also, outputs SimpleName for simplicity
+         */
+	public Iterator<String> types() {
+	   ArrayList<String> elems = new ArrayList<String>();
+	   for (Element e : elements) {
+		String name = e.getClass().getSimpleName();
+		if (!elems.contains(name)) {
+		   elems.add(name);
+		}
+           }
+	   return elems.iterator();
 	}
 
 	/** 

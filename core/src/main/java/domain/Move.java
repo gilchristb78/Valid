@@ -1,9 +1,12 @@
 package domain;
 
+import java.util.Optional;
+
 /**
- * A Move represents a potential move in a solitaire game. It consists
- * of two separate concepts.  First there is the logical construct
- * defining a source Element, the target Element, and
+ * A Move represents a potential move in a solitaire game. 
+ *
+ * A Move consists of two separate concepts.  First there is the 
+ * logical construct defining a source Element, the target Element, and
  * constraints/properties on the card(s) to be allowed to move between
  * them.
  *  
@@ -29,11 +32,64 @@ package domain;
  * 
  * Note a UnaryMove class is a simpler concept required for moves
  * initiated without need for a terminating action. This includes (for
- * example), flipping a card.
+ * example), flipping a card or dealing cards from the stock to tableau.
  * 
  * @author heineman
  */
 public abstract class Move {
 
+   /** Assume always a source. */
+   public final Container        srcContainer;
 
+   /** Each move has a unique name, declared by invoker. */
+   public final String name;
+
+   /** Optionally there may be a target. */
+   public final Optional<Container>        targetContainer;
+   public final ConstraintStmt   constraint;
+ 
+   /** Constraint for a move with no target. */
+   public Move (String name, Container src, ConstraintStmt cons) {
+      this.name = name;
+      this.srcContainer = src;
+      this.targetContainer = Optional.empty();
+      this.constraint = cons;
+   }
+
+   /** Constraint for a move with (src, target) and constraint. */
+   public Move (String name, Container src, Container target, ConstraintStmt cons) {
+      this.name = name;
+      this.srcContainer = src;
+      this.targetContainer = Optional.of(target);
+      this.constraint = cons;
+   }
+
+   public String toString() {
+      return srcContainer + " -> " + targetContainer;
+   }
+
+   /** Return name of move. */
+   public String getName() {
+     return name;
+   }
+
+   /** Extract constraint associated with move. */
+   public ConstraintStmt getConstraint() { return constraint; }
+
+   /** Get container. */
+   public Container getSourceContainer() { return srcContainer; }
+
+   /** Get container for the target. */
+   public Optional<Container> getTargetContainer() { 
+	return targetContainer; 
+   }
+
+   /** Get the source element of this move type. */
+   public abstract Element   getSource();
+
+   /** Get the target element of this move type. */
+   public abstract Element   getTarget();
+
+   /** Get element being moved. */
+   public abstract Element   getMovableElement(); 
 }

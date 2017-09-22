@@ -9,16 +9,13 @@ import de.tu_dortmund.cs.ls14.git.InhabitationController
 import org.combinators.TypeNameStatistics
 import org.webjars.play.WebJarsUtil
 
-
-
-
 class Stalactites @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
   lazy val repository = new Game with Moves with StalactitesColumnController with  FoundationPileController with ReservePileController with PileToPileMoves with ColumnToPileMoves {}
-  lazy val Gamma = ReflectedRepository(repository)
+  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
   lazy val statistics = new TypeNameStatistics(Gamma)
-  //println(statistics.overview)
-  //println(statistics.warnings)
-  lazy val combinators = Gamma.combinators
+  /*println(statistics.overview)
+  println(statistics.warnings)*/
+  lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val results =
     Results
       .add(Gamma.inhabit[CompilationUnit]('increment('SolitaireVariation)))

@@ -4,13 +4,14 @@ import java.nio.file._
 
 import shapeless.feat.Enumeration
 import de.tu_dortmund.cs.ls14.cls.inhabitation.Tree
-import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
+import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.java.Persistable
 import de.tu_dortmund.cs.ls14.html
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.ResetCommand.ResetType
 import org.eclipse.jgit.revwalk.RevCommit
-import org.webjars.play.{RequireJS, WebJarsUtil}
+import org.webjars.play.WebJarsUtil
 import play.api.mvc._
 
 abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedController {
@@ -23,9 +24,34 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
   }
   init()
 
-  val combinators: Map[String, Type]
+  val combinatorComponents: Map[String, CombinatorInfo]
 
   val sourceDirectory = Paths.get("src", "main", "java")
+
+  sealed trait InhabitationResultVector[R] {
+    def add(newResults: R, oldResults: Results): Results
+  }
+
+  sealed trait InhabitationResultVectorInstances {
+    implicit def persistable[R](implicit persist: Persistable.Aux[R]): InhabitationResultVector[InhabitationResult[R]] =
+      new InhabitationResultVector[InhabitationResult[R]] {
+        def add(newResults: InhabitationResult[R], oldResults: Results): Results =
+          oldResults.add[R](newResults)(persist)
+      }
+
+    implicit def product[L, R]
+      (implicit persist: Persistable.Aux[R],
+        vector: InhabitationResultVector[L]) =
+      new InhabitationResultVector[(L, InhabitationResult[R])] {
+        def add(newResults: (L, InhabitationResult[R]), oldResults: Results): Results =
+          vector.add(newResults._1, oldResults).add[R](newResults._2)(persist)
+      }
+  }
+
+  object InhabitationResultVector extends InhabitationResultVectorInstances {
+    def apply[R](implicit vectorInst: InhabitationResultVector[R]): InhabitationResultVector[R] =
+      vectorInst
+  }
 
   sealed trait Results { self =>
     val targets: Seq[Type]
@@ -56,6 +82,9 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
         }
         val infinite = self.infinite || inhabitationResult.isInfinite
       }
+
+    def addAll[R](results: R)(implicit canAddAll: InhabitationResultVector[R]): Results =
+      canAddAll.add(results, this)
   }
   object Results extends Results {
     val targets = Seq.empty
@@ -71,6 +100,9 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
       .checkout()
       .setOrphan(true)
       .setName(s"variation_$id")
+      .call()
+    git.reset()
+      .setMode(ResetType.HARD)
       .call()
   }
 
@@ -108,6 +140,14 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
   }
 
   def overview() = Action { request =>
+    val combinators = combinatorComponents.mapValues {
+      case staticInfo: StaticCombinatorInfo =>
+        (ReflectedRepository.fullTypeOf(staticInfo),
+          s"${scala.reflect.runtime.universe.show(staticInfo.fullSignature)}")
+      case dynamicInfo: DynamicCombinatorInfo[_] =>
+        (ReflectedRepository.fullTypeOf(dynamicInfo),
+          dynamicInfo.position.mkString("\n"))
+    }
     Ok(html.overview.render(request.path, webJars, combinators, results.targets, results.raw, computedVariations.toSet, results.infinite))
   }
   def raw(id: Long) = {

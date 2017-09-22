@@ -1,8 +1,8 @@
-@(RootPackage: NameExpr,
-        TheMove: NameExpr,
-        MovingWidgetName: NameExpr,
-        SourceWidgetName: NameExpr,
-        TargetWidgetName: NameExpr)
+@(RootPackage: Name,
+        TheMove: SimpleName,
+        MovingWidgetName: SimpleName,
+        SourceWidgetName: SimpleName,
+        TargetWidgetName: SimpleName)
 
 @Java(MovingWidgetName) movingElement = (@Java(MovingWidgetName)) w.getModelElement();
 

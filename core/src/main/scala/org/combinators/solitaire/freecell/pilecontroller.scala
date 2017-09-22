@@ -1,172 +1,117 @@
 package org.combinators.solitaire.freecell
 
-import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.expr.{Expression, NameExpr}
-import com.github.javaparser.ast.body.{BodyDeclaration}
+// name clash
+import com.github.javaparser.ast.`type`.{Type => JType}
+
+import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type}
+import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
-
-trait PileController extends shared.Controller  {
-
-	// column move designated combinators
-	@combinator object FreePileControllerDef extends PileController ('FreePile)
-
-	@combinator object FreeCellPile {
-		def apply(): NameExpr = {
-				Java("FreeCell").nameExpression()
-		}
-		val semanticType: Type = 'Pile('FreePile, 'ClassName)
-	}
-	
-		// column move designated combinators
-	@combinator object HomeControllerDef extends PileController ('HomePile)
-
-	@combinator object HomePile {
-		def apply(): NameExpr = {
-				Java("Home").nameExpression()
-		}
-		val semanticType: Type = 'Pile('HomePile, 'ClassName)
-	}
-
-	//   val semanticType: Type =
-	//      'RootPackage =>:
-	//        'Pile(pileNameType, 'ClassName) =>:
-	//        'NameOfTheGame =>:
-	//        'Pile(pileNameType, 'Clicked) :&: 'NonEmptySeq =>:
-	//        'Pile(pileNameType, 'Released) :&: 'NonEmptySeq =>:
-	//        ('Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Pile(pileNameType, 'Pressed) :&: 'NonEmptySeq) =>:
-	//        'Controller(pileNameType)
-//
-//	@combinator object ShortCutPile {
-//		def apply(n0: Seq[Statement]): CompilationUnit = {
-//				Java("public class A{}").compilationUnit()
-//		}
-//		val semanticType: Type = 
-//				'MoveWidget('FreePileToFreePile) =>:
-//					'ShortCut
-//	}
+import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import de.tu_dortmund.cs.ls14.cls.types.Constructor
+import org.combinators.generic
+import domain._
+import domain.ui._
 
 
-	@combinator object PilePressedHandler {
-		def apply(): (NameExpr, NameExpr) => Seq[Statement] = {
-				(widgetVariableName: NameExpr, ignoreWidgetVariableName: NameExpr) =>
-				controller.pile.java.FreeCellPilePressed.render(widgetVariableName, ignoreWidgetVariableName).statements()
-		}
-		val semanticType: Type =
-				'Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-					'Pile('FreePile, 'Pressed) :&: 'NonEmptySeq
-	}
+trait pilecontroller extends shared.Controller with shared.Moves with generic.JavaIdioms  {
 
-	@combinator object FreeCellPileClickedHandler {
-		def apply(): Seq[Statement] = {
-				Seq.empty
-		}
-		val semanticType: Type = 'Pile('FreePile, 'Clicked) :&: 'NonEmptySeq
-	}
-	
-	@combinator object HomePilePressedHandler {
-		def apply(): (NameExpr, NameExpr) => Seq[Statement] = {
-				(widgetVariableName: NameExpr, ignoreWidgetVariableName: NameExpr) =>
-				controller.pile.java.HomePilePressed.render(widgetVariableName, ignoreWidgetVariableName).statements()
-		}
-		val semanticType: Type =
-				'Pair('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-					'Pile('HomePile, 'Pressed) :&: 'NonEmptySeq
-	}
+  // dynamic combinators added as needed
+  override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
+  ReflectedRepository[G] = {
+    var updated = super.init(gamma, s)
+    println (">>> PileController dynamic combinators.")
 
-	@combinator object HomePileClickedHandler {
-		def apply(): Seq[Statement] = {
-				Seq.empty
-		}
-		val semanticType: Type = 'Pile('HomePile, 'Clicked) :&: 'NonEmptySeq
-	}
 
-	// both moves are release-able on Columns.
-	@combinator object ColumnToFreePileStatements extends MoveWidgetToWidgetStatements ('ColumnToFreePile)
-	@combinator object ColumnToHomePileStatements extends MoveWidgetToWidgetStatements ('ColumnToHomePile)
-	@combinator object FreePileToColumnStatements extends MoveWidgetToWidgetStatements ('FreePileToColumn)
-	@combinator object FreePileToFreePileStatements extends MoveWidgetToWidgetStatements ('FreePileToFreePile)
-	@combinator object FreePileToHomePileStatements extends MoveWidgetToWidgetStatements ('FreePileToHomePile)
+    // not much to do, if no rules...
+    if (s.getRules == null) {
+      return updated
+    }
 
-	@combinator object CFPN extends ClassNameDef('ColumnToFreePile, "ColumnToFreePile")
-	@combinator object CFPM extends MovableElementNameDef('ColumnToFreePile, "Column")
-	@combinator object CFPS extends SourceWidgetNameDef('ColumnToFreePile, "Column")
-	@combinator object CFPT extends TargetWidgetNameDef('ColumnToFreePile, "Pile")
-	
-	@combinator object CHPN extends ClassNameDef('ColumnToHomePile, "ColumnToHomePile")
-	@combinator object CHPM extends MovableElementNameDef('ColumnToHomePile, "Column")
-	@combinator object CHPS extends SourceWidgetNameDef('ColumnToHomePile, "Column")
-	@combinator object CHPT extends TargetWidgetNameDef('ColumnToHomePile, "Pile")
+    updated = createMoveClasses(updated, s)
 
-	@combinator object FPCN extends ClassNameDef('FreePileToColumn, "FreePileToColumn")
-	@combinator object FPCM extends MovableElementNameDef('FreePileToColumn, "Card")
-	@combinator object FPCS extends SourceWidgetNameDef('FreePileToColumn, "Pile")
-	@combinator object FPCT extends TargetWidgetNameDef('FreePileToColumn, "Column")
+    updated = createDragLogic(updated, s)
 
-	@combinator object FPFPN extends ClassNameDef('FreePileToFreePile, "FreePileToFreePile")
-	@combinator object FPFPM extends MovableElementNameDef('FreePileToFreePile, "Card")
-	@combinator object FPFPS extends SourceWidgetNameDef('FreePileToFreePile, "Pile")
-	@combinator object FPFPT extends TargetWidgetNameDef('FreePileToFreePile, "Pile")
-	
-	@combinator object FPHPN extends ClassNameDef('FreePileToHomePile, "FreePileToHomePile")
-	@combinator object FPHPM extends MovableElementNameDef('FreePileToHomePile, "Card")
-	@combinator object FPHPS extends SourceWidgetNameDef('FreePileToHomePile, "Pile")
-	@combinator object FPHPT extends TargetWidgetNameDef('FreePileToHomePile, "Pile")
-	
-	// val semanticType: Type =
-	//      'RootPackage =>:
-	//      'MoveElement(moveNameType, 'ClassName) =>:
-	//      'MoveElement(moveNameType, 'MovableElementName) =>:
-	//      'MoveElement(moveNameType, 'SourceWidgetName) =>:
-	//      'MoveElement(moveNameType, 'TargetWidgetName) =>:
-	//      'MoveWidget(moveNameType)
+    updated = generateMoveLogic(updated, s)
 
-	// release must take into account both FROMPILE and FROMCOLUMN events.
-	@combinator object FreeCellPileReleasedHandler {
-		def apply(fromColumn:Seq[Statement], fromPile:Seq[Statement]): Seq[Statement] = {
-				Java("""
-						// Column moving to Column on FreeCell tableau
-						if (w instanceof ColumnView) {
-						""" + fromColumn.mkString("\n") + """;
-						}
-						if (w instanceof CardView) {
-						""" + fromPile.mkString("\n") + """
-						}  
-						""").statements();
+    // for the PRESS while the TARGET is the locus for the RELEASE.
+    // These are handling the PRESS events... SHOULD BE ABLE TO
+    // INFER THESE FROM THE AVAILABLE MOVES
+    updated = updated
+      .addCombinator (new IgnorePressedHandler('HomePile, 'HomePile))
+      .addCombinator (new IgnoreClickedHandler('HomePile, 'HomePile))
+      .addCombinator (new SingleCardMoveHandler('FreePile, 'FreePile)) // ONLY PILE PRESS
+      .addCombinator (new IgnoreClickedHandler('FreePile, 'FreePile))
+      .addCombinator (new IgnoreClickedHandler('Column, 'Column))
 
-		}
-		val semanticType: Type =
-				'MoveWidget('ColumnToFreePile) =>: 'MoveWidget('FreePileToFreePile) =>: 'Pile('FreePile, 'Released) :&: 'NonEmptySeq
-	}
-	
-	// val semanticType: Type =
-	//      'RootPackage =>:
-	//      'MoveElement(moveNameType, 'ClassName) =>:
-	//      'MoveElement(moveNameType, 'MovableElementName) =>:
-	//      'MoveElement(moveNameType, 'SourceWidgetName) =>:
-	//      'MoveElement(moveNameType, 'TargetWidgetName) =>:
-	//      'MoveWidget(moveNameType)
+    // Potential moves clarify structure (by type not instance). FIX ME
+    // FIX ME FIX ME FIX ME
+    updated = updated
+      .addCombinator (new PotentialTypeConstructGen('PlaceColumn))
+      .addCombinator (new PotentialTypeConstructGen('MoveColumn))
+      .addCombinator (new PotentialTypeConstructGen('BuildColumn))
 
-	// release must take into account both FROMPILE and FROMCOLUMN events.
-	@combinator object HomePileReleasedHandler {
-		def apply(fromColumn:Seq[Statement], fromPile:Seq[Statement]): Seq[Statement] = {
-				Java("""
-						// Column moving to Column on FreeCell tableau
-						if (w instanceof ColumnView) {
-						""" + fromColumn.mkString("\n") + """;
-						}
-						if (w instanceof CardView) {
-						""" + fromPile.mkString("\n") + """
-						}  
-						""").statements();
+    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
+    updated = updated
+      .addCombinator (new ControllerNaming('FreePile, 'FreePile, "FreeCell"))
+      .addCombinator (new ControllerNaming('HomePile, 'HomePile, "Home"))   // change to HomePile?
+      .addCombinator (new ControllerNaming('Column, 'Column, "FreeCell"))
 
-		}
-		val semanticType: Type =
-				'MoveWidget('ColumnToHomePile) =>: 'MoveWidget('FreePileToHomePile) =>: 'Pile('HomePile, 'Released) :&: 'NonEmptySeq
-	}
+    // Go through and assign GUI interactions for each of the known moves.
+    val ui = new UserInterface(s)
+    val els_it = ui.controllers
+    while (els_it.hasNext) {
+      val el = els_it.next()
+
+      // generic widget controller with auto moves available since we
+      // have that provided by our variation (see extra methods)
+      print ("   ** " + el + ":WidgetController")
+      updated = updated.
+        addCombinator(new WidgetControllerWithAutoMoves(Symbol(el)))
+    }
+
+    // CASE STUDY: Add Automove logic at end of release handlers
+    // this is done by manipulating the chosen combinator.
+    updated
+  }
+
+  /**
+    * When a single card is being removed from the top card of a pile.
+    */
+  class SingleCardMoveHandler(source:Symbol, typ:Symbol) {
+    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+        Java(s"""|$ignoreWidgetVariableName = false;
+                 |Pile srcPile = (Pile) src.getModelElement();
+                 |
+                 |// Return in the case that the pile clicked on is empty
+                 |if (srcPile.count() == 0) {
+                 |  return;
+                 |}
+                 |$widgetVariableName = src.getCardViewForTopCard(me);
+                 |if ($widgetVariableName == null) {
+                 |  return;
+                 |}""".stripMargin).statements()
+    }
+
+    val semanticType: Type =
+      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+        typ (source, 'Pressed) :&: 'NonEmptySeq
+  }
+
+
+  // Note: while I can have code within the apply() method, the semanticType
+  // is static, so that must be passed in as is. These clarify that a
+  // potential moveOneCardFromStack is still a Column Type.
+  class PotentialTypeConstructGen(constructor:Constructor) {
+    def apply(): JType = Java("Column").tpe()
+    val semanticType: Type = 'Move (constructor, 'TypeConstruct)
+  }
+
 
 }
+
+

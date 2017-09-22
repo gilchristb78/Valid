@@ -1,4 +1,4 @@
-@(RootPackage: NameExpr, NumColumns: Expression)
+@(RootPackage: Name, NumColumns: Expression)
 // Fields
 CardImages ci = getCardImages();
 
