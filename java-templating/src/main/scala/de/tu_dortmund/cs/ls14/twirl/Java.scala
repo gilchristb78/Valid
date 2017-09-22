@@ -11,7 +11,7 @@ import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration, Node}
 import org.apache.commons.lang3.StringEscapeUtils
 import play.twirl.api.{BufferedContent, Format, Formats}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.immutable
 
 /**
@@ -45,7 +45,7 @@ class Java private(elements: immutable.Seq[Java], text: String) extends Buffered
   /**
     * Parse this element as multiple statements.
     */
-  def statements(): Seq[Statement] = JavaParser.parseBlock(s"{ $fullText }").getStatements
+  def statements(): Seq[Statement] = JavaParser.parseBlock(s"{ $fullText }").getStatements.asScala
 
   /**
     * Parse this element as an expression.
@@ -78,7 +78,7 @@ class Java private(elements: immutable.Seq[Java], text: String) extends Buffered
     * Parse this element as multiple class body declarations.
     */
   def classBodyDeclarations(): Seq[BodyDeclaration[_]] =
-    JavaParser.parse(s"class C { ${fullText} }").getTypes().head.getMembers.toSeq
+    JavaParser.parse(s"class C { ${fullText} }").getTypes().asScala.head.getMembers.asScala
 
   /**
     * Parse this element as an interface body declaration (e.g. a method signature).
