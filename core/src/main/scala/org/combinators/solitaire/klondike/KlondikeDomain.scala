@@ -74,7 +74,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
       // when placing a single element in Layout, use this API
       val ds = layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
-      val ws = layout_place_one(lay, stock, Layout.WastePile, Java("fieldWastePileViews[0]").name(), 97)
+      val ws = layout_place_one_expr(lay, stock, Layout.WastePile, Java("fieldWastePileViews[0]").expression(), 97)
       val cs = layout_place_many(lay, tableau, Layout.Tableau, Java("fieldColumnViews").name(), 13*97)
 
       ds ++ ws ++ cs
