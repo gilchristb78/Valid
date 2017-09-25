@@ -68,8 +68,9 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
 //      .addJob[CompilationUnit]('Move('PlaceFreePileCard :&: 'PotentialMove, 'CompleteMove))
 //      .addJob[CompilationUnit]('Move('ShuffleFreePile :&: 'PotentialMove, 'CompleteMove))
 
- 
+
   lazy val results = Results.addAll(jobs.run())
+
 
       // Here is how you launch directly and it gets placed into file
       //.add(Gamma.inhabit[Seq[Statement]]('Something), Paths.get("somePlace"))

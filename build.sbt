@@ -21,6 +21,8 @@ lazy val commonSettings = Seq(
 
   libraryDependencies ++= Seq(
     "de.tu_dortmund.cs.ls14" %% "cls-scala" % "1.3.1-SNAPSHOT",
+    "org.scalactic" %% "scalactic" % "3.0.1",
+    "org.scalatest" %% "scalatest" % "3.0.1" % "test",
     guice
   )
 
