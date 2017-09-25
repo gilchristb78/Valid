@@ -466,6 +466,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     val semanticType: Type = widgetType (source, 'Clicked) :&: 'NonEmptySeq
   }
 
+  /** Some variations need to deny release. */
+  class IgnoreReleasedHandler(widgetType:Symbol, source:Symbol) {
+    def apply(): Seq[Statement] = Seq.empty
+    val semanticType: Type = widgetType (source, 'Released) :&: 'NonEmptySeq
+  }
+
   /**
     * When a Press can be ignored, use this
     */
