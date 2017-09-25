@@ -468,7 +468,9 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
 
   /** Some variations need to deny release. */
   class IgnoreReleasedHandler(widgetType:Symbol, source:Symbol) {
-    def apply(): Seq[Statement] = Seq.empty
+    def apply(): Seq[Statement] = {
+      Java(s"""fromWidget.returnWidget(w);""").statements()
+    }
     val semanticType: Type = widgetType (source, 'Released) :&: 'NonEmptySeq
   }
 

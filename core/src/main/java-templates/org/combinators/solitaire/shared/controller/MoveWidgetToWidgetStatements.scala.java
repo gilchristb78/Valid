@@ -8,13 +8,13 @@
 
 try {
 	// Safety Check
-	if(movingElement==null){return;}
+	if (movingElement==null){return;}
 
 	// Get sourceWidget for card being dragged
 	Widget sourceWidget=theGame.getContainer().getDragSource();
 
 	// Safety Check
-	if(sourceWidget==null){return;}
+	if (sourceWidget==null){return;}
 
 	@Java(TargetWidgetName) toElement=(@Java(TargetWidgetName))src.getModelElement();
 
@@ -22,7 +22,7 @@ try {
 	@Java(SourceWidgetName) sourceEntity = (@Java(SourceWidgetName))sourceWidget.getModelElement();
 
 	// this is the actual move
-	Move m = new@{Java(TheMove)}(sourceEntity,movingElement,toElement);
+	Move m = new @{Java(TheMove)}(sourceEntity,movingElement,toElement);
 
 	if (m.valid(theGame)){
 		m.doMove(theGame);
