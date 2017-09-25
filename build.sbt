@@ -35,7 +35,7 @@ lazy val infrastructure = (Project(id = "java-templating", base = file("java-tem
     moduleName := "java-templating",
 
     libraryDependencies ++= Seq(
-      "com.github.javaparser" % "javaparser-core" % "3.2.4",
+      "com.github.javaparser" % "javaparser-core" % "3.4.0",
       "org.apache.commons" % "commons-lang3" % "3.6",
       "com.typesafe.play" %% "twirl-api" % "1.3.7",
       "com.typesafe.play" %% "play" % "2.6.5",

@@ -1,7 +1,7 @@
 package org.combinators.solitaire.shared
 
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Name, SimpleName}
+import com.github.javaparser.ast.expr.{Name, SimpleName, Expression}
 import com.github.javaparser.ast.stmt.Statement
 import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
@@ -261,7 +261,7 @@ trait GameTemplate {
            |$viewName.setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
            |$viewName.setUndoAdapter (new SolitaireUndoAdapter (this));
            |$viewName.setMouseAdapter (new $contName (this, $viewName));
-           |}""".stripMargin).statements()
+           |""".stripMargin).statements()
 
   }
 
@@ -416,6 +416,23 @@ trait GameTemplate {
     * @return
     */
   def layout_place_one (lay: Layout, c: Container, label:String, view:Name, height:Int): Seq[Statement] = {
+    val itd = lay.placements(label, c, height)
+    val r = itd.next()
+
+    Java(s"""|$view.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
+             |addViewWidget($view);
+       """.stripMargin).statements()
+  }
+
+  /**
+    * Place single item, drawn from the given container and of type 'label'.
+    *
+    * Invoke as, example:  layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
+    *
+    * Feels like too many parameters...
+    * @return
+    */
+  def layout_place_one_expr (lay: Layout, c: Container, label:String, view:Expression, height:Int): Seq[Statement] = {
     val itd = lay.placements(label, c, height)
     val r = itd.next()
 
