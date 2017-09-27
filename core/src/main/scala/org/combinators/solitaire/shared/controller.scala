@@ -466,10 +466,14 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     val semanticType: Type = widgetType (source, 'Clicked) :&: 'NonEmptySeq
   }
 
-  /** Some variations need to deny release. */
+  /**
+    * Some variations need to deny release.
+    *
+    * Simply grab the dragging source from the container and return the moving widget.
+    */
   class IgnoreReleasedHandler(widgetType:Symbol, source:Symbol) {
     def apply(): Seq[Statement] = {
-      Java(s"""fromWidget.returnWidget(w);""").statements()
+      Java(s"""c.getDragSource().returnWidget(w);""").statements()
     }
     val semanticType: Type = widgetType (source, 'Released) :&: 'NonEmptySeq
   }
