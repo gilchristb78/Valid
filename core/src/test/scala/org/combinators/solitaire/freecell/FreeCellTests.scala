@@ -8,92 +8,98 @@ import org.scalatest._
 
 class FreeCellTests extends FunSpec {
 
-  // free-cell-stuff follows
-  lazy val repositoryPre = new game {}
-  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
+  describe("The possible inhabited domain models") {
+    lazy val domainModelRepository = new game {}
+    lazy val GammaDomainModel =
+      ReflectedRepository(domainModelRepository, classLoader = this.getClass.getClassLoader)
+    lazy val possibleDomainModels: InhabitationResult[Solitaire] =
+      GammaDomainModel.inhabit[Solitaire]('Variation ('FreeCell))
 
-  lazy val reply: InhabitationResult[Solitaire] = GammaPre.inhabit[Solitaire]('Variation ('FreeCell))
-  lazy val iter: Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
-  lazy val s: Solitaire = iter.next()
+    it("should not be infinite") {
+      assert(!possibleDomainModels.isInfinite)
+    }
+    it("should include exactly one result") {
+      assert(possibleDomainModels.terms.values.flatMap(_._2).size == 1)
+    }
 
-  describe("test FreeCell") {
-    it("ensure solitaire variation exists and is proper.") {
-      assert(s.getTableau.size == 8)
-      assert(s.getFoundation.size == 4)
+    describe("(using the only possible domain model)") {
+      lazy val domainModel = possibleDomainModels.interpretedTerms.index(0)
+      describe("the domain model") {
+        it("should have a tableau of size 8") {
+          assert(domainModel.getTableau.size == 8)
+        }
+        it("should have a foundation of size 4") {
+          assert(domainModel.getFoundation.size == 4)
+        }
+
+        describe("(when used to create a repository)") {
+          describe("the inhabited solitaire variation main classes") {
+            lazy val fc_repository = new gameDomain(domainModel)
+            lazy val Gamma = ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader)
+            lazy val job = Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
+            lazy val results = job.run()
+            it("should not be infinite") {
+              assert(!results.isInfinite)
+            }
+            lazy val interpretedResults = results.interpretedTerms.values.flatMap(_._2)
+            it("should include excatly one result") {
+              assert(interpretedResults.size == 1)
+            }
+            it("should include a class named FreeCell") {
+              assert(interpretedResults.head.getClassByName("FreeCell").isPresent)
+            }
+          }
+
+          describe("the inhabited column controllers") {
+            lazy val controllerRepository = new gameDomain(domainModel) with columnController with pilecontroller {}
+            lazy val Gamma =
+              controllerRepository.init(
+                ReflectedRepository(controllerRepository, classLoader = this.getClass.getClassLoader),
+                domainModel)
+            lazy val job = Gamma.InhabitationBatchJob[CompilationUnit]('Controller('Column))
+            lazy val results = job.run()
+            it("should not be infinite") {
+              assert(!results.isInfinite)
+            }
+            lazy val interpretedResults = results.interpretedTerms.values.flatMap(_._2)
+            it("should include excatly one result") {
+              assert(interpretedResults.size == 1)
+            }
+            it("should include a class named ColumnController") {
+              assert(interpretedResults.head.getClassByName("ColumnController").isPresent)
+            }
+          }
+
+          describe("the inhabited pile controllers") {
+            lazy val controllerRepository = new gameDomain(domainModel) with columnController with pilecontroller {}
+            lazy val Gamma =
+              controllerRepository.init(
+                ReflectedRepository(controllerRepository, classLoader = this.getClass.getClassLoader),
+                domainModel)
+            lazy val job =
+              Gamma.InhabitationBatchJob[CompilationUnit]('Controller('FreePile))
+                      .addJob[CompilationUnit]('Controller('HomePile))
+            lazy val (freePileControllerResults, homePileControllerResults) = job.run()
+            it("should not be infinite") {
+              assert(!freePileControllerResults.isInfinite)
+              assert(!homePileControllerResults.isInfinite)
+            }
+            it("should each include excatly one result") {
+              assert(freePileControllerResults.terms.values.flatMap(_._2).size == 1)
+              assert(homePileControllerResults.terms.values.flatMap(_._2).size == 1)
+            }
+            it("should include a class named FreePileController") {
+              assert(freePileControllerResults.interpretedTerms.index(0).getClassByName("FreePileController").isPresent)
+            }
+            it("should include a class named HomePileController") {
+              assert(homePileControllerResults.interpretedTerms.index(0).getClassByName("HomePileController").isPresent)
+            }
+          }
+        }
+      }
     }
   }
-  // FreeCellDomain is base class for the solitaire variation. Note that this
-  // class is used (essentially) as a placeholder for the solitaire val,
-  // which can then be referred to anywhere as needed.
-  //lazy val fc_repository = new gameDomain(s) // with columnController  with pilecontroller {}
-
-  describe("test FreeCell") {
-    describe("when inhabiting solitaire variation") {
-      // removes sizes and just gets the second part (i.e., the results)
-      lazy val fc_repository = new gameDomain(s)
-      lazy val Gamma = ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader)
-      lazy val job = Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-      lazy val results = job.run().interpretedTerms.values.flatMap(_._2)
-
-      it("ensure just one result") {
-        assert(results.size == 1)
-      }
-      it("check correct class SolitaireVariation exists") {
-        assert(results.head.getClassByName("FreeCell").isPresent)
-      }
-    }
-
-    describe("when inhabiting Column controllers") {
-      // removes sizes and just gets the second part (i.e., the results)
-      lazy val fc_repository = new gameDomain(s) with columnController with pilecontroller {}
-      lazy val Gamma = ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader)
-      lazy val cc = Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-        .addJob[CompilationUnit]('Controller('Column))
-
-        .run()._2
-          .interpretedTerms.values.flatMap(_._2)
-
-
-      it("ensure just one result") {
-        assert(cc.size == 1)
-      }
-      it("check correct class ColumnController exists") {
-        assert(cc.head.getClassByName("ColumnController").isPresent)
-      }
-    }
-
-
-
-    describe("when inhabiting Pile controllers") {
-      // removes sizes and just gets the second part (i.e., the results)
-      lazy val fc_repository = new gameDomain(s) with columnController with pilecontroller {}
-      lazy val Gamma = ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader)
-      lazy val cc = Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-        .addJob[CompilationUnit]('Controller ('FreePile))
-        .run()._2
-        .interpretedTerms.values.flatMap(_._2)
-
-      it("ensure just one freePile") {
-        assert(cc.size == 1)
-      }
-      it("check correct class FreePileController exists") {
-        assert(cc.head.getClassByName("FreePileController").isPresent)
-      }
-
-      lazy val hc = Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-        .addJob[CompilationUnit]('Controller ('HomePile))
-        .run()._2
-        .interpretedTerms.values.flatMap(_._2)
-
-      it("ensure just one homePile") {
-        assert(hc.size == 1)
-      }
-      it("check correct class HomePileController exists") {
-        assert(hc.head.getClassByName("HomePileController").isPresent)
-      }
-    }
-
-
+}
       //    .addJob[CompilationUnit]('HomePileClass)
       //    .addJob[CompilationUnit]('FreePileClass)
       //    .addJob[CompilationUnit]('HomePileViewClass)
@@ -106,7 +112,3 @@ class FreeCellTests extends FunSpec {
       //    .addJob[CompilationUnit]('Move('ShuffleFreePile :&: 'GenericMove, 'CompleteMove))
       //    .addJob[CompilationUnit]('Move('BuildFreePileCard :&: 'PotentialMove, 'CompleteMove))
       //    .addJob[CompilationUnit]('Move('BuildColumn :&: 'PotentialMove, 'CompleteMove))
-
-
-    }
-}
