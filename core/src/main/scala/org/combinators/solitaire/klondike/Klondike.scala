@@ -30,8 +30,19 @@ class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
     .addJob[CompilationUnit]('WastePileClass)
     .addJob[CompilationUnit]('WastePileViewClass)
-//      .addJob[CompilationUnit]('Controller('Deck))
-//      .addJob[CompilationUnit]('Controller('Column))
+    .addJob[CompilationUnit]('Controller('BuildablePile))
+    .addJob[CompilationUnit]('Controller('Pile))
+    .addJob[CompilationUnit]('Controller('WastePile))
+    .addJob[CompilationUnit]('Controller('Deck))
+    .addJob[CompilationUnit]('Move('MoveColumn :&: 'GenericMove, 'CompleteMove))
+    .addJob[CompilationUnit]('Move('DealDeck :&: 'GenericMove, 'CompleteMove))
+    .addJob[CompilationUnit]('Move('ResetDeck :&: 'GenericMove, 'CompleteMove))
+    .addJob[CompilationUnit]('Move('FlipCard :&: 'GenericMove, 'CompleteMove))
+    .addJob[CompilationUnit]('Move('MoveCard :&: 'GenericMove, 'CompleteMove))
+    .addJob[CompilationUnit]('Move('BuildFoundation :&: 'GenericMove, 'CompleteMove))
+    .addJob[CompilationUnit]('Move('BuildFoundationFromWaste :&: 'GenericMove, 'CompleteMove))
+
+  //      .addJob[CompilationUnit]('Controller('Column))
 
   lazy val results:Results = Results.addAll(jobs.run())
 

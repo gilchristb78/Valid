@@ -35,7 +35,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     // visit the domain model. That is an alternative worth considering.
 
     def apply(): Seq[Statement] = {
-      val deck = deckGen("deck")
+      val deck = deckGenWithView("deck", "deckView")
 
       val pileGen = loopConstructGen(solitaire.getTableau, "fieldPiles", "fieldPileViews", "Pile")
 
@@ -61,32 +61,8 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
       var stmts = Seq.empty[Statement]
       
-      val itd = lay.placements(Layout.Stock, stock, 97)
-      val r = itd.next()
-
-      val s = Java(s"""
-               |deckView = new DeckView(deck);
-               |deckView.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-               |addViewWidget(deckView);
-               """.stripMargin).statements()
-      stmts = stmts ++ s
-
-
-      // this can all be retrieved from the solitaire domain model by 
-      // checking if a tableau is present, then do the following, etc... for others
-      val itt = lay.placements(Layout.Tableau, tableau, 97)
-      var idx = 0
-      while (itt.hasNext) {
-        val r = itt.next()
-
-        val s = Java(s"""
-               |fieldPileViews[$idx].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-               |addViewWidget(fieldPileViews[$idx]);
-               """.stripMargin).statements()
-
-        idx = idx + 1
-        stmts = stmts ++ s
-      }
+      stmts = stmts ++ layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
+      stmts = stmts ++ layout_place_many(lay, tableau, Layout.Tableau, Java("fieldPileViews").name(), 97)
 
       stmts
     }
@@ -96,7 +72,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
   @combinator object NarcoticInitControl {
     def apply(NameOfGame: SimpleName): Seq[Statement] = {
-
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.

@@ -41,15 +41,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     // visit the domain model. That is an alternative worth considering.
 
     def apply(): Seq[Statement] = {
-//
-//      val head = Java(
-//        s"""
-//           |// Basic start of pretty much any solitaire game that requires a deck.
-//           |deck = new Deck ("deck");
-//           |int seed = getSeed();
-//           |deck.create(seed);
-//           |addModelElement (deck);
-//           |""".stripMargin).statements()
 
       val dg = deckGen ("deck")
       val colGen = loopConstructGen(solitaire.getTableau, "fieldColumns", "fieldColumnViews", "Column")
@@ -72,55 +63,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
       var stmts = Seq.empty[Statement]
 
-      // Missing: Something that *maps* the domain model to 'fieldHomePileViews' and construction
-      val it = lay.placements(Layout.Foundation, found, 97)
-      var idx = 0
-      while (it.hasNext) {
-        val r = it.next()
-
-        val s =
-          Java(
-            s"""
-               |fieldHomePileViews[$idx].setBounds(${r.x}, ${r.y}, cw, ch);
-               |addViewWidget(fieldHomePileViews[$idx]);
-	       """.stripMargin).statements()
-
-        idx = idx + 1
-        stmts = stmts ++ s
-      }
-
-      // really this should be handled better...
-      val itr = lay.placements(Layout.Reserve, free, 97)
-      idx = 0
-      while (itr.hasNext) {
-        val r = itr.next()
-
-        val s =
-          Java(
-            s"""
-               |fieldFreePileViews[$idx].setBounds(${r.x}, ${r.y}, cw, ch);
-               |addViewWidget(fieldFreePileViews[$idx]);
-               """.stripMargin).statements()
-
-        idx = idx + 1
-        stmts = stmts ++ s
-      }
-
-      val itt = lay.placements(Layout.Tableau, tableau, 13*97)
-      idx = 0
-      while (itt.hasNext) {
-        val r = itt.next()
-
-        val s =
-          Java(
-            s"""
-               |fieldColumnViews[$idx].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-               |addViewWidget(fieldColumnViews[$idx]);
-               """.stripMargin).statements()
-
-        idx = idx + 1
-        stmts = stmts ++ s
-      }
+      stmts = stmts ++ layout_place_many(lay, found, Layout.Foundation, Java("fieldHomePileViews").name(), 97)
+      stmts = stmts ++ layout_place_many(lay, free, Layout.Reserve, Java("fieldFreePileViews").name(), 97)
+      stmts = stmts ++ layout_place_many(lay, tableau, Layout.Tableau, Java("fieldColumnViews").name(), 13*97)
 
       stmts
     }
@@ -130,11 +75,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
   @combinator object FreeCellInitControl {
     def apply(NameOfGame: SimpleName): Seq[Statement] = {
-
-//      val nc = solitaire.getTableau.size()
-//      val np = solitaire.getFoundation.size()
-//      val nf = solitaire.getReserve.size()
-//      val name = NameOfGame.toString()
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.

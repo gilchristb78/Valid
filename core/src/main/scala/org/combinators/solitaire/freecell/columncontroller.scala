@@ -27,23 +27,18 @@ trait columnController extends shared.Controller with generic.JavaIdioms {
       updated
     }
 
-  @combinator object ColumnPressedHandler {
-    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
-      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
-        controller.column.java.ColumnPressed.render(widgetVariableName, ignoreWidgetVariableName).statements()
-    }
-    val semanticType: Type =
-      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        'Column ('Column, 'Pressed) :&: 'NonEmptySeq   
-  }
+  // realType:String, typ:Symbol, source:Symbol, expr :Expression = Java("false").expression())
+  val name = Java(s"""validColumn""").simpleName()
+  @combinator object PC extends ColumnMoveHandler("Column", 'Column, 'Column, name)
 
+//  @combinator object ColumnPressedHandler {
+//    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+//      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+//        controller.column.java.ColumnPressed.render(widgetVariableName, ignoreWidgetVariableName).statements()
+//    }
+//    val semanticType: Type =
+//      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+//        'Column ('Column, 'Pressed) :&: 'NonEmptySeq
+//  }
 
-  // NOT YET WORKED IN .....
-  @combinator object AutoMoveSequence {
-    def apply(pkgName: Name, name: SimpleName): Seq[Statement] = {
-      Java(s"""(($pkgName.$name)theGame).tryAutoMoves();""").statements()
-    }
-    val semanticType: Type =
-      'RootPackage =>: 'NameOfTheGame =>: 'AutoMoves
-  }
 }

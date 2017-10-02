@@ -87,6 +87,23 @@ trait GameTemplate {
   }
 
   /**
+    * Class for constructing Tableau from n BuildablePile.
+    *
+    * param n             number of buildable piles to create
+    * @param nAsType      type of BuildablePile within the semantic type 'Tableau ('Valid :&: typ)
+    */
+  class NBuildablePileTableau(n: Int, nAsType: Type) {
+    def apply(): Tableau = {
+      val t = new Tableau()
+      for (_ <- 1 to n)
+        t.add(new BuildablePile())
+      t
+    }
+
+    val semanticType: Type = 'Tableau ('Valid :&: nAsType :&: 'BuildablePile)
+  }
+
+  /**
     * Class for constructing Tableau from n Piles.
     *
     * @param n            number of piles to create
@@ -491,5 +508,17 @@ trait GameTemplate {
     val deckViews = Java("DeckView deckView;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
     decks ++ deckViews
+  }
+
+
+  /**
+    * Variations that wish to take advantage of automoves can define this method in their base class.
+    */
+  @combinator object AutoMoveSequence {
+    def apply(pkgName: Name, name: SimpleName): Seq[Statement] = {
+      Java(s"""(($pkgName.$name)theGame).tryAutoMoves();""").statements()
+    }
+    val semanticType: Type =
+      'RootPackage =>: 'NameOfTheGame =>: 'AutoMoves
   }
 }

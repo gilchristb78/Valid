@@ -50,17 +50,17 @@ trait pilecontroller extends shared.Controller with shared.Moves with generic.Ja
     // Potential moves clarify structure (by type not instance). FIX ME
     // FIX ME FIX ME FIX ME
     updated = updated
-      .addCombinator (new PotentialTypeConstructGen('PlaceColumn))
-      .addCombinator (new PotentialTypeConstructGen('MoveColumn))
-      .addCombinator (new PotentialTypeConstructGen('BuildColumn))
+      .addCombinator (new PotentialTypeConstructGen("Column", 'PlaceColumn))
+      .addCombinator (new PotentialTypeConstructGen("Column", 'MoveColumn))
+      .addCombinator (new PotentialTypeConstructGen("Column", 'BuildColumn))
 
     // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
     updated = updated
       .addCombinator (new ControllerNaming('FreePile, 'FreePile, "FreeCell"))
-      .addCombinator (new ControllerNaming('HomePile, 'HomePile, "Home"))   // change to HomePile?
+      .addCombinator (new ControllerNaming('HomePile, 'HomePile, "Home"))
       .addCombinator (new ControllerNaming('Column, 'Column, "FreeCell"))
 
-    // Go through and assign GUI interactions for each of the known moves.
+    // Go through and assign GUI interactions for each of the known moves. Clean these up...
     val ui = new UserInterface(s)
     val els_it = ui.controllers
     while (els_it.hasNext) {
@@ -69,8 +69,11 @@ trait pilecontroller extends shared.Controller with shared.Moves with generic.Ja
       // generic widget controller with auto moves available since we
       // have that provided by our variation (see extra methods)
       print ("   ** " + el + ":WidgetController")
-      updated = updated.
-        addCombinator(new WidgetControllerWithAutoMoves(Symbol(el)))
+      if (s.hasAutoMoves) {
+        updated = updated.addCombinator(new WidgetControllerWithAutoMoves(Symbol(el)))
+      } else {
+        updated = updated.addCombinator(new WidgetController(Symbol(el)))
+      }
     }
 
     // CASE STUDY: Add Automove logic at end of release handlers
@@ -106,10 +109,10 @@ trait pilecontroller extends shared.Controller with shared.Moves with generic.Ja
   // Note: while I can have code within the apply() method, the semanticType
   // is static, so that must be passed in as is. These clarify that a
   // potential moveOneCardFromStack is still a Column Type.
-  class PotentialTypeConstructGen(constructor:Constructor) {
-    def apply(): JType = Java("Column").tpe()
-    val semanticType: Type = 'Move (constructor, 'TypeConstruct)
-  }
+//  class PotentialTypeConstructGen(constructor:Constructor) {
+//    def apply(): JType = Java("Column").tpe()
+//    val semanticType: Type = 'Move (constructor, 'TypeConstruct)
+//  }
 
 
 }

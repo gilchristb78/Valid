@@ -6,6 +6,8 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.scalatest._
 
 class SharedTests extends FunSpec {
+
+
   class Repo {
     // initially empty repository
   }
