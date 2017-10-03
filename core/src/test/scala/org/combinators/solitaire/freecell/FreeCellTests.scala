@@ -33,11 +33,10 @@ class FreeCellTests extends Helper {
 
         describe ("(when used to create a repository)") {
           describe ("the inhabited solitaire variation main classes") {
-            lazy val fc_repository = new gameDomain(domainModel) with columnController with pilecontroller {}
+            lazy val fc_repository = new gameDomain(domainModel) with controllers {}
             lazy val Gamma = fc_repository.init(
               ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader),
               domainModel)
-
 
             checkExistence(Gamma, domainModel, 'SolitaireVariation,       "FreeCell")
             checkExistence(Gamma, domainModel, 'Controller ('Column),     "ColumnController")

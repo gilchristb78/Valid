@@ -161,12 +161,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       val tableau = solitaire.getTableau
       val stock = solitaire.getStock
 
-      val decks =
-        if (stock.getNumDecks > 1) {
-          Java("MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-        } else {
-          Java("Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-        }
+      val decks = deckGen(solitaire)   // note: DeckView not needed for FreeCell
 
       // HACK: eventually remove 1 of first 2 parameters
       val fieldFreePiles = fieldGen("FreePile", "FreePile", "FreePileView", reserve.size())

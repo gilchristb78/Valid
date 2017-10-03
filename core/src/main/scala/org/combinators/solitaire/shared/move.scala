@@ -275,7 +275,7 @@ trait Moves extends Base {
         var filter:Seq[Statement] = Seq.empty
         if (name != null) {
           filter = Java(s"""
-               |if (!theGame.$name((Column) (${widgetVariableName}.getModelElement()))) {
+               |if (!theGame.$name(($realType) (${widgetVariableName}.getModelElement()))) {
                |  src.returnWidget($widgetVariableName);
                |	$ignoreWidgetVariableName = true;
                |	c.releaseDraggingObject();

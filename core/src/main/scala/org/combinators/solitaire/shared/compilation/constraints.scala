@@ -8,21 +8,20 @@ import de.tu_dortmund.cs.ls14.cls.types.Constructor
 
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.{ConstraintExpr,ConstraintStmt}
-import domain.{Card, Pile, Column}
-import domain.Output
+import domain._
 import domain.constraints._
 
 // now becomes a simple Expression since that is dominant usage
 class SymbolCombinator(c:ConstraintExpr, constraint_type:Symbol) {  // Constructor
   def apply () : Expression = {
-    ConstraintCodeGen(c).toCode
+    ConstraintCodeGen(c).toCode()
   }
   var semanticType : Type = constraint_type
 }
 
 class ConstructorCombinator(c:ConstraintExpr, constraint_type:Constructor) {  // Constructor
   def apply () : Expression = {
-    ConstraintCodeGen(c).toCode
+    ConstraintCodeGen(c).toCode()
   }
   var semanticType : Type = constraint_type
 }
@@ -46,7 +45,7 @@ trait ConstraintCodeStmtGen {
 /** Handles ReturnStmt. */
 class ReturnStmtCodeGen(c:ReturnConstraint) extends ConstraintCodeStmtGen {
   override def toCode(): Statement = {
-    val out = ConstraintCodeGen(c.getExpr()).toCode()
+    val out = ConstraintCodeGen(c.getExpr).toCode()
 
     val s:Statement = Java(s"""return ${out};""").statement()
     s
@@ -60,9 +59,9 @@ class IfStmtCodeGen(c:IfConstraint) extends ConstraintCodeStmtGen {
     def removeLF(s: String) = s.map(c => if(c == '\n') ' ' else c)
 
     // expression guards the true and false branches
-    val expr = ConstraintCodeGen(c.getExpr()).toCode()
-    val s_true  = ConstraintCodeStmtGen(c.getTrueBranch()).toCode().toString()
-    val s_false = ConstraintCodeStmtGen(c.getFalseBranch()).toCode().toString()
+    val expr = ConstraintCodeGen(c.getExpr).toCode()
+    val s_true  = ConstraintCodeStmtGen(c.getTrueBranch).toCode().toString()
+    val s_false = ConstraintCodeStmtGen(c.getFalseBranch).toCode().toString()
 
     // PrintWriter
 //    val pw = domain.Output.create("outputFile.txt")
@@ -72,11 +71,11 @@ class IfStmtCodeGen(c:IfConstraint) extends ConstraintCodeStmtGen {
 //    pw.close
 
     Java(s"""
-	|if ($expr) {
-	|   $s_true
-	|} else {
-	|   $s_false
-	|}
+          |if ($expr) {
+          |   $s_true
+          |} else {
+          |   $s_false
+          |}
         """.stripMargin).statement()
   }
 }
@@ -104,25 +103,25 @@ class ReturnFalseCodeGen (r:ReturnFalseExpression) extends ConstraintCodeGen {
 /** Handles the IsEmpty Constraint -- must define EmptyConstraint in the context of a move. */
 class ElementEmptyCodeGen(c:ElementEmpty) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    Java(s"""${c.getElement()}.empty()""").expression()
+    Java(s"""${c.getElement}.empty()""").expression()
   }
 }
 
 class DescendingCodeGen(c:Descending) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    Java(s"""${c.getElement()}.descending()""").expression()
+    Java(s"""${c.getElement}.descending()""").expression()
   }
 }
 
 class AlternatingColorsCodeGen(c:AlternatingColors) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    Java(s"""${c.getElement()}.alternatingColors()""").expression()
+    Java(s"""${c.getElement}.alternatingColors()""").expression()
   }
 }
 
 class OppositeColorCodeGen(c:OppositeColor) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    Java(s"""${c.getElement1()}.oppositeColor(${c.getElement2()})""").expression()
+    Java(s"""${c.getElement1}.oppositeColor(${c.getElement2})""").expression()
 
   }
 }
@@ -131,9 +130,9 @@ class OppositeColorCodeGen(c:OppositeColor) extends ConstraintCodeGen {
 class IsAceCodeGen(c:IsAce) extends ConstraintCodeGen {
   override def toCode(): Expression = {
     c.getType match {
-      case col: Column => Java(s"""${c.getElement()}.rank() == Card.ACE""").expression()
-      case card: Card => Java(s"""${c.getElement()}.getRank() == Card.ACE""").expression() 
-      case _ => Java(s""" ${c.getType()}""").expression()
+      case col: Column => Java(s"""${c.getElement}.rank() == Card.ACE""").expression()
+      case card: Card => Java(s"""${c.getElement}.getRank() == Card.ACE""").expression()
+      case _ => Java(s""" ${c.getType}""").expression()
     }
   }
 }
@@ -141,21 +140,21 @@ class IsAceCodeGen(c:IsAce) extends ConstraintCodeGen {
 /** Handles the SameSuit Constraint. */
 class SameSuitCodeGen(c:SameSuit) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-     Java(s"""${c.getElement1()}.getSuit() == ${c.getElement2()}.getSuit()""").expression()
+     Java(s"""${c.getElement1}.getSuit() == ${c.getElement2}.getSuit()""").expression()
   }
 }
 
 /** Handles the NextRank Constraint. */
 class NextRankCodeGen(c:NextRank) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    Java(s"""${c.getElement1()}.getRank() == ${c.getElement2()}.getRank() + 1""").expression()
+    Java(s"""${c.getElement1}.getRank() == ${c.getElement2}.getRank() + 1""").expression()
   }
 }
 
 /** Handles the SameRank Constraint. */
 class SameRankCodeGen(c:SameRank) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    Java(s"""${c.getElement1()}.getRank() == ${c.getElement2()}.getRank()""").expression()
+    Java(s"""${c.getElement1}.getRank() == ${c.getElement2}.getRank()""").expression()
   }
 }
 
@@ -163,20 +162,20 @@ class SameRankCodeGen(c:SameRank) extends ConstraintCodeGen {
 /** Handles the HigherRank Constraint. */
 class HigherRankCodeGen(c:HigherRank) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    Java(s"""${c.getElement1()}.getRank() > ${c.getElement2()}.getRank()""").expression()
+    Java(s"""${c.getElement1}.getRank() > ${c.getElement2}.getRank()""").expression()
   }
 }
 
 
 class ExpressionCodeGen(c:ExpressionConstraint) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-     Java(s"""${c.getLHS()} ${c.getOp()} ${c.getRHS}""").expression()
+     Java(s"""${c.getLHS} ${c.getOp} ${c.getRHS}""").expression()
   }
 }
 
 class BooleanExpressionCodeGen(b:BooleanExpression) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-     Java(s"""${b.getExpression()}""").expression()
+     Java(s"""${b.getExpression}""").expression()
   }
 
 }
@@ -199,8 +198,8 @@ class BooleanExpressionCodeGen(b:BooleanExpression) extends ConstraintCodeGen {
  */
 class OrConstraintCodeGen(constraint: OrConstraint) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    val left = ConstraintCodeGen(constraint.getC1).toCode
-    val right = ConstraintCodeGen(constraint.getC2).toCode
+    val left = ConstraintCodeGen(constraint.getC1).toCode()
+    val right = ConstraintCodeGen(constraint.getC2).toCode()
     val exp:Expression = Java(s"""($left) || ($right)""").expression()
     exp
   }
@@ -210,8 +209,8 @@ class OrConstraintCodeGen(constraint: OrConstraint) extends ConstraintCodeGen {
 // Altered based on n-ary logic?
 class AndConstraintCodeGen(constraint: AndConstraint) extends ConstraintCodeGen {
   override def toCode(): Expression = {
-    val left = ConstraintCodeGen(constraint.getC1).toCode
-    val right = ConstraintCodeGen(constraint.getC2).toCode
+    val left = ConstraintCodeGen(constraint.getC1).toCode()
+    val right = ConstraintCodeGen(constraint.getC2).toCode()
     val exp:Expression = Java(s"""($left) && ($right)""").expression()
     exp
   }

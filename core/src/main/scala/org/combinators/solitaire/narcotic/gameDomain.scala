@@ -141,17 +141,18 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       val tableau = solitaire.getTableau
       val stock = solitaire.getStock
 
-      val decks =
-        if (stock.getNumDecks > 1) {
-          Java("public MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-        } else {
-          Java("public Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-        }
-      val deckViews = Java("DeckView deckView;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+      val decks = deckGen(solitaire)
+//      val decks =
+//        if (stock.getNumDecks > 1) {
+//          Java("public MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+//        } else {
+//          Java("public Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+//        }
+//      val deckViews = Java("DeckView deckView;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
       val fieldPiles = fieldGen("Pile", "Pile", "PileView", tableau.size())
 
-      decks ++ fields ++ fieldPiles ++ deckViews
+      decks ++ fields ++ fieldPiles
     }
 
     val semanticType: Type = 'ExtraFields

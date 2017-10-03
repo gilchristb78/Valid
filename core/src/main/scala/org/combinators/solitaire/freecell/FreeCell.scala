@@ -29,7 +29,7 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
-  lazy val repository = new gameDomain(s) with columnController with pilecontroller {}
+  lazy val repository = new gameDomain(s) with controllers {}
   lazy val Gamma = {
     val r = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
     println(new TypeNameStatistics(r).warnings)

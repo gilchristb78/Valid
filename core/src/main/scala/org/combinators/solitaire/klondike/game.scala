@@ -121,7 +121,6 @@ trait game extends GameTemplate with Score52 {
         */
 
       val tableau = solitaire.getTableau
-      val reserve = solitaire.getReserve
       val found   = solitaire.getFoundation
       val stock   = solitaire.getStock
       val waste   = solitaire.getWaste
@@ -158,7 +157,6 @@ trait game extends GameTemplate with Score52 {
 
       // Move to foundation from Tableau
       val aCard = new Card
-      val nonEmpty = new ExpressionConstraint("destination.count()", "!=", "0")
       val if3 =
         new IfConstraint(isEmpty,
           new IfConstraint(new IsAce(aCard, "movingCard")),
