@@ -27,7 +27,9 @@ idiot: idiot/src/main/java/org/combinators/solitaire/idiot/Idiot.java
 run-idiot: idiot
 	java -cp standAlone.jar:./idiot/src/main/java org/combinators/solitaire/idiot/Idiot
 
+.PHONY: archway
+archway: archway/src/main/java/org/combinators/solitaire/archway/Archway.java
+	javac -cp standAlone.jar:./archway/src/main/java archway/src/main/java/org/combinators/solitaire/archway/Archway.java
 
-
-
-
+run-archway: archway
+	java -cp standAlone.jar:./archway/src/main/java org/combinators/solitaire/archway/Archway
