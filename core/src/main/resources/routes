@@ -30,4 +30,3 @@ GET   /example                      example.Example.overview()
 GET   /example/raw_:number          example.Example.raw(number: Long)
 GET   /example/prepare              example.Example.prepare(number: Long)
 GET   /example/example.git/*file    example.Example.serveFile(file)
-
