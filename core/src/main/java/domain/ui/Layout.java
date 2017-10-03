@@ -34,6 +34,16 @@ public class Layout implements Iterable<String> {
 	public Hashtable<String,Rectangle> origins =
 			new Hashtable<String,Rectangle>();
 
+    /**
+     * Sometimes (Archway), the developer wants to give a custom list of coordinates.
+	 * Placement is set in the ProcessIterators below.
+	 * @author jabortell
+     */
+    private enum Placement {
+        STATIC,
+        CUSTOM,
+    }
+
 	/**
 	 * Add a Rectangle to the layout.
 	 */
@@ -59,17 +69,39 @@ public class Layout implements Iterable<String> {
 		int x;
 		int y;
 
+		Placement placement;
+
+		Rectangle[] custom_coordinates;
+
 		final int height;
 		final int gap = 15; // HACK. Should be computed
 		final int max;
 		int idx = 0;
 
 		public ProcessIterator(Container container, Rectangle rect, int height) {
+		    this.placement = Placement.STATIC;
 			this.x = rect.x;
 			this.y = rect.y;
 			this.height = height;
 			this.max = container.size();
 		}
+
+		/**
+		 * Called from `customPlacements(...)`, this constructor is used when
+		 * providing an array of custom coordinates.
+		 * Placement is set to CUSTOM, which is checked in `next()`.
+		 * @param container Such as the Reserve or Foundation.
+		 * @param rects Custom collection of coordinates.
+		 * @param height Usually specifies either the card or column height.
+		 *
+		 * @author jabortell
+		 */
+		ProcessIterator(Container container, Rectangle[] rects, int height) {
+		    this.placement = Placement.CUSTOM;
+		    this.custom_coordinates = rects;
+		    this.height = height;
+		    this.max = container.size();
+        }
 
 		@Override
 		public boolean hasNext() {
@@ -78,12 +110,20 @@ public class Layout implements Iterable<String> {
 
 		@Override
 		public Widget next() {
-			Widget r = new Widget (idx, x, y, 73, height);   // WIDTH is 73. HACK!
-			x += 73 + gap;
+            Widget r;
+            // I chose to use an Enum in a State pattern, rather than merely
+            // checking if custom_coordinates is set, because I do not
+            // like checking if objects are null.
+		    if (this.placement == Placement.CUSTOM) {
+		        r = new Widget(idx, custom_coordinates[idx].x, custom_coordinates[idx].y, 73, height);
+            }
+            else {
+                r = new Widget (idx, x, y, 73, height);   // WIDTH is 73. HACK!
+                x += 73 + gap;
+            }
 			idx++;
 			return r;
 		}
-
 	}
 
 	/**
@@ -95,4 +135,32 @@ public class Layout implements Iterable<String> {
 		Rectangle rect = this.get(key);
 		return new ProcessIterator(container, rect, height);
 	}
+
+	/**
+	 * Provide custom placements for a container.
+	 * First, create list of rectangles from x and y coordinates, then call ProcessIterator constructor.
+	 * @param container Such as the Reserve or Tableau.
+	 * @param x Array of x coordinates.
+	 * @param y Array of y coordinates.
+	 * @param height Usually specifies either the card or column height.
+	 * @return ProcessIterator to provide layout parameters.
+	 *
+	 * @author jabortell
+	 */
+	public Iterator<Widget> customPlacements(Container container, int[] x, int[] y, int height) {
+		// Double-check sizes of container, x, and y coordinates.
+        if (container.size() != x.length && x.length != y.length) {
+            throw new IllegalArgumentException("Can't add " + container + " : Container and coordinates have unequal lengths.");
+        }
+
+        // Make rectangles with x and y coordinates.
+        Rectangle[] rects = new Rectangle[container.size()];
+        for (int i = 0; i < x.length; i++) {
+            rects[i] = new Rectangle(x[i], y[i], 73, height);
+        }
+
+	    return new ProcessIterator(container, rects, height);
+    }
+
+
 }

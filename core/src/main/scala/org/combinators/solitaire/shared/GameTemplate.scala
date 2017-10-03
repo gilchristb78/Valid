@@ -464,8 +464,36 @@ trait GameTemplate {
 
       stmts = stmts ++ s
     }
-
     stmts
+  }
+
+  /**
+    * Place multiple elements of a container with custom coordinates.
+    * @param layout Holds all containers in the layout.
+    * @param container Such as the Reserve or Tableau.
+    * @param view The real field name of the View associated.
+    * @param x List of x coordinates.
+    * @param y List of y coordinates.
+    * @param height Usually the height of the card or column.
+    * @return Generated statements placing the View in the game.
+    *
+    * @author jabortell
+    */
+  def layout_place_custom(layout: Layout, container: Container, view: Name, x: Array[Int], y: Array[Int], height: Int) = {
+    val itt = layout.customPlacements(container, x, y, height)
+    var statements = Java("").statements()
+    while (itt.hasNext) {
+      val r = itt.next()
+
+      val s = Java(
+        s"""
+           |$view[${r.idx}].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
+           |addViewWidget($view[${r.idx}]);
+           """.stripMargin).statements()
+
+      statements = statements ++ s
+    }
+    statements
   }
 
   /**
