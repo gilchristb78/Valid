@@ -1,14 +1,15 @@
 package domain;
 
 /**
-
-   Holds a number of distinct elements. Often is used to arrange
-   elements in specific rigid format in layout.
-
-   Will need to offer traversal/visiting behavior.
-
+ * Holds a number of distinct elements. Often is used to arrange
+ * elements in specific rigid format in layout.
+ *
+ * Will need to offer traversal/visiting behavior.
+ *
+ * While initial concept was for all types within a container to be the same, there is the ability
+ * to iterate over all unique types within a container, so theoretically one can place multiple
+ * typed objects in the same container.
  */
-
 import java.util.*;
 
 public class Container implements Iterable<Element> {
@@ -21,13 +22,13 @@ public class Container implements Iterable<Element> {
 		return elements.size();
 	}
 
-  	/** Same type. */
+	/** Same type. */
 	public boolean isSame(Container c) {
-	  if (c == null) { return false; }
-	  if (this.getClass() == c.getClass()) { 
-             return true; 
-          }
-	  return false;
+		if (c == null) { return false; }
+		if (this.getClass() == c.getClass()) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -41,7 +42,7 @@ public class Container implements Iterable<Element> {
 
 		elements.add(e);
 		return true;
-	} 
+	}
 
 	/**
 	 * Attempt to remove element from Container, returning true 
@@ -56,25 +57,25 @@ public class Container implements Iterable<Element> {
 		return true;
 	}
 
-        /**
-         * Return iterator of unique types. Likely easier way
-         * of doing this in Scala... Also, outputs SimpleName for simplicity
-         */
+	/**
+	 * Return iterator of unique types. Likely easier way
+	 * of doing this in Scala... Also, outputs SimpleName for simplicity
+	 */
 	public Iterator<String> types() {
-	   ArrayList<String> elems = new ArrayList<String>();
-	   for (Element e : elements) {
-		String name = e.getClass().getSimpleName();
-		if (!elems.contains(name)) {
-		   elems.add(name);
+		ArrayList<String> elems = new ArrayList<String>();
+		for (Element e : elements) {
+			String name = e.getClass().getSimpleName();
+			if (!elems.contains(name)) {
+				elems.add(name);
+			}
 		}
-           }
-	   return elems.iterator();
+		return elems.iterator();
 	}
 
-	/** 
-	 * iterator over all elements. 
+	/**
+	 * Return iterator over all elements.
 	 */
 	public Iterator<Element> iterator() {
-		return elements.iterator();
+	    return elements.iterator();
 	}
 }

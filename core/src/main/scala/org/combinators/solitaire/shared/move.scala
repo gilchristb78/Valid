@@ -3,7 +3,7 @@ package org.combinators.solitaire.shared
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.`type`.{Type => JType}
 import com.github.javaparser.ast.body.BodyDeclaration
-import com.github.javaparser.ast.expr.{Name, SimpleName}
+import com.github.javaparser.ast.expr.{Name, Expression, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
@@ -196,22 +196,22 @@ trait Moves extends Base {
     * Creates stand-alone class to represent a card that has been removed
     * from a specific source element (identified by name)>
     */
-  @combinator object RemovedCard {
-    def apply(rootPackage: Name): CompilationUnit = {
-      shared.moves.java.RemovedCard.render(rootPackage).compilationUnit()
-    }
-    val semanticType: Type = 'RootPackage =>: 'Move ('RemovedCard, 'CompleteMove)
-  }
+//  @combinator object RemovedCard {
+//    def apply(rootPackage: Name): CompilationUnit = {
+//      shared.moves.java.RemovedCard.render(rootPackage).compilationUnit()
+//    }
+//    val semanticType: Type = 'RootPackage =>: 'Move ('RemovedCard, 'CompleteMove)
+//  }
 
   /**
     * Deal cards from deck onto a set of stacks.
     */
-  @combinator object DealStacks {
-    def apply(rootPackage: Name): CompilationUnit = {
-      shared.moves.java.DealStacksMove.render(rootPackage).compilationUnit()
-    }
-    val semanticType: Type = 'RootPackage =>: 'Move ('DealStacks, 'CompleteMove)
-  }
+//  @combinator object DealStacks {
+//    def apply(rootPackage: Name): CompilationUnit = {
+//      shared.moves.java.DealStacksMove.render(rootPackage).compilationUnit()
+//    }
+//    val semanticType: Type = 'RootPackage =>: 'Move ('DealStacks, 'CompleteMove)
+//  }
 
   /**
     * Scala class to generate combinators which record the name of the
@@ -254,6 +254,49 @@ trait Moves extends Base {
                  |if ($widgetVariableName == null) {
                  |  return;
                  |}""".stripMargin).statements()
+    }
+
+    val semanticType: Type =
+      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+        typ (source, 'Pressed) :&: 'NonEmptySeq
+  }
+
+  /**
+    * When a column of cards is being removed from the top card of a widget,
+    * either a Column or perhaps a buildablePile
+    *
+    * Provides ability to add 'filtering' statements that can determine whether to deny
+    * the press request (typically because of requirement that cards form alternating colors or
+    * descending suits, for example.
+    */
+  class ColumnMoveHandler(realType:String, typ:Symbol, source:Symbol, name:SimpleName = null) {
+    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+        var filter:Seq[Statement] = Seq.empty
+        if (name != null) {
+          filter = Java(s"""
+               |if (!theGame.$name(($realType) (${widgetVariableName}.getModelElement()))) {
+               |  src.returnWidget($widgetVariableName);
+               |	$ignoreWidgetVariableName = true;
+               |	c.releaseDraggingObject();
+               |	return;
+               |}""".stripMargin).statements()
+        }
+
+        Java(s"""|$ignoreWidgetVariableName = false;
+                 |$realType srcElement = ($realType) src.getModelElement();
+                 |
+                 |// Return in the case that the widget clicked on is empty
+                 |if (srcElement.count() == 0) {
+                 |  return;
+                 |}
+                 |$widgetVariableName = src.getColumnView(me);
+                 |if ($widgetVariableName == null) {
+                 |  return;
+                 |}
+                 |
+                 |${filter.mkString("\n")}
+                 |""".stripMargin).statements()
     }
 
     val semanticType: Type =

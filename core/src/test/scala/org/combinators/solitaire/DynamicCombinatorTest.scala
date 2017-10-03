@@ -6,8 +6,7 @@ import org.scalatest._
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.interpreter._
 import domain.Solitaire
-import org.combinators.TypeNameStatistics
-import org.combinators.solitaire.freecell.{columnController, game, gameDomain, pilecontroller}
+import org.combinators.solitaire.freecell.{game, gameDomain}
 import syntax._
 
 class DynamicCombinatorTest extends FunSpec {
@@ -41,7 +40,7 @@ class DynamicCombinatorTest extends FunSpec {
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
-  lazy val fc_repository = new gameDomain(s)// with columnController  with pilecontroller {}
+  lazy val fc_repository = new gameDomain(s)
 //  lazy val Gamma = {
 //    val r = fc_repository.init(ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader), s)
 //    println(new TypeNameStatistics(r).warnings)

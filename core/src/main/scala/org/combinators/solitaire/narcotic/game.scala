@@ -89,6 +89,7 @@ trait game extends GameTemplate with Score52 {
       val tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, tt_move)
       rules.addDragMove(tableauToTableau)
 
+      /** Awkward constraint. Requires downcast to access method. Perhaps move into move class?*/
       val allSameRank =
          new BooleanExpression("((org.combinators.solitaire.narcotic.Narcotic)game).allSameRank()")
       val tableauRemove = new RemoveMultipleCardsMove("RemoveAllCards", tableau, new IfConstraint(allSameRank))

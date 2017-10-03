@@ -66,6 +66,8 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
             'Move (moveSymbol, 'CheckValidStatements)))
 
         move match {
+          case _ : FlipCardMove =>
+            updated = updated.addCombinator(new SolitaireMove(moveSymbol))
           case _ : SingleCardMove =>
             updated = updated.addCombinator(new SolitaireMove(moveSymbol))
           case _ : ColumnMove =>
@@ -229,6 +231,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
   class UndoGenerator(m:Move, constructor:Constructor) {
     def apply(): Seq[Statement] = {
       m match {
+        case _ : FlipCardMove =>
+          Java(s"""|Card c = source.get();
+                   |c.setFaceUp (!c.isFaceUp());
+                   |source.add(c);
+                   |""".stripMargin).statements()
+
         case _ : SingleCardMove => Java(s"""source.add(destination.get());""").statements()
 
         // No means for undoing the reset of a deck.
@@ -262,6 +270,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
   class DoGenerator(m:Move, constructor:Constructor) {
     def apply(): Seq[Statement] = {
       m match {
+        case _ : FlipCardMove =>
+          Java(s"""|Card c = source.get();
+                   |c.setFaceUp (!c.isFaceUp());
+                   |source.add(c);
+                   |""".stripMargin).statements()
+
         case _ : SingleCardMove => Java(s"""destination.add(movingCard);""").statements()
 
         // remove cards and prent any attempt for undo.
@@ -298,6 +312,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
   class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
     def apply() : Seq[BodyDeclaration[_]] = {
       m match {
+        case _ : FlipCardMove =>
+          Java(s"""|Card movingCard;
+                   |public $name(Stack from) {
+                   |  this(from, from);
+                   |}""".stripMargin).classBodyDeclarations()
+
         case _ : SingleCardMove =>
           Java(s"""|Card movingCard;
                    |public $name(Stack from, Card card, Stack to) {
@@ -402,11 +422,11 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
       'RootPackage =>:
         elementType (elementType, 'ClassName) =>:
         'NameOfTheGame =>:
-        'AutoMoves =>:
+        'AutoMoves =>:       /** Generic symbol (i.e., not elementType) since only makes request of base class. */
         elementType (elementType, 'Clicked) :&: 'NonEmptySeq =>:
         elementType (elementType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
         ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: elementType (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
-        'Controller (elementType)
+        'Controller (elementType) :&: 'AutoMoves
   }
 
 
@@ -466,7 +486,11 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     val semanticType: Type = widgetType (source, 'Clicked) :&: 'NonEmptySeq
   }
 
-  /** Some variations need to deny release. */
+  /**
+    * Some variations need to deny release.
+    *
+    * Simply grab the dragging source from the container and return the moving widget.
+    */
   class IgnoreReleasedHandler(widgetType:Symbol, source:Symbol) {
     def apply(): Seq[Statement] = {
       Java(s"""c.getDragSource().returnWidget(w);""").statements()

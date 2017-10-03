@@ -1,7 +1,8 @@
 package domain.constraints;
 
 /**
- * Is element e2 the next rank, regardless of suit.
+ * Is rank of element e1 equal to 1 + rank of element 2.
+ *
  */
 public class NextRank extends BinaryConstraintExpr {
 

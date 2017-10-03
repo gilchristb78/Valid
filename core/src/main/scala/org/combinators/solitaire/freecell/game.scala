@@ -183,20 +183,8 @@ trait game extends GameTemplate with Score52 {
     val semanticType: Type = 'Foundation ('Valid :&: 'Four :&: 'HomePile)
   }
 
-  // in FreeCell we need a valid foundation.
-  @combinator object AddFourPileFoundation {
-    def apply(s: Solitaire, f: Foundation): Solitaire = {
-      s.setFoundation(f)
-      println("setting four-pile foundation.")
-      s
-    }
 
-    val semanticType: Type =
-      'Solitaire ('Foundation ('None)) =>: 'Foundation ('Valid :&: 'HomePile) =>:
-        'Solitaire ('Foundation ('Valid :&: 'HomePile))
-  }
-
-  // 4-HomePile Foundation
+  // 4-HomePile Reserve
   @combinator object FourHomePileReserve {
     def apply(): Reserve = {
       val r = new Reserve()
@@ -215,31 +203,6 @@ trait game extends GameTemplate with Score52 {
   }
 
 
-  // in FreeCell we need a valid reserve
-  @combinator object AddFourPileReserve {
-    def apply(s: Solitaire, r: Reserve): Solitaire = {
-      s.setReserve(r)
-      println("setting four-pile reserve.")
-      s
-    }
 
-    val semanticType: Type =
-      'Solitaire ('Reserve ('None)) =>: 'Reserve ('Valid :&: 'FreePile) =>:
-        'Solitaire ('Reserve ('Valid :&: 'FreePile))
-  }
-
-  // in FreeCell we need a valid tableau. Not sure why we have to
-  // restrict that here to be 8; could still be searched
-  @combinator object AddEightColumnTableau {
-    def apply(s: Solitaire, tab: Tableau): Solitaire = {
-      s.setTableau(tab)
-      println("setting eight-column tableau")
-      s
-    }
-
-    val semanticType: Type =
-      'Solitaire ('Tableau ('None)) =>: 'Tableau ('Valid :&: 'Column) =>:
-        'Solitaire ('Tableau ('Valid :&: 'Column))
-  }
 
 }

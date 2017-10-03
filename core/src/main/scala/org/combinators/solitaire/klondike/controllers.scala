@@ -1,9 +1,13 @@
 package org.combinators.solitaire.klondike
 
+import com.github.javaparser.ast.expr.SimpleName
+import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
+import de.tu_dortmund.cs.ls14.cls.types.Type
+import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.generic
 import domain._
 import domain.ui._
@@ -26,7 +30,13 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       if (el == "Deck") {
         updated = updated.    // HACK. Why special for Deck???
           addCombinator (new DeckController(Symbol(el)))
-      } else if (el == "Column") {
+      } else if (el == "BuildablePile") {
+        updated = updated.
+          addCombinator (new WidgetController(Symbol(el)))
+      } else if (el == "WastePile") {
+        updated = updated.
+          addCombinator (new WidgetController(Symbol(el)))
+      } else if (el == "Pile") {
         updated = updated.
           addCombinator (new WidgetController(Symbol(el)))
       }
@@ -43,9 +53,104 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     updated = generateMoveLogic(updated, s)
 
+    updated = updated
+      .addCombinator (new IgnoreClickedHandler('BuildablePile, 'BuildablePile))
+      .addCombinator (new IgnoreClickedHandler('Pile, 'Pile))
+      .addCombinator (new IgnoreClickedHandler('WastePile, 'WastePile))
+      .addCombinator (new IgnoreReleasedHandler('WastePile, 'WastePile))
+      .addCombinator (new DealToTableauHandlerLocal())
+      .addCombinator (new ResetDeckLocal())
+      .addCombinator (new SingleCardMoveHandler("Pile", 'Pile, 'Pile))
+      .addCombinator (new SingleCardMoveHandler("WastePile", 'WastePile, 'WastePile))
+
+    // Potential moves clarify structure (by type not instance). FIX ME
+    // FIX ME FIX ME FIX ME
+//    updated = updated
+//      .addCombinator (new PotentialTypeConstructGen("Column", 'MoveColumn))
+
+    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
+    updated = updated
+      .addCombinator (new ControllerNaming('BuildablePile, 'BuildablePile, "BuildablePile"))
+      .addCombinator (new ControllerNaming('Pile, 'Pile, "Pile"))
+      .addCombinator (new ControllerNaming('WastePile, 'WastePile, "WastePile"))
+
 
     updated
   }
+
+  /**
+   * Specify filtering method 'validColumn' in the base class to use to pre-filter mouse press.
+   * Note: This introduces 'Stage1 as a means to combine the two press events in sequence.
+   */
+  val name = Java(s"""validColumn""").simpleName()
+  @combinator object PC extends ColumnMoveHandler("BuildablePile", 'Stage1, 'Stage1, name)
+
+  /** This is one way to combine things... */
+  @combinator object Combine {
+    def apply(head: (SimpleName, SimpleName) => Seq[Statement]): (SimpleName, SimpleName) => Seq[Statement] = {
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+
+        val seq:Seq[Statement] = head.apply(widgetVariableName, ignoreWidgetVariableName)
+        Java(s"""|BuildablePile srcPile = (BuildablePile) src.getModelElement();
+                 |
+                 |// Only apply if not empty AND if top card is face down
+                 |if (srcPile.count() != 0) {
+                 |  if (!srcPile.peek().isFaceUp()) {
+                 |    Move fm = new FlipCard(srcPile, srcPile);
+                 |    if (fm.doMove(theGame)) {
+                 |      theGame.pushMove(fm);
+                 |      c.repaint();
+                 |      return;
+                 |    }
+                 |  }
+                 |}
+                 |${seq.mkString("\n")}""".stripMargin).statements()
+    }
+
+    val semanticType: Type =
+      ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+        'Stage1 ('Stage1, 'Pressed) :&: 'NonEmptySeq) =>:
+        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+          'BuildablePile ('BuildablePile, 'Pressed) :&: 'NonEmptySeq)
+  }
+
+  /**
+    * When dealing card(s) from the stock to all elements in Tableau
+    * If deck is empty, then reset.
+    * NOTE: How to make this more compositional?
+    */
+  class DealToTableauHandlerLocal() {
+    def apply():Seq[Statement] = {
+      Java(s"""|m = new DealDeck(theGame.deck, theGame.fieldWastePiles);
+               |if (m.doMove(theGame)) {
+               |   theGame.pushMove(m);
+               |   // have solitaire game refresh widgets that were
+               |   // affected
+               |   theGame.refreshWidgets();
+               |   return;
+               |}""".stripMargin).statements()
+    }
+
+    val semanticType: Type = 'Deck1
+  }
+
+  class ResetDeckLocal() {
+    def apply():Seq[Statement] = {
+      Java(s"""|m = new ResetDeck(theGame.deck, theGame.fieldWastePiles);
+               |if (m.doMove(theGame)) {
+               |   theGame.pushMove(m);
+               |   // have solitaire game refresh widgets that were
+               |   // affected
+               |   theGame.refreshWidgets();
+               |   return;
+               |}""".stripMargin).statements()
+    }
+
+    val semanticType: Type = 'Deck2
+  }
+
+  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2,
+    'Deck ('Pressed) :&: 'NonEmptySeq)
 
 
 }
