@@ -57,28 +57,16 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
            | addModelElement(deck);
          """.stripMargin).statements()
 
-      val reserve = loopConstructGen(solitaire.getReserve(), "fieldReservePiles", "fieldReservePileViews", "Pile")
-      val tableau = loopConstructGen(solitaire.getTableau(), "fieldTableauColumns", "fieldTableauColumnViews", "Column")
+      val reserve = loopConstructGen(solitaire.getReserve, "fieldReservePiles", "fieldReservePileViews", "Pile")
+      val tableau = loopConstructGen(solitaire.getTableau, "fieldTableauColumns", "fieldTableauColumnViews", "Column")
 
       /*
        * The Foundation is split between Aces and Kings, so I have to manually
-       * generate them instead of using loopContructGen()
+       * generate them instead of using loopConstructGen()
        */
-      val aces = Java(
-        s"""
-           |for (int j = 0; j < 4; j++) {
-           |  fieldAcesFoundationPiles[j] = new AcesUpPile(fieldAcesFoundationPilesPrefix + (j+1));
-           |  addModelElement (fieldAcesFoundationPiles[j]);
-           |  fieldAcesFoundationPileViews[j] = new AcesUpPileView(fieldAcesFoundationPiles[j]);
-           |}""".stripMargin).statements()
+      val aces = loopConstructGen(solitaire.getFoundation, "fieldAcesFoundationPiles", "fieldAcesFoundationPileViews", "AcesUpPile")
 
-      val kings = Java(
-        s"""
-           |for (int j = 0; j < 4; j++) {
-           |  fieldKingsFoundationPiles[j] = new KingsDownPile(fieldKingsFoundationPilesPrefix + (j+1));
-           |  addModelElement (fieldKingsFoundationPiles[j]);
-           |  fieldKingsFoundationPileViews[j] = new KingsDownPileView(fieldKingsFoundationPiles[j]);
-           |}""".stripMargin).statements()
+      val kings = loopConstructGen(solitaire.getContainer("KingsDownFoundation"), "fieldKingsFoundationPiles", "fieldKingsFoundationPileViews", "KingsDownPile")
 
 
       deck ++ aces ++ kings ++ reserve ++ tableau
@@ -86,7 +74,6 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
 
     val semanticType: Type = 'Init ('Model)
   }
-
 
   /** Deal the cards.
     * There is no mechanism to instantiate individual cards, so in order to create
@@ -154,54 +141,6 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
     val semanticType: Type = 'Init ('InitialDeal)
   }
 
-
-  /**
-    * Combinator for generating a subclass.
-    * @param parent
-    * @param subclass
-    * @param typ Scala symbol
-    */
-  class ExtendModel(parent: String, subclass: String, typ:Symbol) {
-
-    def apply(rootPackage: Name): CompilationUnit = {
-      val name = rootPackage.toString()
-      Java(s"""package $name;
-                import ks.common.model.*;
-                public class $subclass extends $parent {
-		  public $subclass (String name) {
-		    super(name);
-		  }
-		}
-	     """).compilationUnit
-    }
-
-    val semanticType : Type = 'RootPackage =>: typ
-  }
-
-  /**
-    * Combinator for generating a View's subclass.
-    * @param parent
-    * @param subclass
-    * @param model The class to which the View class belongs. (Ex: Column for ColumnView)
-    * @param typ Scala symbol
-    */
-  class ExtendView(parent: String, subclass: String, model: String, typ:Symbol) {
-
-    def apply(rootPackage: Name): CompilationUnit = {
-      val name = rootPackage.toString()
-      Java(s"""package $name;
-                import ks.common.view.*;
-                public class $subclass extends $parent {
-                  public $subclass ($model element) {
-                    super(element);
-                  }
-                }
-             """).compilationUnit
-    }
-
-    val semanticType : Type = 'RootPackage =>: typ
-  }
-
   /*
    * Because Aces and Kings have differing behavior in the Foundation, I have to make them as subclasses.
    */
@@ -260,37 +199,16 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
       val name = NameOfGame.toString()
 
       /* Aces Foundation Controller */
-      val aces_controller = controllerGen("fieldAcesFoundationPileViews[j]", "AcesUpPileController")
-      val aces = Java(s"""
-                         |for (int j = 0; j < 4; j++) {
-                         |  ${aces_controller.mkString("\n")}
-                         |}""".stripMargin).statements()
+      val aces = loopControllerGen(solitaire.getFoundation, "fieldAcesFoundationPileViews", "AcesUpPileController")
 
       /* Kings Foundation Controller */
-      val kings_controller = controllerGen("fieldKingsFoundationPileViews[j]", "KingsDownPileController")
-      val kings = Java(s"""
-                          |for (int j = 0; j < 4; j++) {
-                          |  ${kings_controller.mkString("\n")}
-                          |}""".stripMargin).statements()
-
+      val kings = loopControllerGen(solitaire.getContainer("KingsDownFoundation"), "fieldKingsFoundationPileViews", "KingsDownPileController")
 
       /* Tableau Controller */
-      val column_controller = controllerGen("fieldTableauColumnViews[j]", "ColumnController")
-      val tableau = Java(
-        s"""
-           |for (int j = 0; j < 4; j++) {
-           |  ${column_controller.mkString("\n")}
-           |}
-         """.stripMargin).statements()
+      val tableau = loopControllerGen(solitaire.getTableau, "fieldTableauColumnViews", "ColumnController")
 
       /* Reserve Controller */
-      val reserve_controller = controllerGen("fieldReservePileViews[j]", "PileController")
-      val reserve = Java(
-        s"""
-           |for (int j = 0; j < 11; j++) {
-           |  ${reserve_controller.mkString("\n")}
-           |}
-         """.stripMargin).statements()
+      val reserve = loopControllerGen(solitaire.getReserve, "fieldReservePileViews", "PileController")
 
       aces ++ kings ++ tableau ++ reserve
     }

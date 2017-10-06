@@ -163,6 +163,12 @@ trait GameTemplate {
   @combinator object FourPileTableau extends NPileTableau(4, 'Four)
 
   /**
+    * Canonical Foundation of four Pile objects.
+    */
+  @combinator object FourPileFoundation extends NPileFoundation(4, 'Four)
+
+
+  /**
     * Combinator for creating a one-deck stock
     */
   @combinator object SingleDeckStock {

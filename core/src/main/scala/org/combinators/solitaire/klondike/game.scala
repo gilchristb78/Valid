@@ -54,23 +54,23 @@ trait game extends GameTemplate with Score52 {
   }
 
 
-  // 4-HomePile Foundation
-  @combinator object FourHomePile {
-    def apply(): Foundation = {
-      val r = new Foundation()
-
-      r.add(new Pile()) // put into for-loop soon.
-      r.add(new Pile())
-      r.add(new Pile())
-      r.add(new Pile())
-
-      println("setting four Pile Foundation")
-
-      r
-    }
-
-    val semanticType: Type = 'Foundation ('Valid :&: 'Four :&: 'Pile)
-  }
+//  // 4-HomePile Foundation
+//  @combinator object FourHomePile {
+//    def apply(): Foundation = {
+//      val r = new Foundation()
+//
+//      r.add(new Pile()) // put into for-loop soon.
+//      r.add(new Pile())
+//      r.add(new Pile())
+//      r.add(new Pile())
+//
+//      println("setting four Pile Foundation")
+//
+//      r
+//    }
+//
+//    val semanticType: Type = 'Foundation ('Valid :&: 'Four :&: 'Pile)
+//  }
 
   @combinator object Construction {
     def apply(s: Solitaire, rules: Rules, layout:Layout): Solitaire = {
