@@ -27,13 +27,22 @@ import java.util.Optional;
  * allows each to vary independently as needed to model the domain.
  *
  * Moves can be associated with individual elements or with an entire
- * container, which is a sort of short-cut to specifying each of he
+ * container, which is a sort of short-cut to specifying each of the
  * available moves.
  * 
  * Note a UnaryMove class is a simpler concept required for moves
  * initiated without need for a terminating action. This includes (for
  * example), flipping a card or dealing cards from the stock to tableau.
- * 
+ *
+ * TODO: Create two sets of constraints (sourceConstraint for applicability
+ * TODO: on the source, and targetConstraint for applicability on the target).
+ * TODO: The source constraint would be used to synthesize press controllers
+ * TODO: The target constraint would be used to synthesize release controllers
+ * TODO: Moves with no target would be press controller logic
+ *
+ * TODO: Move might also be useful to have placeholder for extra statements to
+ * TODO: Execute (both during move and during undo, which makes this complex).
+ * TODO: Think of stalactites and ability to fix the orientation during game play.
  * @author heineman
  */
 public abstract class Move {
@@ -47,7 +56,7 @@ public abstract class Move {
    /** Optionally there may be a target. */
    public final Optional<Container>        targetContainer;
    public final ConstraintStmt   constraint;
- 
+
    /** Constraint for a move with no target. */
    public Move (String name, Container src, ConstraintStmt cons) {
       this.name = name;
@@ -91,5 +100,11 @@ public abstract class Move {
    public abstract Element   getTarget();
 
    /** Get element being moved. */
-   public abstract Element   getMovableElement(); 
+   public abstract Element   getMovableElement();
+
+   /** Determine if single card being moved at a time. */
+   public abstract boolean isSingleCardMove();
+
+   /** Determine if single destination, or whether moved to all elements in the destination. */
+   public abstract boolean isSingleDestination();
 }

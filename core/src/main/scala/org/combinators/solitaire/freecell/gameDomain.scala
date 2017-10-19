@@ -16,7 +16,7 @@ import domain.ui._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
-class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 {
+class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate {
 
   /**
     * Every solitaire variation exists within a designated Java package.
@@ -129,9 +129,81 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       val numFreePiles: IntegerLiteralExpr = Java(s"$reserve").expression()
       val numColumns: IntegerLiteralExpr = Java(s"$tableau").expression()
 
-      java.ExtraMethods.render(numFreePiles, numColumns).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+      val methods = java.ExtraMethods.render(numFreePiles, numColumns).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+
+      val solvableMoves = Java(
+        s"""
+           |public boolean validColumn(Column column) {
+           |		return column.alternatingColors() && column.descending();
+           |}
+           |
+           |public java.util.Enumeration<Move> availableMoves() {
+           |			java.util.Vector<Move> v = new java.util.Vector<Move>();
+           |
+           |        // try to build card to foundation
+           |        for (Column c : fieldColumns) {
+           |            for (Pile p : fieldHomePiles) {
+           |                PotentialBuildColumn pbc = new PotentialBuildColumn(c, p);
+           |                if (pbc.valid(this)) {
+           |                    v.add(pbc);
+           |                }
+           |            }
+           |        }
+           |        // try to move cards from free cell to foundation
+           |        for (Pile s : fieldFreePiles) {
+           |            for (Pile d : fieldHomePiles) {
+           |                PotentialBuildFreePileCard pbfpc = new PotentialBuildFreePileCard(s, d);
+           |                if (pbfpc.valid(this)) {
+           |                    v.add(pbfpc);
+           |                }
+           |            }
+           |        }
+           |        // try to move any column of any size (from greatest to smallest), but
+           |        // to avoid infinite cycles, only move if remaining column is smaller
+           |        // than the destination.
+           |        for (Column s : fieldColumns) {
+           |            for (Column d : fieldColumns) {
+           |                if (s != d) {
+           |                    for (int i = s.count(); i > 0; i--) {
+           |                        PotentialMoveColumn pmc = new PotentialMoveColumn(s, d, i);
+           |                        if (pmc.valid(this)) {
+           |                            if (s.count() - i < d.count()) {
+           |                                v.add(pmc);
+           |                            }
+           |                        }
+           |                    }
+           |                }
+           |            }
+           |        }
+           |        // move smallest facing up column card to a free pile
+           |        Column lowest = null;
+           |        for (Column s : fieldColumns) {
+           |            if (s.count() > 0) {
+           |                if (lowest == null) {
+           |                    lowest = s;
+           |                } else if (s.rank() < lowest.rank()) {
+           |                    lowest = s;
+           |                }
+           |            }
+           |        }
+           |        if (lowest != null) {
+           |	        for (Pile p : fieldFreePiles) {
+           |	            if (p.count() == 0) {
+           |	                PotentialPlaceColumn ppc = new PotentialPlaceColumn(lowest, p);
+           |	                v.add(ppc);
+           |	                break;
+           |	            }
+           |	        }
+           |        }
+           |
+           |        return v.elements();
+           |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+
+
+      methods ++ solvableMoves
+
     }
-    val semanticType: Type = 'ExtraMethods :&: 'Column ('Column, 'AutoMovesAvailable)   // FCC
+    val semanticType: Type = 'ExtraMethods :&: 'Column ('Column, 'AutoMovesAvailable) :&: 'AvailableMoves
   }
 
 //  @combinator object EmptyExtraMethods {
@@ -144,6 +216,23 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
    @combinator object MakeFreePile extends ExtendModel("Pile", "FreePile", 'FreePileClass)
    @combinator object MakeHomePileView extends ExtendView("PileView", "HomePileView", "HomePile", 'HomePileViewClass)
    @combinator object MakeFreePileView extends ExtendView("PileView", "FreePileView", "FreePile", 'FreePileViewClass)
+
+   @combinator object FullFoundation {
+    def apply(): Seq[Statement] = {
+      val found = solitaire.getFoundation
+
+      val nc = found.size()
+      Java(
+        s"""
+           |int count = 0;
+           |for (HomePile p : fieldHomePiles) {
+           |  count += p.count();
+           |}
+           |if (count == 52) { return true; }
+           |""".stripMargin).statements()
+    }
+    val semanticType: Type = 'WinConditionChecking :&: 'NonEmptySeq
+  }
 
   // This maps the elements in the Solitaire domain model into actual java 
   // fields. Not really compositional.

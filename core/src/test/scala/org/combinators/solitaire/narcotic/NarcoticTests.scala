@@ -2,6 +2,7 @@ package org.combinators.solitaire.narcotic
 
 import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import com.github.javaparser.ast.stmt.Statement
 import domain.Solitaire
 import org.combinators.solitaire.shared._
 
@@ -29,6 +30,17 @@ class NarcoticTests extends Helper {
         }
         it("should have a deck") {
           assert(domainModel.getStock.size == 1)
+        }
+
+        describe("(when used to create a repository)") {
+          lazy val controllerRepository = new gameDomain(domainModel) with controllers {}
+          lazy val Gamma = controllerRepository.init(
+            ReflectedRepository(controllerRepository, classLoader = this.getClass.getClassLoader),
+            domainModel)
+
+          checkExistenceTarget(Gamma, domainModel, 'Deck1)
+          checkExistenceTarget(Gamma, domainModel, 'Deck2)
+          checkExistenceTarget(Gamma, domainModel, 'Deck('Pressed))
         }
 
         describe("(when used to create a repository)") {

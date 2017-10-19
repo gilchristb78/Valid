@@ -38,10 +38,11 @@ class FreeCellTests extends Helper {
               ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader),
               domainModel)
 
-            checkExistence(Gamma, domainModel, 'SolitaireVariation,       "FreeCell")
-            checkExistence(Gamma, domainModel, 'Controller ('Column),     "ColumnController")
-            checkExistence(Gamma, domainModel, 'Controller ('FreePile),   "FreePileController")
-            checkExistence(Gamma, domainModel, 'Controller ('HomePile),   "HomePileController")
+            containsClass(singleInstance(Gamma, domainModel, 'SolitaireVariation), "FreeCell")
+
+            containsClass(singleInstance(Gamma, domainModel, 'Controller ('Column)), "ColumnController")
+            containsClass(singleInstance(Gamma, domainModel, 'Controller ('FreePile)),   "FreePileController")
+            containsClass(singleInstance(Gamma, domainModel, 'Controller ('HomePile)),   "HomePileController")
           }
         }
       }

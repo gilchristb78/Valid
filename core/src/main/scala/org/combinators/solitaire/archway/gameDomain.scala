@@ -49,13 +49,14 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
         * I need to remove all the cards and add them back from a
         * temporary deck in order to set up the Aces and Kings Foundations.
         */
-      val deck = Java(
-        s"""
-           | deck = new MultiDeck(2);
-           | int seed = getSeed();
-           | deck.create(seed);
-           | addModelElement(deck);
-         """.stripMargin).statements()
+//      val deck = Java(
+//        s"""
+//           | deck = new MultiDeck(2);
+//           | int seed = getSeed();
+//           | deck.create(seed);
+//           | addModelElement(deck);
+//         """.stripMargin).statements()
+      val deck = deckGen("deck")
 
       val reserve = loopConstructGen(solitaire.getReserve, "fieldReservePiles", "fieldReservePileViews", "Pile")
       val tableau = loopConstructGen(solitaire.getTableau, "fieldTableauColumns", "fieldTableauColumnViews", "Column")

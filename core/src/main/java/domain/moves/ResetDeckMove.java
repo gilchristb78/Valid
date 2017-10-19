@@ -8,40 +8,49 @@ import java.util.*;
  */
 public class ResetDeckMove extends Move {
 
-    /** 
+    /**
      * Determine conditions for resetting deck. 
      */
     public ResetDeckMove (String name, Container src, Container target, ConstraintStmt constraint) {
-	super(name, src, target, constraint);
+        super(name, src, target, constraint);
     }
+
+    /** By definition will allow multiple cards to be moved. Less relevant for deck but at least consistent. */
+    @Override
+    public boolean isSingleCardMove() {
+        return false;
+    }
+
+    /** By definition, remove from all elements within the container. */
+    public boolean isSingleDestination() { return false; }
 
     public String toString() {
-	return super.toString() + " : " + constraint;
+        return super.toString() + " : " + constraint;
     }
 
-   /** Get the source element of this move type. */
-   public Element   getSource() {
-      Iterator<Element> it = getSourceContainer().iterator();
-      if (it == null || !it.hasNext()) { return null; }
-      return it.next();
-   }
+    /** Get the source element of this move type. */
+    public Element   getSource() {
+        Iterator<Element> it = getSourceContainer().iterator();
+        if (it == null || !it.hasNext()) { return null; }
+        return it.next();
+    }
 
-   /** Get the target element of this move type. */
-   public Element   getTarget() {
-      Optional<Container> opt = getTargetContainer();
-      if (!opt.isPresent()) { return null; }
+    /** Get the target element of this move type. */
+    public Element   getTarget() {
+        Optional<Container> opt = getTargetContainer();
+        if (!opt.isPresent()) { return null; }
 
-      Iterator<Element> it = opt.get().iterator();
-      if (it == null || !it.hasNext()) { return null; }
-      return it.next();
-   }
+        Iterator<Element> it = opt.get().iterator();
+        if (it == null || !it.hasNext()) { return null; }
+        return it.next();
+    }
 
-   /**
-    * Get element being moved. 
-    * 
-    * Even though no card is dragged, this is accurate.
-    */
-   public Element   getMovableElement() {
-     return new Card(Rank.ACE, Suit.SPADES); 
-   }
+    /**
+     * Get element being moved.
+     *
+     * Even though no card is dragged, this is accurate.
+     */
+    public Element   getMovableElement() {
+        return new Card(Rank.ACE, Suit.SPADES);
+    }
 }

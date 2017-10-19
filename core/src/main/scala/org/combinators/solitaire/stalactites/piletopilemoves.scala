@@ -19,12 +19,12 @@ trait PileToPileMoves extends shared.Moves with generic.JavaIdioms {
     val semanticType: Type = 'Move ('ReservePileToFoundationPile, 'ClassName)
   }
 
-  @combinator object PotentialReservePileToFoundationPileMove extends PotentialMove('ReservePileToFoundationPile)
+  @combinator object PotentialReservePileToFoundationPileMove extends PotentialMoveSingleCard('ReservePileToFoundationPile)
 
   // the construct needed to hold the card being dragged.
   @combinator object PotentialReservePileToFoundationPileType {
     def apply(): JType = Java("Card").tpe()
-    val semanticType: Type = 'Move ('ReservePileToFoundationPile, 'TypeConstruct)
+    val semanticType: Type = 'Move ('ReservePileToFoundationPile, 'SingleCardMove)
   }
 
   @combinator object PotentialReservePileToFoundationDraggingVariable {
@@ -102,12 +102,12 @@ trait PileToPileMoves extends shared.Moves with generic.JavaIdioms {
     val semanticType: Type = 'Move ('ReservePileToReservePile, 'ClassName)
   }
 
-  @combinator object PotentialReservePileToReservePileMove extends PotentialMove('ReservePileToReservePile)
+  @combinator object PotentialReservePileToReservePileMove extends PotentialMoveSingleCard('ReservePileToReservePile)
 
   // the construct needed to hold the card being dragged.
   @combinator object PotentialReservePileToReservePileType {
     def apply(): JType = Java("Card").tpe()
-    val semanticType: Type = 'Move ('ReservePileToReservePile, 'TypeConstruct)
+    val semanticType: Type = 'Move ('ReservePileToReservePile, 'SingleCardMove)
   }
 
   @combinator object PotentialReservePileToReserveDraggingVariable {

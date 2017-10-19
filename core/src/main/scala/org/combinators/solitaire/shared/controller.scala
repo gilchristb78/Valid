@@ -65,21 +65,15 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
           .addCombinator(new StatementCombinator (move.getConstraint,
             'Move (moveSymbol, 'CheckValidStatements)))
 
-        move match {
-          case _ : FlipCardMove =>
-            updated = updated.addCombinator(new SolitaireMove(moveSymbol))
-          case _ : SingleCardMove =>
-            updated = updated.addCombinator(new SolitaireMove(moveSymbol))
-          case _ : ColumnMove =>
-            updated = updated.addCombinator(new SolitaireMove(moveSymbol))
-          case _ : DeckDealMove =>
-            updated = updated.addCombinator(new MultiMove(moveSymbol))
-          case _ : ResetDeckMove =>
-            updated = updated.addCombinator(new MultiMove(moveSymbol))
-          case _ : RemoveSingleCardMove =>
-            updated = updated.addCombinator(new SolitaireMove(moveSymbol))
-          case _ : RemoveMultipleCardsMove =>
-            updated = updated.addCombinator(new MultiMove(moveSymbol))
+        /**
+          * A move typically contains a single source and a single destination. For some
+          * moves, there are multiple destinations (typically a deal, or remove cards) and
+          * that requires different combinator.
+          */
+        if (move.isSingleDestination) {
+          updated = updated.addCombinator(new SolitaireMove(moveSymbol))
+        } else {
+          updated = updated.addCombinator(new MultiMove(moveSymbol))
         }
       }
     }
@@ -127,11 +121,11 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
       move match {
         case _ : SingleCardMove =>
           updated = updated
-            .addCombinator (new PotentialMove(moveSymbol))
+            .addCombinator (new PotentialMoveSingleCard(moveSymbol))
 
         case _ : ColumnMove =>
           updated = updated
-            .addCombinator (new PotentialMoveOneCardFromStack(moveSymbol))
+            .addCombinator (new PotentialMoveMultipleCards(moveSymbol))
       }
     }
 
@@ -313,7 +307,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     def apply() : Seq[BodyDeclaration[_]] = {
       m match {
         case _ : FlipCardMove =>
-          Java(s"""|Card movingCard;
+          Java(s"""|//Card movingCard;
                    |public $name(Stack from) {
                    |  this(from, from);
                    |}""".stripMargin).classBodyDeclarations()
@@ -344,6 +338,10 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
 
         case _ : ResetDeckMove => Seq.empty
 
+          /**
+            * Fundamental API for moving multiple cards is to have 'numInColumn' holding number.
+            * This becomes relevant in PotentialMoveOneCardFromStack...
+            */
         case _ : ColumnMove =>
           Java(s"""|Column movingColumn;
                    |int numInColumn;

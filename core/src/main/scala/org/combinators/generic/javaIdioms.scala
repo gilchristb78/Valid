@@ -16,7 +16,7 @@ trait JavaIdioms {
     * While powerful, it can still cause problems, notably if the methods and/or fields
     * already exist.
     */
-  abstract class AugmentCompilationUnit(base: Type, conceptType: Type) {
+  abstract class AugmentCompilationUnit(base: Type, conceptType: Symbol) {
 
     /** Define abstract methods to be overridden by concrete instance. */
     def fields(): Seq[FieldDeclaration]
@@ -33,7 +33,7 @@ trait JavaIdioms {
     }
 
     /** New type expands by making 'conceptType(base). */
-    val semanticType: Type = base =>: conceptType
+    val semanticType: Type = base =>: conceptType(base)
   }
 
   /**
@@ -41,7 +41,7 @@ trait JavaIdioms {
     *
     */
   class GetterSetterMethods(att: SimpleName, attType: JType,
-    base: Type, conceptType: Type) extends AugmentCompilationUnit(base, conceptType) {
+    base: Type, conceptType: Symbol) extends AugmentCompilationUnit(base, conceptType) {
 
     def fields(): Seq[FieldDeclaration] = {
       Java(

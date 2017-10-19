@@ -30,6 +30,8 @@ trait Game extends GameTemplate with Score52 {
       sol.setTableau(t)
       sol.setReserve(r)
       sol.setFoundation(f)
+
+
       // NOTE: Here is defined the second part of the foundation using Solitaire's specialContainers.
       // This is to separate the controller logic. A bit hackish, but it works for now.
       sol.setContainer("KingsDownFoundation", c)

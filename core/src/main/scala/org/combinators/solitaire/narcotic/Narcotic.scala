@@ -30,7 +30,7 @@ class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
       .addJob[CompilationUnit]('Controller('Deck))
-        .addJob[CompilationUnit]('Controller('Pile))
+      .addJob[CompilationUnit]('Controller('Pile))
 
       // To define RemoveFourCards, observe all parts that are necessary.
       .addJob[CompilationUnit]('Move('RemoveAllCards :&: 'GenericMove, 'CompleteMove))

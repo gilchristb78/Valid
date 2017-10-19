@@ -28,17 +28,20 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
       // Each of these controllers are expected in the game.
       if (el == "Deck") {
-        updated = updated.    // HACK. Why special for Deck???
-          addCombinator (new DeckController(Symbol(el)))
+        updated = updated    // HACK. Why special for Deck???
+          .addCombinator (new DeckController(Symbol(el)))
       } else if (el == "BuildablePile") {
-        updated = updated.
-          addCombinator (new WidgetController(Symbol(el)))
+        updated = updated
+          .addCombinator (new WidgetController(Symbol(el)))
+          .addCombinator (new ControllerNaming('BuildablePile, 'BuildablePile, "BuildablePile"))
       } else if (el == "WastePile") {
-        updated = updated.
-          addCombinator (new WidgetController(Symbol(el)))
+        updated = updated
+          .addCombinator (new WidgetController(Symbol(el)))
+          .addCombinator (new ControllerNaming('WastePile, 'WastePile, "WastePile"))
       } else if (el == "Pile") {
-        updated = updated.
-          addCombinator (new WidgetController(Symbol(el)))
+        updated = updated
+          .addCombinator (new WidgetController(Symbol(el)))
+          .addCombinator (new ControllerNaming('Pile, 'Pile, "Pile"))
       }
     }
 
@@ -53,26 +56,19 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     updated = generateMoveLogic(updated, s)
 
+    // these all have to do with GUI commands being ignored
     updated = updated
       .addCombinator (new IgnoreClickedHandler('BuildablePile, 'BuildablePile))
       .addCombinator (new IgnoreClickedHandler('Pile, 'Pile))
       .addCombinator (new IgnoreClickedHandler('WastePile, 'WastePile))
       .addCombinator (new IgnoreReleasedHandler('WastePile, 'WastePile))
+
+    // these clarify the allowed moves
+    updated = updated
       .addCombinator (new DealToTableauHandlerLocal())
       .addCombinator (new ResetDeckLocal())
       .addCombinator (new SingleCardMoveHandler("Pile", 'Pile, 'Pile))
       .addCombinator (new SingleCardMoveHandler("WastePile", 'WastePile, 'WastePile))
-
-    // Potential moves clarify structure (by type not instance). FIX ME
-    // FIX ME FIX ME FIX ME
-//    updated = updated
-//      .addCombinator (new PotentialTypeConstructGen("Column", 'MoveColumn))
-
-    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
-    updated = updated
-      .addCombinator (new ControllerNaming('BuildablePile, 'BuildablePile, "BuildablePile"))
-      .addCombinator (new ControllerNaming('Pile, 'Pile, "Pile"))
-      .addCombinator (new ControllerNaming('WastePile, 'WastePile, "WastePile"))
 
 
     updated
@@ -124,8 +120,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       Java(s"""|m = new DealDeck(theGame.deck, theGame.fieldWastePiles);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
-               |   // have solitaire game refresh widgets that were
-               |   // affected
+               |   // have solitaire game refresh widgets that were affected
                |   theGame.refreshWidgets();
                |   return;
                |}""".stripMargin).statements()
@@ -139,8 +134,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       Java(s"""|m = new ResetDeck(theGame.deck, theGame.fieldWastePiles);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
-               |   // have solitaire game refresh widgets that were
-               |   // affected
+               |   // have solitaire game refresh widgets that were affected
                |   theGame.refreshWidgets();
                |   return;
                |}""".stripMargin).statements()
@@ -149,6 +143,9 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     val semanticType: Type = 'Deck2
   }
 
+  /**
+    * Statically knit together these two combinators to bring in the desired behavior
+    */
   @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2,
     'Deck ('Pressed) :&: 'NonEmptySeq)
 

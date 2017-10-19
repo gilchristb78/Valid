@@ -97,7 +97,7 @@ trait Moves extends Base {
     * template to synthesize a new "wrapper class" that reflects a
     * potential move, that is, one that could be made in the future.
     */
-  class PotentialMove(semanticMoveNameType: Type) {
+  class PotentialMoveSingleCard(semanticMoveNameType: Type) {
     def apply(rootPackage: Name, moveName: SimpleName, draggingCardVariableName: SimpleName): CompilationUnit = {
       shared.moves.java.PotentialMove.render(
         RootPackage = rootPackage,
@@ -115,14 +115,13 @@ trait Moves extends Base {
   /**
     * Given an existing move that requires moving a column of cards,
     * this combinator synthesizes a new "wrapper class" that creates
-    * a column by grabbing the top card from the underlying stack.
+    * a column (or whatever typeConstruct specifies) by grabbing the top
+    * card from the underlying stack.
     *
-    * Choose this one (over PotentialMove) when moves involve columns.
+    * Choose this one (over PotentialMoveSingleCard) when moves involve columns.
     */
-  class PotentialMoveOneCardFromStack(semanticMoveNameType: Type) {
-    def apply(rootPackage: Name,
-              moveName: SimpleName,
-              draggingCardVariableName: SimpleName,
+  class PotentialMoveMultipleCards(semanticMoveNameType: Type) {
+    def apply(rootPackage: Name, moveName: SimpleName, draggingCardVariableName: SimpleName,
               typeConstruct: JType): CompilationUnit = {
       shared.moves.java.PotentialMoveOneCardFromStack.render(
         RootPackage = rootPackage,
@@ -135,13 +134,12 @@ trait Moves extends Base {
       'RootPackage =>:
         'Move (semanticMoveNameType, 'ClassName) =>:
         'Move (semanticMoveNameType, 'DraggingCardVariableName) =>:
-        'Move (semanticMoveNameType, 'TypeConstruct) =>:
-        'Move (semanticMoveNameType :&: 'PotentialMove, 'CompleteMove)
+        'Move (semanticMoveNameType, 'MultipleCardMove) =>:
+        'Move (semanticMoveNameType :&: 'PotentialMultipleMove, 'CompleteMove)
   }
 
   /**
-    * Create a Move class that resets a Deck of cards from a collection
-    * of stacks.
+    * Create a Move class that resets a Deck of cards from a collection of stacks.
     */
   @combinator object ResetDeck {
     def apply(rootPackage: Name): CompilationUnit = {
@@ -228,12 +226,11 @@ trait Moves extends Base {
   }
 
   /**
-    * Identify the TypeConstruct logical symbol to associate with the
-    * potential Move.
+    * Identify that a potential move can involve multiple cards, and uses the given Java type.
     */
-  class PotentialTypeConstructGen(typ:String, constructor:Constructor) {
+  class PotentialMultipleCardMove(typ:String, constructor:Constructor) {
     def apply(): JType = Java(typ).tpe()
-    val semanticType: Type = 'Move (constructor, 'TypeConstruct)
+    val semanticType: Type = 'Move (constructor, 'MultipleCardMove)
   }
 
   /**
@@ -268,6 +265,9 @@ trait Moves extends Base {
     * Provides ability to add 'filtering' statements that can determine whether to deny
     * the press request (typically because of requirement that cards form alternating colors or
     * descending suits, for example.
+    *
+    * TODO: Work to bring move precondition in here, rather than relegating to an extra
+    * method
     */
   class ColumnMoveHandler(realType:String, typ:Symbol, source:Symbol, name:SimpleName = null) {
     def apply(): (SimpleName, SimpleName) => Seq[Statement] = {

@@ -31,8 +31,13 @@ class Stalactites @Inject()(webJars: WebJarsUtil) extends InhabitationController
   *   - moves are defined in archway/game.scala.
   */
   lazy val jobs =
-    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-//      .addJob[CompilationUnit]('increment('SolitaireVariation))
+    Gamma.InhabitationBatchJob[CompilationUnit]('increment('SolitaireVariation))
+      .addJob[CompilationUnit]('ReservePileClass)
+      .addJob[CompilationUnit]('ReservePileViewClass)
+      .addJob[CompilationUnit]('BasePileClass)
+      .addJob[CompilationUnit]('BasePileViewClass)
+
+  //      .addJob[CompilationUnit]('increment('SolitaireVariation))
 //      .addJob[CompilationUnit]('Controller('StalactitesColumn))
 //      .addJob[CompilationUnit]('Controller('ReservePile))
 //      .addJob[CompilationUnit]('Controller('Pile))

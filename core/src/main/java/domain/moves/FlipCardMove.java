@@ -21,6 +21,13 @@ public class FlipCardMove extends Move {
         super(name,src, constraint);
     }
 
+    /** By definition only a single card being moved. */
+    @Override
+    public boolean isSingleCardMove() { return true; }
+
+    /** By definition, only one target affected. */
+    public boolean isSingleDestination() { return true; }
+
     /** Extract constraint associated with move. */
     public ConstraintStmt getConstraint() { return constraint; }
 

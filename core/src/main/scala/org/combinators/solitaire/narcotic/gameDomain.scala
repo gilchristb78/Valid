@@ -157,4 +157,8 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
     val semanticType: Type = 'ExtraFields
   }
+
+  // WHEN This is in controllers.scala it doesn't get inhabited by Web. Not sure why? HACK. TODO: PLEASE HELP
+  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2, 'Deck ('Pressed) :&: 'NonEmptySeq)
+
 }

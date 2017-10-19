@@ -12,7 +12,7 @@ import domain.moves._
 import domain.ui._
 import domain.freeCell.{FreePile, HomePile}
 
-trait game extends GameTemplate with Score52 {
+trait game extends GameTemplate  {
 
   //lazy val alpha = Variable("alpha")
 
@@ -131,7 +131,7 @@ trait game extends GameTemplate with Score52 {
      
      // If destination is EMPTY, then can't count it as vacant
      // If source is EMPTY (b/c move created it) then can't count it as vacant either.
-      val oneIsEmpty = new OrConstraint(isEmpty, new ElementEmpty ("source"))
+      //val oneIsEmpty = new OrConstraint(isEmpty, new ElementEmpty ("source"))
      val sufficientWithEmpty =
          new ExpressionConstraint("((org.combinators.solitaire.freecell.FreeCell)game).numberVacant()", ">=", "movingColumn.count()")
 
@@ -150,12 +150,12 @@ trait game extends GameTemplate with Score52 {
      val if4 =
         new IfConstraint(descend,
           new IfConstraint(alternating,
-            new IfConstraint(oneIsEmpty,
+            new IfConstraint(isEmpty,
               new IfConstraint(sufficientWithEmpty),
               if4_inner),
             falsehood),
           falsehood)
-		
+
       val columnToColumn = new ColumnMove("MoveColumn", tableau, tableau, if4)
       rules.addDragMove(columnToColumn)
 

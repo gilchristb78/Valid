@@ -75,8 +75,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // Potential moves clarify structure (by type not instance). FIX ME
     // FIX ME FIX ME FIX ME
-    updated = updated
-      .addCombinator (new PotentialTypeConstructGen("Pile", 'PileToPile))
+    //    updated = updated
+    //      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToPile))
 
     // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
     updated = updated
@@ -122,9 +122,6 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     val semanticType: Type = 'Deck2
   }
-
-  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2,
-    'Deck ('Pressed) :&: 'NonEmptySeq)
 
 
   /**

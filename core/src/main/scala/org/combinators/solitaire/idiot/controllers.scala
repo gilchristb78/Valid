@@ -58,7 +58,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     // Potential moves clarify structure (by type not instance). FIX ME
     // FIX ME FIX ME FIX ME
     updated = updated
-      .addCombinator (new PotentialTypeConstructGen("Column", 'ColumnToColumn))
+      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToColumn))
 
     // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
     updated = updated

@@ -89,11 +89,11 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
       .addCombinator (new SingleCardMoveHandler("Column", 'Column, 'Column))
 
     updated = updated
-      .addCombinator (new PotentialTypeConstructGen("Column", 'ColumnToAcesUpPile))
-      .addCombinator (new PotentialTypeConstructGen("Column", 'ColumnToKingsDownPile))
-      .addCombinator (new PotentialTypeConstructGen("Pile", 'PileToAcesUpPile))
-      .addCombinator (new PotentialTypeConstructGen("Pile", 'PileToKingsDownPile))
-      .addCombinator (new PotentialTypeConstructGen("Pile", 'PileToColumn))
+      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToAcesUpPile))
+      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToKingsDownPile))
+//      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToAcesUpPile))
+//      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToKingsDownPile))
+//      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToColumn))
 
 
 

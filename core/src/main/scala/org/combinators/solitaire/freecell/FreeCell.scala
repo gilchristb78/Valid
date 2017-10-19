@@ -46,7 +46,7 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   // together. That is, I want to first inhabit SolitaireVariation, then go and 
   // inhabit the controllers, then inhabit all the moves, based upon the domain model.
   lazy val jobs =
-    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
+    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation :&: 'Solvable)
       .addJob[CompilationUnit]('Controller('Column))   
       .addJob[CompilationUnit]('Controller('FreePile))
       .addJob[CompilationUnit]('Controller('HomePile))
@@ -60,17 +60,15 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
       .addJob[CompilationUnit]('Move('BuildColumn :&: 'GenericMove, 'CompleteMove))
       .addJob[CompilationUnit]('Move('PlaceFreePileCard :&: 'GenericMove, 'CompleteMove))
       .addJob[CompilationUnit]('Move('ShuffleFreePile :&: 'GenericMove, 'CompleteMove))
-      //.addJob[CompilationUnit]('RuntimeCombinatorClass)
-//      .addJob[CompilationUnit]('Move('MoveColumn :&: 'PotentialMove, 'CompleteMove))
+
+      .addJob[CompilationUnit]('Move('MoveColumn :&: 'PotentialMultipleMove, 'CompleteMove))
       .addJob[CompilationUnit]('Move('BuildFreePileCard :&: 'PotentialMove, 'CompleteMove))
-//      .addJob[CompilationUnit]('Move('PlaceColumn :&: 'PotentialMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('BuildColumn :&: 'PotentialMove, 'CompleteMove))
-//      .addJob[CompilationUnit]('Move('PlaceFreePileCard :&: 'PotentialMove, 'CompleteMove))
-//      .addJob[CompilationUnit]('Move('ShuffleFreePile :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('PlaceColumn :&: 'PotentialMultipleMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('BuildColumn :&: 'PotentialMultipleMove, 'CompleteMove))
+      .addJob[CompilationUnit]('Move('PlaceFreePileCard :&: 'PotentialMove, 'CompleteMove))
 
 
   lazy val results = Results.addAll(jobs.run())
-
 
       // Here is how you launch directly and it gets placed into file
       //.add(Gamma.inhabit[Seq[Statement]]('Something), Paths.get("somePlace"))
