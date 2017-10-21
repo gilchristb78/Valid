@@ -6,8 +6,7 @@ import shapeless.feat.Enumeration
 import de.tu_dortmund.cs.ls14.cls.inhabitation.Tree
 import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.java.Persistable
-import de.tu_dortmund.cs.ls14.html
+import de.tu_dortmund.cs.ls14.{Persistable, html}
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand.ResetType
 import org.eclipse.jgit.revwalk.RevCommit
@@ -26,7 +25,7 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
 
   val combinatorComponents: Map[String, CombinatorInfo]
 
-  val sourceDirectory = Paths.get("src", "main", "java")
+  val sourceDirectory = Paths.get(".")
 
   sealed trait InhabitationResultVector[R] {
     def add(newResults: R, oldResults: Results): Results
