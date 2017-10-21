@@ -35,3 +35,8 @@ GET   /example                      example.Example.overview()
 GET   /example/raw_:number          example.Example.raw(number: Long)
 GET   /example/prepare              example.Example.prepare(number: Long)
 GET   /example/example.git/*file    example.Example.serveFile(file)
+
+GET   /pyexample                      example.PythonExample.overview()
+GET   /pyexample/raw_:number          example.PythonExample.raw(number: Long)
+GET   /pyexample/prepare              example.PythonExample.prepare(number: Long)
+GET   /pyexample/pyexample.git/*file    example.PythonExample.serveFile(file)

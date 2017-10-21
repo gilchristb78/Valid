@@ -6,6 +6,7 @@ import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
+import de.tu_dortmund.cs.ls14.java.JavaPersistable._
 import domain.Solitaire
 import org.webjars.play.WebJarsUtil
 
