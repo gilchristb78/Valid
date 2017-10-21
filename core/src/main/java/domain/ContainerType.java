@@ -11,5 +11,6 @@ import domain.constraints.MoveInformation;
  * to also be used within the description of valid moves.
  */
 public interface ContainerType extends MoveInformation {
-
+     /** Every entity must be capable of returning a (unique) name. */
+     String getName();
 }

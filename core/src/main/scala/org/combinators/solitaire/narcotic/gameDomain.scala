@@ -20,26 +20,28 @@ import domain.ui._
 // to get the code to compile 
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
 
-  object idiotCodeGenerator {
+  object narcoticCodeGenerator {
     val generators = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, ToLeftOf] {
         case (registry:CodeGeneratorRegistry[Expression], c:ToLeftOf) => {
           val destination = registry(c.destination).get
           val src = registry(c.src).get
-          Java(s"""((org.combinators.solitaire.narcotic)Narcotic).toLeftOf($destination, $src)""").expression()
+          Java(s"""((org.combinators.solitaire.narcotic.Narcotic)game).toLeftOf($destination, $src)""").expression()
         }
       },
 
       CodeGeneratorRegistry[Expression, AllSameRank] {
         case (registry:CodeGeneratorRegistry[Expression], c:AllSameRank) => {
-          val src = registry(c.).get
-          Java(s"""((org.combinators.solitaire.idiot.Idiot)game).higher($src)""").expression()
+          Java(s"""((org.combinators.solitaire.narcotic.Narcotic)game).allSameRank()""").expression()
         }
       }
-
-
     ).merge(constraintCodeGenerators.generators)
+  }
+
+  @combinator object MyGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = narcoticCodeGenerator.generators
+    val semanticType: Type = 'ConstraintGen
   }
 
   @combinator object RootPackage {
@@ -82,9 +84,10 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
       val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
-      var stmts = Seq.empty[Statement]
-      
-      stmts = stmts ++ layout_place_it(stock, Java("deckView").name())
+      // start by constructing the DeckView
+      var stmts = Java("deckView = new DeckView(deck);").statements()
+
+      stmts = stmts ++ layout_place_one(stock, Java("deckView").name())
       stmts = stmts ++ layout_place_it(tableau, Java("fieldPileViews").name())
 
       stmts

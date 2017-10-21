@@ -12,11 +12,9 @@ public class ToLeftOf extends Constraint {
 
     public final MoveInformation src;
     public final MoveInformation destination;
-    public final MoveInformation tableau;
 
-    public ToLeftOf(MoveInformation destination, MoveInformation src, MoveInformation tableau) {
+    public ToLeftOf(MoveInformation destination, MoveInformation src) {
         this.destination = destination;
         this.src = src;
-        this.tableau = tableau;
     }
 }

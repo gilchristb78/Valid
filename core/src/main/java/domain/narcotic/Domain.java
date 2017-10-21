@@ -43,7 +43,7 @@ public class Domain extends Solitaire {
 		containers.put(SolitaireContainerTypes.Tableau, tableau);
 
 		// defaults to 1 deck.
-		Stock stock = new Stock();
+		Stock stock = new Stock(lay.stock());
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
 		// wins once foundation contains same number of cards as stock
@@ -56,7 +56,7 @@ public class Domain extends Solitaire {
 		// Tableau to Tableau. Can move a card to the left if it is
 		// going to a non-empty pile whose top card is the same rank
 		// as moving card, and which is to the left of the source.
-		ToLeftOf toLeftOf = new ToLeftOf(MoveComponents.Destination, MoveComponents.Source, SolitaireContainerTypes.Tableau);
+		ToLeftOf toLeftOf = new ToLeftOf(MoveComponents.Destination, MoveComponents.Source);
 		// new BooleanExpression("((org.combinators.solitaire.narcotic.Narcotic)game).toLeftOf(destination, source)");
 
 		SameRank sameRank = new SameRank(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination));
@@ -72,7 +72,7 @@ public class Domain extends Solitaire {
 
 		//		new BooleanExpression("((org.combinators.solitaire.narcotic.Narcotic)game).allSameRank()");
 
-		RemoveMultipleCardsMove tableauRemove = new RemoveMultipleCardsMove("RemoveAllCards", tableau, new IfConstraint(allSameRank));
+		RemoveMultipleCardsMove tableauRemove = new RemoveMultipleCardsMove("RemoveAllCards", tableau, allSameRank);
 		rules.addPressMove(tableauRemove);
 
 		// deal four cards from Stock

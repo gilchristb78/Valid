@@ -43,17 +43,15 @@ public class Solitaire {
     /** User-defined containers can be specified as needed in this map. */
     public final Map <ContainerType, Container> containers = new Hashtable<ContainerType, Container>();
 
-    /** Only solitaire domain needs to know the 'name' of each type. */
-    public final Map <ContainerType, String> names = new Hashtable<>();
-
-    /** Give the designated container type a name */
-    public void name (ContainerType ct, String name) {
-        names.put(ct, name);
-    }
-
     /** Get the name for a given container type. */
-    public String getName (ContainerType ct) {
-        return names.get(ct);
+    public Container getByName (String name) {
+        for (ContainerType ct : containers.keySet()) {
+            if (ct.getName().equals(name)) {
+                return containers.get(name);
+            }
+        }
+
+        return null;   // replace with Option[]
     }
 
     boolean autoMovesAvailable = false;

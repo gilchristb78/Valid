@@ -19,4 +19,7 @@ public enum SolitaireContainerTypes implements ContainerType {
     SolitaireContainerTypes(String name) {
         this.name = name;
     }
+
+    /** To conform to interface. */
+    public String getName() { return name; }
 }
