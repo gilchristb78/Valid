@@ -8,7 +8,6 @@ import domain.moves.SingleCardMove;
 import domain.ui.CalculatedPlacement;
 import domain.ui.HorizontalPlacement;
 import domain.ui.PlacementGenerator;
-import org.combinators.solitaire.archway.ArchwayContainerTypes;
 
 import java.awt.Point;
 

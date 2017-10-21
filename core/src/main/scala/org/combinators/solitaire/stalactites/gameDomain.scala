@@ -50,9 +50,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     def apply(): Seq[Statement] = {
 
       val dg = deckGen ("deck")
-      val foundGen = loopConstructGen(solitaire.containers.get(StalactitesContainerTypes.Foundation), "fieldPiles", "fieldPileViews", "Pile")
-      val colGen = loopConstructGen(solitaire.containers.get(StalactitesContainerTypes.Tableau), "fieldColumns", "fieldColumnViews", "Column")
-      val resGen = loopConstructGen(solitaire.containers.get(StalactitesContainerTypes.Reserve), "fieldReservePiles", "fieldReservePileViews", "ReservePile")
+      val foundGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldPiles", "fieldPileViews", "Pile")
+      val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumns", "fieldColumnViews", "Column")
+      val resGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldReservePiles", "fieldReservePileViews", "ReservePile")
       val base = loopConstructGen(solitaire.containers.get(StalactitesContainerTypes.Base), "fieldBasePiles", "fieldBasePileViews", "BasePile")
 
       dg ++ colGen ++ resGen ++ foundGen ++ base
@@ -64,9 +64,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object CellInitView {
     def apply(): Seq[Statement] = {
 
-      val found = solitaire.containers.get(StalactitesContainerTypes.Foundation)
-      val tableau = solitaire.containers.get(StalactitesContainerTypes.Tableau)
-      val reserve = solitaire.containers.get(StalactitesContainerTypes.Reserve)
+      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val reserve = solitaire.containers.get(SolitaireContainerTypes.Reserve)
       val base = solitaire.containers.get(StalactitesContainerTypes.Base)
       var stmts = Seq.empty[Statement]
 
@@ -99,7 +99,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   // generic deal cards from deck into the tableau
   @combinator object CellInitLayout {
     def apply(): Seq[Statement] = {
-      val tableau = solitaire.containers.get(StalactitesContainerTypes.Tableau)
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
       // standard logic to deal to all tableau cards
       val numColumns = tableau.size
       Java(
@@ -147,11 +147,11 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
              |IntegerView numLeftView;
              """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val found = solitaire.containers.get(StalactitesContainerTypes.Foundation)
-      val reserve = solitaire.containers.get(StalactitesContainerTypes.Reserve)
-      val tableau = solitaire.containers.get(StalactitesContainerTypes.Tableau)
+      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
+      val reserve = solitaire.containers.get(SolitaireContainerTypes.Reserve)
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
       val base = solitaire.containers.get(StalactitesContainerTypes.Base)
-      val stock = solitaire.containers.get(StalactitesContainerTypes.Stock)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
       val decks = deckFieldGen(stock)   // note: DeckView not needed for
 

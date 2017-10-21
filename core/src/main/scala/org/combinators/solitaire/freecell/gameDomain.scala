@@ -1,7 +1,7 @@
 package org.combinators.solitaire.freecell
 
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{IntegerLiteralExpr, Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, IntegerLiteralExpr, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import com.github.javaparser.ast.ImportDeclaration
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
@@ -17,6 +17,11 @@ import domain.ui._
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate {
+
+  @combinator object DefaultGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
+    val semanticType: Type = 'ConstraintGen
+  }
 
   /**
     * Every solitaire variation exists within a designated Java package.

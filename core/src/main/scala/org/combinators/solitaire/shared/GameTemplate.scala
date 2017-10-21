@@ -430,22 +430,7 @@ trait GameTemplate {
         'SolitaireVariation :&: 'Solvable
   }
 
-//  /**
-//    * Place single item, drawn from the given container and of type 'label'.
-//    *
-//    * Invoke as, example:  layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
-//    *
-//    * Feels like too many parameters...
-//    * @return
-//    */
-//  def layout_place_one (lay: Layout, c: Container, label:String, view:Name, height:Int): Seq[Statement] = {
-//    val itd = lay.placements(label, c, height)
-//    val r = itd.next()
-//
-//    Java(s"""|$view.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-//             |addViewWidget($view);
-//       """.stripMargin).statements()
-//  }
+
 
   /**
     * Place single item, drawn from the given container and of type 'label'.
@@ -497,6 +482,18 @@ trait GameTemplate {
       r => Java(s"""
              |$view[${r.idx}].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
              |addViewWidget($view[${r.idx}]);
+            """.stripMargin).statements()
+    }.toSeq
+  }
+
+  /** Used when you know in advance there is only one widget and you've chosen not to use array. */
+  def layout_place_one (c:Container, view:Name): Seq[Statement] = {
+    // this can all be retrieved from the solitaire domain model by
+    // checking if a tableau is present, then do the following, etc... for others
+    c.placements().asScala.flatMap {
+      r => Java(s"""
+                   |$view.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
+                   |addViewWidget($view);
             """.stripMargin).statements()
     }.toSeq
   }

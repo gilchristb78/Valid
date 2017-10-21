@@ -2,19 +2,17 @@ package org.combinators.solitaire.idiot
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, IntegerLiteralExpr, Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
-import domain.constraints.movetypes.MoveComponents
 import domain.idiot.HigherRankSameSuit
 import org.combinators.solitaire.shared._
 
 // domain
 import domain._
-import domain.ui._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
@@ -25,11 +23,15 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
       CodeGeneratorRegistry[Expression, HigherRankSameSuit] {
         case (registry:CodeGeneratorRegistry[Expression], c:HigherRankSameSuit) => {
-          val cards = registry(c.cards)
-          val src = registry(c.card)
-          Java(s"""Solitaire.higher($cards,$src)""").expression()
+          val src = registry(c.card).get
+          Java(s"""((org.combinators.solitaire.idiot.Idiot)game).higher($src)""").expression()
         }
       }).merge(constraintCodeGenerators.generators)
+  }
+
+  @combinator object MyGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = idiotCodeGenerator.generators
+    val semanticType: Type = 'ConstraintGen
   }
 
   /**
@@ -77,7 +79,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       var stmts = Java("deckView = new DeckView(deck);").statements()
 
       // when placing a single element in Layout, use this API
-      stmts = stmts ++ layout_place_it(stock, Java("deckView").name())
+      stmts = stmts ++ layout_place_one(stock, Java("deckView").name())
+
+      // in all other cases, rely on the iterator version.
       stmts = stmts ++ layout_place_it(tableau, Java("fieldColumnViews").name())
 
       stmts
@@ -135,27 +139,33 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     * a top-facing card of same suit and higher rank than from.
     *
     * Note the SemanticType of this combinator has been specialized to include 'AvailableMoves for Solvable
+    *
+    * This method exists for the HigherRankSameSuit Constraint
     */
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
-      Java(s"""|public boolean isHigher(Column from) {
-               |  // empty columns are not eligible.
-               |  if (from.empty()) { return false; }
-               |  if (from.rank() == Card.ACE) { return false; }
-               |  for (int i = 0; i < fieldColumns.length; i++) {
-               |    // skip 'from' column and empty ones
-               |    if (fieldColumns[i] == from || fieldColumns[i].empty()) continue;
-               |    // must be same suit
-               |    if (fieldColumns[i].suit() != from.suit()) continue;
-               |    // if the current column (has same suit) and has
-               |    // higher rank than the from column, we can remove.
-               |    // Note ACES handles specially.
-               |    if (fieldColumns[i].rank() > from.rank() || fieldColumns[i].rank() == Card.ACE) {
-               |	    return true;
-               |    }
-               |  }
-               |  return false;
-               |}
+      Java(s"""|public boolean higher(Stack source) {
+               |        // empty columns are not eligible.
+               |        if (source.empty()) {
+               |            return false;
+               |        }
+               |        if (source.rank() == Card.ACE) {
+               |            return false;
+               |        }
+               |        for (int i = 0; i < fieldColumns.length; i++) {
+               |            // skip 'from' column and empty ones
+               |            if (fieldColumns[i] == source || fieldColumns[i].empty())
+               |                continue;
+               |            // must be same suit
+               |            if (fieldColumns[i].suit() != source.suit())
+               |                continue;
+               |            // Note ACES handles specially.
+               |            if (fieldColumns[i].rank() > source.rank() || fieldColumns[i].rank() == Card.ACE) {
+               |                return true;
+               |            }
+               |        }
+               |        return false;
+               |	}
                |
                |// Available moves based on this variation. Note this was hard-coded in generated code
                |// and then manually moved into this combinator.
@@ -164,7 +174,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
                |
                |		// try all column moves
                |		for (int i = 0; i < fieldColumns.length; i++) {
-               |			if (isHigher(fieldColumns[i])) {
+               |			if (higher(fieldColumns[i])) {
                |				RemoveCard rc = new RemoveCard(fieldColumns[i]);
                |				if (rc.valid(this)) {
                |					v.add(rc);

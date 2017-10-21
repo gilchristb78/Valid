@@ -3,12 +3,12 @@
   import com.github.javaparser.ast.expr._
   import com.github.javaparser.ast.stmt._
   import de.tu_dortmund.cs.ls14.cls.types.Type
+  import de.tu_dortmund.cs.ls14.cls.types.syntax._
   import de.tu_dortmund.cs.ls14.cls.types.Constructor
   import de.tu_dortmund.cs.ls14.twirl.Java
   import domain.{Constraint, SolitaireContainerTypes}
   import domain.constraints._
   import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
-  import org.combinators.solitaire.shared.constraintCodeGenerators.generators
 
   import scala.collection.JavaConverters._
 
@@ -85,13 +85,10 @@
       },
 
       CodeGeneratorRegistry[Expression, SolitaireContainerTypes] {
-        case (registry:CodeGeneratorRegistry[Expression], SolitaireContainerTypes.Tableau) => {
-          Java(s"""tableauCards""").expression()
+        case (registry:CodeGeneratorRegistry[Expression], st:SolitaireContainerTypes) => {
+          Java(s"""${st.name}""").expression()
         }
-        case (registry:CodeGeneratorRegistry[Expression], SolitaireContainerTypes.Foundation) => {
-          Java(s"""foundationCards""").expression()
-        }
-      },
+       },
 
       CodeGeneratorRegistry[Expression, Descending] {
         case (registry: CodeGeneratorRegistry[Expression], descending: Descending) => {
@@ -177,9 +174,8 @@
 
   // codeGen.apply(ifc).get
   class StatementCombinator(c:Constraint, constraint_type:Constructor, inits:Seq[Statement] = Seq.empty) {  // Constructor
-    def apply () : Seq[Statement] = {
-      //val cc3: Option[Expression] = generators(c)
-      val cc3:Option[Expression] = generators.apply(c);
+    def apply (generators:CodeGeneratorRegistry[Expression]) : Seq[Statement] = {
+      val cc3: Option[Expression] = generators(c)
       if (cc3.isEmpty) {
         println("Unable to locate:" + c);
         inits
@@ -188,7 +184,7 @@
       }
     }
 
-    var semanticType : Type = constraint_type
+    var semanticType : Type = 'ConstraintGen =>: constraint_type
   }
 
 

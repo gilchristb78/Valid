@@ -2,7 +2,7 @@ package org.combinators.solitaire.klondike
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
@@ -20,6 +20,11 @@ import domain.ui._
   */
 class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire)
   with GameTemplate with Score52 with Controller {
+
+  @combinator object DefaultGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
+    val semanticType: Type = 'ConstraintGen
+  }
 
   /**
     * Every solitaire variation belongs in its own package.

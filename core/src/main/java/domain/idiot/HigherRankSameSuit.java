@@ -1,7 +1,6 @@
 package domain.idiot;
 
 import domain.Constraint;
-import domain.ConstraintStmt;
 import domain.constraints.MoveInformation;
 
 /**
@@ -9,7 +8,6 @@ import domain.constraints.MoveInformation;
  */
 public class HigherRankSameSuit extends Constraint {
 
-    public final MoveInformation cards;
     public final MoveInformation card;
 
     /**
@@ -17,10 +15,10 @@ public class HigherRankSameSuit extends Constraint {
      * exists another widget in the container (different from source) whose top (visible) card
      * is higher in rank and the same suit as the card.
      *
+     * This is tied to the existence of a helper
+     * method in the Solitaire base class.
      */
-    public HigherRankSameSuit(MoveInformation cards, MoveInformation card) {
-
-        this.cards = cards;
+    public HigherRankSameSuit(MoveInformation card) {
         this.card = card;
     }
 }

@@ -17,6 +17,8 @@ class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJa
 
   val s:Solitaire = new Domain()
 
+  // also register special
+
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
@@ -26,6 +28,7 @@ class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJa
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation :&: 'Solvable)
+    ///  .addJob[CompilationUnit]('EnhancedSolitaire)
       .addJob[CompilationUnit]('Controller('Deck))
       .addJob[CompilationUnit]('Controller('Column))
       .addJob[CompilationUnit]('Move('RemoveCard :&: 'GenericMove , 'CompleteMove))
