@@ -6,7 +6,7 @@ import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
-import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
+import domain.idiot.Domain
 import org.webjars.play.WebJarsUtil
 // domain
 import domain._
@@ -14,12 +14,8 @@ import domain._
 
 class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
-  lazy val repositoryPre = new game {}
-  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
 
-  lazy val reply:InhabitationResult[Solitaire] = GammaPre.inhabit[Solitaire]('Variation('Idiot))
-  lazy val it:Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
-  lazy val s:Solitaire = it.next()
+  val s:Solitaire = new Domain()
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

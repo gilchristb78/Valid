@@ -6,6 +6,7 @@ import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.{InhabitationResult, ReflectedRepository}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
+import domain.klondike.Domain
 import org.webjars.play.{RequireJS, WebJarsUtil}
 
 // domain
@@ -15,12 +16,14 @@ import domain._
 class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
   /** Defined in Game trait. */
-  lazy val repositoryPre = new game {}
-  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
+//  lazy val repositoryPre = new game {}
+//  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
+//
+//  lazy val reply:InhabitationResult[Solitaire] = GammaPre.inhabit[Solitaire]('Variation('Klondike))
+//  lazy val it:Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
+//  lazy val s:Solitaire = it.next()
 
-  lazy val reply:InhabitationResult[Solitaire] = GammaPre.inhabit[Solitaire]('Variation('Klondike))
-  lazy val it:Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
-  lazy val s:Solitaire = it.next()
+  val s:Solitaire = new Domain()
 
   /** Domain for Klondike defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new KlondikeDomain(s) with controllers {}

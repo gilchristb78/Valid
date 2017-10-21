@@ -6,6 +6,8 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import domain._
 import javax.inject.Inject
+
+import domain.archway.Domain
 import org.combinators.solitaire.shared._
 import org.webjars.play.WebJarsUtil
 
@@ -15,17 +17,10 @@ import org.webjars.play.WebJarsUtil
   */
 class Archway @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
-  // DOC: ReflectedRepositor? To take all the combinators?
-  // DOC: What is classLoader?
-  lazy val repositoryPre = new Game {}
-  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
+  val solitaire = new Domain()
 
-  lazy val reply = GammaPre.inhabit[Solitaire]('Variation('Archway))
-  lazy val it = reply.interpretedTerms.values.flatMap(_._2).iterator
-  lazy val s = it.next()
-
-  lazy val repository = new ArchwayDomain(s) with Controllers {}
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+  lazy val repository = new ArchwayDomain(solitaire) with Controllers {}
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 

@@ -5,9 +5,13 @@ import domain.*;
 /**
  * A Constraint which is based on two elements having opposite color.
  */
-public class OppositeColor extends BinaryConstraintExpr {
+public class OppositeColor extends Constraint {
 
-    public OppositeColor (String e1, String e2) {
-        super(e1, e2);
+    public final MoveInformation left;
+    public final MoveInformation right;
+
+    public OppositeColor (MoveInformation left, MoveInformation right) {
+        this.left = left;
+        this.right= right;
     }
 }

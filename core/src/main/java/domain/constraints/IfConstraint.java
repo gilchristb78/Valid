@@ -1,6 +1,5 @@
 package domain.constraints;
 
-import java.util.*;
 import domain.*;
 
 /**
@@ -8,28 +7,20 @@ import domain.*;
  * DefaultFalseConstraint -- Returns False
  * DefaultTrueConstraint -- Returns True
  */
-public class IfConstraint extends ConstraintStmt {
-    ConstraintStmt trueBranch;
-    ConstraintStmt falseBranch;
+public class IfConstraint extends Constraint {
+    public final Constraint trueBranch;
+    public final Constraint falseBranch;
+    public final Constraint constraint;
 
-    public IfConstraint (ConstraintExpr c) {
-      super(c);
-      this.trueBranch = new ReturnConstraint (new ReturnTrueExpression());
-      this.falseBranch = new ReturnConstraint (new ReturnFalseExpression());
+    public IfConstraint(Constraint c) {
+        this.constraint = c;
+        this.trueBranch = new Truth();
+        this.falseBranch = new Falsehood();
     }
 
-    public IfConstraint (ConstraintExpr c, ConstraintStmt trueBranch,
-                                           ConstraintStmt falseBranch) {
-        super(c);
+    public IfConstraint(Constraint c, Constraint trueBranch, Constraint falseBranch) {
+        this.constraint = c;
         this.trueBranch = trueBranch;
         this.falseBranch = falseBranch;
-    }
-
-    public ConstraintStmt getTrueBranch() {
-        return trueBranch;
-    }
-
-    public ConstraintStmt getFalseBranch() {
-        return falseBranch;
     }
 }

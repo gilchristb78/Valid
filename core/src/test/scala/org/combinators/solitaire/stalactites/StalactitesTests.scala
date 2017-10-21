@@ -2,36 +2,26 @@ package org.combinators.solitaire.stalactites
 
 import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import domain.Solitaire
+import domain.{Solitaire, SolitaireContainerTypes}
+import domain.stalactites.Domain
 import org.combinators.solitaire.shared.Helper
 
 class StalactitesTests extends Helper {
 
   describe("The possible inhabited domain models") {
-    lazy val domainModelRepository = new Game {}
-    lazy val GammaDomainModel =
-      ReflectedRepository(domainModelRepository, classLoader = this.getClass.getClassLoader)
-    lazy val possibleDomainModels: InhabitationResult[Solitaire] =
-      GammaDomainModel.inhabit[Solitaire]('Variation ('Stalactites))
 
-    it("should not be infinite") {
-      assert(!possibleDomainModels.isInfinite)
-    }
-    it("should include exactly one result") {
-      assert(possibleDomainModels.terms.values.flatMap(_._2).size == 1)
-    }
+    val domainModel:Solitaire = new Domain()
 
     describe ("(using the only possible domain model)") {
-      lazy val domainModel = possibleDomainModels.interpretedTerms.index(0)
       describe("the domain model") {
         it ("should have a tableau of size 8") {
-          assert(domainModel.getTableau.size == 8)
+          assert(domainModel.containers.get(SolitaireContainerTypes.Tableau).size == 8)
         }
         it ("should have a foundation of size 4") {
-          assert(domainModel.getFoundation.size == 4)
+          assert(domainModel.containers.get(SolitaireContainerTypes.Foundation).size == 4)
         }
         it ("should have a reserve of size 2") {
-          assert(domainModel.getReserve.size == 2)
+          assert(domainModel.containers.get(SolitaireContainerTypes.Reserve).size == 2)
         }
 
         describe ("(when used to create a repository)") {
@@ -41,7 +31,7 @@ class StalactitesTests extends Helper {
               ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader),
               domainModel)
 
-            checkExistence(Gamma, domainModel, 'Augment('increment, 'SolitaireVariation), "Stalactites")
+            containsClass(singleInstance(Gamma, domainModel, 'Augment('increment, 'SolitaireVariation)), "Stalactites")
 //            checkExistence(Gamma, domainModel, 'Controller ('Pile), "PileController")
 //            checkExistence(Gamma, domainModel, 'Controller ('ReservePile), "ReservePileController")
 //            checkExistence(Gamma, domainModel, 'Controller ('Column), "ColumnController")

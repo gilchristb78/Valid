@@ -58,16 +58,16 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
 //         """.stripMargin).statements()
       val deck = deckGen("deck")
 
-      val reserve = loopConstructGen(solitaire.getReserve, "fieldReservePiles", "fieldReservePileViews", "Pile")
-      val tableau = loopConstructGen(solitaire.getTableau, "fieldTableauColumns", "fieldTableauColumnViews", "Column")
+      val reserve = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.Reserve), "fieldReservePiles", "fieldReservePileViews", "Pile")
+      val tableau = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.Tableau), "fieldTableauColumns", "fieldTableauColumnViews", "Column")
 
       /*
        * The Foundation is split between Aces and Kings, so I have to manually
        * generate them instead of using loopConstructGen()
        */
-      val aces = loopConstructGen(solitaire.getFoundation, "fieldAcesFoundationPiles", "fieldAcesFoundationPileViews", "AcesUpPile")
+      val aces = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.Foundation), "fieldAcesFoundationPiles", "fieldAcesFoundationPileViews", "AcesUpPile")
 
-      val kings = loopConstructGen(solitaire.getContainer("KingsDownFoundation"), "fieldKingsFoundationPiles", "fieldKingsFoundationPileViews", "KingsDownPile")
+      val kings = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.KingsDown), "fieldKingsFoundationPiles", "fieldKingsFoundationPileViews", "KingsDownPile")
 
 
       deck ++ aces ++ kings ++ reserve ++ tableau
@@ -150,42 +150,49 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
   @combinator object MakeAcesUpPileView    extends ExtendView("PileView", "AcesUpPileView",    "AcesUpPile",    'AcesUpPileViewClass)
   @combinator object MakeKingsDownPileView extends ExtendView("PileView", "KingsDownPileView", "KingsDownPile", 'KingsDownPileViewClass)
 
-
   /**
     * Generate the statements which set the location of the Views.
     */
   @combinator object ArchwayInitView {
     def apply(): Seq[Statement] = {
 
-      val lay = solitaire.getLayout
 
-      /* I had originally figured out the coordinates on graph paper,
-       * then figured out the scale to make them all fit.
-       */
-      val scale = 27
+//      val lay = solitaire.getLayout
+//
+//      /* I had originally figured out the coordinates on graph paper,
+//       * then figured out the scale to make them all fit.
+//       */
+//      val scale = 27
 
-      var x = Array( 2,  2, 2, 4, 10, 14, 18, 24, 26, 26, 26).map(_ * scale)
-      var y = Array(15, 11, 7, 3, 1,  1,  1,  3,  7, 11, 15).map(_ * scale)
-
-      // Reserve
-      val rs = layout_place_custom(lay, solitaire.getReserve, Java("fieldReservePileViews").name(), x, y, 97)
+//      var x = Array( 2,  2, 2, 4, 10, 14, 18, 24, 26, 26, 26).map(_ * scale)
+//      var y = Array(15, 11, 7, 3, 1,  1,  1,  3,  7, 11, 15).map(_ * scale)
+//
+//      // Reserve
+//      val rs = layout_place_custom(lay, solitaire.getReserve, Java("fieldReservePileViews").name(), x, y, 97)
 
       // Tableau
-      x = Array(8, 12, 16, 20).map(_ * scale)
-      y = Array(6, 6, 6, 6).map(_ * scale)
-      val tab = layout_place_custom(lay, solitaire.getTableau, Java("fieldTableauColumnViews").name(), x, y, 12*97)
+//      x = Array(8, 12, 16, 20).map(_ * scale)
+//      y = Array(6, 6, 6, 6).map(_ * scale)
+//      val tab = layout_place_custom(lay, solitaire.getTableau, Java("fieldTableauColumnViews").name(), x, y, 12*97)
 
       // Aces Foundation
-      x = Array( 2,  5,  2,  5).map(_ * scale)
-      y = Array(19, 19, 23, 23).map(_ * scale)
-      val fnd = layout_place_custom(lay, solitaire.getFoundation, Java("fieldAcesFoundationPileViews").name(), x, y, 97)
+//      x = Array( 2,  5,  2,  5).map(_ * scale)
+//      y = Array(19, 19, 23, 23).map(_ * scale)
+//      val fnd = layout_place_custom(lay, solitaire.getFoundation, Java("fieldAcesFoundationPileViews").name(), x, y, 97)
 
       // Kings Foundation
-      x = Array(23, 26, 23, 26).map(_ * scale)
-      y = Array(19, 19, 23, 23).map(_ * scale)
-      val kf = layout_place_custom(lay, solitaire.getContainer("KingsDownFoundation"), Java("fieldKingsFoundationPileViews").name(), x, y, 97)
+//      x = Array(23, 26, 23, 26).map(_ * scale)
+//      y = Array(19, 19, 23, 23).map(_ * scale)
+//      val kf = layout_place_custom(lay, solitaire.getContainer("KingsDownFoundation"), Java("fieldKingsFoundationPileViews").name(), x, y, 97)
+//
+//      rs ++ tab ++ fnd ++ kf
 
-      rs ++ tab ++ fnd ++ kf
+      var stmts = layout_place_it(solitaire.containers.get(ArchwayContainerTypes.Foundation), Java("fieldAcesFoundationPileViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(ArchwayContainerTypes.Reserve), Java("fieldReservePileViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(ArchwayContainerTypes.Tableau), Java("fieldTableauColumnViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(ArchwayContainerTypes.KingsDown), Java("fieldKingsFoundationPileViews").name())
+
+      stmts
 
     }
     val semanticType: Type = 'Init ('View)
@@ -200,16 +207,16 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
       val name = NameOfGame.toString()
 
       /* Aces Foundation Controller */
-      val aces = loopControllerGen(solitaire.getFoundation, "fieldAcesFoundationPileViews", "AcesUpPileController")
+      val aces = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.Foundation), "fieldAcesFoundationPileViews", "AcesUpPileController")
 
       /* Kings Foundation Controller */
-      val kings = loopControllerGen(solitaire.getContainer("KingsDownFoundation"), "fieldKingsFoundationPileViews", "KingsDownPileController")
+      val kings = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.KingsDown), "fieldKingsFoundationPileViews", "KingsDownPileController")
 
       /* Tableau Controller */
-      val tableau = loopControllerGen(solitaire.getTableau, "fieldTableauColumnViews", "ColumnController")
+      val tableau = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.Tableau), "fieldTableauColumnViews", "ColumnController")
 
       /* Reserve Controller */
-      val reserve = loopControllerGen(solitaire.getReserve, "fieldReservePileViews", "PileController")
+      val reserve = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.Reserve), "fieldReservePileViews", "PileController")
 
       aces ++ kings ++ tableau ++ reserve
     }
@@ -312,10 +319,10 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
              """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
       /* The first argument becomes fieldTableauColumns */
-      val tableau = fieldGen("TableauColumn",       "Column",        "ColumnView",        4);
-      val reserve = fieldGen("ReservePile",         "Pile",          "PileView",         11);
-      val aces    = fieldGen("AcesFoundationPile",  "AcesUpPile",    "AcesUpPileView",    4);
-      val kings   = fieldGen("KingsFoundationPile", "KingsDownPile", "KingsDownPileView", 4);
+      val tableau = fieldGen("TableauColumn",         4)   // HACK: get from size of container
+      val reserve = fieldGen("ReservePile",          11)
+      val aces    = fieldGen("AcesFoundationPile",   4)
+      val kings   = fieldGen("KingsFoundationPile",  4)
 
       val deck = Java("MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 

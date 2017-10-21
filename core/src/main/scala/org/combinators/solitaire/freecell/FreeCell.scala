@@ -4,28 +4,20 @@ import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
 import org.webjars.play.WebJarsUtil
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.twirl.Java
-import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
+import domain.freeCell.Domain
 import org.combinators.TypeNameStatistics
 // strange name-clash with 'controllers'. Compiles but in eclipse shows errors :)
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
-import org.combinators.solitaire.shared._
 
 // domain
 import domain._
 
 class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
-  lazy val repositoryPre = new game {}
-  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
 
-  lazy val reply:InhabitationResult[Solitaire] = GammaPre.inhabit[Solitaire]('Variation('FreeCell))
-  lazy val it:Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
-  lazy val s:Solitaire = it.next()
- 
+  val s:Solitaire = new Domain();
+
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.

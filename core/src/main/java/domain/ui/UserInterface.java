@@ -45,7 +45,7 @@ public class UserInterface {
         ArrayList<String> elements = new ArrayList<String>();
 
         /** Get each of the containers registered for the solitaire game. */
-        for (Container c : solitaire) {
+        for (Container c : solitaire.containers.values()) {
             Iterator<String> type_it = c.types();
             while (type_it.hasNext()) {
                 String typ = type_it.next();
@@ -59,29 +59,5 @@ public class UserInterface {
         return elements.iterator();
     }
 
-//   public void assignDrag (Container src, Container target, Move m) { }
-//
-//   public void assignPress (Container src, Move m) { }
-//   
-//   public void assignClick (Container src, Move m) { }
-//
-//   public void assignDoubleClick (Container src, Move m) { } 
-//
-//   /**
-//    * Work through the model to find the controllers and expose them
-//    * by name.
-//    */
-    //  void process() {
-    //      if (solitaire.getRules() == null) { return; }
-//
-//       for (Move m : solitaire.getRules()) {
-//
-//          // Each move takes a (src x target) from which we can
-//          // derive the controllers needed.
-//          Container src = m.getSourceContainer();
-//          Container target = m.getTargetContainer();
-//
-//       } 
-//   }
 
 }

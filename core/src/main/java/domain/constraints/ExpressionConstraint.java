@@ -5,7 +5,7 @@ import domain.*;
 /**
  * Arbitrary Expression 
  */
-public class ExpressionConstraint extends ConstraintExpr {
+public class ExpressionConstraint extends Constraint {
     final String lhs;
     final String rhs;
     final String op;

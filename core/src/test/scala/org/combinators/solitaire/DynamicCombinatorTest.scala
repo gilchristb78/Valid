@@ -6,7 +6,8 @@ import org.scalatest._
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.interpreter._
 import domain.Solitaire
-import org.combinators.solitaire.freecell.{game, gameDomain}
+import domain.freeCell.Domain
+import org.combinators.solitaire.freecell.gameDomain
 import syntax._
 
 class DynamicCombinatorTest extends FunSpec {
@@ -30,12 +31,13 @@ class DynamicCombinatorTest extends FunSpec {
   val result = ReflectedRepository(repository)
 
   // free-cell-stuff follows
-  lazy val repositoryPre = new game {}
-  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
-
-  lazy val reply:InhabitationResult[Solitaire] = GammaPre.inhabit[Solitaire]('Variation('FreeCell))
-  lazy val iter:Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
-  lazy val s:Solitaire = iter.next()
+//  lazy val repositoryPre = new game {}
+//  lazy val GammaPre = ReflectedRepository(repositoryPre, classLoader = this.getClass.getClassLoader)
+//
+//  lazy val reply:InhabitationResult[Solitaire] = GammaPre.inhabit[Solitaire]('Variation('FreeCell))
+//  lazy val iter:Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
+//  lazy val s:Solitaire = iter.next()
+  val s:Solitaire = new Domain()
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

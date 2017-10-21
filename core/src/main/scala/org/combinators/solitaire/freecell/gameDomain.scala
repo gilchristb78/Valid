@@ -43,9 +43,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     def apply(): Seq[Statement] = {
 
       val dg = deckGen ("deck")
-      val colGen = loopConstructGen(solitaire.getTableau, "fieldColumns", "fieldColumnViews", "Column")
-      val resGen = loopConstructGen(solitaire.getReserve, "fieldFreePiles", "fieldFreePileViews", "FreePile")
-      val foundGen = loopConstructGen(solitaire.getFoundation, "fieldHomePiles", "fieldHomePileViews", "HomePile")
+      val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumns", "fieldColumnViews", "Column")
+      val resGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldFreePiles", "fieldFreePileViews", "FreePile")
+      val foundGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldHomePiles", "fieldHomePileViews", "HomePile")
 
       dg ++ colGen ++ resGen ++ foundGen
     }
@@ -56,16 +56,11 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object FreeCellInitView {
     def apply(): Seq[Statement] = {
 
-      val found = solitaire.getFoundation
-      val tableau = solitaire.getTableau
-      val free = solitaire.getReserve
-      val lay = solitaire.getLayout
-
       var stmts = Seq.empty[Statement]
 
-      stmts = stmts ++ layout_place_many(lay, found, Layout.Foundation, Java("fieldHomePileViews").name(), 97)
-      stmts = stmts ++ layout_place_many(lay, free, Layout.Reserve, Java("fieldFreePileViews").name(), 97)
-      stmts = stmts ++ layout_place_many(lay, tableau, Layout.Tableau, Java("fieldColumnViews").name(), 13*97)
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Foundation), Java("fieldHomePileViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Reserve), Java("fieldFreePileViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Tableau), Java("fieldColumnViews").name())
 
       stmts
     }
@@ -78,9 +73,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", "ColumnController")
-      val freesetup = loopControllerGen(solitaire.getReserve, "fieldFreePileViews", "FreePileController")
-      val homesetup = loopControllerGen(solitaire.getFoundation, "fieldHomePileViews", "HomePileController")
+      val colsetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumnViews", "ColumnController")
+      val freesetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldFreePileViews", "FreePileController")
+      val homesetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldHomePileViews", "HomePileController")
 
        colsetup ++ freesetup ++ homesetup
     }
@@ -91,7 +86,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   // generic deal cards from deck into the tableau
   @combinator object FreeCellInitLayout {
     def apply(): Seq[Statement] = {
-      val tableau = solitaire.getTableau
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
       // standard logic to deal to all tableau cards
       val numColumns = tableau.size
       Java(
@@ -124,8 +119,8 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
 
-      val reserve = solitaire.getReserve.size()
-      val tableau = solitaire.getTableau.size()
+      val reserve = solitaire.containers.get(SolitaireContainerTypes.Reserve).size()
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau).size()
       val numFreePiles: IntegerLiteralExpr = Java(s"$reserve").expression()
       val numColumns: IntegerLiteralExpr = Java(s"$tableau").expression()
 
@@ -219,9 +214,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
    @combinator object FullFoundation {
     def apply(): Seq[Statement] = {
-      val found = solitaire.getFoundation
-
-      val nc = found.size()
       Java(
         s"""
            |int count = 0;
@@ -245,17 +237,17 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
              |IntegerView numLeftView;
              """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val found = solitaire.getFoundation
-      val reserve = solitaire.getReserve
-      val tableau = solitaire.getTableau
-      val stock = solitaire.getStock
+      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
+      val reserve = solitaire.containers.get(SolitaireContainerTypes.Reserve)
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
-      val decks = deckGen(solitaire)   // note: DeckView not needed for FreeCell
+      val decks = deckFieldGen(stock)   // note: DeckView not needed for FreeCell
 
-      // HACK: eventually remove 1 of first 2 parameters
-      val fieldFreePiles = fieldGen("FreePile", "FreePile", "FreePileView", reserve.size())
-      val fieldHomePiles = fieldGen("HomePile", "HomePile", "HomePileView", found.size())
-      val fieldColumns = fieldGen("Column", "Column", "ColumnView", tableau.size())
+      // Let's assume all from the same type
+      val fieldFreePiles = fieldGen(reserve.types().next(),  reserve.size())
+      val fieldHomePiles = fieldGen(found.types().next(),  found.size())
+      val fieldColumns = fieldGen(tableau.types().next(), tableau.size())
 
       decks ++ fields ++ fieldFreePiles ++ fieldHomePiles ++ fieldColumns
     }

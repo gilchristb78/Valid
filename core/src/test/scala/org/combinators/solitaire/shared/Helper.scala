@@ -4,7 +4,8 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.Type
-import domain.Solitaire
+import domain.{ConstraintStmt, Solitaire}
+import domain.constraints.{ExpressionConstraint, IfConstraint}
 import org.combinators.solitaire.klondike.{KlondikeDomain, controllers}
 import org.scalatest._
 
@@ -15,8 +16,12 @@ class Helper extends FunSpec {
     * @param unit
     * @param name
     */
-  def containsClass(unit:CompilationUnit, name:String): Unit = {
-    unit.getClassByName(name).isPresent
+  def containsClass(unit:Option[CompilationUnit], name:String): Unit = {
+    if (unit.isDefined) {
+      unit.get.getClassByName(name).isPresent
+    } else {
+      throw new Exception (name + " not Defined")
+    }
   }
 
   /**
@@ -25,10 +30,9 @@ class Helper extends FunSpec {
     * @param Gamma           pre-built repository
     * @param domainModel     Solitaire Domain Model instance
     * @param target          Target symbol sought for
-    * @param name            Desired name of class to find.
     * @return
     */
-  def singleInstance[R](Gamma:ReflectedRepository[_], domainModel:Solitaire, target:Type):R = {
+  def singleInstance[R](Gamma:ReflectedRepository[_], domainModel:Solitaire, target:Type):Option[R] = {
     describe ("Looking for instance") {
       lazy val job = Gamma.InhabitationBatchJob[R](target)
       lazy val results = job.run()
@@ -47,7 +51,7 @@ class Helper extends FunSpec {
       interpretedResults.head
     }
 
-    // don't really need a function with a return value, but...
+    None
   }
 
   /**
@@ -75,4 +79,6 @@ class Helper extends FunSpec {
     // don't really need a function with a return value, but...
     true
   }
+
+
 }

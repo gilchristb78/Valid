@@ -7,14 +7,12 @@ import domain.*;
  * determining the rank of a Stack uses .rank() method, while rank of a Card
  * uses .getRank() method.
  */
-public class IsAce extends UnaryConstraintExpr {
+public class IsAce extends Constraint {
 
-    final Element type; 
+    public final MoveInformation element;
 
-    public IsAce (Element t, String element) {
-	    super(element);
-        this.type = t;
+    public IsAce (MoveInformation element) {
+        this.element = element;
     }
 
-    public Element getType() { return type; }
 }

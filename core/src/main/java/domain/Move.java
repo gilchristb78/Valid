@@ -1,5 +1,6 @@
 package domain;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 /**
@@ -55,10 +56,10 @@ public abstract class Move {
 
    /** Optionally there may be a target. */
    public final Optional<Container>        targetContainer;
-   public final ConstraintStmt   constraint;
+   public final Constraint                 constraint;
 
    /** Constraint for a move with no target. */
-   public Move (String name, Container src, ConstraintStmt cons) {
+   public Move (String name, Container src, Constraint cons) {
       this.name = name;
       this.srcContainer = src;
       this.targetContainer = Optional.empty();
@@ -66,7 +67,7 @@ public abstract class Move {
    }
 
    /** Constraint for a move with (src, target) and constraint. */
-   public Move (String name, Container src, Container target, ConstraintStmt cons) {
+   public Move (String name, Container src, Container target, Constraint cons) {
       this.name = name;
       this.srcContainer = src;
       this.targetContainer = Optional.of(target);
@@ -82,22 +83,22 @@ public abstract class Move {
      return name;
    }
 
-   /** Extract constraint associated with move. */
-   public ConstraintStmt getConstraint() { return constraint; }
-
-   /** Get container. */
-   public Container getSourceContainer() { return srcContainer; }
-
-   /** Get container for the target. */
-   public Optional<Container> getTargetContainer() { 
-	return targetContainer; 
+   /** Get the source element of this move type. */
+   public final Element   getSource() {
+      Iterator<Element> it = srcContainer.iterator();
+      if (it == null || !it.hasNext()) { return null; }
+      return it.next();
    }
 
-   /** Get the source element of this move type. */
-   public abstract Element   getSource();
-
    /** Get the target element of this move type. */
-   public abstract Element   getTarget();
+   public final Element   getTarget() {
+      Optional<Container> opt = targetContainer;
+      if (!opt.isPresent()) { return null; }
+
+      Iterator<Element> it = opt.get().iterator();
+      if (it == null || !it.hasNext()) { return null; }
+      return it.next();
+   }
 
    /** Get element being moved. */
    public abstract Element   getMovableElement();

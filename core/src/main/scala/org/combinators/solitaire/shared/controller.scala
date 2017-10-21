@@ -16,6 +16,7 @@ import org.combinators.generic
 import domain._
 import domain.moves._
 import scala.collection.mutable.ListBuffer
+import scala.collection.JavaConverters._
 
 trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
 
@@ -24,57 +25,33 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
   // defined in either the presses, drags, or clicks sets 
   def createMoveClasses[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = gamma
-    var combined = ListBuffer[Move]()
-    val it1 = s.getRules.drags
-    while (it1.hasNext) {
-      combined += it1.next()
-    }
-    val it2 = s.getRules.presses
-    while (it2.hasNext) {
-      combined += it2.next()
-    }
-    val it3 = s.getRules.clicks
-    while (it3.hasNext) {
-      combined += it3.next()
-    }
 
-    val rules_1 = combined.iterator
-    while (rules_1.hasNext) {
-      val move = rules_1.next()
+    val combined = s.getRules.drags.asScala ++ s.getRules.presses.asScala ++ s.getRules.clicks.asScala
+    for (move <- combined) {
 
-      val target = move.getTarget
-      // All moves are now available....
-      if (target != target) { // null) {
-        println ("  empty target. Skip " + move.getName)
+      val moveString = move.getName
+      val moveSymbol = Symbol(moveString)
+
+      // undo & do generation
+      println ("    -- " + moveSymbol + " defined")
+      updated = updated
+        .addCombinator(new ClassNameDef(moveSymbol, moveString))
+        .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
+        .addCombinator(new UndoGenerator(move, 'Move (moveSymbol, 'UndoStatements)))
+        .addCombinator(new DoGenerator(move, 'Move (moveSymbol, 'DoStatements)))
+        .addCombinator(new MoveHelper(move, new SimpleName(moveString), moveSymbol))
+        .addCombinator(new StatementCombinator (move.constraint,
+          'Move (moveSymbol, 'CheckValidStatements)))
+
+      /**
+        * A move typically contains a single source and a single destination. For some
+        * moves, there are multiple destinations (typically a deal, or remove cards) and
+        * that requires different combinator.
+        */
+      if (move.isSingleDestination) {
+        updated = updated.addCombinator(new SolitaireMove(moveSymbol))
       } else {
-        ///val tgtBase = move.getTarget.getClass().getSimpleName()
-        ///val movable = move.getMovableElement.getClass().getSimpleName()
-
-        ///val moveString = srcBase + "To" + tgtBase
-        val moveString = move.getName
-        val moveSymbol = Symbol(moveString)
-
-        // undo & do generation
-        println ("    -- " + moveSymbol + " defined")
-        updated = updated
-          .addCombinator(new ClassNameDef(moveSymbol, moveString))
-          .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
-          .addCombinator(new UndoGenerator(move, 'Move (moveSymbol, 'UndoStatements)))
-          .addCombinator(new DoGenerator(move, 'Move (moveSymbol, 'DoStatements)))
-          .addCombinator(new MoveHelper(move, new SimpleName(moveString), moveSymbol))
-          .addCombinator(new StatementCombinator (move.getConstraint,
-            'Move (moveSymbol, 'CheckValidStatements)))
-
-        /**
-          * A move typically contains a single source and a single destination. For some
-          * moves, there are multiple destinations (typically a deal, or remove cards) and
-          * that requires different combinator.
-          */
-        if (move.isSingleDestination) {
-          updated = updated.addCombinator(new SolitaireMove(moveSymbol))
-        } else {
-          updated = updated.addCombinator(new MultiMove(moveSymbol))
-        }
+        updated = updated.addCombinator(new MultiMove(moveSymbol))
       }
     }
 
@@ -143,10 +120,10 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     while (inner_rules_it.hasNext) {
       val inner_move = inner_rules_it.next()
 
-      val tgtBaseHolder = inner_move.getTargetContainer
-      val srcBase = inner_move.getSourceContainer
+      val tgtBaseHolder = inner_move.targetContainer
+      val srcBase = inner_move.srcContainer
 
-      val tgtBase = tgtBaseHolder.get()
+      val tgtBase = tgtBaseHolder.get
       // make sure has value
       if (!drag_handler_map.contains(tgtBase)) {
         drag_handler_map += (tgtBase -> List(inner_move))

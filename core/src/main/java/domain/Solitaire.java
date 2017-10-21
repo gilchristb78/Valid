@@ -1,5 +1,6 @@
 package domain;
 
+import java.awt.*;
 import java.util.*;
 import domain.ui.*;
 
@@ -37,78 +38,22 @@ import domain.ui.*;
 
  */
 
-public class Solitaire implements Iterable<Container> {
+public class Solitaire {
 
-    public static final String[] fixedContainers = new String [] {
-            Layout.Foundation, Layout.Tableau, Layout.Reserve,
-            Layout.WastePile, Layout.Stock };
-
-    /** Hack. */
-    public Iterator<Container> iterator() {
-        ArrayList<Container> ar = new ArrayList<Container>();
-        if (tableau != null) { ar.add(tableau); }
-        if (foundation != null) { ar.add(foundation); }
-        if (reserve != null) { ar.add(reserve); }
-        if (stock != null) { ar.add(stock); }
-        if (waste != null) { ar.add(waste); }
-
-        // don't forget specials
-        for (Container c : specialContainers.values()) {
-            ar.add(c);
-        }
-
-        return ar.iterator();
-    }
+    /** User-defined containers can be specified as needed in this map. */
+    public final Map <ContainerType, Container> containers = new Hashtable<ContainerType, Container>();
 
     boolean autoMovesAvailable = false;
     public boolean hasAutoMoves() { return autoMovesAvailable; }
     public void setAutoMoves(boolean b) { autoMovesAvailable = b; }
 
-    /** User-defined containers can be specified as needed. */
-    Hashtable <String, Container> specialContainers = new Hashtable<String, Container>();
-    public Container getContainer (String name) { return specialContainers.get(name); }
-    public void setContainer(String name, Container c) {
-        for (String s : fixedContainers) {
-            if (s.equals(name)) {
-                throw new IllegalArgumentException("Can't define special container for :" + s);
-            }
-        }
-        specialContainers.put(name, c);
-    }
-
-    Tableau       tableau;
-    public Tableau getTableau () { return tableau; }
-    public void setTableau(Tableau t) { tableau = t; }
-
-    Foundation    foundation;
-    public Foundation getFoundation() { return foundation; }
-    public void setFoundation(Foundation f) { foundation = f; }
-
-    Reserve       reserve;
-    public Reserve getReserve() { return reserve; }
-    public void setReserve(Reserve r) { reserve = r; }
-
-    Stock         stock;
-    public Stock  getStock() { return stock; }
-    public void setStock(Stock s) { stock = s; }
-
     Rules         rules;
     public Rules  getRules() { return rules; }
     public void   setRules(Rules r) { rules = r; }
 
-    // A bit of a hack. UI should be separate from Solitaire, but for the
-    // purposes of the synthesized code, it makes it easier to be able to
-    // navigate to the UI from the solitaire game.
-    Layout        layout;
-    public Layout getLayout() { return layout; }
-    public void   setLayout(Layout lay) { layout = lay; }
+    public static final int card_width = 73;
+    public static final int card_height = 97;
 
-    Waste         waste;
-    public Waste  getWaste() { return waste; }
-    public void   setWaste(Waste w) { waste = w; }
-
-    // any variation-specific game state is placed here.
-    //
-    State         state;
-
+    /** Common separation between widgets in layout. */
+    public static final int card_gap = 15;
 }

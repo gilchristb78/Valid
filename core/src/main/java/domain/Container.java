@@ -10,12 +10,42 @@ package domain;
  * to iterate over all unique types within a container, so theoretically one can place multiple
  * typed objects in the same container.
  */
+import domain.ui.*;
 import java.util.*;
 
 public class Container implements Iterable<Element> {
 
 	/** Use what is available. */
 	ArrayList<Element> elements = new ArrayList<Element>();
+
+	/** Iterator for placing widgets in container. */
+	final PlacementGenerator places;
+
+	/**
+	 * Default constructor for subclasses (i.e., Stock) which may be present in the model
+	 * but are not visible.
+	 *
+	 * Use this only for non-visible Containers (again, only likely for Stock)
+	 */
+	public Container() {
+		places = new NonexistentPlaceement();
+	}
+
+	/**
+	 * Specialized layout is determined by the defined iterator.
+	 *
+	 * Use this constructor for containers that have arbitrary arrangements.
+	 *
+	 * @param places   Iterator for placement of widgets
+	 */
+	public Container(PlacementGenerator places) {
+		this.places = places;
+	}
+
+	public Iterator<Widget> placements() {
+		places.reset(size());
+		return places;
+	}
 
 	/** Return the size of the container. */
 	public int size() {
@@ -25,10 +55,8 @@ public class Container implements Iterable<Element> {
 	/** Same type. */
 	public boolean isSame(Container c) {
 		if (c == null) { return false; }
-		if (this.getClass() == c.getClass()) {
-			return true;
-		}
-		return false;
+
+		return (this.getClass() == c.getClass());
 	}
 
 	/**
@@ -62,20 +90,19 @@ public class Container implements Iterable<Element> {
 	 * of doing this in Scala... Also, outputs SimpleName for simplicity
 	 */
 	public Iterator<String> types() {
-		ArrayList<String> elems = new ArrayList<String>();
+		Set<String> set = new HashSet<>();
 		for (Element e : elements) {
 			String name = e.getClass().getSimpleName();
-			if (!elems.contains(name)) {
-				elems.add(name);
-			}
+			set.add(name);
 		}
-		return elems.iterator();
+		return set.iterator();
 	}
 
 	/**
 	 * Return iterator over all elements.
 	 */
+	@Override
 	public Iterator<Element> iterator() {
-	    return elements.iterator();
+		return elements.iterator();
 	}
 }

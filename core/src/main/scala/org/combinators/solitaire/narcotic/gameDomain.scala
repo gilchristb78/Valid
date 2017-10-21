@@ -37,7 +37,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     def apply(): Seq[Statement] = {
       val deck = deckGenWithView("deck", "deckView")
 
-      val pileGen = loopConstructGen(solitaire.getTableau, "fieldPiles", "fieldPileViews", "Pile")
+      val pileGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldPiles", "fieldPileViews", "Pile")
 
       deck ++ pileGen 
     }
@@ -55,14 +55,13 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object NarcoticInitView {
     def apply(): Seq[Statement] = {
 
-      val tableau = solitaire.getTableau
-      val stock = solitaire.getStock
-      val lay = solitaire.getLayout
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
       var stmts = Seq.empty[Statement]
       
-      stmts = stmts ++ layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
-      stmts = stmts ++ layout_place_many(lay, tableau, Layout.Tableau, Java("fieldPileViews").name(), 97)
+      stmts = stmts ++ layout_place_it(stock, Java("deckView").name())
+      stmts = stmts ++ layout_place_it(tableau, Java("fieldPileViews").name())
 
       stmts
     }
@@ -75,7 +74,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      val pilesetup = loopControllerGen(solitaire.getTableau, "fieldPileViews",  "PileController")
+      val pilesetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldPileViews",  "PileController")
 
       // add controllers for the DeckView here...
       val decksetup = controllerGen("deckView", "DeckController")
@@ -138,19 +137,12 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
         Java(s"""|IntegerView scoreView;
                  |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val tableau = solitaire.getTableau
-      val stock = solitaire.getStock
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
-      val decks = deckGen(solitaire)
-//      val decks =
-//        if (stock.getNumDecks > 1) {
-//          Java("public MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-//        } else {
-//          Java("public Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-//        }
-//      val deckViews = Java("DeckView deckView;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+      val decks = deckFieldGen(stock)
 
-      val fieldPiles = fieldGen("Pile", "Pile", "PileView", tableau.size())
+      val fieldPiles = fieldGen("Pile",  tableau.size())
 
       decks ++ fields ++ fieldPiles
     }
