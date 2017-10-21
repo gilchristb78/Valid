@@ -4,9 +4,7 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.Type
-import domain.{ConstraintStmt, Solitaire}
-import domain.constraints.{ExpressionConstraint, IfConstraint}
-import org.combinators.solitaire.klondike.{KlondikeDomain, controllers}
+import domain.Solitaire
 import org.scalatest._
 
 class Helper extends FunSpec {

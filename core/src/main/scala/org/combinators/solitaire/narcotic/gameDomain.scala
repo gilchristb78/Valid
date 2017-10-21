@@ -2,12 +2,14 @@ package org.combinators.solitaire.narcotic
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import domain.idiot.HigherRankSameSuit
+import domain.narcotic.{AllSameRank, ToLeftOf}
 import org.combinators.solitaire.shared._
 
 // domain
@@ -17,6 +19,28 @@ import domain.ui._
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
+
+  object idiotCodeGenerator {
+    val generators = CodeGeneratorRegistry.merge[Expression](
+
+      CodeGeneratorRegistry[Expression, ToLeftOf] {
+        case (registry:CodeGeneratorRegistry[Expression], c:ToLeftOf) => {
+          val destination = registry(c.destination).get
+          val src = registry(c.src).get
+          Java(s"""((org.combinators.solitaire.narcotic)Narcotic).toLeftOf($destination, $src)""").expression()
+        }
+      },
+
+      CodeGeneratorRegistry[Expression, AllSameRank] {
+        case (registry:CodeGeneratorRegistry[Expression], c:AllSameRank) => {
+          val src = registry(c.).get
+          Java(s"""((org.combinators.solitaire.idiot.Idiot)game).higher($src)""").expression()
+        }
+      }
+
+
+    ).merge(constraintCodeGenerators.generators)
+  }
 
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.narcotic").name()

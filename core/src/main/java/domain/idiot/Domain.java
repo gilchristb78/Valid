@@ -35,7 +35,7 @@ public class Domain extends Solitaire {
 		containers.put(SolitaireContainerTypes.Tableau, tableau);
 
 		// defaults to 1 deck.
-		Stock stock = new Stock();
+		Stock stock = new Stock(lay.stock());
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
 		// wins once foundation contains same number of cards as stock
@@ -43,16 +43,14 @@ public class Domain extends Solitaire {
 
 		IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
 
-		IfConstraint if_move = new IfConstraint(isEmpty);
-
 		// Tableau to Tableau
-		SingleCardMove tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, if_move);
+		SingleCardMove tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, isEmpty);
 		rules.addDragMove(tableauToTableau);
 
 		// this special method is added by gameDomain to be accessible here.
 //		BooleanExpression sameSuitHigherRankVisible =
 //				new BooleanExpression("((org.combinators.solitaire.idiot.Idiot)game).isHigher((Column)source)");
-		HigherRankSameSuit sameSuitHigherRankVisible = new HigherRankSameSuit(SolitaireContainerTypes.Tableau, MoveComponents.Source);
+		HigherRankSameSuit sameSuitHigherRankVisible = new HigherRankSameSuit(MoveComponents.Source);
 
 		AndConstraint and = new AndConstraint(new NotConstraint(new IsEmpty(MoveComponents.Source)), sameSuitHigherRankVisible);
 

@@ -2,7 +2,7 @@ package org.combinators.solitaire.archway
 
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.expr.{IntegerLiteralExpr, Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, IntegerLiteralExpr, Name, SimpleName}
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
@@ -10,8 +10,7 @@ import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain._
-import domain.ui._
-import org.combinators.solitaire.shared
+import domain.archway.ArchwayContainerTypes
 import org.combinators.solitaire.shared._
 
 /**
@@ -21,6 +20,11 @@ import org.combinators.solitaire.shared._
   * TODO: Score52...
   */
 class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
+
+  @combinator object DefaultGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
+    val semanticType: Type = 'ConstraintGen
+  }
 
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.archway").name()
@@ -58,14 +62,14 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
 //         """.stripMargin).statements()
       val deck = deckGen("deck")
 
-      val reserve = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.Reserve), "fieldReservePiles", "fieldReservePileViews", "Pile")
-      val tableau = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.Tableau), "fieldTableauColumns", "fieldTableauColumnViews", "Column")
+      val reserve = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldReservePiles", "fieldReservePileViews", "Pile")
+      val tableau = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldTableauColumns", "fieldTableauColumnViews", "Column")
 
       /*
        * The Foundation is split between Aces and Kings, so I have to manually
        * generate them instead of using loopConstructGen()
        */
-      val aces = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.Foundation), "fieldAcesFoundationPiles", "fieldAcesFoundationPileViews", "AcesUpPile")
+      val aces = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldAcesFoundationPiles", "fieldAcesFoundationPileViews", "AcesUpPile")
 
       val kings = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.KingsDown), "fieldKingsFoundationPiles", "fieldKingsFoundationPileViews", "KingsDownPile")
 
@@ -187,9 +191,9 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
 //
 //      rs ++ tab ++ fnd ++ kf
 
-      var stmts = layout_place_it(solitaire.containers.get(ArchwayContainerTypes.Foundation), Java("fieldAcesFoundationPileViews").name())
-      stmts = stmts ++ layout_place_it(solitaire.containers.get(ArchwayContainerTypes.Reserve), Java("fieldReservePileViews").name())
-      stmts = stmts ++ layout_place_it(solitaire.containers.get(ArchwayContainerTypes.Tableau), Java("fieldTableauColumnViews").name())
+      var stmts = layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Foundation), Java("fieldAcesFoundationPileViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Reserve), Java("fieldReservePileViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Tableau), Java("fieldTableauColumnViews").name())
       stmts = stmts ++ layout_place_it(solitaire.containers.get(ArchwayContainerTypes.KingsDown), Java("fieldKingsFoundationPileViews").name())
 
       stmts
@@ -207,16 +211,16 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
       val name = NameOfGame.toString()
 
       /* Aces Foundation Controller */
-      val aces = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.Foundation), "fieldAcesFoundationPileViews", "AcesUpPileController")
+      val aces = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldAcesFoundationPileViews", "AcesUpPileController")
 
       /* Kings Foundation Controller */
       val kings = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.KingsDown), "fieldKingsFoundationPileViews", "KingsDownPileController")
 
       /* Tableau Controller */
-      val tableau = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.Tableau), "fieldTableauColumnViews", "ColumnController")
+      val tableau = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldTableauColumnViews", "ColumnController")
 
       /* Reserve Controller */
-      val reserve = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.Reserve), "fieldReservePileViews", "PileController")
+      val reserve = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldReservePileViews", "PileController")
 
       aces ++ kings ++ tableau ++ reserve
     }
