@@ -6,26 +6,31 @@
 
 @Java(MovingWidgetName) movingElement = (@Java(MovingWidgetName)) w.getModelElement();
 
-// Safety Check
-if (movingElement == null) { return; }
+try {
+	// Safety Check
+	if (movingElement==null){return;}
 
-// Get sourceWidget for card being dragged
-Widget sourceWidget = theGame.getContainer().getDragSource();
+	// Get sourceWidget for card being dragged
+	Widget sourceWidget=theGame.getContainer().getDragSource();
 
-// Safety Check
-if (sourceWidget == null) { return; }
-@Java(TargetWidgetName) toElement = (@Java(TargetWidgetName)) src.getModelElement();
+	// Safety Check
+	if (sourceWidget==null){return;}
 
-// Case: Card is coming from a Column
-@Java(SourceWidgetName) sourceCol = (@Java(SourceWidgetName)) sourceWidget.getModelElement();			
+	@Java(TargetWidgetName) toElement=(@Java(TargetWidgetName))src.getModelElement();
 
-// this is the actual move
-Move m = new @{Java(TheMove)}(sourceCol, movingElement, toElement);
+	// Identify the source
+	@Java(SourceWidgetName) sourceEntity = (@Java(SourceWidgetName))sourceWidget.getModelElement();
 
-if (m.valid(theGame)) {
-	m.doMove(theGame);
-	theGame.pushMove(m);
-} else {
-	sourceWidget.returnWidget(w);
-}	
-		
+	// this is the actual move
+	Move m = new @{Java(TheMove)}(sourceEntity,movingElement,toElement);
+
+	if (m.valid(theGame)){
+		m.doMove(theGame);
+		theGame.pushMove(m);
+	} else {
+		sourceWidget.returnWidget(w);
+	}
+} catch (ClassCastException cce) {
+	// silently ignore classCastException since that is a sign of
+	// ordering issues with regards to multiple releases
+}

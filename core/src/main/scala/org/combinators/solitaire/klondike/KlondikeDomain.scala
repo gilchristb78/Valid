@@ -49,9 +49,9 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     def apply(): Seq[Statement] = {
       val deck = deckGenWithView("deck", "deckView")
 
-      val colGen = loopConstructGen(solitaire.getTableau, "fieldColumns", "fieldColumnViews", "Column")
-      val foundGen = loopConstructGen(solitaire.getFoundation, "fieldPiles", "fieldPileViews", "Pile")
-      val wastePileGen = loopConstructGen(solitaire.getWaste, "fieldWastePiles", "fieldWastePileViews", "WastePile")
+      val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldBuildablePiles", "fieldBuildablePileViews", "BuildablePile")
+      val foundGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldPiles", "fieldPileViews", "Pile")
+      val wastePileGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Waste), "fieldWastePiles", "fieldWastePileViews", "WastePile")
 
       deck ++ colGen ++ foundGen ++ wastePileGen
     }
@@ -65,19 +65,21 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   @combinator object InitView {
     def apply(): Seq[Statement] = {
 
-      val tableau = solitaire.getTableau
-      val stock = solitaire.getStock
-      val waste = solitaire.getWaste
-      val lay = solitaire.getLayout
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
+      val waste = solitaire.containers.get(SolitaireContainerTypes.Waste)
+      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
+
 
       // start by constructing the DeckView
 
       // when placing a single element in Layout, use this API
-      val ds = layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
-      val ws = layout_place_one_expr(lay, stock, Layout.WastePile, Java("fieldWastePileViews[0]").expression(), 97)
-      val cs = layout_place_many(lay, tableau, Layout.Tableau, Java("fieldColumnViews").name(), 13*97)
+      val ds = layout_place_it(stock, Java("deckView").name())
+      val ws = layout_place_it_expr(waste, Java("fieldWastePileViews[0]").expression())
+      val fd = layout_place_it(found, Java("fieldPileViews").name())
+      val cs = layout_place_it(tableau,  Java("fieldBuildablePileViews").name())
 
-      ds ++ ws ++ cs
+      ds ++ ws ++ cs ++ fd
     }
 
     val semanticType: Type = 'Init ('View)
@@ -91,15 +93,14 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      //val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", "ColumnController")
-      //val foundsetup = loopControllerGen(solitaire.getFoundation, "pileViews", "PileController")
-      //val wastesetup = loopControllerGen(solitaire.getFoundation, "wastePileView", "WastePileController")
+      val bpsetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldBuildablePileViews", "BuildablePileController")
+      val foundsetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldPileViews", "PileController")
+      val wastesetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Waste), "fieldWastePileViews", "WastePileController")
 
       // add controllers for the DeckView here...
-      //val decksetup = controllerGen("deckView", "DeckController")
+      val decksetup = controllerGen("deckView", "DeckController")
 
-      //colsetup ++ decksetup ++ foundsetup ++ wastesetup
-      Seq.empty
+      bpsetup ++ decksetup ++ foundsetup ++ wastesetup
     }
 
     val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
@@ -109,27 +110,46 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     * Fill in eventually
     */
   @combinator object InitLayout {
-    def apply(): Seq[Statement] = Seq.empty
+    def apply(): Seq[Statement] = {
+      Java(s"""// prepare game by dealing facedown cards to all columns, then one face up
+		    |for (int pileNum = 0; pileNum < 7; pileNum++) {
+			  |  for (int num = 0; num < pileNum; num++) {
+				|    Card c = deck.get();
+        |    c.setFaceUp (false);
+				|    fieldBuildablePiles[pileNum].add (c);
+			  |  }
+        |  // This one is face up.
+			  |  fieldBuildablePiles[pileNum].add (deck.get());
+		    |}""".stripMargin).statements()
+    }
 
     val semanticType: Type = 'Init ('InitialDeal)
   }
 
-  /**
-    * Vagaries of java imports means these must be defined as well.
-    */
+  // vagaries of java imports means these must be defined as well.
   @combinator object ExtraImports {
     def apply(nameExpr: Name): Seq[ImportDeclaration] = {
-
-      Seq.empty
+      Seq(
+        Java(s"import $nameExpr.controller.*;").importDeclaration(),
+        Java(s"import $nameExpr.model.*;").importDeclaration()
+      )
     }
     val semanticType: Type = 'RootPackage =>: 'ExtraImports
   }
 
   /**
-    * Eventually will add extra methods here...
+    * Contains the logic whether the given column is alternating colors and descending.
+    * Useful for filtering the valid moves when pressing on a column.
     */
   @combinator object ExtraMethods {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
+    def apply(): Seq[MethodDeclaration] = {
+      Java(s"""
+           |public boolean validColumn(Column column) {
+           |		return column.alternatingColors() && column.descending();
+           |}
+            """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+
+    }
 
     val semanticType: Type = 'ExtraMethods
   }
@@ -143,12 +163,14 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
         Java(s"""|IntegerView scoreView;
                  |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val fieldColumns = fieldGen("Column", "Column", "ColumnView", solitaire.getTableau.size)
-      val foundPiles = fieldGen("Pile", "Pile", "PileView", solitaire.getFoundation.size)
-      val wastePiles = fieldGen("WastePile", "WastePile", "WastePileView", solitaire.getWaste.size)
-      val decks = deckGen(solitaire)
+      val fieldBuildablePiles = fieldGen("BuildablePile", solitaire.containers.get(SolitaireContainerTypes.Tableau).size)
+      val foundPiles = fieldGen("Pile", solitaire.containers.get(SolitaireContainerTypes.Foundation).size)
+      val wastePiles = fieldGen("WastePile", solitaire.containers.get(SolitaireContainerTypes.Waste).size)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
-      decks ++ fields ++ fieldColumns ++ wastePiles ++ foundPiles
+      val decks = deckFieldGen(stock)
+
+      decks ++ fields ++ fieldBuildablePiles ++ wastePiles ++ foundPiles
     }
 
     val semanticType: Type = 'ExtraFields

@@ -10,11 +10,6 @@ import java.util.*;
  * Click rules are those that respond to CLICK events on a single widget
  */
 public class Rules {
-    
-    /** Winning logic. */
-    Logic    logic;
-    public void   setLogic(Logic log) { this.logic = log; }
-    public Logic  getLogic() { return logic; }
 
     /** Eligible moves. */
     List<Move> dragMoves  = new ArrayList<Move>();

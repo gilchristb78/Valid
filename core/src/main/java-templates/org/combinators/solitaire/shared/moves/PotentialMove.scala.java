@@ -24,11 +24,13 @@ public class Potential@{Java(MoveName)} extends @{Java(MoveName)} {
         if (@Java(DraggingCardVariableName) == null) {
             if (source.empty()) { return false; }
 
-            @Java(DraggingCardVariableName) = source.get();
-            boolean result = super.valid(game);
-            source.add(@Java(DraggingCardVariableName));
+            synchronized (this) {
+                @Java(DraggingCardVariableName) = source.get();
+                boolean result = super.valid(game);
+                source.add( @Java(DraggingCardVariableName) );
 
-            return result;
+                return result;
+            }
         } else {
             return super.valid(game);
         }
@@ -38,9 +40,11 @@ public class Potential@{Java(MoveName)} extends @{Java(MoveName)} {
     public boolean doMove(Solitaire game) {
         if (!valid(game)) { return false; }
 
-        @Java(DraggingCardVariableName) = source.get();
-        boolean result = super.doMove(game);
+        synchronized (this) {
+            @Java(DraggingCardVariableName) = source.get();
+            boolean result = super.doMove(game);
 
-        return result;
+            return result;
+        }
     }
 }

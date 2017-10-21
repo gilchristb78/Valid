@@ -1,22 +1,19 @@
 package domain;
 
-import java.util.*;
-
-import domain.constraints.*;
-
 /**
  * Records logic for allowed.
  *
  */
+@Deprecated
 public abstract class ConstraintStmt { 
 
-   final ConstraintExpr expr;
+   final Constraint expr;
 
-   public ConstraintStmt(ConstraintExpr e) { 
+   public ConstraintStmt(Constraint e) {
      this.expr = e;
    }
 
-   public ConstraintExpr getExpr() {
+   public Constraint getExpr() {
         return expr ;
     }
 }

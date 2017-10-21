@@ -5,7 +5,7 @@ import domain.*;
 /**
  * Arbitrary Boolean Expression 
  */
-public class BooleanExpression extends ConstraintExpr {
+public class BooleanExpression extends Constraint {
     final String exp;
 
 

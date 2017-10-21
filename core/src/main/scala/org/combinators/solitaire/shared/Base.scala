@@ -7,12 +7,16 @@ import domain._
 // of solitaire domain object model passed in during init.
 trait Base {
 
-  // to be overridden by sub-typed traits
-  def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
-  ReflectedRepository[G] = {
-    println(">>>> IN BASE")
-    gamma
-  }
+  /**
+    * To be overridden by sub-typed traits that are part of the dynamic constructions process.
+    * @param gamma
+    * @param s
+    * @tparam G
+    * @return
+    */
+  def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = gamma
+
+  // Find way to maintain clean separation between Language (i.e., Java) and constraints (i.e., NextRank).
 
 }
 

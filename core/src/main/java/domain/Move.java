@@ -1,5 +1,6 @@
 package domain;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 /**
@@ -27,13 +28,22 @@ import java.util.Optional;
  * allows each to vary independently as needed to model the domain.
  *
  * Moves can be associated with individual elements or with an entire
- * container, which is a sort of short-cut to specifying each of he
+ * container, which is a sort of short-cut to specifying each of the
  * available moves.
  * 
  * Note a UnaryMove class is a simpler concept required for moves
  * initiated without need for a terminating action. This includes (for
  * example), flipping a card or dealing cards from the stock to tableau.
- * 
+ *
+ * TODO: Create two sets of constraints (sourceConstraint for applicability
+ * TODO: on the source, and targetConstraint for applicability on the target).
+ * TODO: The source constraint would be used to synthesize press controllers
+ * TODO: The target constraint would be used to synthesize release controllers
+ * TODO: Moves with no target would be press controller logic
+ *
+ * TODO: Move might also be useful to have placeholder for extra statements to
+ * TODO: Execute (both during move and during undo, which makes this complex).
+ * TODO: Think of stalactites and ability to fix the orientation during game play.
  * @author heineman
  */
 public abstract class Move {
@@ -46,10 +56,10 @@ public abstract class Move {
 
    /** Optionally there may be a target. */
    public final Optional<Container>        targetContainer;
-   public final ConstraintStmt   constraint;
- 
+   public final Constraint                 constraint;
+
    /** Constraint for a move with no target. */
-   public Move (String name, Container src, ConstraintStmt cons) {
+   public Move (String name, Container src, Constraint cons) {
       this.name = name;
       this.srcContainer = src;
       this.targetContainer = Optional.empty();
@@ -57,7 +67,7 @@ public abstract class Move {
    }
 
    /** Constraint for a move with (src, target) and constraint. */
-   public Move (String name, Container src, Container target, ConstraintStmt cons) {
+   public Move (String name, Container src, Container target, Constraint cons) {
       this.name = name;
       this.srcContainer = src;
       this.targetContainer = Optional.of(target);
@@ -73,23 +83,29 @@ public abstract class Move {
      return name;
    }
 
-   /** Extract constraint associated with move. */
-   public ConstraintStmt getConstraint() { return constraint; }
-
-   /** Get container. */
-   public Container getSourceContainer() { return srcContainer; }
-
-   /** Get container for the target. */
-   public Optional<Container> getTargetContainer() { 
-	return targetContainer; 
+   /** Get the source element of this move type. */
+   public final Element   getSource() {
+      Iterator<Element> it = srcContainer.iterator();
+      if (it == null || !it.hasNext()) { return null; }
+      return it.next();
    }
 
-   /** Get the source element of this move type. */
-   public abstract Element   getSource();
-
    /** Get the target element of this move type. */
-   public abstract Element   getTarget();
+   public final Element   getTarget() {
+      Optional<Container> opt = targetContainer;
+      if (!opt.isPresent()) { return null; }
+
+      Iterator<Element> it = opt.get().iterator();
+      if (it == null || !it.hasNext()) { return null; }
+      return it.next();
+   }
 
    /** Get element being moved. */
-   public abstract Element   getMovableElement(); 
+   public abstract Element   getMovableElement();
+
+   /** Determine if single card being moved at a time. */
+   public abstract boolean isSingleCardMove();
+
+   /** Determine if single destination, or whether moved to all elements in the destination. */
+   public abstract boolean isSingleDestination();
 }

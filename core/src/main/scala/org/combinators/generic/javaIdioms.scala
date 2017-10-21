@@ -16,7 +16,7 @@ trait JavaIdioms {
     * While powerful, it can still cause problems, notably if the methods and/or fields
     * already exist.
     */
-  abstract class AugmentCompilationUnit(base: Constructor, conceptType: Symbol) {
+  abstract class AugmentCompilationUnit(base: Type, conceptType: Symbol) {
 
     /** Define abstract methods to be overridden by concrete instance. */
     def fields(): Seq[FieldDeclaration]
@@ -40,10 +40,8 @@ trait JavaIdioms {
     * Create get/set methods for given attribute by name.
     *
     */
-  class GetterSetterMethods(att: SimpleName,
-    attType: JType,
-    base: Constructor,
-    conceptType: Symbol) extends AugmentCompilationUnit(base, conceptType) {
+  class GetterSetterMethods(att: SimpleName, attType: JType,
+    base: Type, conceptType: Symbol) extends AugmentCompilationUnit(base, conceptType) {
 
     def fields(): Seq[FieldDeclaration] = {
       Java(
@@ -99,9 +97,15 @@ class StatementConverter(sem1: Constructor, sem2: Constructor) {
   }
 
 
-  // combinator that deals with IF (GUARD) THEN
-  // could also have IF (GUARD) THEN X ELSE Y
-
+  /**
+    * Constructs an  IF (GUARD){ BLOCK} structure in Java
+    *
+    * @param guard    expression which returns Boolean value
+    * @param block    block of statements inside the guard
+    * @param sem3     semantic type to associate with these statements.
+    *
+    * Note: Could also have IF .. THEN .. ELSE constructs
+    */
   class IfBlock(guard: Constructor, block: Constructor, sem3: Constructor) {
     def apply(guardExpr: Expression, blockStmts: Seq[Statement]): Seq[Statement] = {
 

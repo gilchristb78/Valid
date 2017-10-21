@@ -2,12 +2,14 @@ package org.combinators.solitaire.idiot
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{IntegerLiteralExpr, Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, IntegerLiteralExpr, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import domain.constraints.movetypes.MoveComponents
+import domain.idiot.HigherRankSameSuit
 import org.combinators.solitaire.shared._
 
 // domain
@@ -17,6 +19,18 @@ import domain.ui._
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
+
+  object idiotCodeGenerator {
+    val generators = CodeGeneratorRegistry.merge[Expression](
+
+      CodeGeneratorRegistry[Expression, HigherRankSameSuit] {
+        case (registry:CodeGeneratorRegistry[Expression], c:HigherRankSameSuit) => {
+          val cards = registry(c.cards)
+          val src = registry(c.card)
+          Java(s"""Solitaire.higher($cards,$src)""").expression()
+        }
+      }).merge(constraintCodeGenerators.generators)
+  }
 
   /**
     * Every solitaire variation belongs in its own package.
@@ -42,7 +56,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     def apply(): Seq[Statement] = {
       val deck = deckGenWithView("deck", "deckView")
 
-      val colGen = loopConstructGen(solitaire.getTableau, "fieldColumns", "fieldColumnViews", "Column")
+      val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumns", "fieldColumnViews", "Column")
 
       deck ++ colGen
     }
@@ -56,16 +70,15 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object IdiotInitView {
     def apply(): Seq[Statement] = {
 
-      val tableau = solitaire.getTableau
-      val stock = solitaire.getStock
-      val lay = solitaire.getLayout
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
       // start by constructing the DeckView
       var stmts = Java("deckView = new DeckView(deck);").statements()
 
       // when placing a single element in Layout, use this API
-      stmts = stmts ++ layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
-      stmts = stmts ++ layout_place_many(lay, tableau, Layout.Tableau, Java("fieldColumnViews").name(), 13*97)
+      stmts = stmts ++ layout_place_it(stock, Java("deckView").name())
+      stmts = stmts ++ layout_place_it(tableau, Java("fieldColumnViews").name())
 
       stmts
     }
@@ -83,7 +96,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      val colsetup = loopControllerGen(solitaire.getTableau, "fieldColumnViews", "ColumnController")
+      val colsetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumnViews", "ColumnController")
 
       // add controllers for the DeckView here...
       val decksetup = controllerGen("deckView", "DeckController")
@@ -210,10 +223,10 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
              |IntegerView numLeftView;
              """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val tableau = solitaire.getTableau
-
-      val fieldColumns = fieldGen("Column", "Column", "ColumnView", tableau.size())
-      val decks = deckGen(solitaire)
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
+      val fieldColumns = fieldGen("Column", tableau.size())
+      val decks = deckFieldGen(stock)
 
       decks ++ fields ++ fieldColumns
     }

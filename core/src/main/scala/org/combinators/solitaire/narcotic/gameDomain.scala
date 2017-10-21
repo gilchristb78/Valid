@@ -35,9 +35,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     // visit the domain model. That is an alternative worth considering.
 
     def apply(): Seq[Statement] = {
-      val deck = deckGen("deck")
+      val deck = deckGenWithView("deck", "deckView")
 
-      val pileGen = loopConstructGen(solitaire.getTableau, "fieldPiles", "fieldPileViews", "Pile")
+      val pileGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldPiles", "fieldPileViews", "Pile")
 
       deck ++ pileGen 
     }
@@ -55,38 +55,13 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object NarcoticInitView {
     def apply(): Seq[Statement] = {
 
-      val tableau = solitaire.getTableau
-      val stock = solitaire.getStock
-      val lay = solitaire.getLayout
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
       var stmts = Seq.empty[Statement]
       
-      val itd = lay.placements(Layout.Stock, stock, 97)
-      val r = itd.next()
-
-      val s = Java(s"""
-               |deckView = new DeckView(deck);
-               |deckView.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-               |addViewWidget(deckView);
-               """.stripMargin).statements()
-      stmts = stmts ++ s
-
-
-      // this can all be retrieved from the solitaire domain model by 
-      // checking if a tableau is present, then do the following, etc... for others
-      val itt = lay.placements(Layout.Tableau, tableau, 97)
-      var idx = 0
-      while (itt.hasNext) {
-        val r = itt.next()
-
-        val s = Java(s"""
-               |fieldPileViews[$idx].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-               |addViewWidget(fieldPileViews[$idx]);
-               """.stripMargin).statements()
-
-        idx = idx + 1
-        stmts = stmts ++ s
-      }
+      stmts = stmts ++ layout_place_it(stock, Java("deckView").name())
+      stmts = stmts ++ layout_place_it(tableau, Java("fieldPileViews").name())
 
       stmts
     }
@@ -97,10 +72,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object NarcoticInitControl {
     def apply(NameOfGame: SimpleName): Seq[Statement] = {
 
-
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      val pilesetup = loopControllerGen(solitaire.getTableau, "fieldPileViews",  "PileController")
+      val pilesetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldPileViews",  "PileController")
 
       // add controllers for the DeckView here...
       val decksetup = controllerGen("deckView", "DeckController")
@@ -163,22 +137,20 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
         Java(s"""|IntegerView scoreView;
                  |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val tableau = solitaire.getTableau
-      val stock = solitaire.getStock
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
-      val decks =
-        if (stock.getNumDecks > 1) {
-          Java("public MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-        } else {
-          Java("public Deck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-        }
-      val deckViews = Java("DeckView deckView;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+      val decks = deckFieldGen(stock)
 
-      val fieldPiles = fieldGen("Pile", "Pile", "PileView", tableau.size())
+      val fieldPiles = fieldGen("Pile",  tableau.size())
 
-      decks ++ fields ++ fieldPiles ++ deckViews
+      decks ++ fields ++ fieldPiles
     }
 
     val semanticType: Type = 'ExtraFields
   }
+
+  // WHEN This is in controllers.scala it doesn't get inhabited by Web. Not sure why? HACK. TODO: PLEASE HELP
+  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2, 'Deck ('Pressed) :&: 'NonEmptySeq)
+
 }

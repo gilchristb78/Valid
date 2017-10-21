@@ -1,11 +1,16 @@
 package domain.constraints;
 
+import domain.Constraint;
+
 /**
  * Do two elements have the same suit.
  */
-public class SameSuit extends BinaryConstraintExpr {
+public class SameSuit extends Constraint {
+    public final MoveInformation left;
+    public final MoveInformation right;
 
-    public SameSuit (String e1, String e2) {
-        super(e1, e2);
+    public SameSuit (MoveInformation left, MoveInformation right) {
+        this.left = left;
+        this.right= right;
     }
 }

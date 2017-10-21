@@ -5,7 +5,8 @@ import ks.common.model.*;
 import ks.common.games.Solitaire;
 
 /**
- * Move element from one stack to another.
+ * Potential Move when multiple cards in play; note that 'numInColumn' is inherited, and is
+ * drawn from the MoveHelper combinators that created the parent Move classes in the first place.
  *
  * Parameters:
  *    RootPackage
@@ -17,20 +18,29 @@ public class Potential@{Java(MoveName)} extends @{Java(MoveName)} {
     /** Destination. */
     public Potential@{Java(MoveName)} (Stack from, Stack to) {
         super(from, to);
+        numInColumn = 1;
+    }
+
+    public Potential@{Java(MoveName)} (Stack from, Stack to, int num) {
+        super(from, to);
+        numInColumn = num;
     }
 
     @@Override
     public boolean valid(Solitaire game) {
         if (@Java(DraggingCardVariableName) == null) {
-            if (source.empty()) { return false; }
+            if (source.count() < numInColumn) { return false; }
 
-            @Java(DraggingCardVariableName) = new @{Java(Type)}();
-            @{Java(DraggingCardVariableName)}.add(source.get());
-            
-            boolean result = super.valid(game);
-            source.push(@Java(DraggingCardVariableName));
+            // make sure to keep order of potential column intact
+            synchronized (this) {
+                @Java(DraggingCardVariableName) = new @{Java(Type)}();
+                source.select(numInColumn);
+                @{Java(DraggingCardVariableName)}.push(source.getSelected());
+                boolean result = super.valid(game);
+                source.push( @Java(DraggingCardVariableName) );
 
-            return result;
+                return result;
+            }
         } else {
             return super.valid(game);
         }
@@ -40,10 +50,13 @@ public class Potential@{Java(MoveName)} extends @{Java(MoveName)} {
     public boolean doMove(Solitaire game) {
         if (!valid(game)) { return false; }
 
-        @Java(DraggingCardVariableName) = new @{Java(Type)}();
-        @{Java(DraggingCardVariableName)}.add(source.get());
-        boolean result = super.doMove(game);
-        
-        return result;
+        synchronized (this) {
+            @Java(DraggingCardVariableName) = new @{Java(Type)}();
+            source.select(numInColumn);
+            @{Java(DraggingCardVariableName)}.push(source.getSelected());
+            boolean result = super.doMove(game);
+
+            return result;
+        }
     }
 }

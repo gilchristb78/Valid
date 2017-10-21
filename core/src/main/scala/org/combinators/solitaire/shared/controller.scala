@@ -16,6 +16,7 @@ import org.combinators.generic
 import domain._
 import domain.moves._
 import scala.collection.mutable.ListBuffer
+import scala.collection.JavaConverters._
 
 trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
 
@@ -24,61 +25,33 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
   // defined in either the presses, drags, or clicks sets 
   def createMoveClasses[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = gamma
-    var combined = ListBuffer[Move]()
-    val it1 = s.getRules.drags
-    while (it1.hasNext) {
-      combined += it1.next()
-    }
-    val it2 = s.getRules.presses
-    while (it2.hasNext) {
-      combined += it2.next()
-    }
-    val it3 = s.getRules.clicks
-    while (it3.hasNext) {
-      combined += it3.next()
-    }
 
-    val rules_1 = combined.iterator
-    while (rules_1.hasNext) {
-      val move = rules_1.next()
+    val combined = s.getRules.drags.asScala ++ s.getRules.presses.asScala ++ s.getRules.clicks.asScala
+    for (move <- combined) {
 
-      val target = move.getTarget
-      // All moves are now available....
-      if (target != target) { // null) {
-        println ("  empty target. Skip " + move.getName)
+      val moveString = move.getName
+      val moveSymbol = Symbol(moveString)
+
+      // undo & do generation
+      println ("    -- " + moveSymbol + " defined")
+      updated = updated
+        .addCombinator(new ClassNameDef(moveSymbol, moveString))
+        .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
+        .addCombinator(new UndoGenerator(move, 'Move (moveSymbol, 'UndoStatements)))
+        .addCombinator(new DoGenerator(move, 'Move (moveSymbol, 'DoStatements)))
+        .addCombinator(new MoveHelper(move, new SimpleName(moveString), moveSymbol))
+        .addCombinator(new StatementCombinator (move.constraint,
+          'Move (moveSymbol, 'CheckValidStatements)))
+
+      /**
+        * A move typically contains a single source and a single destination. For some
+        * moves, there are multiple destinations (typically a deal, or remove cards) and
+        * that requires different combinator.
+        */
+      if (move.isSingleDestination) {
+        updated = updated.addCombinator(new SolitaireMove(moveSymbol))
       } else {
-        ///val tgtBase = move.getTarget.getClass().getSimpleName()
-        ///val movable = move.getMovableElement.getClass().getSimpleName()
-
-        ///val moveString = srcBase + "To" + tgtBase
-        val moveString = move.getName
-        val moveSymbol = Symbol(moveString)
-
-        // undo & do generation
-        println ("    -- " + moveSymbol + " defined")
-        updated = updated
-          .addCombinator(new ClassNameDef(moveSymbol, moveString))
-          .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
-          .addCombinator(new UndoGenerator(move, 'Move (moveSymbol, 'UndoStatements)))
-          .addCombinator(new DoGenerator(move, 'Move (moveSymbol, 'DoStatements)))
-          .addCombinator(new MoveHelper(move, new SimpleName(moveString), moveSymbol))
-          .addCombinator(new StatementCombinator (move.getConstraint,
-            'Move (moveSymbol, 'CheckValidStatements)))
-
-        move match {
-          case _ : SingleCardMove =>
-            updated = updated.addCombinator(new SolitaireMove(moveSymbol))
-          case _ : ColumnMove =>
-            updated = updated.addCombinator(new SolitaireMove(moveSymbol))
-          case _ : DeckDealMove =>
-            updated = updated.addCombinator(new MultiMove(moveSymbol))
-          case _ : ResetDeckMove =>
-            updated = updated.addCombinator(new MultiMove(moveSymbol))
-          case _ : RemoveSingleCardMove =>
-            updated = updated.addCombinator(new SolitaireMove(moveSymbol))
-          case _ : RemoveMultipleCardsMove =>
-            updated = updated.addCombinator(new MultiMove(moveSymbol))
-        }
+        updated = updated.addCombinator(new MultiMove(moveSymbol))
       }
     }
 
@@ -125,11 +98,11 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
       move match {
         case _ : SingleCardMove =>
           updated = updated
-            .addCombinator (new PotentialMove(moveSymbol))
+            .addCombinator (new PotentialMoveSingleCard(moveSymbol))
 
         case _ : ColumnMove =>
           updated = updated
-            .addCombinator (new PotentialMoveOneCardFromStack(moveSymbol))
+            .addCombinator (new PotentialMoveMultipleCards(moveSymbol))
       }
     }
 
@@ -147,10 +120,10 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
     while (inner_rules_it.hasNext) {
       val inner_move = inner_rules_it.next()
 
-      val tgtBaseHolder = inner_move.getTargetContainer
-      val srcBase = inner_move.getSourceContainer
+      val tgtBaseHolder = inner_move.targetContainer
+      val srcBase = inner_move.srcContainer
 
-      val tgtBase = tgtBaseHolder.get()
+      val tgtBase = tgtBaseHolder.get
       // make sure has value
       if (!drag_handler_map.contains(tgtBase)) {
         drag_handler_map += (tgtBase -> List(inner_move))
@@ -229,6 +202,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
   class UndoGenerator(m:Move, constructor:Constructor) {
     def apply(): Seq[Statement] = {
       m match {
+        case _ : FlipCardMove =>
+          Java(s"""|Card c = source.get();
+                   |c.setFaceUp (!c.isFaceUp());
+                   |source.add(c);
+                   |""".stripMargin).statements()
+
         case _ : SingleCardMove => Java(s"""source.add(destination.get());""").statements()
 
         // No means for undoing the reset of a deck.
@@ -262,6 +241,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
   class DoGenerator(m:Move, constructor:Constructor) {
     def apply(): Seq[Statement] = {
       m match {
+        case _ : FlipCardMove =>
+          Java(s"""|Card c = source.get();
+                   |c.setFaceUp (!c.isFaceUp());
+                   |source.add(c);
+                   |""".stripMargin).statements()
+
         case _ : SingleCardMove => Java(s"""destination.add(movingCard);""").statements()
 
         // remove cards and prent any attempt for undo.
@@ -298,6 +283,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
   class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
     def apply() : Seq[BodyDeclaration[_]] = {
       m match {
+        case _ : FlipCardMove =>
+          Java(s"""|//Card movingCard;
+                   |public $name(Stack from) {
+                   |  this(from, from);
+                   |}""".stripMargin).classBodyDeclarations()
+
         case _ : SingleCardMove =>
           Java(s"""|Card movingCard;
                    |public $name(Stack from, Card card, Stack to) {
@@ -324,6 +315,10 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
 
         case _ : ResetDeckMove => Seq.empty
 
+          /**
+            * Fundamental API for moving multiple cards is to have 'numInColumn' holding number.
+            * This becomes relevant in PotentialMoveOneCardFromStack...
+            */
         case _ : ColumnMove =>
           Java(s"""|Column movingColumn;
                    |int numInColumn;
@@ -402,11 +397,11 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
       'RootPackage =>:
         elementType (elementType, 'ClassName) =>:
         'NameOfTheGame =>:
-        'AutoMoves =>:
+        'AutoMoves =>:       /** Generic symbol (i.e., not elementType) since only makes request of base class. */
         elementType (elementType, 'Clicked) :&: 'NonEmptySeq =>:
         elementType (elementType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
         ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: elementType (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
-        'Controller (elementType)
+        'Controller (elementType) :&: 'AutoMoves
   }
 
 
@@ -464,6 +459,18 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms  {
   class IgnoreClickedHandler(widgetType:Symbol, source:Symbol) {
     def apply(): Seq[Statement] = Seq.empty
     val semanticType: Type = widgetType (source, 'Clicked) :&: 'NonEmptySeq
+  }
+
+  /**
+    * Some variations need to deny release.
+    *
+    * Simply grab the dragging source from the container and return the moving widget.
+    */
+  class IgnoreReleasedHandler(widgetType:Symbol, source:Symbol) {
+    def apply(): Seq[Statement] = {
+      Java(s"""c.getDragSource().returnWidget(w);""").statements()
+    }
+    val semanticType: Type = widgetType (source, 'Released) :&: 'NonEmptySeq
   }
 
   /**

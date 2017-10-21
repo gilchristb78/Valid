@@ -3,7 +3,7 @@ package org.combinators.solitaire.shared
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.`type`.{Type => JType}
 import com.github.javaparser.ast.body.BodyDeclaration
-import com.github.javaparser.ast.expr.{Name, SimpleName}
+import com.github.javaparser.ast.expr.{Name, Expression, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
@@ -97,7 +97,7 @@ trait Moves extends Base {
     * template to synthesize a new "wrapper class" that reflects a
     * potential move, that is, one that could be made in the future.
     */
-  class PotentialMove(semanticMoveNameType: Type) {
+  class PotentialMoveSingleCard(semanticMoveNameType: Type) {
     def apply(rootPackage: Name, moveName: SimpleName, draggingCardVariableName: SimpleName): CompilationUnit = {
       shared.moves.java.PotentialMove.render(
         RootPackage = rootPackage,
@@ -115,14 +115,13 @@ trait Moves extends Base {
   /**
     * Given an existing move that requires moving a column of cards,
     * this combinator synthesizes a new "wrapper class" that creates
-    * a column by grabbing the top card from the underlying stack.
+    * a column (or whatever typeConstruct specifies) by grabbing the top
+    * card from the underlying stack.
     *
-    * Choose this one (over PotentialMove) when moves involve columns.
+    * Choose this one (over PotentialMoveSingleCard) when moves involve columns.
     */
-  class PotentialMoveOneCardFromStack(semanticMoveNameType: Type) {
-    def apply(rootPackage: Name,
-              moveName: SimpleName,
-              draggingCardVariableName: SimpleName,
+  class PotentialMoveMultipleCards(semanticMoveNameType: Type) {
+    def apply(rootPackage: Name, moveName: SimpleName, draggingCardVariableName: SimpleName,
               typeConstruct: JType): CompilationUnit = {
       shared.moves.java.PotentialMoveOneCardFromStack.render(
         RootPackage = rootPackage,
@@ -135,13 +134,12 @@ trait Moves extends Base {
       'RootPackage =>:
         'Move (semanticMoveNameType, 'ClassName) =>:
         'Move (semanticMoveNameType, 'DraggingCardVariableName) =>:
-        'Move (semanticMoveNameType, 'TypeConstruct) =>:
-        'Move (semanticMoveNameType :&: 'PotentialMove, 'CompleteMove)
+        'Move (semanticMoveNameType, 'MultipleCardMove) =>:
+        'Move (semanticMoveNameType :&: 'PotentialMultipleMove, 'CompleteMove)
   }
 
   /**
-    * Create a Move class that resets a Deck of cards from a collection
-    * of stacks.
+    * Create a Move class that resets a Deck of cards from a collection of stacks.
     */
   @combinator object ResetDeck {
     def apply(rootPackage: Name): CompilationUnit = {
@@ -196,22 +194,22 @@ trait Moves extends Base {
     * Creates stand-alone class to represent a card that has been removed
     * from a specific source element (identified by name)>
     */
-  @combinator object RemovedCard {
-    def apply(rootPackage: Name): CompilationUnit = {
-      shared.moves.java.RemovedCard.render(rootPackage).compilationUnit()
-    }
-    val semanticType: Type = 'RootPackage =>: 'Move ('RemovedCard, 'CompleteMove)
-  }
+//  @combinator object RemovedCard {
+//    def apply(rootPackage: Name): CompilationUnit = {
+//      shared.moves.java.RemovedCard.render(rootPackage).compilationUnit()
+//    }
+//    val semanticType: Type = 'RootPackage =>: 'Move ('RemovedCard, 'CompleteMove)
+//  }
 
   /**
     * Deal cards from deck onto a set of stacks.
     */
-  @combinator object DealStacks {
-    def apply(rootPackage: Name): CompilationUnit = {
-      shared.moves.java.DealStacksMove.render(rootPackage).compilationUnit()
-    }
-    val semanticType: Type = 'RootPackage =>: 'Move ('DealStacks, 'CompleteMove)
-  }
+//  @combinator object DealStacks {
+//    def apply(rootPackage: Name): CompilationUnit = {
+//      shared.moves.java.DealStacksMove.render(rootPackage).compilationUnit()
+//    }
+//    val semanticType: Type = 'RootPackage =>: 'Move ('DealStacks, 'CompleteMove)
+//  }
 
   /**
     * Scala class to generate combinators which record the name of the
@@ -228,12 +226,11 @@ trait Moves extends Base {
   }
 
   /**
-    * Identify the TypeConstruct logical symbol to associate with the
-    * potential Move.
+    * Identify that a potential move can involve multiple cards, and uses the given Java type.
     */
-  class PotentialTypeConstructGen(typ:String, constructor:Constructor) {
+  class PotentialMultipleCardMove(typ:String, constructor:Constructor) {
     def apply(): JType = Java(typ).tpe()
-    val semanticType: Type = 'Move (constructor, 'TypeConstruct)
+    val semanticType: Type = 'Move (constructor, 'MultipleCardMove)
   }
 
   /**
@@ -254,6 +251,52 @@ trait Moves extends Base {
                  |if ($widgetVariableName == null) {
                  |  return;
                  |}""".stripMargin).statements()
+    }
+
+    val semanticType: Type =
+      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
+        typ (source, 'Pressed) :&: 'NonEmptySeq
+  }
+
+  /**
+    * When a column of cards is being removed from the top card of a widget,
+    * either a Column or perhaps a buildablePile
+    *
+    * Provides ability to add 'filtering' statements that can determine whether to deny
+    * the press request (typically because of requirement that cards form alternating colors or
+    * descending suits, for example.
+    *
+    * TODO: Work to bring move precondition in here, rather than relegating to an extra
+    * method
+    */
+  class ColumnMoveHandler(realType:String, typ:Symbol, source:Symbol, name:SimpleName = null) {
+    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+        var filter:Seq[Statement] = Seq.empty
+        if (name != null) {
+          filter = Java(s"""
+               |if (!theGame.$name(($realType) (${widgetVariableName}.getModelElement()))) {
+               |  src.returnWidget($widgetVariableName);
+               |	$ignoreWidgetVariableName = true;
+               |	c.releaseDraggingObject();
+               |	return;
+               |}""".stripMargin).statements()
+        }
+
+        Java(s"""|$ignoreWidgetVariableName = false;
+                 |$realType srcElement = ($realType) src.getModelElement();
+                 |
+                 |// Return in the case that the widget clicked on is empty
+                 |if (srcElement.count() == 0) {
+                 |  return;
+                 |}
+                 |$widgetVariableName = src.getColumnView(me);
+                 |if ($widgetVariableName == null) {
+                 |  return;
+                 |}
+                 |
+                 |${filter.mkString("\n")}
+                 |""".stripMargin).statements()
     }
 
     val semanticType: Type =

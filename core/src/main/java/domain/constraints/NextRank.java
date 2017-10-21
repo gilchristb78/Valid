@@ -1,11 +1,18 @@
 package domain.constraints;
 
-/**
- * Is element e2 the next rank, regardless of suit.
- */
-public class NextRank extends BinaryConstraintExpr {
+import domain.Constraint;
 
-    public NextRank (String e1, String e2) {
-	    super(e1, e2);
+/**
+ * Is rank of element e1 equal to 1 + rank of element 2.
+ *
+ */
+public class NextRank extends Constraint {
+
+    public final MoveInformation higher;
+    public final MoveInformation lower;
+
+    public NextRank (MoveInformation higher, MoveInformation lower) {
+       this.higher = higher;
+       this.lower = lower;
     }
 }
