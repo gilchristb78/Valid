@@ -8,18 +8,32 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import domain.freeCell.SufficientFree
 import org.combinators.solitaire.shared._
 
 // domain
 import domain._
-import domain.ui._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate {
 
+  object freecellCodeGenerator {
+    val generators = CodeGeneratorRegistry.merge[Expression](
+
+      CodeGeneratorRegistry[Expression, SufficientFree] {
+        case (registry:CodeGeneratorRegistry[Expression], c:SufficientFree) => {
+          val destination = registry(c.destination).get
+          val src = registry(c.src).get
+          Java(s"""((org.combinators.solitaire.freecell.FreeCell)game).sufficientFree($destination, $src)""").expression()
+        }
+      },
+
+    ).merge(constraintCodeGenerators.generators)
+  }
+
   @combinator object DefaultGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
+    def apply: CodeGeneratorRegistry[Expression] = freecellCodeGenerator.generators
     val semanticType: Type = 'ConstraintGen
   }
 

@@ -44,6 +44,6 @@ class PythonExample @Inject()(webJars: WebJarsUtil) extends InhabitationControll
   lazy val jobs =
     Gamma.InhabitationBatchJob[Python]('Program)
 
-  lazy val results:Results = Results.add(jobs.run(), Paths.get("test.py"))
+  lazy val results:Results = Results.add(jobs.run(), Paths.get("a","b","c","test.py"))
 
 }

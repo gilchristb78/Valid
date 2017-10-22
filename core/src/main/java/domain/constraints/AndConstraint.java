@@ -11,4 +11,16 @@ public class AndConstraint extends Constraint {
     public AndConstraint (Constraint... cons) {
         this.constraints = cons;
     }
+
+    /** Debugging purposes only. */
+    public String toString() {
+        String total = "";
+
+        // done in reverse, inside-out order.
+        for (Constraint c : constraints) {
+            total = c.toString() + "," + total;
+        }
+        return "And(" + total + ")";
+    }
+
 }

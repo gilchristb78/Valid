@@ -27,22 +27,14 @@
     val generators = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, MoveComponents] {
-        case (registry:CodeGeneratorRegistry[Expression], MoveComponents.Source) => {
-          Java(s"""source""").expression()
-        }
-        case (registry:CodeGeneratorRegistry[Expression], MoveComponents.Destination) => {
-          Java(s"""destination""").expression()
-        }
-        case (registry:CodeGeneratorRegistry[Expression], MoveComponents.MovingCard) => {
-          Java(s"""movingCard""").expression()
-        }
-        case (registry:CodeGeneratorRegistry[Expression], MoveComponents.MovingColumn) => {
-          Java(s"""movingColumn""").expression()
+        case (registry:CodeGeneratorRegistry[Expression], mc:MoveComponents) => {
+          Java(s"""${mc.name}""").expression()
         }
       },
 
       CodeGeneratorRegistry[Expression, AndConstraint] {
         case (registry:CodeGeneratorRegistry[Expression], and: AndConstraint) => {
+          println ("And:" + and.toString)
           if (and.constraints.isEmpty) {
             Java(s"""true""").expression()
           } else {
@@ -52,7 +44,7 @@
                 if (inner.isEmpty) {
                   Java (s"""${c.toString}""").expression()
                 } else {
-                  Java(s"""($s) && (${registry(c).get})""").expression()
+                  Java(s"""($s && ${registry(c).get})""").expression()
                 }
               }
             }
@@ -62,19 +54,18 @@
 
       CodeGeneratorRegistry[Expression, IfConstraint] {
         case (registry: CodeGeneratorRegistry[Expression], ifCons: IfConstraint) => {
+          println ("If:" + ifCons.toString)
+
           val inner = registry(ifCons.constraint)
           val trueb = registry(ifCons.trueBranch)
           val falseb = registry(ifCons.falseBranch)
           if (inner.isEmpty || trueb.isEmpty || falseb.isEmpty) {
             Java(s"""${ifCons.constraint.toString}""").expression()
           } else {
-            Java(
-              s"""|HelperConstraint.ifCompute (${registry(ifCons.constraint).get}
-,
-                |   ${registry(ifCons.trueBranch).get}
-,
-                |   ${registry(ifCons.falseBranch).get})""").expression()
-        }
+              val str = s"""HelperConstraint.ifCompute (${registry(ifCons.constraint).get}, ${registry(ifCons.trueBranch).get}, ${registry(ifCons.falseBranch).get})"""
+              println ("IF-inner:" + str)
+              Java(s"""$str""").expression()
+            }
           }
       },
 
@@ -128,6 +119,12 @@
       }
     },
 
+      CodeGeneratorRegistry[Expression, IsSingle] {
+        case (registry: CodeGeneratorRegistry[Expression], isSingle:IsSingle) => {
+          Java(s"""${registry(isSingle.element).get}.count() == 1""").expression()
+        }
+      },
+
     CodeGeneratorRegistry[Expression, NextRank] {
       case (registry: CodeGeneratorRegistry[Expression], nextRank:NextRank) => {
         Java(s"""${registry(nextRank.higher).get}.getRank() == ${registry(nextRank.lower).get}.getRank() + 1""").expression()
@@ -155,12 +152,13 @@
 
     CodeGeneratorRegistry[Expression, OrConstraint] {
       case (registry: CodeGeneratorRegistry[Expression], or: OrConstraint) =>
+        println ("Or:" + or.toString)
         if (or.constraints.isEmpty) {
           Java(s"""false""").expression()
         } else {
           or.constraints.tail.foldLeft(registry(or.constraints.head).get) {
             case (s, c) => {
-              Java(s"""($s) || (${registry(c).get}) """).expression()
+              Java(s"""($s || ${registry(c).get})""").expression()
             }
           }
         }

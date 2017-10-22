@@ -11,4 +11,15 @@ public class OrConstraint extends Constraint {
     public OrConstraint (Constraint... cons) {
         this.constraints = cons;
     }
+
+    /** Debugging purposes only. */
+    public String toString() {
+        String total = "";
+
+        // done in reverse, inside-out order.
+        for (Constraint c : constraints) {
+            total = c.toString() + "," + total;
+        }
+        return "Or(" + total + ")";
+    }
 }

@@ -11,4 +11,9 @@ public class NotConstraint extends Constraint {
     public NotConstraint(Constraint cons) {
         this.constraint = cons;
     }
+
+    /** Debugging purposes only. */
+    public String toString() {
+        return "Not(" + constraint.toString() + ")";
+    }
 }
