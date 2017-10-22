@@ -15,11 +15,13 @@ public class SufficientFree extends Constraint {
     public final MoveInformation tableau;
     public final MoveInformation src;
     public final MoveInformation destination;
+    public final MoveInformation column;
 
-    public SufficientFree (MoveInformation reserve, MoveInformation tableau, MoveInformation src, MoveInformation destination){
+    public SufficientFree (MoveInformation column, MoveInformation src, MoveInformation destination, MoveInformation reserve, MoveInformation tableau){
         this.reserve = reserve;
         this.tableau = tableau;
         this.src = src;
         this.destination = destination;
+        this.column = column;
     }
 }

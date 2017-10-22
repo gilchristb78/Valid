@@ -25,7 +25,10 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
         case (registry:CodeGeneratorRegistry[Expression], c:SufficientFree) => {
           val destination = registry(c.destination).get
           val src = registry(c.src).get
-          Java(s"""((org.combinators.solitaire.freecell.FreeCell)game).sufficientFree($destination, $src)""").expression()
+          val column = registry(c.column).get
+          val reserve = registry(c.reserve).get
+          val tableau = registry(c.tableau).get
+          Java(s"""ConstraintHelper.sufficientFree($column, $src, $destination, $reserve, $tableau)""").expression()
         }
       },
 
@@ -135,6 +138,32 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = 'RootPackage =>: 'ExtraImports
   }
 
+  /**
+    * Specialized methods to help out in processing constraints. Specifically,
+    * these are meant to be generic, things like getTableua, getReserve()
+    */
+  @combinator object HelperMethodsFreeCell {
+    def apply(): Seq[MethodDeclaration] = Seq (generateHelper.fieldAccessHelper("tableau", "fieldColumns"),
+      generateHelper.fieldAccessHelper("reserve", "fieldFreePiles"),
+      Java(s"""
+           |public static boolean sufficientFree (Column column, Stack src, Stack destination, Stack[] reserve, Stack[] tableau) {
+           |	int numEmpty = 0;
+           |	for (Stack s : tableau) {
+           |		if (s.empty() && s != destination) numEmpty++;
+           |	}
+           |
+           | 	// now count columns
+           |	for (Stack r : reserve) {
+           |		if (r.empty() && r != destination) numEmpty++;
+           |	}
+           |
+           |	return column.count <= 1 + numEmpty;
+           |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head,
+    )
+
+    val semanticType: Type = 'HelperMethods
+  }
+
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
 
@@ -150,6 +179,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |public boolean validColumn(Column column) {
            |		return column.alternatingColors() && column.descending();
            |}
+           |
            |
            |public java.util.Enumeration<Move> availableMoves() {
            |			java.util.Vector<Move> v = new java.util.Vector<Move>();

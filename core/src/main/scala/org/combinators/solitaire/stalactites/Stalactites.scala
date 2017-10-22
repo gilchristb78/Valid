@@ -33,6 +33,7 @@ class Stalactites @Inject()(webJars: WebJarsUtil) extends InhabitationController
   */
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('increment('SolitaireVariation))
+      .addJob[CompilationUnit]('HelperCode)
       .addJob[CompilationUnit]('ReservePileClass)
       .addJob[CompilationUnit]('ReservePileViewClass)
       .addJob[CompilationUnit]('BasePileClass)

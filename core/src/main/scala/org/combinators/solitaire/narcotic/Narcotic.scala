@@ -26,6 +26,7 @@ class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
+      .addJob[CompilationUnit]('HelperCode)
       .addJob[CompilationUnit]('Controller('Deck))
       .addJob[CompilationUnit]('Controller('Pile))
 

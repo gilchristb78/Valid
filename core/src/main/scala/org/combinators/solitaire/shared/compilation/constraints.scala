@@ -1,18 +1,20 @@
-  package org.combinators.solitaire.shared
+package org.combinators.solitaire.shared
 
-  import com.github.javaparser.ast.expr._
-  import com.github.javaparser.ast.stmt._
-  import de.tu_dortmund.cs.ls14.cls.types.Type
-  import de.tu_dortmund.cs.ls14.cls.types.syntax._
-  import de.tu_dortmund.cs.ls14.cls.types.Constructor
-  import de.tu_dortmund.cs.ls14.twirl.Java
-  import domain.{Constraint, SolitaireContainerTypes}
-  import domain.constraints._
-  import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
+import com.github.javaparser.ast.expr._
+import com.github.javaparser.ast.stmt._
+import com.github.javaparser.ast.body._
 
-  import scala.collection.JavaConverters._
+import de.tu_dortmund.cs.ls14.cls.types.Type
+import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import de.tu_dortmund.cs.ls14.cls.types.Constructor
+import de.tu_dortmund.cs.ls14.twirl.Java
+import domain.{Constraint, SolitaireContainerTypes}
+import domain.constraints._
+import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
 
-  // Here is the default code registry for the existing Constraints
+import scala.collection.JavaConverters._
+
+// Here is the default code registry for the existing Constraints
 
 //  val codeGen = CodeGeneratorRegistry.merge[String](
 //    CodeGeneratorRegistry[String, IfConstraint] {
@@ -23,85 +25,104 @@
 //      case (registry: CodeGeneratorRegistry[String], c: Constraint) => "other used"
 //    }
 //  )
-  object constraintCodeGenerators {
-    val generators = CodeGeneratorRegistry.merge[Expression](
+object constraintCodeGenerators {
+  val generators = CodeGeneratorRegistry.merge[Expression](
 
-      CodeGeneratorRegistry[Expression, MoveComponents] {
-        case (registry:CodeGeneratorRegistry[Expression], mc:MoveComponents) => {
-          Java(s"""${mc.name}""").expression()
-        }
-      },
+    CodeGeneratorRegistry[Expression, MoveComponents] {
+      case (registry:CodeGeneratorRegistry[Expression], mc:MoveComponents) => {
+        Java(s"""${mc.name}""").expression()
+      }
+    },
 
-      CodeGeneratorRegistry[Expression, AndConstraint] {
-        case (registry:CodeGeneratorRegistry[Expression], and: AndConstraint) => {
-          println ("And:" + and.toString)
-          if (and.constraints.isEmpty) {
-            Java(s"""true""").expression()
-          } else {
-            and.constraints.tail.foldLeft(registry(and.constraints.head).get) {
-              case (s, c) => {
-                val inner = registry(c)
-                if (inner.isEmpty) {
-                  Java (s"""${c.toString}""").expression()
-                } else {
-                  Java(s"""($s && ${registry(c).get})""").expression()
-                }
+    CodeGeneratorRegistry[Expression, AndConstraint] {
+      case (registry:CodeGeneratorRegistry[Expression], and: AndConstraint) => {
+        println ("And:" + and.toString)
+        if (and.constraints.isEmpty) {
+          Java(s"""true""").expression()
+        } else {
+          and.constraints.tail.foldLeft(registry(and.constraints.head).get) {
+            case (s, c) => {
+              val inner = registry(c)
+              if (inner.isEmpty) {
+                Java (s"""${c.toString}""").expression()
+              } else {
+                Java(s"""($s && ${registry(c).get})""").expression()
               }
             }
           }
         }
-      },
+      }
+    },
 
-      CodeGeneratorRegistry[Expression, IfConstraint] {
-        case (registry: CodeGeneratorRegistry[Expression], ifCons: IfConstraint) => {
-          println ("If:" + ifCons.toString)
+    /** Takes advantage of () -> operator in Java 1.8. */
+    CodeGeneratorRegistry[Expression, IfConstraint] {
+      case (registry: CodeGeneratorRegistry[Expression], ifCons: IfConstraint) => {
+        println ("If:" + ifCons.toString)
 
-          val inner = registry(ifCons.constraint)
-          val trueb = registry(ifCons.trueBranch)
-          val falseb = registry(ifCons.falseBranch)
-          if (inner.isEmpty || trueb.isEmpty || falseb.isEmpty) {
-            Java(s"""${ifCons.constraint.toString}""").expression()
-          } else {
-              val str = s"""HelperConstraint.ifCompute (${registry(ifCons.constraint).get}, ${registry(ifCons.trueBranch).get}, ${registry(ifCons.falseBranch).get})"""
-              println ("IF-inner:" + str)
-              Java(s"""$str""").expression()
-            }
-          }
-      },
-
-      CodeGeneratorRegistry[Expression, IsAce] {
-        case (registry: CodeGeneratorRegistry[Expression], isAce: IsAce) => {
-          Java(s"""${registry(isAce.element).get}.getRank() == Card.ACE""").expression()
+        val inner = registry(ifCons.constraint)
+        val trueb = registry(ifCons.trueBranch)
+        val falseb = registry(ifCons.falseBranch)
+        if (inner.isEmpty || trueb.isEmpty || falseb.isEmpty) {
+          Java(s"""${ifCons.constraint.toString}""").expression()
+        } else {
+          val str =
+            s"""ConstraintHelper.ifCompute (
+               |${registry(ifCons.constraint).get},
+               |() -> ${registry(ifCons.trueBranch).get},
+               |() -> ${registry(ifCons.falseBranch).get})""".stripMargin
+          println ("IF-inner:" + str)
+          Java(s"""$str""").expression()
         }
-      },
+      }
+    },
 
-      CodeGeneratorRegistry[Expression, SolitaireContainerTypes] {
-        case (registry:CodeGeneratorRegistry[Expression], st:SolitaireContainerTypes) => {
-          Java(s"""${st.name}""").expression()
-        }
-       },
+    CodeGeneratorRegistry[Expression, Truth] {
+      case (registry:CodeGeneratorRegistry[Expression], t:Truth) => {
+        Java(s"""true""").expression()
+      }
+    },
 
-      CodeGeneratorRegistry[Expression, Descending] {
-        case (registry: CodeGeneratorRegistry[Expression], descending: Descending) => {
-          Java(s"""${registry(descending.base).get}.descending()""").expression()
-        }
-      },
-
-      CodeGeneratorRegistry[Expression, TopCardOf] {
-        case (registry: CodeGeneratorRegistry[Expression], top:TopCardOf) => {
-          Java(s"""${registry(top.base).get}.peek()""").expression()
-        }
-      },
+    CodeGeneratorRegistry[Expression, Falsehood] {
+      case (registry:CodeGeneratorRegistry[Expression], f:Falsehood) => {
+        Java(s"""false""").expression()
+      }
+    },
 
 
-      CodeGeneratorRegistry[Expression, BottomCardOf] {
-        case (registry: CodeGeneratorRegistry[Expression], bottom:BottomCardOf) => {
-          Java(s"""${registry(bottom.base).get}.peek(0)""").expression()
-        }
-      },
+    CodeGeneratorRegistry[Expression, IsAce] {
+      case (registry: CodeGeneratorRegistry[Expression], isAce: IsAce) => {
+        Java(s"""${registry(isAce.element).get}.getRank() == Card.ACE""").expression()
+      }
+    },
+
+    /** Note: This code will exist in a method that has game as an argument. */
+    CodeGeneratorRegistry[Expression, SolitaireContainerTypes] {
+      case (registry:CodeGeneratorRegistry[Expression], st:SolitaireContainerTypes) => {
+        Java(s"""ConstraintHelper.${st.name}(game)""").expression()
+      }
+    },
+
+    CodeGeneratorRegistry[Expression, Descending] {
+      case (registry: CodeGeneratorRegistry[Expression], descending: Descending) => {
+        Java(s"""${registry(descending.base).get}.descending()""").expression()
+      }
+    },
+
+    CodeGeneratorRegistry[Expression, TopCardOf] {
+      case (registry: CodeGeneratorRegistry[Expression], top:TopCardOf) => {
+        Java(s"""${registry(top.base).get}.peek()""").expression()
+      }
+    },
 
 
-      CodeGeneratorRegistry[Expression, AlternatingColors] {
+    CodeGeneratorRegistry[Expression, BottomCardOf] {
+      case (registry: CodeGeneratorRegistry[Expression], bottom:BottomCardOf) => {
+        Java(s"""${registry(bottom.base).get}.peek(0)""").expression()
+      }
+    },
+
+
+    CodeGeneratorRegistry[Expression, AlternatingColors] {
       case (registry: CodeGeneratorRegistry[Expression], alternating: AlternatingColors) => {
         Java(s"""${registry(alternating.base).get}.alternatingColors()""").expression()
       }
@@ -119,11 +140,11 @@
       }
     },
 
-      CodeGeneratorRegistry[Expression, IsSingle] {
-        case (registry: CodeGeneratorRegistry[Expression], isSingle:IsSingle) => {
-          Java(s"""${registry(isSingle.element).get}.count() == 1""").expression()
-        }
-      },
+    CodeGeneratorRegistry[Expression, IsSingle] {
+      case (registry: CodeGeneratorRegistry[Expression], isSingle:IsSingle) => {
+        Java(s"""${registry(isSingle.element).get}.count() == 1""").expression()
+      }
+    },
 
     CodeGeneratorRegistry[Expression, NextRank] {
       case (registry: CodeGeneratorRegistry[Expression], nextRank:NextRank) => {
@@ -168,102 +189,32 @@
       case (registry:CodeGeneratorRegistry[Expression],not:NotConstraint) =>
         Java(s"""!(${registry(not.constraint).get})""").expression();
     })
-  }
+}
 
-  // codeGen.apply(ifc).get
-  class StatementCombinator(c:Constraint, constraint_type:Constructor, inits:Seq[Statement] = Seq.empty) {  // Constructor
-    def apply (generators:CodeGeneratorRegistry[Expression]) : Seq[Statement] = {
-      val cc3: Option[Expression] = generators(c)
-      if (cc3.isEmpty) {
-        println("Unable to locate:" + c);
-        inits
-      } else {
-        inits ++ Java(s"""return ${cc3.get};""").statements()
-      }
+// codeGen.apply(ifc).get
+class StatementCombinator(c:Constraint, constraint_type:Constructor, inits:Seq[Statement] = Seq.empty) { // Constructor
+  def apply(generators: CodeGeneratorRegistry[Expression]): Seq[Statement] = {
+    val cc3: Option[Expression] = generators(c)
+    if (cc3.isEmpty) {
+      println("Unable to locate:" + c);
+      inits
+    } else {
+      inits ++ Java(s"""return ${cc3.get};""").statements()
     }
-
-    var semanticType : Type = 'ConstraintGen =>: constraint_type
   }
 
+  var semanticType: Type = 'ConstraintGen =>: constraint_type
+}
 
-  //// now becomes a simple Expression since that is dominant usage
-  //class SymbolCombinator(c:Constraint, constraint_type:Symbol) {  // Constructor
-  //  def apply () : Expression = {
-  //    ConstraintCodeGen(c).toCode()
-  //  }
-  //  var semanticType : Type = constraint_type
-  //}
-  //
-  //class ConstructorCombinator(c:Constraint, constraint_type:Constructor) {  // Constructor
-  //  def apply () : Expression = {
-  //    ConstraintCodeGen(c).toCode()
-  //  }
-  //  var semanticType : Type = constraint_type
-  //}
-
-
-
-
-
-
-  //
-  //
-  ///** For Statements */
-  //trait ConstraintCodeStmtGen {
-  //  val defaultStatement: ConstraintStmt => Statement = {
-  //    (result: ConstraintStmt) => Java(s"""System.out.println("default");""").statement()
-  //  }
-  //  def toCode(): Statement
-  //}
-
-  ///** Handles ReturnStmt. */
-  //class ReturnStmtCodeGen(c:ReturnConstraint) extends ConstraintCodeStmtGen {
-  //  override def toCode(): Statement = {
-  //    val out = ConstraintCodeGen(c.getExpr).toCode()
-  //
-  //    val s:Statement = Java(s"""return ${out};""").statement()
-  //    s
-  //  }
-  //}
-
-  //
-  ///** Handles IfStmt. */
-  //class IfStmtCodeGen(c:IfConstraint) extends ConstraintCodeStmtGen {
-  //  override def toCode(): Statement = {
-  //
-  //    // expression guards the true and false branches
-  //    val expr = ConstraintCodeGen(c.constraint).toCode()
-  //    val s_true  = ConstraintCodeStmtGen(c.trueBranch).toCode().toString()
-  //    val s_false = ConstraintCodeStmtGen(c.falseBranch).toCode().toString()
-  //
-  //    Java(s"""
-  //            |if ($expr) {
-  //            |   $s_true
-  //            |} else {
-  //            |   $s_false
-  //            |}
-  //        """.stripMargin).statement()
-  //  }
-  //}
-  //
-  ///** Now all are expressions */
-  //trait ConstraintCodeGen {
-  //  val truth: Expression => Expression = {
-  //    (result: Expression) => Java(s"true").expression()
-  //  }
-  //  def toCode(): Expression
-  //}
-  //
-  //
-  //
-  //
-  //
-  //
-  //object ConstraintCodeStmtGen {
-  //
-  //  def apply(stmt: ConstraintStmt): ConstraintCodeStmtGen =
-  //    stmt match {
-  //      case returnStmt: ReturnConstraint => new ReturnStmtCodeGen(returnStmt)
-  //      case ifStmt: IfConstraint => new IfStmtCodeGen(ifStmt)
-  //    }
-  //}
+object generateHelper {
+  /**
+    * Helper method for the ConstraintHelper class
+    */
+  def fieldAccessHelper(name:String, fieldName:String) : MethodDeclaration = {
+    Java(
+      s"""|public static Stack[] ${name}(Solitaire game) {
+          |  return getVariation(game).${fieldName};
+          |}
+       """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head
+  }
+}

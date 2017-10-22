@@ -33,6 +33,7 @@ class Archway @Inject()(webJars: WebJarsUtil) extends InhabitationController(web
   */
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation :&: 'Solvable)
+        .addJob[CompilationUnit]('HelperCode)
       .addJob[CompilationUnit]('AcesUpPileClass)
       .addJob[CompilationUnit]('KingsDownPileClass)
       .addJob[CompilationUnit]('AcesUpPileViewClass)

@@ -32,6 +32,7 @@ class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
 
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
+    .addJob[CompilationUnit]('HelperCode)
     .addJob[CompilationUnit]('WastePileClass)
     .addJob[CompilationUnit]('WastePileViewClass)
     .addJob[CompilationUnit]('Controller('BuildablePile))

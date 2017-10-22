@@ -8,6 +8,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared
+import org.combinators
 import de.tu_dortmund.cs.ls14.twirl.Java
 import scala.collection.JavaConverters._
 
@@ -576,5 +577,19 @@ trait GameTemplate {
     }
     val semanticType: Type =
       'RootPackage =>: 'NameOfTheGame =>: 'AutoMoves
+  }
+
+  /**
+    * Helper code for various needs are placed in here as static methods.
+    */
+  @combinator object CreateHelper {
+    def apply(pkgName: Name, name: SimpleName, methods:Seq[MethodDeclaration]): CompilationUnit= {
+
+      combinators.java.ConstraintHelper.render(pkgName, name, methods).compilationUnit()
+    }
+    val semanticType: Type =  'RootPackage =>:
+      'NameOfTheGame =>:
+      'HelperMethods =>:
+      'HelperCode
   }
 }

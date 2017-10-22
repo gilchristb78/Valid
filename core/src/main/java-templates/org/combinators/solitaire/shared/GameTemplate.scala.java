@@ -103,4 +103,5 @@ public class @Java(nameParameter) extends Solitaire {
             }
         });
     }
+
 }

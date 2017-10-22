@@ -1,18 +1,6 @@
 @(NumFreePiles: Expression, NumColumns:Expression)
 
-public int numberVacant () {
-	int numEmpty = 0;
-	for (int f = 0; f < @Java(NumFreePiles); f++) {
-		if (fieldFreePiles[f].empty()) numEmpty++;
-	}
 
-	// now count columns
-	for (int c = 0; c < @Java(NumColumns); c++) {
-		if (fieldColumns[c].empty()) numEmpty++;
-	}
-
-	return numEmpty;		
-}
 
 /**
  * A card is unneeded when no lower-rank cards of the opposite color remain 

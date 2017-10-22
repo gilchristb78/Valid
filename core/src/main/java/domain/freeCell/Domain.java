@@ -66,7 +66,7 @@ public class Domain extends Solitaire {
 		IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
 
 		// FreePile to FreePile
-		SingleCardMove freePileToFreePile = new SingleCardMove("ShuffleFreePile", reserve, reserve, new IfConstraint(isEmpty));
+		SingleCardMove freePileToFreePile = new SingleCardMove("ShuffleFreePile", reserve, reserve, isEmpty);
 		rules.addDragMove(freePileToFreePile);
 
 		// Column To Free Pile Logic
@@ -113,8 +113,10 @@ public class Domain extends Solitaire {
 		// If destination is EMPTY, then can't count it as vacant
 		// If source is EMPTY (b/c move created it) then can't count it as vacant either.
 		//val oneIsEmpty = new OrConstraint(isEmpty, new IsEmpty ("source"))
-        SufficientFree sufficientFree = new SufficientFree(SolitaireContainerTypes.Reserve, SolitaireContainerTypes.Tableau,
-				MoveComponents.Source, MoveComponents.Destination);
+        SufficientFree sufficientFree = new SufficientFree(
+        		MoveComponents.MovingColumn,
+				MoveComponents.Source, MoveComponents.Destination,
+				SolitaireContainerTypes.Reserve, SolitaireContainerTypes.Tableau);
 
 		AndConstraint if4_inner = new AndConstraint(
                 new OppositeColor(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination)),

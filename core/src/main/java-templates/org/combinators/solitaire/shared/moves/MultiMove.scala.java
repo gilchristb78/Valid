@@ -8,6 +8,7 @@ package @{Java(RootPackage)}.model;
 
 import ks.common.model.*;
 import ks.common.games.Solitaire;
+import org.combinators.*;
 
 /**
  * Move element from one stack to a number of other stacks.
