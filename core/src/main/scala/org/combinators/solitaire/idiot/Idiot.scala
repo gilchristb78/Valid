@@ -30,7 +30,7 @@ class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJa
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation :&: 'Solvable)
       .addJob[CompilationUnit]('HelperCode)
-      .addJob[CompilationUnit]('Controller('Deck))
+//      .addJob[CompilationUnit]('Controller('Deck))
       .addJob[CompilationUnit]('Controller('Column))
       .addJob[CompilationUnit]('Move('RemoveCard :&: 'GenericMove , 'CompleteMove))
       .addJob[CompilationUnit]('Move('MoveCard :&: 'GenericMove,   'CompleteMove))

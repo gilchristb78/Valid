@@ -61,11 +61,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       // generic widget controller with auto moves available since we
       // have that provided by our variation (see extra methods)
       print ("   ** " + el + ":WidgetController")
-      if (s.hasAutoMoves) {
-        updated = updated.addCombinator(new WidgetControllerWithAutoMoves(Symbol(el)))
-      } else {
-        updated = updated.addCombinator(new WidgetController(Symbol(el)))
-      }
+      updated.addCombinator(new WidgetController(Symbol(el)))
+
     }
 
     // CASE STUDY: Add Automove logic at end of release handlers

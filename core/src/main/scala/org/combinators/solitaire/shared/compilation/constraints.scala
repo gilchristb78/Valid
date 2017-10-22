@@ -192,7 +192,7 @@ object constraintCodeGenerators {
 }
 
 // codeGen.apply(ifc).get
-class StatementCombinator(c:Constraint, constraint_type:Constructor, inits:Seq[Statement] = Seq.empty) { // Constructor
+class StatementCombinator(c:Constraint, constraint_type:Constructor, inits:Seq[Statement] = Seq.empty) extends SemanticTypes { // Constructor
   def apply(generators: CodeGeneratorRegistry[Expression]): Seq[Statement] = {
     val cc3: Option[Expression] = generators(c)
     if (cc3.isEmpty) {
@@ -203,7 +203,7 @@ class StatementCombinator(c:Constraint, constraint_type:Constructor, inits:Seq[S
     }
   }
 
-  var semanticType: Type = 'ConstraintGen =>: constraint_type
+  var semanticType: Type = constraints(constraints.generator) =>: constraint_type
 }
 
 object generateHelper {

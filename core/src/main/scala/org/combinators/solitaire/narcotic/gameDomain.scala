@@ -180,4 +180,13 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   // WHEN This is in controllers.scala it doesn't get inhabited by Web. Not sure why? HACK. TODO: PLEASE HELP
   @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2, 'Deck ('Pressed) :&: 'NonEmptySeq)
 
+
+  /**
+    * Need for helper
+    */
+  @combinator object HelperMethodsFreeCell {
+    def apply(): Seq[MethodDeclaration] = Seq.empty
+
+    val semanticType: Type = 'HelperMethods
+  }
 }

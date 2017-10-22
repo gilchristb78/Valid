@@ -35,11 +35,11 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     // These are handling the PRESS events... SHOULD BE ABLE TO
     // INFER THESE FROM THE AVAILABLE MOVES
     updated = updated
-      .addCombinator (new IgnorePressedHandler('HomePile, 'HomePile))
-      .addCombinator (new IgnoreClickedHandler('HomePile, 'HomePile))
-      .addCombinator (new SingleCardMoveHandler("FreePile", 'FreePile, 'FreePile))
-      .addCombinator (new IgnoreClickedHandler('FreePile, 'FreePile))
-      .addCombinator (new IgnoreClickedHandler('Column, 'Column))
+      .addCombinator (new IgnorePressedHandler('HomePile))
+      .addCombinator (new IgnoreClickedHandler('HomePile))
+      .addCombinator (new SingleCardMoveHandler('FreePile))
+      .addCombinator (new IgnoreClickedHandler('FreePile))
+      .addCombinator (new IgnoreClickedHandler('Column))
 
     // Potential moves clarify structure (by type not instance). FIX ME
     // FIX ME FIX ME FIX ME
@@ -50,9 +50,9 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
     updated = updated
-      .addCombinator (new ControllerNaming('FreePile, 'FreePile, "FreeCell"))
-      .addCombinator (new ControllerNaming('HomePile, 'HomePile, "Home"))
-      .addCombinator (new ControllerNaming('Column, 'Column, "FreeCell"))
+      .addCombinator (new ControllerNaming('FreePile))
+      .addCombinator (new ControllerNaming('HomePile))
+      .addCombinator (new ControllerNaming('Column))
 
     // Go through and assign GUI interactions for each of the known moves. Clean these up...
     val ui = new UserInterface(s)
@@ -63,11 +63,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       // generic widget controller with auto moves available since we
       // have that provided by our variation (see extra methods)
       print ("   ** " + el + ":WidgetController")
-      if (s.hasAutoMoves) {
-        updated = updated.addCombinator(new WidgetControllerWithAutoMoves(Symbol(el)))
-      } else {
-        updated = updated.addCombinator(new WidgetController(Symbol(el)))
-      }
+      updated = updated.addCombinator(new WidgetController(Symbol(el)))
     }
 
     // CASE STUDY: Add Automove logic at end of release handlers
@@ -79,7 +75,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     * When moving between columns, use the 'validColumn' method to confirm press sequence.
     */
   val name = Java(s"""validColumn""").simpleName()
-  @combinator object PC extends ColumnMoveHandler("Column", 'Column, 'Column, name)
+  @combinator object PC extends ColumnMoveHandler('Column, name)
 }
 
 

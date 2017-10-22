@@ -1,8 +1,7 @@
 package org.combinators.solitaire.archway
 
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.expr.{Expression, IntegerLiteralExpr, Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
@@ -10,7 +9,7 @@ import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain._
-import domain.archway.ArchwayContainerTypes
+import domain.archway._
 import org.combinators.solitaire.shared._
 
 /**

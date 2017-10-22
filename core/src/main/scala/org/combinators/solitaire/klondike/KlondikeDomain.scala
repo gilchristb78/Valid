@@ -180,4 +180,14 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
     val semanticType: Type = 'ExtraFields
   }
+
+
+  /**
+    * Need for helper
+    */
+  @combinator object HelperMethodsFreeCell {
+    def apply(): Seq[MethodDeclaration] = Seq.empty
+
+    val semanticType: Type = 'HelperMethods
+  }
 }

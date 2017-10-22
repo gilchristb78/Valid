@@ -54,6 +54,7 @@ public class Solitaire {
         return null;   // replace with Option[]
     }
 
+    /** Are automoves available. */
     boolean autoMovesAvailable = false;
     public boolean hasAutoMoves() { return autoMovesAvailable; }
     public void setAutoMoves(boolean b) { autoMovesAvailable = b; }

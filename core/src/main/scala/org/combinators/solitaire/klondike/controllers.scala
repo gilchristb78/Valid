@@ -12,7 +12,7 @@ import org.combinators.generic
 import domain._
 import domain.ui._
 
-trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms  {
+trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms with SemanticTypes  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :  ReflectedRepository[G] = {
@@ -27,22 +27,9 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       val el = els_it.next()
 
       // Each of these controllers are expected in the game.
-      if (el == "Deck") {
-        updated = updated    // HACK. Why special for Deck???
-          .addCombinator (new DeckController(Symbol(el)))
-      } else if (el == "BuildablePile") {
-        updated = updated
+      updated = updated
           .addCombinator (new WidgetController(Symbol(el)))
-          .addCombinator (new ControllerNaming('BuildablePile, 'BuildablePile, "BuildablePile"))
-      } else if (el == "WastePile") {
-        updated = updated
-          .addCombinator (new WidgetController(Symbol(el)))
-          .addCombinator (new ControllerNaming('WastePile, 'WastePile, "WastePile"))
-      } else if (el == "Pile") {
-        updated = updated
-          .addCombinator (new WidgetController(Symbol(el)))
-          .addCombinator (new ControllerNaming('Pile, 'Pile, "Pile"))
-      }
+          .addCombinator (new ControllerNaming(Symbol(el)))
     }
 
     // not much to do, if no rules...
@@ -58,17 +45,17 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // these all have to do with GUI commands being ignored
     updated = updated
-      .addCombinator (new IgnoreClickedHandler('BuildablePile, 'BuildablePile))
-      .addCombinator (new IgnoreClickedHandler('Pile, 'Pile))
-      .addCombinator (new IgnoreClickedHandler('WastePile, 'WastePile))
-      .addCombinator (new IgnoreReleasedHandler('WastePile, 'WastePile))
+      .addCombinator (new IgnoreClickedHandler('BuildablePile))
+      .addCombinator (new IgnoreClickedHandler('Pile))
+      .addCombinator (new IgnoreClickedHandler('WastePile))
+      .addCombinator (new IgnoreReleasedHandler('WastePile))
 
     // these clarify the allowed moves
     updated = updated
       .addCombinator (new DealToTableauHandlerLocal())
       .addCombinator (new ResetDeckLocal())
-      .addCombinator (new SingleCardMoveHandler("Pile", 'Pile, 'Pile))
-      .addCombinator (new SingleCardMoveHandler("WastePile", 'WastePile, 'WastePile))
+      .addCombinator (new SingleCardMoveHandler('Pile))
+      .addCombinator (new SingleCardMoveHandler('WastePile))
 
 
     updated
@@ -79,7 +66,10 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
    * Note: This introduces 'Stage1 as a means to combine the two press events in sequence.
    */
   val name = Java(s"""validColumn""").simpleName()
-  @combinator object PC extends ColumnMoveHandler("BuildablePile", 'Stage1, 'Stage1, name)
+  @combinator object PC extends ColumnMoveHandler('Stage1, name)
+  // controller('Stage1, controller.pressed)
+
+  // MAKE NOTE: TO FIX. HACK. PERHAPS CAN CALL DIRECTLY..
 
   /** This is one way to combine things... */
   @combinator object Combine {
@@ -104,10 +94,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     }
 
     val semanticType: Type =
-      ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        'Stage1 ('Stage1, 'Pressed) :&: 'NonEmptySeq) =>:
-        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-          'BuildablePile ('BuildablePile, 'Pressed) :&: 'NonEmptySeq)
+      (drag(drag.variable, drag.ignore) =>: controller ('Stage1, controller.pressed)) =>:
+        (drag(drag.variable, drag.ignore) =>: controller(buildablePile, controller.pressed))
   }
 
   /**
@@ -147,9 +135,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     * Statically knit together these two combinators to bring in the desired behavior
     */
   @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2,
-    'Deck ('Pressed) :&: 'NonEmptySeq)
-
-
+    controller(deck, controller.pressed))
 }
+
 
 

@@ -8,7 +8,14 @@ import domain.ContainerType;
 public enum KombatTypes implements ContainerType {
 
 
-    Score,
-    NumberCardsLeft;
+    Score("score"),
+    NumberCardsLeft("numLeft");
 
+    public final String name;
+
+    KombatTypes(String name) {
+        this.name = name;
+    }
+
+    public String getName() { return name; }
 }

@@ -38,14 +38,14 @@ public class Domain extends Solitaire {
 		found.add (new Pile());
 		found.add (new Pile());
 		found.add (new Pile());
-		containers.put(StalactitesContainerTypes.Foundation, found);
+		containers.put(SolitaireContainerTypes.Foundation, found);
 
 		places = new HorizontalPlacement(new Point (15, 20),
 				card_width, card_height, card_gap);
 		Reserve reserve = new Reserve(places);
 		reserve.add (new ReservePile());
 		reserve.add (new ReservePile());
-		containers.put(StalactitesContainerTypes.Reserve, reserve);
+		containers.put(SolitaireContainerTypes.Reserve, reserve);
 
 		places = new HorizontalPlacement(new Point (200, 20),
 				card_width, card_height, card_gap);
@@ -67,7 +67,7 @@ public class Domain extends Solitaire {
         tableau.add (new Column());
         tableau.add (new Column());
         tableau.add (new Column());
-        containers.put(StalactitesContainerTypes.Tableau, tableau);
+        containers.put(SolitaireContainerTypes.Tableau, tableau);
 
 		// defaults to 1 deck.
 		Stock stock = new Stock();

@@ -209,4 +209,14 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = 'RootPackage =>: 'NameOfTheGame =>: 'UndoOrientation
   }
 
+
+  /**
+    * Need for helper
+    */
+  @combinator object HelperMethodsFreeCell {
+    def apply(): Seq[MethodDeclaration] = Seq.empty
+
+    val semanticType: Type = 'HelperMethods
+  }
+
 }

@@ -31,6 +31,9 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     var updated = super.init(gamma, s)
     println (">>> Narcotic Controller dynamic combinators.")
 
+    // handle automoves
+
+
     // structural
     val ui = new UserInterface(s)
 
@@ -39,13 +42,9 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       val el = els_it.next()
 
       // Each of these controllers are expected in the game.
-      if (el == "Deck") {
-        updated = updated.    // HACK. Why special for Deck???
-          addCombinator (new DeckController(Symbol(el)))
-      } else if (el == "Pile") {
-        updated = updated.
+      updated = updated.
           addCombinator (new WidgetController(Symbol(el)))
-      }
+
     }
 
     // not much to do, if no rules...
@@ -61,7 +60,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // Must determine how to handle clicks
     updated = updated
-      .addCombinator (new IgnoreClickedHandler('Pile, 'Pile))
+      .addCombinator (new IgnoreClickedHandler('Pile))
 
 
     // Each move has a source and a target. The SOURCE is the locus
@@ -80,7 +79,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
     updated = updated
-      .addCombinator (new ControllerNaming('Pile, 'Pile, "Narcotic"))
+      .addCombinator (new ControllerNaming('Pile))
 
     // CASE STUDY: Add Automove logic at end of release handlers
 

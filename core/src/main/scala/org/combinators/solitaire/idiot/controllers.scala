@@ -18,28 +18,6 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     var updated = super.init(gamma, s)
     println (">>> Idiot Controller dynamic combinators.")
 
-    // structural
-    val ui = new UserInterface(s)
-
-    val els_it = ui.controllers
-    while (els_it.hasNext) {
-      val el = els_it.next()
-
-      // Each of these controllers are expected in the game.
-      if (el == "Deck") {
-        updated = updated.    // HACK. Why special for Deck???
-          addCombinator (new DeckController(Symbol(el)))
-      } else if (el == "Column") {
-        updated = updated.
-          addCombinator (new WidgetController(Symbol(el)))
-      }
-    }
-
-    // not much to do, if no rules...
-    if (s.getRules == null) {
-      return updated
-    }
-
     updated = createMoveClasses(updated, s)
 
     updated = createDragLogic(updated, s)
@@ -51,7 +29,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     // These are handling the PRESS events... SHOULD BE ABLE TO
     // INFER THESE FROM THE AVAILABLE MOVES
     updated = updated
-      .addCombinator (new SingleCardMoveHandler("Column", 'Column, 'Column))
+      .addCombinator (new SingleCardMoveHandler('Column))
       .addCombinator (new DealToTableauHandlerLocal())
       .addCombinator (new TryRemoveCardHandlerLocal('Column, 'Column))
 
@@ -61,8 +39,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToColumn))
 
     // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
-    updated = updated
-      .addCombinator (new ControllerNaming('Column, 'Column, "Idiot"))
+//    updated = updated
+//      .addCombinator (new ControllerNaming('Column, 'Column, "Idiot"))
 
     // CASE STUDY: Add Automove logic at end of release handlers
 
@@ -80,7 +58,9 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
                |}""".stripMargin).statements()
     }
 
-    val semanticType: Type = 'Deck ('Pressed) :&: 'NonEmptySeq
+    val semanticType: Type =
+      ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Deck ('Deck, 'Pressed) :&: 'NonEmptySeq)
+
   }
 
   /**

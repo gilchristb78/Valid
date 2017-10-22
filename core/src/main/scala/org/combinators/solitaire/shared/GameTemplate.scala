@@ -1,40 +1,79 @@
 package org.combinators.solitaire.shared
 
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Name, SimpleName, Expression}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
+import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared
 import org.combinators
+
+
 import de.tu_dortmund.cs.ls14.twirl.Java
+
 import scala.collection.JavaConverters._
 
 // domain
 import domain._
 import domain.ui._
 
-trait GameTemplate {
+trait GameTemplate extends Base with Controller with SemanticTypes {
 
   // domain model elements for game defined here...
   lazy val tableauType = Variable("TableauType")
 
-//  /**
-//    * Purpose of this combinator is to declare base state for any solitaire variation, namely
-//    * that it starts with no core elements (Tableau, Foundation, Reserve, ...) nor Layout,
-//    * nor Rules.
-//    */
-//  @combinator object NewEmptySolitaire {
-//    def apply(): Solitaire = new Solitaire()
-//    val semanticType: Type =
-//        'Solitaire ('Tableau ('None)) :&:
-//        'Solitaire ('Foundation ('None)) :&:
-//        'Solitaire ('Reserve ('None)) :&:
-//        'Solitaire ('Layout ('None)) :&:
-//        'Solitaire ('Rules ('None))
-//  }
+  /**
+    * Process the solitaire domain object itself to identify combinators to add.
+    * @param gamma
+    * @param s
+    * @tparam G
+    * @return
+    */
+  override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
+    var updated = super.init(gamma, s)
+
+    /** handles generating default (empty) automoves. */
+    if (!s.hasAutoMoves()) {
+      updated = updated
+          .addCombinator(NoAutoMovesAvailable)
+    } else {
+      updated = updated
+        .addCombinator(AutoMoveSequence)
+    }
+
+    /** Get controllers defined based on solitaire domain. */
+    val ui = new UserInterface(s)
+
+    val els_it = ui.controllers
+    while (els_it.hasNext) {
+      val el = els_it.next()
+
+      // Each of these controllers are expected in the game.
+      updated = updated
+          .addCombinator (new WidgetController(Symbol(el)))
+          .addCombinator (new ControllerNaming(Symbol(el)))
+    }
+
+    /** If there is a deck, then need click/release ignored. */
+    if (s.containers.containsKey(SolitaireContainerTypes.Stock)) {
+      updated = updated
+          .addCombinator (new IgnoreReleasedHandler(deck))
+          .addCombinator (new IgnoreClickedHandler(deck))
+    }
+
+    updated
+  }
+
+  /** Do not use @combinator annotation since must wait until domain realized. */
+  object NoAutoMovesAvailable {
+    def apply(): Seq[Statement] = Seq.empty
+
+    val semanticType: Type = game.autoMoves
+  }
+
+
 
   class ExtendModel(parent: String, subclass: String, typ:Symbol) {
 
@@ -50,7 +89,7 @@ trait GameTemplate {
 	     """).compilationUnit()
     }
 
-    val semanticType : Type = 'RootPackage =>: typ
+    val semanticType : Type = packageName =>: typ
   }
 
   class ExtendView(parent: String, subclass: String, model: String, typ:Symbol) {
@@ -67,168 +106,9 @@ trait GameTemplate {
              """).compilationUnit()
     }
 
-    val semanticType : Type = 'RootPackage =>: typ
+    val semanticType : Type = packageName =>: typ
   }
 
-
-//  /**
-//    * Class for constructing Tableau from n Columns.
-//    *
-//    * param n             number of columns to create
-//    * @param nAsType      type of Column within the semantic type 'Tableau ('Valid :&: typ)
-//    */
-//  class NColumnTableau(n: Int, nAsType: Type) {
-//    def apply(): Tableau = {
-//      val t = new Tableau()
-//      for (_ <- 1 to n)
-//        t.add(new Column())
-//      t
-//    }
-//
-//    val semanticType: Type = 'Tableau ('Valid :&: nAsType :&: 'Column)
-//  }
-
-//  /**
-//    * Class for constructing Tableau from n BuildablePile.
-//    *
-//    * param n             number of buildable piles to create
-//    * @param nAsType      type of BuildablePile within the semantic type 'Tableau ('Valid :&: typ)
-//    */
-//  class NBuildablePileTableau(n: Int, nAsType: Type) {
-//    def apply(): Tableau = {
-//      val t = new Tableau()
-//      for (_ <- 1 to n)
-//        t.add(new BuildablePile())
-//      t
-//    }
-//
-//    val semanticType: Type = 'Tableau ('Valid :&: nAsType :&: 'BuildablePile)
-//  }
-
-//  /**
-//    * Class for constructing Tableau from n Piles.
-//    *
-//    * @param n            number of piles to create
-//    * @param nAsType      type of Pile within the semantic type 'Tableau ('Valid :&: typ)
-//    */
-// class NPileTableau(n: Int, nAsType: Type) {
-//    def apply(): Tableau = {
-//      val t = new Tableau()
-//      for (_ <- 1 to n)
-//        t.add(new Pile())
-//      t
-//    }
-//
-//    val semanticType: Type = 'Tableau ('Valid :&: nAsType :&: 'Pile)
-//  }
-
-//  /**
-//    * Class for constructing Foundation from n Piles.
-//    *
-//    * @param n            number of piles to create
-//    * @param nAsType      type of Pile within the semantic type 'Foundation ('Valid :&: typ)
-//    */
-//  class NPileFoundation(n: Int, nAsType: Type) {
-//    def apply(): Foundation = {
-//      val t = new Foundation()
-//      for (_ <- 1 to n)
-//        t.add(new Pile())
-//      t
-//    }
-//
-//    val semanticType: Type = 'Foundation ('Valid :&: nAsType :&: 'Pile)
-//  }
-//
-//  /**
-//    * Class for constructing Reserve from n Piles.
-//    *
-//    * @param n            number of piles to create
-//    * @param nAsType      type of Pile within the semantic type 'Reserve ('Valid :&: typ)
-//    */
-//  class NPileReserve(n: Int, nAsType: Type) {
-//    def apply(): Reserve = {
-//      val t = new Reserve()
-//      for (_ <- 1 to n)
-//        t.add(new Pile())
-//      t
-//    }
-//
-//    val semanticType: Type = 'Reserve ('Valid :&: nAsType :&: 'Pile)
-//  }
-//
-//  /**
-//    * Specialized combinators for common scenarios of tableaus from piles and columns.
-//    */
-//  @combinator object EightColumnTableau extends NColumnTableau(8, 'Eight)
-//  @combinator object FourColumnTableau extends NColumnTableau(4,  'Four)
-//  @combinator object EightPileTableau extends NPileTableau(8, 'Eight)
-//  @combinator object FourPileTableau extends NPileTableau(4, 'Four)
-//
-//  /**
-//    * Canonical Foundation of four Pile objects.
-//    */
-//  @combinator object FourPileFoundation extends NPileFoundation(4, 'Four)
-//
-//
-//  /**
-//    * Combinator for creating a one-deck stock
-//    */
-//  @combinator object SingleDeckStock {
-//    def apply(): Stock = new Stock()
-//
-//    val semanticType: Type = 'Stock ('Valid :&: 'One :&: 'Deck)
-//  }
-//
-//  /**
-//    * Combinator for creating a two-deck stock
-//    */
-//  @combinator object TwoDeckStock {
-//    def apply(): Stock = new Stock(2)
-//
-//    val semanticType: Type = 'Stock ('Valid :&: 'Two :&: 'Deck)
-//  }
-
-//  /**
-//    * Common layout for solitaire games with just Stcok on left and tableau on right.
-//    */
-//  @combinator object StockTableauLayout {
-//    def apply(): Layout = {
-//      val lay = new Layout()
-//
-//      lay.add(SolitaireContainerTypes.Stock, 15, 20, 73, 97)
-//      lay.add(Layout.Tableau, 120, 20, 1360, 13*97)
-//
-//      lay
-//    }
-//
-//    val semanticType: Type = 'Layout ('Valid :&: 'StockTableau)
-//  }
-
-//  /**
-//   * Standard Layout with Tableau below a Reserve (Left) and Foundation (Right)
-//   *
-//   * Suggestion: Make a Deck as part of domain model, so it can be used to provide
-//   * these necessary constants.
-//   *
-//   */
-//  @combinator object FoundationReserveTableauLayout {
-//    def apply(): Layout = {
-//      val lay = new Layout()
-//
-//      // For record, start by assuming a standard deck size of (73x97) which can be
-//      // changed with some effort, or by adding parameter for decks to use.
-//      // width = 73
-//      // height = 97
-//
-//      lay.add(Layout.Foundation, 390, 20, 680, 97)
-//      lay.add(Layout.Reserve, 15, 20, 680, 97)
-//      lay.add(Layout.Tableau, 15, 137, 1360, 13 * 97)
-//
-//      lay
-//    }
-//
-//    val semanticType: Type = 'Layout ('Valid :&: 'FoundationReserveTableau)
-//  }
 
   /**
     * Default initialization for a solitaire plugin requires initializing the
@@ -243,7 +123,12 @@ trait GameTemplate {
 
       shared.java.DomainInit.render(minit, vinit, cinit, layout).statements()
     }
-    val semanticType: Type = 'Init ('Model) =>: 'Init ('View) =>: 'Init ('Control) =>: 'Init ('InitialDeal) =>: 'Initialization :&: 'NonEmptySeq
+    val semanticType: Type =
+      game(game.model) =>:
+      game(game.view) =>:
+      game(game.control) =>:
+      game(game.deal) =>:
+      game(initialized)
   }
 
   // these next three functions help map domain model to Java code
@@ -386,12 +271,13 @@ trait GameTemplate {
     }
 
     val semanticType: Type =
-      'RootPackage =>: 'NameOfTheGame =>:
-        'ExtraImports =>: 'ExtraFields =>:
-        'ExtraMethods =>:
-        'Initialization :&: 'NonEmptySeq =>:
-        'WinConditionChecking :&: 'NonEmptySeq =>:
-        'SolitaireVariation
+      packageName =>: variationName =>:
+      game(game.imports) =>:
+    game(game.fields) =>:
+    game(game.methods)=>:
+    game(initialized) =>:
+    game(game.winCondition) =>:
+    game(complete)
   }
 
   /**
@@ -401,12 +287,12 @@ trait GameTemplate {
   @combinator object SolvableGame {
 
     def apply(rootPackage: Name,
-      nameParameter: SimpleName,
-      extraImports: Seq[ImportDeclaration],
-      extraFields: Seq[FieldDeclaration],
-      extraMethods: Seq[MethodDeclaration],
-      initializeSteps: Seq[Statement],
-      winParameter: Seq[Statement]): CompilationUnit = {
+              nameParameter: SimpleName,
+              extraImports: Seq[ImportDeclaration],
+              extraFields: Seq[FieldDeclaration],
+              extraMethods: Seq[MethodDeclaration],
+              initializeSteps: Seq[Statement],
+              winParameter: Seq[Statement]): CompilationUnit = {
 
       shared.java.SolvableGameTemplate
         .render(
@@ -421,60 +307,14 @@ trait GameTemplate {
     }
 
     val semanticType: Type =
-      'RootPackage =>:
-        'NameOfTheGame =>:
-        'ExtraImports =>:
-        'ExtraFields =>:
-        'ExtraMethods :&: 'AvailableMoves =>:
-        'Initialization :&: 'NonEmptySeq =>:
-        'WinConditionChecking :&: 'NonEmptySeq =>:
-        'SolitaireVariation :&: 'Solvable
+      packageName =>: variationName =>:
+        game(game.imports) =>:
+        game(game.fields) =>:
+        game(game.methods :&: game.availableMoves) =>:
+        game(initialized) =>:
+        game(game.winCondition) =>:
+        game(complete :&: game.solvable)
   }
-
-
-
-  /**
-    * Place single item, drawn from the given container and of type 'label'.
-    *
-    * Invoke as, example:  layout_place_one(lay, stock, Layout.Stock, Java("deckView").name(), 97)
-    *
-    * Feels like too many parameters...
-    * @return
-    */
-//  def layout_place_one_expr (lay: Layout, c: Container, label:String, view:Expression, height:Int): Seq[Statement] = {
-//    val itd = lay.placements(label, c, height)
-//    val r = itd.next()
-//
-//    Java(s"""|$view.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-//             |addViewWidget($view);
-//       """.stripMargin).statements()
-//  }
-
-//  /**
-//    * Place multiple items, drawn from the given container and of type 'label'.
-//    *
-//    * Invoke as, example:  layout_place_many(lay, tableau, Layout.Tableau, Java("fieldColumnViews").name(), 13*97)
-//    *
-//    * Feels like too many parameters...
-//    * @return
-//    */
-//  def layout_place_many (lay: Layout, c:Container, label:String, view:Name, height:Int): Seq[Statement] = {
-//    // this can all be retrieved from the solitaire domain model by
-//    // checking if a tableau is present, then do the following, etc... for others
-//    val itt = lay.placements(label, c, height)
-//    var stmts = Java("").statements()     // MUST BE SOME BETTER WAY OF GETTING EMPTY STATEMENTS
-//    while (itt.hasNext) {
-//      val r = itt.next()
-//
-//      val s = Java(s"""
-//                      |$view[${r.idx}].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-//                      |addViewWidget($view[${r.idx}]);
-//               """.stripMargin).statements()
-//
-//      stmts = stmts ++ s
-//    }
-//    stmts
-//  }
 
   def layout_place_it (c:Container, view:Name): Seq[Statement] = {
     // this can all be retrieved from the solitaire domain model by
@@ -515,36 +355,6 @@ trait GameTemplate {
     }.toSeq
   }
 
-
-//  /**
-//    * Place multiple elements of a container with custom coordinates.
-//    * @param layout Holds all containers in the layout.
-//    * @param container Such as the Reserve or Tableau.
-//    * @param view The real field name of the View associated.
-//    * @param x List of x coordinates.
-//    * @param y List of y coordinates.
-//    * @param height Usually the height of the card or column.
-//    * @return Generated statements placing the View in the game.
-//    *
-//    * @author jabortell
-//    */
-//  def layout_place_custom(layout: Layout, container: Container, view: Name, x: Array[Int], y: Array[Int], height: Int) = {
-//    val itt = layout.customPlacements(container, x, y, height)
-//    var statements = Java("").statements()
-//    while (itt.hasNext) {
-//      val r = itt.next()
-//
-//      val s = Java(
-//        s"""
-//           |$view[${r.idx}].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-//           |addViewWidget($view[${r.idx}]);
-//           """.stripMargin).statements()
-//
-//      statements = statements ++ s
-//    }
-//    statements
-//  }
-
   /**
     * Define fields for Deck (and DeckView) if a stock is defined in the Solitaire domain.
     *
@@ -571,12 +381,12 @@ trait GameTemplate {
   /**
     * Variations that wish to take advantage of automoves can define this method in their base class.
     */
-  @combinator object AutoMoveSequence {
+  object AutoMoveSequence {
     def apply(pkgName: Name, name: SimpleName): Seq[Statement] = {
       Java(s"""(($pkgName.$name)theGame).tryAutoMoves();""").statements()
     }
     val semanticType: Type =
-      'RootPackage =>: 'NameOfTheGame =>: 'AutoMoves
+      packageName =>: variationName =>: game.autoMoves
   }
 
   /**
@@ -587,9 +397,7 @@ trait GameTemplate {
 
       combinators.java.ConstraintHelper.render(pkgName, name, methods).compilationUnit()
     }
-    val semanticType: Type =  'RootPackage =>:
-      'NameOfTheGame =>:
-      'HelperMethods =>:
-      'HelperCode
+    val semanticType: Type =
+      packageName =>: variationName =>: constraints(constraints.methods) =>: constraints(complete)
   }
 }

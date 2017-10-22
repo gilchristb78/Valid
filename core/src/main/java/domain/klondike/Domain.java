@@ -66,6 +66,7 @@ public class Domain extends Solitaire {
         places = new HorizontalPlacement(new Point(95, 20),
                 card_width, card_height, card_gap);
         Waste waste = new Waste(places);
+        waste.add (new WastePile());
         containers.put(SolitaireContainerTypes.Waste, waste);
 
         // wins once foundation contains same number of cards as stock

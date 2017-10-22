@@ -243,4 +243,14 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
     val semanticType: Type = 'ExtraFields
   }
+
+  /**
+    * Need for helper
+    */
+  @combinator object HelperMethodsIdiot {
+    def apply(): Seq[MethodDeclaration] = Seq.empty
+
+    val semanticType: Type = 'HelperMethods
+  }
+
 }

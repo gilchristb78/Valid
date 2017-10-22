@@ -30,7 +30,7 @@ import domain.moves._
   * One can envision a future expansion that automatically synthesizes the
   * Undo logic given just the Do logic.
   */
-trait Moves extends Base {
+trait Moves extends Base with SemanticTypes {
 
   /* 
    * From one source to many destinations. 
@@ -53,13 +53,13 @@ trait Moves extends Base {
       ).compilationUnit()
     }
     val semanticType: Type =
-      'RootPackage =>:
-        'Move (semanticMoveNameType, 'ClassName) =>:
-        'Move (semanticMoveNameType, 'HelperMethods) =>:
-        'Move (semanticMoveNameType, 'DoStatements) =>:
-        'Move (semanticMoveNameType, 'UndoStatements) =>:
-        'Move (semanticMoveNameType, 'CheckValidStatements) =>:
-        'Move (semanticMoveNameType :&: 'GenericMove, 'CompleteMove)
+      packageName =>:
+      move (semanticMoveNameType, move.name) =>:
+      move (semanticMoveNameType, move.helper) =>:
+      move (semanticMoveNameType, move.doStatements) =>:
+      move (semanticMoveNameType, move.undoStatements) =>:
+      move (semanticMoveNameType, move.validStatements) =>:
+      move (semanticMoveNameType :&: move.generic, move.complete)
   }
 
   /**
@@ -83,13 +83,13 @@ trait Moves extends Base {
       ).compilationUnit()
     }
     val semanticType: Type =
-      'RootPackage =>:
-        'Move (semanticMoveNameType, 'ClassName) =>:
-        'Move (semanticMoveNameType, 'HelperMethods) =>:
-        'Move (semanticMoveNameType, 'DoStatements) =>:
-        'Move (semanticMoveNameType, 'UndoStatements) =>:
-        'Move (semanticMoveNameType, 'CheckValidStatements) =>:
-        'Move (semanticMoveNameType :&: 'GenericMove, 'CompleteMove)
+      packageName =>:
+        move (semanticMoveNameType, move.name) =>:
+        move (semanticMoveNameType, move.helper) =>:
+        move (semanticMoveNameType, move.doStatements) =>:
+        move (semanticMoveNameType, move.undoStatements) =>:
+        move (semanticMoveNameType, move.validStatements) =>:
+        move (semanticMoveNameType :&: move.generic, complete)
   }
 
   /**
@@ -105,11 +105,12 @@ trait Moves extends Base {
         DraggingCardVariableName = draggingCardVariableName
       ).compilationUnit()
     }
+
     val semanticType: Type =
-      'RootPackage =>:
-        'Move (semanticMoveNameType, 'ClassName) =>:
-        'Move (semanticMoveNameType, 'DraggingCardVariableName) =>:
-        'Move (semanticMoveNameType :&: 'PotentialMove, 'CompleteMove)
+      packageName =>:
+        move(semanticMoveNameType, className) =>:
+        move(semanticMoveNameType, move.draggingVariableCardName) =>:
+        move(semanticMoveNameType :&: move.potential, complete)
   }
 
   /**
@@ -130,22 +131,13 @@ trait Moves extends Base {
         DraggingCardVariableName = draggingCardVariableName
       ).compilationUnit()
     }
-    val semanticType: Type =
-      'RootPackage =>:
-        'Move (semanticMoveNameType, 'ClassName) =>:
-        'Move (semanticMoveNameType, 'DraggingCardVariableName) =>:
-        'Move (semanticMoveNameType, 'MultipleCardMove) =>:
-        'Move (semanticMoveNameType :&: 'PotentialMultipleMove, 'CompleteMove)
-  }
 
-  /**
-    * Create a Move class that resets a Deck of cards from a collection of stacks.
-    */
-  @combinator object ResetDeck {
-    def apply(rootPackage: Name): CompilationUnit = {
-      shared.moves.java.ResetDeck.render(rootPackage).compilationUnit()
-    }
-    val semanticType: Type = 'RootPackage =>: 'Move ('ResetDeck, 'CompleteMove)
+    val semanticType: Type =
+      packageName =>:
+        move(semanticMoveNameType, move.name) =>:
+        move(semanticMoveNameType, move.draggingVariableCardName) =>:
+        move(semanticMoveNameType, move.multipleCardMove) =>:
+        move(semanticMoveNameType :&: move.potentialMultipleMove, move.complete)
   }
 
   /**
@@ -153,7 +145,7 @@ trait Moves extends Base {
     */
   @combinator object IncrementScore {
     def apply(): Seq[Statement] = Java("game.updateScore(1);").statements()
-    val semanticType: Type = 'IncrementScore
+    val semanticType: Type = score.increment
   }
 
   /**
@@ -161,7 +153,7 @@ trait Moves extends Base {
     */
   @combinator object DecrementScore {
     def apply(): Seq[Statement] = Java("game.updateScore(-1);").statements()
-    val semanticType: Type = 'DecrementScore
+    val semanticType: Type = score.decrement
   }
 
   /**
@@ -169,7 +161,7 @@ trait Moves extends Base {
     */
   @combinator object IncrementNumberCardsLeft {
     def apply(): Seq[Statement] = Java("game.updateNumberCardsLeft(1);").statements()
-    val semanticType: Type = 'IncrementNumberCardsLeft
+    val semanticType: Type = numberCardsLeft.increment
   }
 
   /**
@@ -177,39 +169,9 @@ trait Moves extends Base {
     */
   @combinator object DecrementNumberCardsLeft {
     def apply(): Seq[Statement] = Java("game.updateNumberCardsLeft(-1);").statements()
-    val semanticType: Type = 'DecrementNumberCardsLeft
+    val semanticType: Type = numberCardsLeft.decrement
   }
 
-//  /**
-//    * Useful generic move for removing a single card from a stack
-//    */
-//  @combinator object RemoveSingleCard {
-//    def apply(rootPackage: Name): CompilationUnit = {
-//      shared.moves.java.RemoveSingleCard.render(rootPackage).compilationUnit()
-//    }
-//    val semanticType: Type = 'RootPackage =>: 'Move ('RemoveSingleCard, 'CompleteMove)
-//  }
-
-  /**
-    * Creates stand-alone class to represent a card that has been removed
-    * from a specific source element (identified by name)>
-    */
-//  @combinator object RemovedCard {
-//    def apply(rootPackage: Name): CompilationUnit = {
-//      shared.moves.java.RemovedCard.render(rootPackage).compilationUnit()
-//    }
-//    val semanticType: Type = 'RootPackage =>: 'Move ('RemovedCard, 'CompleteMove)
-//  }
-
-  /**
-    * Deal cards from deck onto a set of stacks.
-    */
-//  @combinator object DealStacks {
-//    def apply(rootPackage: Name): CompilationUnit = {
-//      shared.moves.java.DealStacksMove.render(rootPackage).compilationUnit()
-//    }
-//    val semanticType: Type = 'RootPackage =>: 'Move ('DealStacks, 'CompleteMove)
-//  }
 
   /**
     * Scala class to generate combinators which record the name of the
@@ -230,16 +192,17 @@ trait Moves extends Base {
     */
   class PotentialMultipleCardMove(typ:String, constructor:Constructor) {
     def apply(): JType = Java(typ).tpe()
-    val semanticType: Type = 'Move (constructor, 'MultipleCardMove)
+    val semanticType: Type = move(constructor, move.multipleCardMove)
   }
 
   /**
     * When a single card is being removed from the top card of a widget,
     * either a Column or a Pile
     */
-  class SingleCardMoveHandler(realType:String, typ:Symbol, source:Symbol) {
+  class SingleCardMoveHandler(tpe:Constructor) {
     def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+        val realType = tpe.toString
         Java(s"""|$ignoreWidgetVariableName = false;
                  |$realType srcElement = ($realType) src.getModelElement();
                  |
@@ -254,8 +217,8 @@ trait Moves extends Base {
     }
 
     val semanticType: Type =
-      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        typ (source, 'Pressed) :&: 'NonEmptySeq
+      drag(drag.variable, drag.ignore) =>:
+    controller(tpe, controller.pressed)
   }
 
   /**
@@ -269,10 +232,11 @@ trait Moves extends Base {
     * TODO: Work to bring move precondition in here, rather than relegating to an extra
     * method
     */
-  class ColumnMoveHandler(realType:String, typ:Symbol, source:Symbol, name:SimpleName = null) {
+  class ColumnMoveHandler(tpe:Constructor, name:SimpleName = null) {
     def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
         var filter:Seq[Statement] = Seq.empty
+        val realType = tpe.toString
         if (name != null) {
           filter = Java(s"""
                |if (!theGame.$name(($realType) (${widgetVariableName}.getModelElement()))) {
@@ -300,8 +264,6 @@ trait Moves extends Base {
     }
 
     val semanticType: Type =
-      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        typ (source, 'Pressed) :&: 'NonEmptySeq
+      drag(drag.variable, drag.ignore) =>: controller(tpe, controller.pressed)
   }
-
 }

@@ -91,7 +91,7 @@ trait JavaIdioms {
   /**
    * If dynamic combinator has already been added, this converts into proper type.
    */
-class StatementConverter(sem1: Constructor, sem2: Constructor) {
+class StatementConverter(sem1: Type, sem2: Type) {
     def apply(stmts: Seq[Statement]): Seq[Statement] = stmts
     val semanticType: Type = sem1 =>: sem2
   }

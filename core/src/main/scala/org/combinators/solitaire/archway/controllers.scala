@@ -63,30 +63,30 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
     // Create real class names for the Controllers. Becomes 'Symbol + "Controller"
     // i.e. 'AcesUpPile -> "AcesUpPileController"
     updated = updated
-      .addCombinator (new ControllerNaming('AcesUpPile, 'AcesUpPile, "AcesUpPile"))
-      .addCombinator (new ControllerNaming('KingsDownPile, 'KingsDownPile, "KingsDownPile"))
-      .addCombinator (new ControllerNaming('Column, 'Column, "Column"))
-      .addCombinator (new ControllerNaming('Pile, 'Pile, "Pile"))
+      .addCombinator (new ControllerNaming('AcesUpPile))
+      .addCombinator (new ControllerNaming('KingsDownPile))
+      .addCombinator (new ControllerNaming('Column))
+      .addCombinator (new ControllerNaming('Pile))
 
     updated = updated
 
       // Cards are not moved from the Aces or Kings Foundation.
-      .addCombinator (new IgnorePressedHandler('AcesUpPile, 'AcesUpPile))
-      .addCombinator (new IgnoreClickedHandler('AcesUpPile, 'AcesUpPile))
+      .addCombinator (new IgnorePressedHandler('AcesUpPile))
+      .addCombinator (new IgnoreClickedHandler('AcesUpPile))
 
-      .addCombinator (new IgnorePressedHandler('KingsDownPile, 'KingsDownPile))
-      .addCombinator (new IgnoreClickedHandler('KingsDownPile, 'KingsDownPile))
+      .addCombinator (new IgnorePressedHandler('KingsDownPile))
+      .addCombinator (new IgnoreClickedHandler('KingsDownPile))
 
 
       // IgnoreReleasedHandler is necessary, because cards are only moved away
       // from the reserve, and never to it.
-      .addCombinator (new IgnoreClickedHandler('Pile, 'Pile))
-      .addCombinator (new IgnoreReleasedHandler('Pile, 'Pile))
-      .addCombinator (new SingleCardMoveHandler("Pile", 'Pile, 'Pile))
+      .addCombinator (new IgnoreClickedHandler('Pile))
+      .addCombinator (new IgnoreReleasedHandler('Pile))
+      .addCombinator (new SingleCardMoveHandler('Pile))
 
       // Cards can be dragged to and from the Tableau.
-      .addCombinator (new IgnoreClickedHandler('Column, 'Column))
-      .addCombinator (new SingleCardMoveHandler("Column", 'Column, 'Column))
+      .addCombinator (new IgnoreClickedHandler('Column))
+      .addCombinator (new SingleCardMoveHandler('Column))
 
     updated = updated
       .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToAcesUpPile))
