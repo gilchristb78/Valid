@@ -170,7 +170,6 @@ object constraintCodeGenerators {
       }
     },
 
-
     CodeGeneratorRegistry[Expression, OrConstraint] {
       case (registry: CodeGeneratorRegistry[Expression], or: OrConstraint) =>
         println ("Or:" + or.toString)
@@ -192,18 +191,18 @@ object constraintCodeGenerators {
 }
 
 // codeGen.apply(ifc).get
-class StatementCombinator(c:Constraint, constraint_type:Constructor, inits:Seq[Statement] = Seq.empty) extends SemanticTypes { // Constructor
+class StatementCombinator(c:Constraint, moveSymbol:Type, inits:Seq[Statement] = Seq.empty) extends SemanticTypes { // Constructor
   def apply(generators: CodeGeneratorRegistry[Expression]): Seq[Statement] = {
     val cc3: Option[Expression] = generators(c)
     if (cc3.isEmpty) {
-      println("Unable to locate:" + c);
+      println("Unable to locate:" + c)
       inits
     } else {
       inits ++ Java(s"""return ${cc3.get};""").statements()
     }
   }
 
-  var semanticType: Type = constraints(constraints.generator) =>: constraint_type
+  var semanticType: Type = constraints(constraints.generator) =>: move(moveSymbol, move.validStatements)
 }
 
 object generateHelper {
@@ -212,8 +211,8 @@ object generateHelper {
     */
   def fieldAccessHelper(name:String, fieldName:String) : MethodDeclaration = {
     Java(
-      s"""|public static Stack[] ${name}(Solitaire game) {
-          |  return getVariation(game).${fieldName};
+      s"""|public static Stack[] $name(Solitaire game) {
+          |  return getVariation(game).$fieldName;
           |}
        """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head
   }

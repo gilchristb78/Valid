@@ -19,7 +19,7 @@ import domain.moves._
   * This trait contains combinators related to moves in a solitaire variation.
   *
   * Each move in solitaire defines a subclass of the Move base class.
-  * The consituent parts of a move are:
+  * The constituent parts of a move are:
   *
   *   1. Package and class name
   *   2. Helper declarations (which include constructors, fields, methods)
@@ -54,12 +54,12 @@ trait Moves extends Base with SemanticTypes {
     }
     val semanticType: Type =
       packageName =>:
-      move (semanticMoveNameType, move.name) =>:
+      move (semanticMoveNameType, className) =>:
       move (semanticMoveNameType, move.helper) =>:
       move (semanticMoveNameType, move.doStatements) =>:
       move (semanticMoveNameType, move.undoStatements) =>:
       move (semanticMoveNameType, move.validStatements) =>:
-      move (semanticMoveNameType :&: move.generic, move.complete)
+      move (semanticMoveNameType :&: move.generic, complete)
   }
 
   /**
@@ -84,7 +84,7 @@ trait Moves extends Base with SemanticTypes {
     }
     val semanticType: Type =
       packageName =>:
-        move (semanticMoveNameType, move.name) =>:
+        move (semanticMoveNameType, className) =>:
         move (semanticMoveNameType, move.helper) =>:
         move (semanticMoveNameType, move.doStatements) =>:
         move (semanticMoveNameType, move.undoStatements) =>:
@@ -134,10 +134,10 @@ trait Moves extends Base with SemanticTypes {
 
     val semanticType: Type =
       packageName =>:
-        move(semanticMoveNameType, move.name) =>:
+        move(semanticMoveNameType, className) =>:
         move(semanticMoveNameType, move.draggingVariableCardName) =>:
         move(semanticMoveNameType, move.multipleCardMove) =>:
-        move(semanticMoveNameType :&: move.potentialMultipleMove, move.complete)
+        move(semanticMoveNameType :&: move.potentialMultipleMove, complete)
   }
 
   /**

@@ -16,8 +16,15 @@ trait SemanticTypes {
   val complete: Type = 'Complete
   val initialized:Type = 'Initialized
 
+  /**
+    * Constructing combinators from scratch require unique ids
+    */
+  object dynamic {
+    def apply (uniq:Symbol) : Constructor = 'Dynamic(uniq)
+  }
+
   // common structures
-  val deck: Constructor = 'Deck // DECK or STOCK
+  val deck: Type = 'Deck // DECK or STOCK
   val column: Type = 'Column
   val buildablePile: Type = 'BuildablePile
   val pile: Type = 'Pile
@@ -38,10 +45,9 @@ trait SemanticTypes {
     val control:Type = 'Control
 
     val availableMoves:Type = 'AvailableMoves
-    val solvable:Type = 'Solvable   // does game provide avaialableMoves
+    val solvable:Type = 'Solvable   // does game provide availableMoves
 
     val deal:Type = 'Deal
-
   }
 
   object score {
@@ -55,7 +61,7 @@ trait SemanticTypes {
   }
 
   object drag {
-    def apply(variable: Type, ignore: Type) = 'Drag (variable, ignore)
+    def apply(variable: Type, ignore: Type) : Constructor = 'Drag (variable, ignore)
 
     val variable: Type = 'WidgetVariableName
     val ignore: Type = 'IgnoreWidgetVariableName
@@ -63,8 +69,8 @@ trait SemanticTypes {
 
   // might consider changing to Type, but was Constructor in original code.
   object press {
-    val card:Constructor = 'GuardCardView
-    val column:Constructor = 'GuardColumnView
+    val card:Type = 'GuardCardView
+    val column:Type = 'GuardColumnView
   }
 
   // parts of the widgets during move
@@ -102,7 +108,7 @@ trait SemanticTypes {
     *
     */
   object controller {
-    def apply(context: Type, part: Type): Type = 'Controller (context, part)
+    def apply(context: Type, part: Type): Constructor = 'Controller (context, part)
 
     val pressed:Type = 'Pressed
     val clicked:Type = 'Clicked
@@ -114,7 +120,7 @@ trait SemanticTypes {
     * Used to clarify the helper code to be synthesized.
     */
   object constraints {
-    def apply(part: Type): Type = 'Constraints(part)
+    def apply(part: Type): Constructor = 'Constraints (part)
 
     val methods:Type = 'Methods
     val generator:Type = 'ConstraintGen

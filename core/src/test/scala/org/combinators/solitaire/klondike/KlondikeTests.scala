@@ -6,7 +6,7 @@ import domain.{Solitaire, SolitaireContainerTypes}
 import domain.klondike.Domain
 import org.combinators.solitaire.shared._
 
-class KlondikeTests extends Helper {
+class KlondikeTests (types:SemanticTypes) extends Helper(types) {
 
   describe("The possible inhabited domain models") {
     val domainModel:Solitaire = new Domain()
@@ -31,11 +31,11 @@ class KlondikeTests extends Helper {
             ReflectedRepository(controllerRepository, classLoader = this.getClass.getClassLoader),
             domainModel)
 
-          containsClass(singleInstance(Gamma, domainModel, 'SolitaireVariation), "Klondike")
-          containsClass(singleInstance(Gamma, domainModel, 'Controller ('BuildablePile)), "PileController")
-          containsClass(singleInstance(Gamma, domainModel, 'Controller ('WastePile)), "WastePileController")
-          containsClass(singleInstance(Gamma, domainModel, 'Controller ('Pile)), "PileController")
-          containsClass(singleInstance(Gamma, domainModel, 'Controller ('Deck)), "DeckController")
+          containsClass(singleInstance(Gamma, 'SolitaireVariation), "Klondike")
+          containsClass(singleInstance(Gamma, 'Controller ('BuildablePile)), "PileController")
+          containsClass(singleInstance(Gamma, 'Controller ('WastePile)), "WastePileController")
+          containsClass(singleInstance(Gamma, 'Controller ('Pile)), "PileController")
+          containsClass(singleInstance(Gamma, 'Controller ('Deck)), "DeckController")
 
         }
       }

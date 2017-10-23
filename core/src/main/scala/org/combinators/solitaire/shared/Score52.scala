@@ -8,13 +8,12 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 trait Score52 extends SemanticTypes {
   @combinator object Score52 {
     def apply(): Seq[Statement] = {
-      Java(
-        s"""
+      Java(s"""
            |if (getScoreValue() == 52) {
            |  return true;
            |}
            """.stripMargin).statements()
     }
-    val semanticType: Type = game.winCondition
+    val semanticType: Type = game(game.winCondition)
   }
 }

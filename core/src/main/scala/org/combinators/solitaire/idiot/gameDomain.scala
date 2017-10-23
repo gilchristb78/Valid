@@ -29,9 +29,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       }).merge(constraintCodeGenerators.generators)
   }
 
-  @combinator object MyGenerator {
+  @combinator object IdiotGenerator {
     def apply: CodeGeneratorRegistry[Expression] = idiotCodeGenerator.generators
-    val semanticType: Type = 'ConstraintGen
+    val semanticType: Type = constraints(constraints.generator)
   }
 
   /**
@@ -39,7 +39,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     */
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.idiot").name()
-    val semanticType: Type = 'RootPackage
+    val semanticType: Type = packageName
   }
 
   /**
@@ -47,7 +47,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     */
   @combinator object NameOfTheGame {
     def apply: SimpleName = Java("Idiot").simpleName()
-    val semanticType: Type = 'NameOfTheGame
+    val semanticType: Type = 'NameOfTheGame // OLD variationName
   }
 
   /**
@@ -63,7 +63,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       deck ++ colGen
     }
 
-    val semanticType: Type = 'Init ('Model)
+    val semanticType: Type = game(game.model)
   }
 
   /**
@@ -87,7 +87,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       stmts
     }
 
-    val semanticType: Type = 'Init ('View)
+    val semanticType: Type = game(game.view)
   }
 
   /**
@@ -108,7 +108,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       colsetup ++ decksetup
     }
 
-    val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
+    val semanticType: Type = variationName =>: game(game.control)
   }
 
   /**
@@ -117,7 +117,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object IdiotInitLayout {
     def apply(): Seq[Statement] = Seq.empty
 
-    val semanticType: Type = 'Init ('InitialDeal)
+    val semanticType: Type = game(game.deal)
   }
 
 
@@ -131,7 +131,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
         Java(s"import $nameExpr.model.*;").importDeclaration()
       )
     }
-    val semanticType: Type = 'RootPackage =>: 'ExtraImports
+    val semanticType: Type = packageName =>: game(game.imports)
   }
 
   /**
@@ -218,7 +218,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
     }
 
-    val semanticType: Type = 'ExtraMethods :&: 'AvailableMoves
+    val semanticType: Type = game(game.methods :&: game.availableMoves)
   }
 
   /**
@@ -241,7 +241,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       decks ++ fields ++ fieldColumns
     }
 
-    val semanticType: Type = 'ExtraFields
+    val semanticType: Type = game(game.fields)
   }
 
   /**
@@ -250,7 +250,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object HelperMethodsIdiot {
     def apply(): Seq[MethodDeclaration] = Seq.empty
 
-    val semanticType: Type = 'HelperMethods
+    val semanticType: Type = constraints(constraints.methods)
   }
 
 }

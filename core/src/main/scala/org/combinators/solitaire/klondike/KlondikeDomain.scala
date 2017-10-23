@@ -18,12 +18,12 @@ import domain.ui._
   * Define domain using Score52 since this is a single-deck solitaire game.
   * @param solitaire    Application domain object with details about solitaire variation.
   */
-class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire)
+class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with SemanticTypes
   with GameTemplate with Score52 with Controller {
 
   @combinator object DefaultGenerator {
     def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
-    val semanticType: Type = 'ConstraintGen
+    val semanticType: Type = constraints(constraints.generator)
   }
 
   /**
@@ -31,7 +31,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     */
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.klondike").name()
-    val semanticType: Type = 'RootPackage
+    val semanticType: Type = packageName
   }
 
   /**
@@ -39,7 +39,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     */
   @combinator object NameOfTheGame {
     def apply: SimpleName = Java("Klondike").simpleName()
-    val semanticType: Type = 'NameOfTheGame
+    val semanticType: Type = variationName
   }
 
   @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
@@ -61,7 +61,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       deck ++ colGen ++ foundGen ++ wastePileGen
     }
 
-    val semanticType: Type = 'Init ('Model)
+    val semanticType: Type = game(game.model)
   }
 
   /**
@@ -87,7 +87,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       ds ++ ws ++ cs ++ fd
     }
 
-    val semanticType: Type = 'Init ('View)
+    val semanticType: Type = game(game.view)
   }
 
   /**
@@ -108,7 +108,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       bpsetup ++ decksetup ++ foundsetup ++ wastesetup
     }
 
-    val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
+    val semanticType: Type = variationName =>: game(game.control)
   }
 
   /**
@@ -128,7 +128,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 		    |}""".stripMargin).statements()
     }
 
-    val semanticType: Type = 'Init ('InitialDeal)
+    val semanticType: Type = game(game.deal)
   }
 
   // vagaries of java imports means these must be defined as well.
@@ -139,7 +139,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
         Java(s"import $nameExpr.model.*;").importDeclaration()
       )
     }
-    val semanticType: Type = 'RootPackage =>: 'ExtraImports
+    val semanticType: Type = packageName =>: game(game.imports)
   }
 
   /**
@@ -156,7 +156,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
     }
 
-    val semanticType: Type = 'ExtraMethods
+    val semanticType: Type = game(game.methods)
   }
 
   /**
@@ -178,9 +178,8 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       decks ++ fields ++ fieldBuildablePiles ++ wastePiles ++ foundPiles
     }
 
-    val semanticType: Type = 'ExtraFields
+    val semanticType: Type = game(game.fields)
   }
-
 
   /**
     * Need for helper
@@ -188,6 +187,6 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   @combinator object HelperMethodsFreeCell {
     def apply(): Seq[MethodDeclaration] = Seq.empty
 
-    val semanticType: Type = 'HelperMethods
+    val semanticType: Type = constraints(constraints.methods)
   }
 }

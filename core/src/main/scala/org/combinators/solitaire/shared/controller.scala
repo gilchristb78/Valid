@@ -9,13 +9,13 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.Constructor
+
 import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.solitaire.shared
 import _root_.java.util.UUID
 import org.combinators.generic
 import domain._
 import domain.moves._
-import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConverters._
 
 trait Controller extends Base with shared.Moves with generic.JavaIdioms with SemanticTypes {
@@ -38,10 +38,10 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
       updated = updated
         .addCombinator(new ClassNameDef(moveSymbol, moveString))
         .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
-        .addCombinator(new UndoGenerator(mv, move(moveSymbol, move.undoStatements)))
-        .addCombinator(new DoGenerator(mv, move(moveSymbol, move.doStatements)))
+        .addCombinator(new UndoGenerator(mv, moveSymbol))
+        .addCombinator(new DoGenerator(mv, moveSymbol))
         .addCombinator(new MoveHelper(mv, new SimpleName(moveString), moveSymbol))
-        .addCombinator(new StatementCombinator (mv.constraint, move(moveSymbol, move.validStatements)))
+        .addCombinator(new StatementCombinator (mv.constraint, moveSymbol))
 
       /**
         * A move typically contains a single source and a single destination. For some
@@ -75,7 +75,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
       ///val moveString = srcBase + "To" + tgtBase
       val moveString = mv.getName
-      val moveSymbol = Symbol(moveString)
+      val moveSymbol:Type = Symbol(moveString)
 
 
       // capture information about the source and target of each move
@@ -90,8 +90,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
       // potential moves must resolve dragging variables
       updated = updated
-        .addCombinator(new PotentialDraggingVariableGenerator (mv,
-          move(moveSymbol, drag.variable)))
+        .addCombinator(new PotentialDraggingVariableGenerator (mv, moveSymbol))
 
       // potential move structure varies based on kind of move: not
       // yet dealing with DeckDealMove...
@@ -113,7 +112,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
     var updated = gamma
 
     // identify all unique pairs and be sure to generate handler for
-    // these cases. NOTE: TAKE FROM RULES NOT FROM S since that doesn't
+    // these cases. NOTE: TAKE FROM RULES NOT FROM S since that does not
     // have the proper instantiations of the elements inside
     var drag_handler_map:Map[Container,List[Move]] = Map()
     val inner_rules_it = s.getRules.drags
@@ -141,13 +140,14 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
     // key is Container, value is List of moves
     drag_handler_map.keys.foreach{ k =>
       // iterate over moves in the handler_map(k)
-      var lastID:Option[Symbol] = None
+      var lastID:Option[Constructor] = None
       drag_handler_map(k).foreach { m =>
 
         val moveString = m.getName
-        val moveSymbol = Symbol(moveString)
+        val moveSymbol:Type = Symbol(moveString)
 
-        val curID = Symbol("ComponentOf-" + UUID.randomUUID().toString)
+        //val curID:Type = Symbol("ComponentOf-" + UUID.randomUUID().toString)
+        val curID:Constructor = dynamic(Symbol(UUID.randomUUID().toString))
 
         val viewType =
           m match {
@@ -160,7 +160,8 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
           .addCombinator (new IfBlock(viewType, widget(moveSymbol, complete), curID))
 
         if (lastID.nonEmpty) {
-          val subsequentID = Symbol("ComponentOf-" + UUID.randomUUID().toString)
+          //val subsequentID:Constructor = Symbol("ComponentOf-" + UUID.randomUUID().toString)
+          val subsequentID:Constructor = dynamic(Symbol(UUID.randomUUID().toString))
           updated = updated
             .addCombinator (new StatementCombiner(lastID.get, curID, subsequentID))
 
@@ -171,7 +172,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
       }
 
       val originalTarget = k.types().next()
-      val typ = Symbol(originalTarget)
+      val typ:Type = Symbol(originalTarget)
       //val item = typ (Symbol(originalTarget), 'Released)
 
       val item = controller(typ, controller.released)
@@ -182,25 +183,27 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
     updated
   }
 
-
-  class ClassNameGenerator(moveSymbol:Symbol, name:String) {
+  // HACK
+  // THESE SEEM LIKE NOT WORTH WRITING..
+  // TODO: FIX ME
+  class ClassNameGenerator(moveSymbol:Type, name:String) {
     def apply: SimpleName = Java(s"""$name""").simpleName()
-    val semanticType: Type = 'Move (moveSymbol, 'ClassName)
+    val semanticType: Type = move(moveSymbol, className)
   }
 
-  class PotentialDraggingVariableGenerator(m:Move, constructor:Constructor) {
+  class PotentialDraggingVariableGenerator(m:Move, moveSymbol:Type) {
     def apply(): SimpleName = {
       m match {
         case _ : SingleCardMove => Java(s"""movingCard""").simpleName()
         case _: ColumnMove     => Java(s"""movingColumn""").simpleName()
       }
     }
-    val semanticType: Type = constructor
+    val semanticType: Type = move(moveSymbol, move.draggingVariableCardName)
   }
 
   /** When given a Move (SingleCardMove or ColumnMove) ascribes proper Undo. */
   /** Same code, just by coincidence. */
-  class UndoGenerator(m:Move, constructor:Constructor) {
+  class UndoGenerator(m:Move, moveSymbol:Type) {
     def apply(): Seq[Statement] = {
       m match {
         case _ : FlipCardMove =>
@@ -234,12 +237,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
             .statements()
       }
     }
-    val semanticType: Type = constructor
+    val semanticType: Type = move(moveSymbol, move.undoStatements)
   }
 
   /** When given a Move (SingleCardMove or ColumnMove) ascribes proper Do. */
   /** Same code, just by coincidence. */
-  class DoGenerator(m:Move, constructor:Constructor) {
+  class DoGenerator(m:Move, moveSymbol:Type) {
     def apply(): Seq[Statement] = {
       m match {
         case _ : FlipCardMove =>
@@ -277,11 +280,11 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
           Java(s"""destination.push(movingColumn);""").statements()
       }
     }
-    val semanticType: Type = constructor
+    val semanticType: Type = move(moveSymbol, move.doStatements)
   }
 
   /** Every move class needs a constructor with helper fields. */
-  class MoveHelper(m:Move, name:SimpleName, moveSymbol: Symbol) {
+  class MoveHelper(m:Move, name:SimpleName, moveSymbol: Type) {
     def apply() : Seq[BodyDeclaration[_]] = {
       m match {
         case _ : FlipCardMove =>
@@ -317,7 +320,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
         case _ : ResetDeckMove => Seq.empty
 
           /**
-            * Fundamental API for moving multiple cards is to have 'numInColumn' holding number.
+            * Fundamental API for moving multiple cards is to have numInColumn holding number.
             * This becomes relevant in PotentialMoveOneCardFromStack...
             */
         case _ : ColumnMove =>
@@ -331,47 +334,14 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
       }
     }
 
-    val semanticType: Type = 'Move (moveSymbol, 'HelperMethods)
+    val semanticType: Type = move(moveSymbol, move.helper)
   }
-
-  /**
-    * Combinator defines the structure of a controller, which needs to handle press, release and click
-    * events.
-    *
-    * */
-//  class WidgetController(elementType: Symbol) {
-//    def apply(rootPackage: Name,
-//              designate: SimpleName,
-//              nameOfTheGame: SimpleName,
-//              mouseClicked: Seq[Statement],
-//              mouseReleased: Seq[Statement],
-//              mousePressed: (SimpleName, SimpleName) => Seq[Statement]): CompilationUnit = {
-//
-//      shared.controller.java.Controller.render(
-//        RootPackage = rootPackage,
-//        Designate = new SimpleName(elementType.name),   // was toString but that worked with Type
-//        NameOfTheGame = nameOfTheGame,
-//        AutoMoves = Seq.empty,
-//        MouseClicked = mouseClicked,
-//        MousePressed = mousePressed,
-//        MouseReleased = mouseReleased
-//      ).compilationUnit()
-//    }
-//    val semanticType: Type =
-//      'RootPackage =>:
-//        elementType (elementType, 'ClassName) =>:   // 1st was sumbol
-//        'NameOfTheGame =>:
-//        elementType (elementType, 'Clicked) :&: 'NonEmptySeq =>:    // 1st was symbol
-//        elementType (elementType, 'Released) =>:     // 1st was symbol     // pressed was symbol
-//        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: elementType (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
-//        'Controller (elementType)
-//  }
 
   /**
     *
     * @param elementType     Type of Element for which controller is synthesized.
     */
-  class WidgetController(elementType: Symbol) {
+  class WidgetController(elementType: Type) {
     def apply(rootPackage: Name,
               designate: SimpleName,
               nameOfTheGame: SimpleName,
@@ -382,7 +352,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
       shared.controller.java.Controller.render(
         RootPackage = rootPackage,
-        Designate = new SimpleName(elementType.name),
+        Designate = new SimpleName(elementType.toString()),   // was name.... TODO: HACK
         NameOfTheGame = nameOfTheGame,
         AutoMoves = autoMoves,
         MouseClicked = mouseClicked,
@@ -390,43 +360,30 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
         MouseReleased = mouseReleased
       ).compilationUnit()
     }
-    val semanticType: Type =
-      'RootPackage =>:
-        elementType (elementType, 'ClassName) =>:
-        'NameOfTheGame =>:
-        'AutoMoves =>:       /** Generic symbol (i.e., not elementType) since only makes request of base class. */
-        elementType (elementType, 'Clicked) :&: 'NonEmptySeq =>:
-        elementType (elementType, 'Released) =>: // no longer need ... :&: 'NonEmptySeq (I think)....
-        ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: elementType (elementType, 'Pressed) :&: 'NonEmptySeq) =>:
-        'Controller (elementType)
+    val semanticType: Type = packageName =>:
+      controller(elementType, className) =>:
+      variationName =>:
+      game(game.autoMoves) =>:
+      controller(elementType, controller.clicked) =>:
+      controller(elementType, controller.released) =>:
+      (drag(drag.variable, drag.ignore) =>: controller(elementType, controller.pressed)) =>:
+      controller(elementType, complete)
   }
 
 
-//  class DeckController(deckNameType: Type) {
-//    def apply(rootPackage: Name,
-//              nameOfTheGame: SimpleName,
-//              deckMousePressed: Seq[Statement]): CompilationUnit = {
-//      shared.controller.java.DeckController.render(
-//        RootPackage = rootPackage,
-//        NameOfTheGame = nameOfTheGame,
-//        DeckMousePressed = deckMousePressed
-//      ).compilationUnit()
-//    }
-//    val semanticType: Type =
-//      'RootPackage =>: 'NameOfTheGame =>: 'Deck ('Pressed) =>: 'Controller (deckNameType)
-//  }
-
-
-  // generative classes for each of the required elements
-  class NameDef(moveNameType: Type, moveElementDescriptor: Type, value: String) {
+  // generative classes for each of the required elements. This seems much more generic than worth being buried here.
+  // PLEASE SIMPLIFY. TODO
+  // HACK
+  class NameDef(cons: Constructor, value: String) {
     def apply(): SimpleName = Java(value).simpleName()
-    val semanticType: Type = 'MoveElement (moveNameType, moveElementDescriptor)
+    val semanticType: Type = cons
   }
 
-  class ClassNameDef(moveNameType: Type, value: String) extends NameDef(moveNameType, 'ClassName, value)
-  class MovableElementNameDef(moveNameType: Type, value: String) extends NameDef(moveNameType, 'MovableElementName, value)
-  class SourceWidgetNameDef(moveNameType: Type, value: String) extends NameDef(moveNameType, 'SourceWidgetName, value)
-  class TargetWidgetNameDef(moveNameType: Type, value: String) extends NameDef(moveNameType, 'TargetWidgetName, value)
+  class ClassNameDef(moveNameType: Type, value: String) extends NameDef(widget(moveNameType, className), value)
+
+  class MovableElementNameDef(moveNameType: Type, value: String) extends NameDef(widget(moveNameType, widget.movable), value)
+  class SourceWidgetNameDef(moveNameType: Type, value: String) extends NameDef(widget(moveNameType, widget.source), value)
+  class TargetWidgetNameDef(moveNameType: Type, value: String) extends NameDef(widget(moveNameType, widget.target), value)
 
   // this provides just the sequence of statements....
   class MoveWidgetToWidgetStatements(moveNameType: Type) {
@@ -453,7 +410,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
         widget(moveNameType, complete)
   }
 
-  class IgnoreClickedHandler(source:Constructor) {
+  class IgnoreClickedHandler(source:Type) {
     def apply(): Seq[Statement] = Seq.empty
     val semanticType: Type = controller(source, controller.clicked)
   }
@@ -463,7 +420,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
     *
     * Simply grab the dragging source from the container and return the moving widget.
     */
-  class IgnoreReleasedHandler(source:Constructor) {
+  class IgnoreReleasedHandler(source:Type) {
     def apply(): Seq[Statement] = {
       Java(s"""c.getDragSource().returnWidget(w);""").statements()
     }

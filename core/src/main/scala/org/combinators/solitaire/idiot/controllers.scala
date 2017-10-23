@@ -31,7 +31,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     updated = updated
       .addCombinator (new SingleCardMoveHandler('Column))
       .addCombinator (new DealToTableauHandlerLocal())
-      .addCombinator (new TryRemoveCardHandlerLocal('Column, 'Column))
+      .addCombinator (new TryRemoveCardHandlerLocal('Column))
 
     // Potential moves clarify structure (by type not instance). FIX ME
     // FIX ME FIX ME FIX ME
@@ -58,8 +58,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
                |}""".stripMargin).statements()
     }
 
-    val semanticType: Type =
-      ('Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>: 'Deck ('Deck, 'Pressed) :&: 'NonEmptySeq)
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed)
 
   }
 
@@ -67,10 +66,9 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     * HACK: Move this logic into class which is synthesized, rather than taking existing RSC class as is
     * from the template area.
     *
-    * @param widgetType
     * @param source
     */
-  class TryRemoveCardHandlerLocal(widgetType:Symbol, source:Symbol) {
+  class TryRemoveCardHandlerLocal(source:Symbol) {
     def apply():Seq[Statement] = {
       Java(s"""|Column srcColumn = (Column) src.getModelElement();
                |Move m = new RemoveCard(srcColumn);
@@ -79,7 +77,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
                |}""".stripMargin).statements()
     }
 
-    val semanticType: Type = widgetType (source, 'Clicked) :&: 'NonEmptySeq
+    val semanticType: Type = controller (source, controller.clicked)
   }
 }
 

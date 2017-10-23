@@ -60,7 +60,7 @@ public class Domain extends Solitaire {
 		// Remove a card from the tableau? This can be optimized by a click
 		// do I allow another Rule? Or reuse existing one?
 		// Not sure how to deal with MOVE with a single PRESS
-		// That is, this won't be the head part of a 'drag' operation.
+		// That is, this will not be the head part of a drag operation.
 
 		// deal four cards from Stock
 		NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));

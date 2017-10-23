@@ -47,23 +47,23 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 //      .addCombinator (new PotentialTypeConstructGen("Column", 'BuildColumn))
 //
     // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
-    updated = updated
-      .addCombinator (new ControllerNaming('ReservePile, 'ReservePile, "ReservePile"))
-      .addCombinator (new ControllerNaming('Pile, 'Pile, "Pile"))
-      .addCombinator (new ControllerNaming('Column, 'Column, "FreeCell"))
-
-    // Go through and assign GUI interactions for each of the known moves. Clean these up...
-    val ui = new UserInterface(s)
-    val els_it = ui.controllers
-    while (els_it.hasNext) {
-      val el = els_it.next()
-
-      // generic widget controller with auto moves available since we
-      // have that provided by our variation (see extra methods)
-      print ("   ** " + el + ":WidgetController")
-      updated.addCombinator(new WidgetController(Symbol(el)))
-
-    }
+//    updated = updated
+//      .addCombinator (new ControllerNaming('ReservePile))
+//      .addCombinator (new ControllerNaming('Pile))
+//      .addCombinator (new ControllerNaming('Column))
+//
+//    // Go through and assign GUI interactions for each of the known moves. Clean these up...
+//    val ui = new UserInterface(s)
+//    val els_it = ui.controllers
+//    while (els_it.hasNext) {
+//      val el = els_it.next()
+//
+//      // generic widget controller with auto moves available since we
+//      // have that provided by our variation (see extra methods)
+//      print ("   ** " + el + ":WidgetController")
+//      updated.addCombinator(new WidgetController(Symbol(el)))
+//
+//    }
 
     // CASE STUDY: Add Automove logic at end of release handlers
     // this is done by manipulating the chosen combinator.

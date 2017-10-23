@@ -23,7 +23,7 @@ import domain.moves._
 import domain.ui._
 import scala.collection.mutable.ListBuffer
 
-trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms  {
+trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms with SemanticTypes {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
@@ -33,24 +33,24 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // handle automoves
 
-
-    // structural
-    val ui = new UserInterface(s)
-
-    val els_it = ui.controllers
-    while (els_it.hasNext) {
-      val el = els_it.next()
-
-      // Each of these controllers are expected in the game.
-      updated = updated.
-          addCombinator (new WidgetController(Symbol(el)))
-
-    }
-
-    // not much to do, if no rules...
-    if (s.getRules == null) {
-      return updated
-    }
+//
+//    // structural
+//    val ui = new UserInterface(s)
+//
+//    val els_it = ui.controllers
+//    while (els_it.hasNext) {
+//      val el = els_it.next()
+//
+//      // Each of these controllers are expected in the game.
+//      updated = updated.
+//          addCombinator (new WidgetController(Symbol(el)))
+//
+//    }
+//
+//    // not much to do, if no rules...
+//    if (s.getRules == null) {
+//      return updated
+//    }
 
     updated = createMoveClasses(updated, s)
 
@@ -60,7 +60,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // Must determine how to handle clicks
     updated = updated
-      .addCombinator (new IgnoreClickedHandler('Pile))
+      .addCombinator (new IgnoreClickedHandler(pile))
 
 
     // Each move has a source and a target. The SOURCE is the locus
@@ -78,8 +78,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     //      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToPile))
 
     // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
-    updated = updated
-      .addCombinator (new ControllerNaming('Pile))
+//    updated = updated
+//      .addCombinator (new ControllerNaming('Pile))
 
     // CASE STUDY: Add Automove logic at end of release handlers
 
@@ -150,9 +150,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
                  |}""".stripMargin).statements()
     }
 
-    val semanticType: Type =
-      'Pair ('WidgetVariableName, 'IgnoreWidgetVariableName) =>:
-        'Pile ('Pile, 'Pressed) :&: 'NonEmptySeq
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(pile, controller.pressed)
   }
 
 

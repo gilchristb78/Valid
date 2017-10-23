@@ -34,10 +34,11 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = super.init(gamma, s)
 
+    println ("GameTemplate:init...")
     /** handles generating default (empty) automoves. */
-    if (!s.hasAutoMoves()) {
+    if (!s.hasAutoMoves) {
       updated = updated
-          .addCombinator(NoAutoMovesAvailable)
+        .addCombinator(NoAutoMovesAvailable)
     } else {
       updated = updated
         .addCombinator(AutoMoveSequence)
@@ -52,15 +53,15 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
 
       // Each of these controllers are expected in the game.
       updated = updated
-          .addCombinator (new WidgetController(Symbol(el)))
-          .addCombinator (new ControllerNaming(Symbol(el)))
+        .addCombinator (new WidgetController(Symbol(el)))
+        .addCombinator (new ControllerNaming(Symbol(el)))
     }
 
     /** If there is a deck, then need click/release ignored. */
     if (s.containers.containsKey(SolitaireContainerTypes.Stock)) {
       updated = updated
-          .addCombinator (new IgnoreReleasedHandler(deck))
-          .addCombinator (new IgnoreClickedHandler(deck))
+        .addCombinator (new IgnoreReleasedHandler(deck))
+        .addCombinator (new IgnoreClickedHandler(deck))
     }
 
     updated
@@ -70,7 +71,7 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
   object NoAutoMovesAvailable {
     def apply(): Seq[Statement] = Seq.empty
 
-    val semanticType: Type = game.autoMoves
+    val semanticType: Type = game(game.autoMoves)
   }
 
 
@@ -117,18 +118,18 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     */
   @combinator object Initialization {
     def apply(minit: Seq[Statement],
-      vinit: Seq[Statement],
-      cinit: Seq[Statement],
-      layout: Seq[Statement]): Seq[Statement] = {
+              vinit: Seq[Statement],
+              cinit: Seq[Statement],
+              layout: Seq[Statement]): Seq[Statement] = {
 
       shared.java.DomainInit.render(minit, vinit, cinit, layout).statements()
     }
     val semanticType: Type =
       game(game.model) =>:
-      game(game.view) =>:
-      game(game.control) =>:
-      game(game.deal) =>:
-      game(initialized)
+        game(game.view) =>:
+        game(game.control) =>:
+        game(game.deal) =>:
+        game(initialized)
   }
 
   // these next three functions help map domain model to Java code
@@ -145,13 +146,11 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     * @param num          number of elements/widgets to create
     */
   def fieldGen(modelType:String, num:Int):Seq[FieldDeclaration] = {
-     Java(s"""
-           |public static final String field${modelType}sPrefix = "$modelType";
-           |public $modelType[] field${modelType}s = new $modelType[$num];
-           |public ${modelType}View[] field${modelType}Views = new ${modelType}View[$num];
-           |""".stripMargin)
-           .classBodyDeclarations()
-           .map(_.asInstanceOf[FieldDeclaration])
+    Java(s"""
+            |public static final String field${modelType}sPrefix = "$modelType";
+            |public $modelType[] field${modelType}s = new $modelType[$num];
+            |public ${modelType}View[] field${modelType}Views = new ${modelType}View[$num];
+            |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
   }
 
   /**
@@ -166,11 +165,11 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     * @return
     */
   def controllerGen(viewName:String, contName:String) : Seq[Statement] = {
-     Java(s"""
-           |$viewName.setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
-           |$viewName.setUndoAdapter (new SolitaireUndoAdapter (this));
-           |$viewName.setMouseAdapter (new $contName (this, $viewName));
-           |""".stripMargin).statements()
+    Java(s"""
+            |$viewName.setMouseMotionAdapter (new SolitaireMouseMotionAdapter (this));
+            |$viewName.setUndoAdapter (new SolitaireUndoAdapter (this));
+            |$viewName.setMouseAdapter (new $contName (this, $viewName));
+            |""".stripMargin).statements()
 
   }
 
@@ -186,14 +185,14 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     * @return
     */
   def loopControllerGen(cont: Container, viewName : String, contName:String): Seq[Statement] = {
-        val nc = cont.size()
-        val inner = controllerGen(viewName + "[j]", contName)
+    val nc = cont.size()
+    val inner = controllerGen(viewName + "[j]", contName)
 
-        Java(s"""
-           |for (int j = 0; j < $nc; j++) {
-           |  ${inner.mkString("\n")}
-           |}""".stripMargin).statements()
-     }
+    Java(s"""
+            |for (int j = 0; j < $nc; j++) {
+            |  ${inner.mkString("\n")}
+            |}""".stripMargin).statements()
+  }
 
 
   /**
@@ -209,15 +208,15 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     * @param typ         The name of the Element class
     */
   def loopConstructGen(cont: Container, modelName: String, viewName : String, typ:String): Seq[Statement] = {
-        val nc = cont.size()
-        Java(
-        s"""
-           |for (int j = 0; j < $nc; j++) {
-           |  $modelName[j] = new $typ(${modelName}Prefix + (j+1));
-           |  addModelElement ($modelName[j]);
-           |  $viewName[j] = new ${typ}View($modelName[j]);
-           |}""".stripMargin).statements()
-     }
+    val nc = cont.size()
+    Java(
+      s"""
+         |for (int j = 0; j < $nc; j++) {
+         |  $modelName[j] = new $typ(${modelName}Prefix + (j+1));
+         |  addModelElement ($modelName[j]);
+         |  $viewName[j] = new ${typ}View($modelName[j]);
+         |}""".stripMargin).statements()
+  }
 
   /**
     * Generate statements that constructs a single Deck (but no view), adds it to
@@ -254,10 +253,10 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
   @combinator object MainGame {
 
     def apply(rootPackage: Name, nameParameter: SimpleName,
-      extraImports: Seq[ImportDeclaration], extraFields: Seq[FieldDeclaration],
-      extraMethods: Seq[MethodDeclaration],
-      initializeSteps: Seq[Statement],
-      winParameter: Seq[Statement]): CompilationUnit = {
+              extraImports: Seq[ImportDeclaration], extraFields: Seq[FieldDeclaration],
+              extraMethods: Seq[MethodDeclaration],
+              initializeSteps: Seq[Statement],
+              winParameter: Seq[Statement]): CompilationUnit = {
 
       shared.java.GameTemplate
         .render(rootPackage = rootPackage,
@@ -272,12 +271,12 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
 
     val semanticType: Type =
       packageName =>: variationName =>:
-      game(game.imports) =>:
-    game(game.fields) =>:
-    game(game.methods)=>:
-    game(initialized) =>:
-    game(game.winCondition) =>:
-    game(complete)
+        game(game.imports) =>:
+        game(game.fields) =>:
+        game(game.methods)=>:
+        game(initialized) =>:
+        game(game.winCondition) =>:
+        game(complete)
   }
 
   /**
@@ -321,8 +320,8 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     // checking if a tableau is present, then do the following, etc... for others
     c.placements().asScala.flatMap {
       r => Java(s"""
-             |$view[${r.idx}].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
-             |addViewWidget($view[${r.idx}]);
+                   |$view[${r.idx}].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
+                   |addViewWidget($view[${r.idx}]);
             """.stripMargin).statements()
     }.toSeq
   }
@@ -386,7 +385,7 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
       Java(s"""(($pkgName.$name)theGame).tryAutoMoves();""").statements()
     }
     val semanticType: Type =
-      packageName =>: variationName =>: game.autoMoves
+      packageName =>: variationName =>: game(game.autoMoves)
   }
 
   /**

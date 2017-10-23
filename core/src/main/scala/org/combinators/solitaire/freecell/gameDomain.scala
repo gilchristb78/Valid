@@ -16,7 +16,7 @@ import domain._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
-class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate {
+class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with Controller with GameTemplate  {
 
   object freecellCodeGenerator {
     val generators = CodeGeneratorRegistry.merge[Expression](
@@ -35,9 +35,17 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     ).merge(constraintCodeGenerators.generators)
   }
 
-  @combinator object DefaultGenerator {
+  /**
+    * Freecell requires specialized extensions for constraints to work.
+    */
+  @combinator object FreeCellGenerator {
     def apply: CodeGeneratorRegistry[Expression] = freecellCodeGenerator.generators
-    val semanticType: Type = 'ConstraintGen
+    val semanticType: Type = constraints(constraints.generator)
+  }
+
+  @combinator object DebugFreeCellGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = freecellCodeGenerator.generators
+    val semanticType: Type = 'BigDebug
   }
 
   /**
@@ -45,7 +53,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     */
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.freecell").name()
-    val semanticType: Type = 'RootPackage
+    val semanticType: Type = packageName
   }
 
   /**
@@ -53,7 +61,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     */
   @combinator object NameOfTheGame {
     def apply: SimpleName = Java("FreeCell").simpleName()
-    val semanticType: Type = 'NameOfTheGame
+    val semanticType: Type = variationName
   }
 
   // FreeCell model derived from the domain model
@@ -72,7 +80,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       dg ++ colGen ++ resGen ++ foundGen
     }
 
-    val semanticType: Type = 'Init ('Model)
+    val semanticType: Type = game(game.model)
   }
 
   @combinator object FreeCellInitView {
@@ -87,7 +95,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       stmts
     }
 
-    val semanticType: Type = 'Init ('View)
+    val semanticType: Type = game(game.view)
   }
 
   @combinator object FreeCellInitControl {
@@ -102,7 +110,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
        colsetup ++ freesetup ++ homesetup
     }
 
-    val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
+    val semanticType: Type = variationName =>: game(game.control)
   }
 
   // generic deal cards from deck into the tableau
@@ -123,7 +131,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            """.stripMargin).statements()
     }
 
-    val semanticType: Type = 'Init ('InitialDeal)
+    val semanticType: Type = game(game.deal)
   }
 
 
@@ -135,7 +143,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
         Java(s"import $nameExpr.model.*;").importDeclaration()
       )
     }
-    val semanticType: Type = 'RootPackage =>: 'ExtraImports
+    val semanticType: Type = packageName =>: game(game.imports)
   }
 
   /**
@@ -161,7 +169,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head,
     )
 
-    val semanticType: Type = 'HelperMethods
+    val semanticType: Type = constraints(constraints.methods)
   }
 
   @combinator object ExtraMethods {
@@ -247,13 +255,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       methods ++ solvableMoves
 
     }
-    val semanticType: Type = 'ExtraMethods :&: 'Column ('Column, 'AutoMovesAvailable) :&: 'AvailableMoves
+    val semanticType: Type = game(game.methods :&: game.availableMoves)
   }
 
-//  @combinator object EmptyExtraMethods {
-//    def apply(): Seq[MethodDeclaration] = Seq.empty
-//    val semanticType: Type = 'ExtraMethodsBad
-//  }
 
 
    @combinator object MakeHomePile extends ExtendModel("Pile", "HomePile", 'HomePileClass)
@@ -272,7 +276,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |if (count == 52) { return true; }
            |""".stripMargin).statements()
     }
-    val semanticType: Type = 'WinConditionChecking :&: 'NonEmptySeq
+    val semanticType: Type = game(game.winCondition)
   }
 
   // This maps the elements in the Solitaire domain model into actual java 
@@ -301,6 +305,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       decks ++ fields ++ fieldFreePiles ++ fieldHomePiles ++ fieldColumns
     }
 
-    val semanticType: Type = 'ExtraFields
+    val semanticType: Type = game(game.fields)
   }
 }

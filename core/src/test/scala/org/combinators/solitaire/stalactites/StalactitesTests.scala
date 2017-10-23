@@ -4,9 +4,9 @@ import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.{Solitaire, SolitaireContainerTypes}
 import domain.stalactites.Domain
-import org.combinators.solitaire.shared.Helper
+import org.combinators.solitaire.shared.{Helper, SemanticTypes}
 
-class StalactitesTests extends Helper {
+class StalactitesTests (types:SemanticTypes) extends Helper(types) {
 
   describe("The possible inhabited domain models") {
 
@@ -31,7 +31,7 @@ class StalactitesTests extends Helper {
               ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader),
               domainModel)
 
-            containsClass(singleInstance(Gamma, domainModel, 'Augment('increment, 'SolitaireVariation)), "Stalactites")
+            containsClass(singleInstance(Gamma, 'Augment('increment, 'SolitaireVariation)), "Stalactites")
 //            checkExistence(Gamma, domainModel, 'Controller ('Pile), "PileController")
 //            checkExistence(Gamma, domainModel, 'Controller ('ReservePile), "ReservePileController")
 //            checkExistence(Gamma, domainModel, 'Controller ('Column), "ColumnController")

@@ -39,19 +39,19 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     ).merge(constraintCodeGenerators.generators)
   }
 
-  @combinator object MyGenerator {
+  @combinator object NarcoticGenerator {
     def apply: CodeGeneratorRegistry[Expression] = narcoticCodeGenerator.generators
-    val semanticType: Type = 'ConstraintGen
+    val semanticType: Type = constraints(constraints.generator)
   }
 
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.narcotic").name()
-    val semanticType: Type = 'RootPackage
+    val semanticType: Type = packageName
   }
 
   @combinator object NameOfTheGame {
     def apply: SimpleName = Java("Narcotic").simpleName()
-    val semanticType: Type = 'NameOfTheGame
+    val semanticType: Type = variationName
   }
 
   // Narcotic model derived from the domain model
@@ -68,14 +68,14 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       deck ++ pileGen 
     }
 
-    val semanticType: Type = 'Init ('Model)
+    val semanticType: Type = game(game.model)
   }
 
    // generic deal cards from deck into the tableau
    @combinator object NarcoticInitLayout {
     def apply(): Seq[Statement] = Seq.empty
 
-    val semanticType: Type = 'Init ('InitialDeal)
+    val semanticType: Type = game(game.deal)
   }
 
   @combinator object NarcoticInitView {
@@ -93,7 +93,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       stmts
     }
 
-    val semanticType: Type = 'Init ('View)
+    val semanticType: Type = game(game.view)
   }
 
   @combinator object NarcoticInitControl {
@@ -109,7 +109,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       pilesetup ++ decksetup
     }
 
-    val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
+    val semanticType: Type = variationName =>: game(game.control)
   }
 
   // vagaries of java imports means these must be defined as well.
@@ -120,7 +120,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
         Java(s"import $nameExpr.model.*;").importDeclaration()
       )
     }
-    val semanticType: Type = 'RootPackage =>: 'ExtraImports
+    val semanticType: Type = packageName =>: game(game.imports)
   }
 
   @combinator object ExtraMethods {
@@ -153,7 +153,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
     }
     
-    val semanticType: Type = 'ExtraMethods 
+    val semanticType: Type = game(game.methods)
   }
 
   // This maps the elements in the Solitaire domain model into actual java 
@@ -174,11 +174,11 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       decks ++ fields ++ fieldPiles
     }
 
-    val semanticType: Type = 'ExtraFields
+    val semanticType: Type = game(game.fields)
   }
 
-  // WHEN This is in controllers.scala it doesn't get inhabited by Web. Not sure why? HACK. TODO: PLEASE HELP
-  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2, 'Deck ('Pressed) :&: 'NonEmptySeq)
+  // WHEN This is in controllers.scala it does not get inhabited by Web. Not sure why? HACK. TODO: PLEASE HELP
+  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2, controller(deck, controller.pressed))
 
 
   /**
@@ -187,6 +187,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object HelperMethodsFreeCell {
     def apply(): Seq[MethodDeclaration] = Seq.empty
 
-    val semanticType: Type = 'HelperMethods
+    val semanticType: Type = constraints(constraints.methods)
   }
 }

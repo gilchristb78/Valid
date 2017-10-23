@@ -106,10 +106,10 @@ class StatementConverter(sem1: Type, sem2: Type) {
     *
     * Note: Could also have IF .. THEN .. ELSE constructs
     */
-  class IfBlock(guard: Constructor, block: Constructor, sem3: Constructor) {
+  class IfBlock(guard: Type, block: Constructor, sem3: Type) {
     def apply(guardExpr: Expression, blockStmts: Seq[Statement]): Seq[Statement] = {
 
-      Java(s"""|if (${guardExpr}) {
+      Java(s"""|if ($guardExpr) {
                |  ${blockStmts.mkString("\n")}
                |}""".stripMargin).statements()
     }

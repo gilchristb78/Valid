@@ -5,9 +5,9 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.{Solitaire, SolitaireContainerTypes}
 import domain.archway.{ArchwayContainerTypes, Domain}
 import org.combinators.solitaire.archway.{ArchwayDomain, Controllers, Game}
-import org.combinators.solitaire.shared.Helper
+import org.combinators.solitaire.shared.{Helper, SemanticTypes}
 
-class ArchwayTests extends Helper {
+class ArchwayTests (types:SemanticTypes) extends Helper(types) {
 
   describe("Inhabitation") {
     val domainModel:Solitaire = new Domain()
@@ -30,11 +30,11 @@ class ArchwayTests extends Helper {
       lazy val Gamma = archway_repository.init(
         ReflectedRepository(archway_repository, classLoader = this.getClass.getClassLoader), domainModel)
 
-      containsClass(singleInstance(Gamma, domainModel, 'SolitaireVariation), "Archway")
-      containsClass(singleInstance(Gamma, domainModel, 'Controller ('AcesUpPile)), "AcesUpPileController")
-      containsClass(singleInstance(Gamma, domainModel, 'Controller ('KingsDownPile)), "KingsDownPileController")
-      containsClass(singleInstance(Gamma, domainModel, 'Controller ('Column)), "ColumnController")
-      containsClass(singleInstance(Gamma, domainModel, 'Controller ('Pile)), "PileController")
+      containsClass(singleInstance(Gamma, 'SolitaireVariation), "Archway")
+      containsClass(singleInstance(Gamma, 'Controller ('AcesUpPile)), "AcesUpPileController")
+      containsClass(singleInstance(Gamma, 'Controller ('KingsDownPile)), "KingsDownPileController")
+      containsClass(singleInstance(Gamma,  'Controller ('Column)), "ColumnController")
+      containsClass(singleInstance(Gamma, 'Controller ('Pile)), "PileController")
 
       //      checkExistence(Gamma, domainModel, 'Move ('ReserveToTableau :&: 'GenericMove, 'CompleteMove), "ReserveToTableau")
       //      checkExistence(Gamma, domainModel, 'Move ('ReserveToFoundation :&: 'GenericMove, 'CompleteMove), "ReserveToFoundation")

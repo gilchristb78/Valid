@@ -1,12 +1,13 @@
 package org.combinators.solitaire.freecell
 
+import com.github.javaparser.ast.expr.Expression
 import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.{Solitaire, SolitaireContainerTypes}
 import domain.freeCell.Domain
-import org.combinators.solitaire.shared.Helper
+import org.combinators.solitaire.shared.{Helper, SemanticTypes}
 
-class FreeCellTests extends Helper {
+class FreeCellTests (types:SemanticTypes) extends Helper(types) {
 
   describe("The possible inhabited domain models") {
    val domainModel:Solitaire = new Domain()
@@ -27,11 +28,14 @@ class FreeCellTests extends Helper {
               ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader),
               domainModel)
 
-            containsClass(singleInstance(Gamma, domainModel, 'SolitaireVariation), "FreeCell")
+            //singleInstance[Expression](Gamma, domainModel, 'BigDebug)  // constraints(constraints.generator)
+            //singleInstance[Expression](Gamma, game(game.deal))
 
-            containsClass(singleInstance(Gamma, domainModel, 'Controller ('Column)), "ColumnController")
-            containsClass(singleInstance(Gamma, domainModel, 'Controller ('FreePile)),   "FreePileController")
-            containsClass(singleInstance(Gamma, domainModel, 'Controller ('HomePile)),   "HomePileController")
+//              containsClass(singleInstance(Gamma, domainModel, 'SolitaireVariation), "FreeCell")
+//
+//            containsClass(singleInstance(Gamma, domainModel, 'Controller ('Column)), "ColumnController")
+//            containsClass(singleInstance(Gamma, domainModel, 'Controller ('FreePile)),   "FreePileController")
+//            containsClass(singleInstance(Gamma, domainModel, 'Controller ('HomePile)),   "HomePileController")
           }
         }
       }
