@@ -4,11 +4,7 @@ import domain.*;
 import java.util.*;
 
 /**
- * A single card being moved.
- *
- * This has been subverted just for FreeCell (for now)...
- *
- * These move classes might not be necessary.
+ * A single card being moved to a single destination.
  */
 public class SingleCardMove extends Move {
 

@@ -5,6 +5,7 @@ import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type
+import de.tu_dortmund.cs.ls14.cls.types.Omega
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
@@ -94,6 +95,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
       // potential move structure varies based on kind of move: not
       // yet dealing with DeckDealMove...
+      // HACK. TODO: FIX ME
       mv match {
         case _ : SingleCardMove =>
           updated = updated
@@ -348,7 +350,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
               autoMoves: Seq[Statement],
               mouseClicked: Seq[Statement],
               mouseReleased: Seq[Statement],
-              mousePressed: (SimpleName, SimpleName) => Seq[Statement]): CompilationUnit = {
+              mousePressed: (SimpleName,SimpleName) => Seq[Statement]): CompilationUnit = {
 
       shared.controller.java.Controller.render(
         RootPackage = rootPackage,
@@ -359,13 +361,14 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
         MousePressed = mousePressed,
         MouseReleased = mouseReleased
       ).compilationUnit()
+
     }
-    val semanticType: Type = packageName =>:
+    val semanticType: Type =  packageName =>:
       controller(elementType, className) =>:
       variationName =>:
       game(game.autoMoves) =>:
       controller(elementType, controller.clicked) =>:
-      controller(elementType, controller.released) =>:
+      controller(elementType, controller.released)  =>:
       (drag(drag.variable, drag.ignore) =>: controller(elementType, controller.pressed)) =>:
       controller(elementType, complete)
   }
@@ -442,12 +445,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
   }
 
   /** Essential combinator for naming the ClassName for a controller. */
-  class ControllerNaming(source:Constructor) {
+  class ControllerNaming(source:Type) {
     def apply(): SimpleName = Java(source.toString).simpleName()
     val semanticType: Type = controller(source, className)
   }
 
-  class ReleaseHandlerDef(source:Symbol, stmts:Seq[Statement]) {
+  class ReleaseHandlerDef(source:Type, stmts:Seq[Statement]) {
     def apply(): Seq[Statement] = stmts
     val semanticType: Type = controller (source, controller.released)
   }

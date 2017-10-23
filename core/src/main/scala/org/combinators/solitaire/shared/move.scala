@@ -92,6 +92,7 @@ trait Moves extends Base with SemanticTypes {
         move (semanticMoveNameType :&: move.generic, complete)
   }
 
+  
   /**
     * Given an existing move, this combinator uses the PotentialMove
     * template to synthesize a new "wrapper class" that reflects a

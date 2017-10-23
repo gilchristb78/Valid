@@ -50,19 +50,22 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     val els_it = ui.controllers
     while (els_it.hasNext) {
       val el = els_it.next()
+      val elt:Constructor = Constructor(el)
 
+      println ("process:" + el + " which is equal to " + deck + ":" + (deck==elt))
       // Each of these controllers are expected in the game.
       updated = updated
-        .addCombinator (new WidgetController(Symbol(el)))
-        .addCombinator (new ControllerNaming(Symbol(el)))
+        .addCombinator (new WidgetController(elt))
+        .addCombinator (new ControllerNaming(elt))
     }
 
-    /** If there is a deck, then need click/release ignored. */
-    if (s.containers.containsKey(SolitaireContainerTypes.Stock)) {
-      updated = updated
-        .addCombinator (new IgnoreReleasedHandler(deck))
-        .addCombinator (new IgnoreClickedHandler(deck))
-    }
+//    /** If there is a deck, then need click/release ignored. */
+//    if (s.containers.containsKey(SolitaireContainerTypes.Stock)) {
+//      println ("Deck/Stock is visible; adding ignore...")
+//      updated = updated
+//        .addCombinator (new IgnoreReleasedHandler(deck))
+//        .addCombinator (new IgnoreClickedHandler(deck))
+//    }
 
     updated
   }

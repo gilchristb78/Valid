@@ -1,5 +1,6 @@
 package org.combinators.solitaire.idiot
 
+import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
@@ -33,10 +34,19 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       .addCombinator (new DealToTableauHandlerLocal())
       .addCombinator (new TryRemoveCardHandlerLocal('Column))
 
+    updated = updated
+      .addCombinator (new IgnoreReleasedHandler(deck))
+      .addCombinator (new IgnoreClickedHandler(deck))
+
     // Potential moves clarify structure (by type not instance). FIX ME
     // FIX ME FIX ME FIX ME
     updated = updated
       .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToColumn))
+
+    updated = updated
+      .addCombinator (new PotentialMultipleCardMove("Column", 'PlaceColumn))
+      .addCombinator (new PotentialMultipleCardMove("Column", 'MoveColumn))
+      .addCombinator (new PotentialMultipleCardMove("Column", 'BuildColumn))
 
     // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
 //    updated = updated
@@ -51,11 +61,12 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     * When dealing card(s) from the stock to all elements in Tableau
     */
   class DealToTableauHandlerLocal() {
-    def apply():Seq[Statement] = {
-      Java(s"""|m = new DealDeck(theGame.deck, theGame.fieldColumns);
+    def apply():(SimpleName, SimpleName) => Seq[Statement] = (varName,ignore) =>{
+      Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.fieldColumns);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
-               |}""".stripMargin).statements()
+               |   $varName = false;
+               |}}""".stripMargin).statements()
     }
 
     val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed)

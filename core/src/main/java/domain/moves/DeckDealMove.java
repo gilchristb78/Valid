@@ -4,7 +4,8 @@ import domain.*;
 import java.util.*;
 
 /**
- * A number of cards are dealt from the Stock.
+ * A number of cards are dealt from the Stock one at a time
+ * to multiple destinations.
  */
 public class DeckDealMove extends Move {
 
@@ -18,7 +19,7 @@ public class DeckDealMove extends Move {
     /** By definition will allow multiple cards to be moved. Less relevant for deck, but at least consistent. */
     @Override
     public boolean isSingleCardMove() {
-        return false;
+        return true;
     }
 
     /** By definition, deal to all elements in the container. */

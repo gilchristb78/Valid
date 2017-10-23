@@ -36,6 +36,7 @@ public class Domain extends Solitaire {
 
 		// defaults to 1 deck.
 		Stock stock = new Stock(lay.stock());
+
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
 		// wins once foundation contains same number of cards as stock

@@ -15,7 +15,7 @@ import de.tu_dortmund.cs.ls14.java.JavaPersistable._
 // domain
 import domain._
 
-class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars)  {
 
   val s:Solitaire = new Domain();
 
@@ -23,6 +23,7 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
   lazy val repository = new gameDomain(s) with controllers {}
+  import repository._
   lazy val Gamma = {
     val r = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
     println(new TypeNameStatistics(r).warnings)
@@ -39,27 +40,32 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   // together. That is, I want to first inhabit SolitaireVariation, then go and 
   // inhabit the controllers, then inhabit all the moves, based upon the domain model.
   lazy val jobs =
-    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation :&: 'Solvable)
-      .addJob[CompilationUnit]('HelperCode)
-      .addJob[CompilationUnit]('Controller('Column))   
-      .addJob[CompilationUnit]('Controller('FreePile))
-      .addJob[CompilationUnit]('Controller('HomePile))
+    Gamma.InhabitationBatchJob[CompilationUnit](game(complete :&: game.solvable))
+
+      .addJob[CompilationUnit](constraints(complete))
+      .addJob[CompilationUnit](controller(column, complete))
+      .addJob[CompilationUnit](controller('FreePile, complete))
+      .addJob[CompilationUnit](controller('HomePile, complete))
       .addJob[CompilationUnit]('HomePileClass)
       .addJob[CompilationUnit]('FreePileClass)
       .addJob[CompilationUnit]('HomePileViewClass)
       .addJob[CompilationUnit]('FreePileViewClass)
-      .addJob[CompilationUnit]('Move('MoveColumn :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('BuildFreePileCard  :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('PlaceColumn :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('BuildColumn :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('PlaceFreePileCard :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('ShuffleFreePile :&: 'GenericMove, 'CompleteMove))
 
-      .addJob[CompilationUnit]('Move('MoveColumn :&: 'PotentialMultipleMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('BuildFreePileCard :&: 'PotentialMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('PlaceColumn :&: 'PotentialMultipleMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('BuildColumn :&: 'PotentialMultipleMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('PlaceFreePileCard :&: 'PotentialMove, 'CompleteMove))
+      .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
+      .addJob[CompilationUnit](move('BuildFreePileCard :&: move.generic, complete))
+      .addJob[CompilationUnit](move('PlaceColumn :&: move.generic, complete))
+      .addJob[CompilationUnit](move('BuildColumn :&: move.generic, complete))
+      .addJob[CompilationUnit](move('PlaceFreePileCard :&: move.generic, complete))
+      .addJob[CompilationUnit](move('ShuffleFreePile :&: move.generic, complete))
+
+
+      .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
+      .addJob[CompilationUnit](move('BuildFreePileCard :&: move.potential, complete))
+      .addJob[CompilationUnit](move('PlaceColumn :&: move.potentialMultipleMove, complete))
+      .addJob[CompilationUnit](move('BuildColumn :&: move.potentialMultipleMove, complete))
+      .addJob[CompilationUnit](move('PlaceFreePileCard :&: move.potential, complete))
+      .addJob[CompilationUnit](move('ShuffleFreePile :&: move.generic, complete))
+
 
 
   lazy val results = Results.addAll(jobs.run())

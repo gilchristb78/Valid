@@ -47,7 +47,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     */
   @combinator object NameOfTheGame {
     def apply: SimpleName = Java("Idiot").simpleName()
-    val semanticType: Type = 'NameOfTheGame // OLD variationName
+    val semanticType: Type = variationName
   }
 
   /**

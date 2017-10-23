@@ -12,4 +12,6 @@ public enum StalactitesContainerTypes implements ContainerType {
                 this.name = name;
         }
 
+        public String getName() { return name; }
+
 }

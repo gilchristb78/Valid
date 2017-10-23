@@ -18,7 +18,8 @@ public class RemoveMultipleCardsMove extends Move {
         super(name, src, constraint);
     }
 
-    /** This is slightly inconsistent, since it is expected that only a single card is moved from
+    /** This is slightly inconsistent, since it is
+     *  expected that only a single card is moved from
      * each of the elements in the container. */
     @Override
     public boolean isSingleCardMove() {

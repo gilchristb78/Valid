@@ -20,12 +20,8 @@ class Helper (types:SemanticTypes) extends FunSpec {
     * @param unit
     * @param name
     */
-  def containsClass(unit:Option[CompilationUnit], name:String): Unit = {
-    if (unit.isDefined) {
-      unit.get.getClassByName(name).isPresent
-    } else {
-      throw new Exception (name + " not Defined")
-    }
+  def containsClass(unit:CompilationUnit, name:String): Unit = {
+     assert(unit.getClassByName(name).isPresent)
   }
 
 
@@ -53,20 +49,18 @@ class Helper (types:SemanticTypes) extends FunSpec {
     */  //               val inhabitants = augmentedResult.inhabit[Int]('Sense2).interpretedTerms
 
 
-  def singleInstance[R](Gamma:ReflectedRepository[_], target:Type):Option[R] = {
+  def singleInstance[R](Gamma:ReflectedRepository[_], target:Type):R = {
+    val results = Gamma.inhabit[R](target).interpretedTerms.values.flatMap(_._2)
+    println (results)
     describe ("Looking for instance") {
-      val job = Gamma.InhabitationBatchJob[R](target)
-      val results = job.run()
 
-      it ("should not be infinite") {
-        assert(!results.isInfinite)
+      it ("should not be empty and should be 1") {
+        assert(results.nonEmpty)
         assert(results.size == 1)
       }
-
-      Some(results)
     }
 
-    None
+    results.head
   }
 
   /**
