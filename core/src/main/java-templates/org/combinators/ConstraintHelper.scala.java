@@ -1,13 +1,12 @@
 @(rootPackage:Name, nameParameter:SimpleName, extraMethods:Seq[MethodDeclaration])
 
-package org.combinators;
+package @{Java(rootPackage)}.model;
 
 import ks.common.games.Solitaire;
 import ks.common.model.*;
 import java.util.function.BooleanSupplier;
 
 public class ConstraintHelper {
-
 
     /** Helper method for processing constraints. Uses BooleanSupplier
      * to avoid evaluating all constraints which would lead to exceptions.

@@ -10,7 +10,6 @@ import org.combinators.solitaire.shared
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import org.combinators.generic
 import domain._
-import domain.ui._
 
 trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms  {
 
@@ -58,14 +57,15 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
   }
 
   /**
-    * When dealing card(s) from the stock to all elements in Tableau
+    * When dealing card(s) from the stock to all elements in Tableau. Handling
+    * deck events is a bit annoying. Must not change ignore variable
     */
   class DealToTableauHandlerLocal() {
-    def apply():(SimpleName, SimpleName) => Seq[Statement] = (varName,ignore) =>{
+    def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
       Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.fieldColumns);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
-               |   $varName = false;
+               |   theGame.refreshWidgets();
                |}}""".stripMargin).statements()
     }
 

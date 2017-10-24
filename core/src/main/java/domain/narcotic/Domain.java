@@ -26,16 +26,9 @@ public class Domain extends Solitaire {
 
 	public Domain() {
 //
-//		val semanticType: Type =
-//				'Solitaire ('Tableau ('None)) :&: 'Solitaire ('Layout ('None)) :&: 'Solitaire ('Rules('None)) =>:
-//		'Tableau ('Valid :&: 'Four :&: 'Pile) =>:
-//		'Stock ('Valid :&: 'One :&: 'Deck) =>:
-//		'Solitaire ('Structure ('Narcotic))
-
-//
 		StockTableauLayout lay = new StockTableauLayout();
 
-		Tableau tableau = new Tableau(lay.tableau());
+		Tableau tableau = new Tableau(lay.tableauAsPile());
 		tableau.add (new Pile());
 		tableau.add (new Pile());
 		tableau.add (new Pile());

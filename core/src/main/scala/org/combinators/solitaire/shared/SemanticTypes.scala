@@ -73,7 +73,7 @@ trait SemanticTypes {
     val column:Type = 'GuardColumnView
   }
 
-  // parts of the widgets during move
+  // parts of the widgets during move : Dynamic Behavior
   object widget {
     def apply (entity:Type, part:Type): Constructor = 'MoveElement (entity, part)
 
@@ -102,10 +102,7 @@ trait SemanticTypes {
   }
 
   /**
-    * First one is the controller context. Second is the part.
-    *
-    * To access, say controller(deck,column)
-    *
+    * Manages the press/click/release on widgets.
     */
   object controller {
     def apply(context: Type, part: Type): Constructor = 'Controller (context, part)

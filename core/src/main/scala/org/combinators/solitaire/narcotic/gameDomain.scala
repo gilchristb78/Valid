@@ -65,14 +65,14 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
       val pileGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldPiles", "fieldPileViews", "Pile")
 
-      deck ++ pileGen 
+      deck ++ pileGen
     }
 
     val semanticType: Type = game(game.model)
   }
 
-   // generic deal cards from deck into the tableau
-   @combinator object NarcoticInitLayout {
+  // generic deal cards from deck into the tableau
+  @combinator object NarcoticInitLayout {
     def apply(): Seq[Statement] = Seq.empty
 
     val semanticType: Type = game(game.deal)
@@ -125,34 +125,34 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
-       Java(s"""|public boolean toLeftOf(Stack target, Stack src) {
-                |  // Check whether target is to left of src
-                |  for (int i = 0; i < fieldPiles.length; i++) {
-                |    if (fieldPiles[i] == target) {
-                |      return true;   // found target first (in left-right)
-                |    }
-                |    if (fieldPiles[i] == src) {
-                |      return false;  // found src first
-                |    }
-                |  }
-                |  return false; // will never get here
-                |}
-                |
+      Java(s"""|public boolean toLeftOf(Stack target, Stack src) {
+               |  // Check whether target is to left of src
+               |  for (int i = 0; i < fieldPiles.length; i++) {
+               |    if (fieldPiles[i] == target) {
+               |      return true;   // found target first (in left-right)
+               |    }
+               |    if (fieldPiles[i] == src) {
+               |      return false;  // found src first
+               |    }
+               |  }
+               |  return false; // will never get here
+               |}
+               |
                 | public boolean allSameRank() {
-                |   if (fieldPiles[0].empty()) { return false; }
-                |   // Check whether tops of all piles are same rank
-                |   for (int i = 1; i < fieldPiles.length; i++) {
-                |      if (fieldPiles[i].empty()) { return false; }
-                |      if (fieldPiles[i].rank() != fieldPiles[i-1].rank()) {
-                |        return false;
-                |      }
-                |   }
-                |  // looks good
-                |  return true;
-                |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+               |   if (fieldPiles[0].empty()) { return false; }
+               |   // Check whether tops of all piles are same rank
+               |   for (int i = 1; i < fieldPiles.length; i++) {
+               |      if (fieldPiles[i].empty()) { return false; }
+               |      if (fieldPiles[i].rank() != fieldPiles[i-1].rank()) {
+               |        return false;
+               |      }
+               |   }
+               |  // looks good
+               |  return true;
+               |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
 
     }
-    
+
     val semanticType: Type = game(game.methods)
   }
 
@@ -177,10 +177,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = game(game.fields)
   }
 
-  // WHEN This is in controllers.scala it does not get inhabited by Web. Not sure why? HACK. TODO: PLEASE HELP
-  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2, controller(deck, controller.pressed))
-
-
   /**
     * Need for helper
     */
@@ -189,4 +185,33 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
     val semanticType: Type = constraints(constraints.methods)
   }
+
+
+//
+//  // WHEN This is in controllers.scala it does not get inhabited by Web. Not sure why? HACK. TODO: PLEASE HELP
+//  @combinator object ChainTogether extends StatementCombiner(
+//    drag(drag.variable, drag.ignore) =>: 'Deck1,
+//    drag(drag.variable, drag.ignore) =>: 'Deck2,
+//    drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
+
+  /**
+    * I somehow couldn't use the above simpler combinator. Thoughts? TODO: FIX
+    */
+  @combinator object ChainTogether {
+    def apply(d1:(SimpleName, SimpleName) => Seq[Statement],
+              d2:(SimpleName, SimpleName) => Seq[Statement]):
+    (SimpleName, SimpleName) => Seq[Statement] = {
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) => {
+        val s1:Seq[Statement] = d1.apply(widgetVariableName,ignoreWidgetVariableName)
+        val s2:Seq[Statement] = d2.apply(widgetVariableName,ignoreWidgetVariableName)
+        s1 ++ s2
+      }
+    }
+
+    val semanticType: Type =
+      (drag(drag.variable, drag.ignore) =>: 'Deck1) =>:
+      (drag(drag.variable, drag.ignore) =>: 'Deck2) =>:
+        (drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
+  }
+
 }

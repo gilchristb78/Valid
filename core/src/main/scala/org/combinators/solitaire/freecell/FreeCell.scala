@@ -64,7 +64,6 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
       .addJob[CompilationUnit](move('PlaceColumn :&: move.potentialMultipleMove, complete))
       .addJob[CompilationUnit](move('BuildColumn :&: move.potentialMultipleMove, complete))
       .addJob[CompilationUnit](move('PlaceFreePileCard :&: move.potential, complete))
-      .addJob[CompilationUnit](move('ShuffleFreePile :&: move.generic, complete))
 
 
 

@@ -26,10 +26,6 @@ class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJa
   import repository._
   lazy val Gamma:ReflectedRepository[gameDomain] = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
-  val inhabitants = Gamma.inhabit[Name](packageName).interpretedTerms
-  print ("PKG-22:" + inhabitants.index(0))
-
-
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit](game(complete :&: game.solvable))
@@ -39,10 +35,9 @@ class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJa
       .addJob[CompilationUnit](move('RemoveCard :&: move.generic, complete))
       .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
       .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
-//
-//      .addJob[CompilationUnit](move('RemoveCard :&: move.potential, complete))
-//      .addJob[CompilationUnit](move('MoveCard :&: move.potential, complete))
-//      .addJob[CompilationUnit](move('DealDeck :&: move.potential, complete))
+
+      // only need potential moves for those that are DRAGGING...
+      .addJob[CompilationUnit](move('MoveCard :&: move.potential, complete))
 
   lazy val results:Results = Results.addAll(jobs.run())
 

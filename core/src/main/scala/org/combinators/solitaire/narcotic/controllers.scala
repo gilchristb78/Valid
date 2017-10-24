@@ -1,5 +1,4 @@
 package org.combinators.solitaire.narcotic
-import com.github.javaparser.ast.CompilationUnit
 
 // name clash
 import com.github.javaparser.ast.`type`.{Type => JType}
@@ -13,17 +12,10 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
-import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.generic
-import _root_.java.util.UUID
 import domain._
-import domain.constraints._
-import domain.moves._
-import domain.ui._
-import scala.collection.mutable.ListBuffer
 
-trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms with SemanticTypes {
+trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
@@ -62,6 +54,10 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     updated = updated
       .addCombinator (new IgnoreClickedHandler(pile))
 
+    updated = updated
+      .addCombinator (new IgnoreReleasedHandler(deck))
+      .addCombinator (new IgnoreClickedHandler(deck))
+
 
     // Each move has a source and a target. The SOURCE is the locus
     // for the PRESS while the TARGET is the locus for the RELEASE.
@@ -86,40 +82,37 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     updated
   }
 
-
   /**
     * When dealing card(s) from the stock to all elements in Tableau
     * If deck is empty, then reset.
     * NOTE: How to make this more compositional?
     */
   class DealToTableauHandlerLocal() {
-    def apply():Seq[Statement] = {
-      Java(s"""|m = new DealDeck(theGame.deck, theGame.fieldPiles);
+    def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
+      Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.fieldPiles);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
-               |   // have solitaire game refresh widgets that were
-               |   // affected
+               |   // have solitaire game refresh widgets that were affected
                |   theGame.refreshWidgets();
                |   return;
-               |}""".stripMargin).statements()
+               |}}""".stripMargin).statements()
     }
 
-    val semanticType: Type = 'Deck1
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: 'Deck1
   }
 
   class ResetDeckLocal() {
-    def apply():Seq[Statement] = {
-      Java(s"""|m = new ResetDeck(theGame.deck, theGame.fieldPiles);
+    def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
+      Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.fieldPiles);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
-               |   // have solitaire game refresh widgets that were
-               |   // affected
+               |   // have solitaire game refresh widgets that were affected
                |   theGame.refreshWidgets();
                |   return;
-               |}""".stripMargin).statements()
+               |}}""".stripMargin).statements()
     }
 
-    val semanticType: Type = 'Deck2
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: 'Deck2
   }
 
 

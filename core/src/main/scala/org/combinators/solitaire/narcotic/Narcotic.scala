@@ -8,12 +8,13 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
 import domain.narcotic.Domain
+import org.combinators.solitaire.shared.SemanticTypes
 import org.webjars.play.WebJarsUtil
 
 // domain
 import domain._
 
-class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars){
 
   val s:Solitaire = new Domain()
 
@@ -21,21 +22,23 @@ class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
   lazy val repository:gameDomain = new gameDomain(s) with controllers {}
+  import repository._
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
-    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-      .addJob[CompilationUnit]('HelperCode)
-      .addJob[CompilationUnit]('Controller('Deck))
-      .addJob[CompilationUnit]('Controller('Pile))
+    Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
+      .addJob[CompilationUnit](constraints(complete))
+      .addJob[CompilationUnit](controller(deck, complete))
+      .addJob[CompilationUnit](controller(pile, complete))
+      .addJob[CompilationUnit](move('RemoveAllCards :&: move.generic, complete))
+      .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
+      .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
+      .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
 
-      // To define RemoveFourCards, observe all parts that are necessary.
-      .addJob[CompilationUnit]('Move('RemoveAllCards :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('DealDeck :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('MoveCard :&: 'PotentialMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('MoveCard :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move('ResetDeck :&: 'GenericMove, 'CompleteMove))
+      // only need potential moves for those that are DRAGGING...
+//      .addJob[CompilationUnit](move('MoveCard :&: move.potential, complete))
+
 
    lazy val results = Results.addAll(jobs.run())
 
