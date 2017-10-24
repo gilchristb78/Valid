@@ -165,7 +165,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |		if (r.empty() && r != destination) numEmpty++;
            |	}
            |
-           |	return column.count <= 1 + numEmpty;
+           |	return column.count() <= 1 + numEmpty;
            |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head,
     )
 
