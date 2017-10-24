@@ -79,7 +79,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       // start by constructing the DeckView
 
       // when placing a single element in Layout, use this API
-      val ds = layout_place_it(stock, Java("deckView").name())
+      val ds = layout_place_one(stock, Java("deckView").name())
       val ws = layout_place_it_expr(waste, Java("fieldWastePileViews[0]").expression())
       val fd = layout_place_it(found, Java("fieldPileViews").name())
       val cs = layout_place_it(tableau,  Java("fieldBuildablePileViews").name())
@@ -189,26 +189,26 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   //    drag(drag.variable, drag.ignore) =>: 'Deck2,
   //    drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
 
-  /**
-    * I somehow couldn't use the above simpler combinator. Thoughts? TODO: FIX
-    */
-  @combinator object ChainTogether {
-    def apply(d1:(SimpleName, SimpleName) => Seq[Statement],
-              d2:(SimpleName, SimpleName) => Seq[Statement]):
-    (SimpleName, SimpleName) => Seq[Statement] = {
-      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) => {
-        val s1:Seq[Statement] = d1.apply(widgetVariableName,ignoreWidgetVariableName)
-        val s2:Seq[Statement] = d2.apply(widgetVariableName,ignoreWidgetVariableName)
-        s1 ++ s2
-      }
-    }
-
-    val semanticType: Type =
-      (drag(drag.variable, drag.ignore) =>: 'Deck1) =>:
-        (drag(drag.variable, drag.ignore) =>: 'Deck2) =>:
-        (drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
-  }
-
+//  /**
+//    * I somehow couldn't use the above simpler combinator. Thoughts? TODO: FIX
+//    */
+//  @combinator object ChainTogether {
+//    def apply(d1:(SimpleName, SimpleName) => Seq[Statement],
+//              d2:(SimpleName, SimpleName) => Seq[Statement]):
+//    (SimpleName, SimpleName) => Seq[Statement] = {
+//      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) => {
+//        val s1:Seq[Statement] = d1.apply(widgetVariableName,ignoreWidgetVariableName)
+//        val s2:Seq[Statement] = d2.apply(widgetVariableName,ignoreWidgetVariableName)
+//        s1 ++ s2
+//      }
+//    }
+//
+//    val semanticType: Type =
+//      (drag(drag.variable, drag.ignore) =>: 'Deck1) =>:
+//        (drag(drag.variable, drag.ignore) =>: 'Deck2) =>:
+//        (drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
+//  }
+//
 
   /**
     * Need for helper

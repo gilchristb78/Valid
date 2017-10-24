@@ -62,17 +62,14 @@ object constraintCodeGenerators {
         val inner = registry(ifCons.constraint)
         val trueb = registry(ifCons.trueBranch)
         val falseb = registry(ifCons.falseBranch)
-        if (inner.isEmpty || trueb.isEmpty || falseb.isEmpty) {
-          Java(s"""${ifCons.constraint.toString}""").expression()
-        } else {
-          val str =
+
+        val str =
             s"""ConstraintHelper.ifCompute (
-               |${registry(ifCons.constraint).get},
-               |() -> ${registry(ifCons.trueBranch).get},
-               |() -> ${registry(ifCons.falseBranch).get})""".stripMargin
+               |${inner.get},
+               |() -> ${trueb.get},
+               |() -> ${falseb.get})""".stripMargin
           println ("IF-inner:" + str)
           Java(s"""$str""").expression()
-        }
       }
     },
 
@@ -94,6 +91,13 @@ object constraintCodeGenerators {
         Java(s"""${registry(isAce.element).get}.getRank() == Card.ACE""").expression()
       }
     },
+
+    CodeGeneratorRegistry[Expression, IsKing] {
+      case (registry: CodeGeneratorRegistry[Expression], isKing: IsKing) => {
+        Java(s"""${registry(isKing.element).get}.getRank() == Card.KING""").expression()
+      }
+    },
+
 
     CodeGeneratorRegistry[Expression, IsFaceUp] {
       case (registry: CodeGeneratorRegistry[Expression], c: IsFaceUp) => {

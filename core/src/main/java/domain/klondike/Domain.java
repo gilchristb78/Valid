@@ -105,8 +105,8 @@ public class Domain extends Solitaire {
                                 new SameSuit(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination))));
 
         IfConstraint if2 = new IfConstraint(isEmpty,
-                        new IsAce(new TopCardOf(MoveComponents.MovingColumn)),
-                        new AndConstraint (new NotConstraint(new IsSingle(MoveComponents.MovingColumn)),
+                        new IsAce(new BottomCardOf(MoveComponents.MovingColumn)),
+                        new AndConstraint (new IsSingle(MoveComponents.MovingColumn),
                                 new NextRank(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination)),
                                 new SameSuit(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination))));
 

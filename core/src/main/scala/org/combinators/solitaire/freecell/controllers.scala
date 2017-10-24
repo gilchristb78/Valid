@@ -74,8 +74,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
   /**
     * When moving between columns, use the 'validColumn' method to confirm press sequence.
     */
-  val name = Java(s"""validColumn""").simpleName()
-  @combinator object PC extends ColumnMoveHandler('Column, name)
+  @combinator object PC extends ColumnMoveHandler(column, Java(s"""validColumn""").simpleName())
 }
 
 

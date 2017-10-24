@@ -21,7 +21,7 @@ class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
-  lazy val repository:gameDomain = new gameDomain(s) with controllers {}
+  lazy val repository = new gameDomain(s) with controllers {}
   import repository._
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
@@ -37,7 +37,7 @@ class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
       .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
 
       // only need potential moves for those that are DRAGGING...
-//      .addJob[CompilationUnit](move('MoveCard :&: move.potential, complete))
+      .addJob[CompilationUnit](move('MoveCard :&: move.potential, complete))
 
 
    lazy val results = Results.addAll(jobs.run())

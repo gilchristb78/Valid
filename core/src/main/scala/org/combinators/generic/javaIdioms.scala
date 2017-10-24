@@ -87,15 +87,19 @@ trait JavaIdioms {
     val semanticType: Type = sem1 =>: sem2 =>: sem3
   }
 
+  /** Use lambda to parameterize combinator. I.e., use with something like drag() -> Seq[Statement]. */
+  class ParameterizedStatementCombiner[A, B](sem1: Type, sem2: Type, sem3: Type) {
+    def apply(head: (A, B) => Seq[Statement], tail: (A, B) => Seq[Statement]): (A, B) => Seq[Statement] = (x, y) => head(x, y) ++ tail(x, y)
+    val semanticType: Type = sem1 =>: sem2 =>: sem3
+  }
 
   /**
    * If dynamic combinator has already been added, this converts into proper type.
    */
-class StatementConverter(sem1: Type, sem2: Type) {
+  class StatementConverter(sem1: Type, sem2: Type) {
     def apply(stmts: Seq[Statement]): Seq[Statement] = stmts
     val semanticType: Type = sem1 =>: sem2
   }
-
 
   /**
     * Constructs an  IF (GUARD){ BLOCK} structure in Java

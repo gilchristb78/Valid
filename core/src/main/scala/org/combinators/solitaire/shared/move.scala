@@ -233,14 +233,14 @@ trait Moves extends Base with SemanticTypes {
     * TODO: Work to bring move precondition in here, rather than relegating to an extra
     * method
     */
-  class ColumnMoveHandler(tpe:Constructor, name:SimpleName = null) {
+  class ColumnMoveHandler(tpe:Constructor, realType:SimpleName, name:SimpleName = null) {
     def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
         var filter:Seq[Statement] = Seq.empty
-        val realType = tpe.toString
+
         if (name != null) {
           filter = Java(s"""
-               |if (!theGame.$name(($realType) (${widgetVariableName}.getModelElement()))) {
+               |if (!theGame.$name((Column) (${widgetVariableName}.getModelElement()))) {
                |  src.returnWidget($widgetVariableName);
                |	$ignoreWidgetVariableName = true;
                |	c.releaseDraggingObject();

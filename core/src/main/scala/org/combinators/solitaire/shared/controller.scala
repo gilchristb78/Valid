@@ -350,7 +350,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
               autoMoves: Seq[Statement],
               mouseClicked: Seq[Statement],
               mouseReleased: Seq[Statement],
-              mousePressed: (SimpleName,SimpleName) => Seq[Statement]): CompilationUnit = {
+              mousePressed: ((SimpleName,SimpleName) => Seq[Statement])): CompilationUnit = {
 
       shared.controller.java.Controller.render(
         RootPackage = rootPackage,
@@ -372,7 +372,6 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
       (drag(drag.variable, drag.ignore) =>: controller(elementType, controller.pressed)) =>:
       controller(elementType, complete)
   }
-
 
   // generative classes for each of the required elements. This seems much more generic than worth being buried here.
   // PLEASE SIMPLIFY. TODO

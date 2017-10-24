@@ -4,7 +4,12 @@ import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 
 
-/** These codify the semantic types used by the Solitaire combinators. */
+/**
+  * These codify the semantic types used by the Solitaire combinators.
+  *
+  * For any of these that are ever going to be translated directly into Java Type Names, you must
+  * make them Constructor.
+  */
 trait SemanticTypes {
 
   // structural high-level concerns
@@ -24,10 +29,10 @@ trait SemanticTypes {
   }
 
   // common structures
-  val deck: Type = 'Deck // DECK or STOCK
-  val column: Type = 'Column
-  val buildablePile: Type = 'BuildablePile
-  val pile: Type = 'Pile
+  val deck: Constructor          = 'Deck
+  val column: Constructor        = 'Column
+  val buildablePile: Constructor = 'BuildablePile
+  val pile: Constructor          = 'Pile
 
   /** only one part since synthesizing 'the' game. */
   object game {

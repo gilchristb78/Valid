@@ -6,11 +6,10 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
 import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
-import de.tu_dortmund.cs.ls14.cls.types.Type
+import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.generic
 import domain._
-import domain.ui._
 
 trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms with SemanticTypes  {
 
@@ -18,24 +17,6 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :  ReflectedRepository[G] = {
     var updated = super.init(gamma, s)
     println (">>> Klondike Controller dynamic combinators.")
-
-//    // structural
-//    val ui = new UserInterface(s)
-//
-//    val els_it = ui.controllers
-//    while (els_it.hasNext) {
-//      val el = els_it.next()
-//
-//      // Each of these controllers are expected in the game.
-//      updated = updated
-//          .addCombinator (new WidgetController(Symbol(el)))
-//          .addCombinator (new ControllerNaming(Symbol(el)))
-//    }
-//
-//    // not much to do, if no rules...
-//    if (s.getRules == null) {
-//      return updated
-//    }
 
     updated = createMoveClasses(updated, s)
 
@@ -45,8 +26,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // these all have to do with GUI commands being ignored
     updated = updated
-      .addCombinator (new IgnoreClickedHandler('BuildablePile))
-      .addCombinator (new IgnoreClickedHandler('Pile))
+      .addCombinator (new IgnoreClickedHandler(buildablePile))
+      .addCombinator (new IgnoreClickedHandler(pile))
       .addCombinator (new IgnoreClickedHandler('WastePile))
       .addCombinator (new IgnoreReleasedHandler('WastePile))
 
@@ -56,31 +37,31 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // these clarify the allowed moves
     updated = updated
-      .addCombinator (new DealToTableauHandlerLocal())
-      .addCombinator (new ResetDeckLocal())
-      .addCombinator (new SingleCardMoveHandler('Pile))
+      .addCombinator (new deckPress.DealToTableauHandlerLocal())
+      .addCombinator (new deckPress.ResetDeckLocal())
+      .addCombinator (new SingleCardMoveHandler(pile))
       .addCombinator (new SingleCardMoveHandler('WastePile))
+      .addCombinator (new buildablePilePress.CP1())
+      .addCombinator (new buildablePilePress.CP2())
 
 
     updated
   }
 
-  /**
-   * Specify filtering method 'validColumn' in the base class to use to pre-filter mouse press.
-   * Note: This introduces 'Stage1 as a means to combine the two press events in sequence.
-   */
-  val name = Java(s"""validColumn""").simpleName()
-  @combinator object PC extends ColumnMoveHandler('Stage1, name)
-  // controller('Stage1, controller.pressed)
+  object buildablePilePress {
+    val buildablePile1:Constructor = 'BuildablePile1
+    val buildablePile2:Constructor = 'BuildablePile2
 
-  // MAKE NOTE: TO FIX. HACK. PERHAPS CAN CALL DIRECTLY..
+    /**
+     * Specify filtering method 'validColumn' in the base class to use to pre-filter mouse press.
+     * Note: This introduces 'Stage1 as a means to combine the two press events in sequence.
+     */
+    class CP1 extends ColumnMoveHandler(buildablePile1, Java("BuildablePile").simpleName(), Java("validColumn").simpleName())
 
-  /** This is one way to combine things... */
-  @combinator object Combine {
-    def apply(head: (SimpleName, SimpleName) => Seq[Statement]): (SimpleName, SimpleName) => Seq[Statement] = {
+    class CP2() {
+     def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
 
-        val seq:Seq[Statement] = head.apply(widgetVariableName, ignoreWidgetVariableName)
         Java(s"""|BuildablePile srcPile = (BuildablePile) src.getModelElement();
                  |
                  |// Only apply if not empty AND if top card is face down
@@ -93,15 +74,25 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
                  |      return;
                  |    }
                  |  }
-                 |}
-                 |${seq.mkString("\n")}""".stripMargin).statements()
+                 |}""".stripMargin).statements()
     }
 
     val semanticType: Type =
-      (drag(drag.variable, drag.ignore) =>: controller ('Stage1, controller.pressed)) =>:
-        (drag(drag.variable, drag.ignore) =>: controller(buildablePile, controller.pressed))
+      drag(drag.variable, drag.ignore) =>: controller (buildablePile2, controller.pressed)
+    }
+
+    class ChainBuildablePileTogether extends ParameterizedStatementCombiner[SimpleName, SimpleName](
+      drag(drag.variable, drag.ignore) =>: controller(buildablePile2, controller.pressed),
+      drag(drag.variable, drag.ignore) =>: controller(buildablePile1, controller.pressed),
+      drag(drag.variable, drag.ignore) =>: controller(buildablePile, controller.pressed))
   }
 
+  @combinator object ChainBuildablePileTogether extends buildablePilePress.ChainBuildablePileTogether
+
+  object deckPress {
+
+    val deck1:Constructor = 'Deck1
+    val deck2:Constructor = 'Deck2
   /**
     * When dealing card(s) from the stock to all elements in Tableau
     * If deck is empty, then reset.
@@ -118,7 +109,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
                |}}""".stripMargin).statements()
     }
 
-    val semanticType: Type = drag(drag.variable, drag.ignore) =>: 'Deck1
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck1, controller.pressed)
   }
 
   class ResetDeckLocal() {
@@ -132,14 +123,19 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
                |}}""".stripMargin).statements()
     }
 
-    val semanticType: Type = drag(drag.variable, drag.ignore) =>: 'Deck2
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck2, controller.pressed)
   }
 
-//  /**
-//    * Statically knit together these two combinators to bring in the desired behavior
-//    */
-//  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2,
-//    controller(deck, controller.pressed))
+
+  class ChainTogether extends ParameterizedStatementCombiner[SimpleName, SimpleName](
+    drag(drag.variable, drag.ignore) =>: controller(deck1, controller.pressed),
+    drag(drag.variable, drag.ignore) =>: controller(deck2, controller.pressed),
+    drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
+  }
+
+  @combinator object ChainTogether extends deckPress.ChainTogether
+
+
 }
 
 
