@@ -181,10 +181,39 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = game(game.fields)
   }
 
+
+  //
+  //  // WHEN This is in controllers.scala it does not get inhabited by Web. Not sure why? HACK. TODO: PLEASE HELP
+  //  @combinator object ChainTogether extends StatementCombiner(
+  //    drag(drag.variable, drag.ignore) =>: 'Deck1,
+  //    drag(drag.variable, drag.ignore) =>: 'Deck2,
+  //    drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
+
+  /**
+    * I somehow couldn't use the above simpler combinator. Thoughts? TODO: FIX
+    */
+  @combinator object ChainTogether {
+    def apply(d1:(SimpleName, SimpleName) => Seq[Statement],
+              d2:(SimpleName, SimpleName) => Seq[Statement]):
+    (SimpleName, SimpleName) => Seq[Statement] = {
+      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) => {
+        val s1:Seq[Statement] = d1.apply(widgetVariableName,ignoreWidgetVariableName)
+        val s2:Seq[Statement] = d2.apply(widgetVariableName,ignoreWidgetVariableName)
+        s1 ++ s2
+      }
+    }
+
+    val semanticType: Type =
+      (drag(drag.variable, drag.ignore) =>: 'Deck1) =>:
+        (drag(drag.variable, drag.ignore) =>: 'Deck2) =>:
+        (drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
+  }
+
+
   /**
     * Need for helper
     */
-  @combinator object HelperMethodsFreeCell {
+  @combinator object HelperMethodsKlondike {
     def apply(): Seq[MethodDeclaration] = Seq.empty
 
     val semanticType: Type = constraints(constraints.methods)

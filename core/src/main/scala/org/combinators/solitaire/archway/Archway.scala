@@ -21,6 +21,7 @@ class Archway @Inject()(webJars: WebJarsUtil) extends InhabitationController(web
   val solitaire = new Domain()
 
   lazy val repository = new ArchwayDomain(solitaire) with Controllers {}
+  import repository._
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
@@ -32,39 +33,36 @@ class Archway @Inject()(webJars: WebJarsUtil) extends InhabitationController(web
   *   - moves are defined in archway/game.scala.
   */
   lazy val jobs =
-    Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation :&: 'Solvable)
-        .addJob[CompilationUnit]('HelperCode)
+    Gamma.InhabitationBatchJob[CompilationUnit](game(complete :&: game.solvable))
+
+      .addJob[CompilationUnit](constraints(complete))
+      .addJob[CompilationUnit](controller(column, complete))
+      .addJob[CompilationUnit](controller(pile, complete))
+      .addJob[CompilationUnit](controller('AcesUpPile, complete))
+      .addJob[CompilationUnit](controller('KingsDownPile, complete))
       .addJob[CompilationUnit]('AcesUpPileClass)
       .addJob[CompilationUnit]('KingsDownPileClass)
       .addJob[CompilationUnit]('AcesUpPileViewClass)
       .addJob[CompilationUnit]('KingsDownPileViewClass)
-
-      .addJob[CompilationUnit]('Controller('AcesUpPile))
-      .addJob[CompilationUnit]('Controller('KingsDownPile))
-      .addJob[CompilationUnit]('Controller('Column))
-      .addJob[CompilationUnit]('Controller('Pile))
-
-      /*
-      * The left-hand symbols in the 'Move tuple are the real names of the classes
-      * specified as strings in the `SolitaireMoveHanlder(...)` objects used in
-      * ArchwayRules in game.scala.
-      */
-      .addJob[CompilationUnit]('Move ('ReserveToTableau :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move ('ReserveToFoundation :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move ('TableauToFoundation :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move ('TableauToKingsFoundation :&: 'GenericMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move ('ReserveToKingsFoundation :&: 'GenericMove, 'CompleteMove))
-
-      .addJob[CompilationUnit]('Move ('ReserveToTableau :&: 'PotentialMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move ('ReserveToFoundation :&: 'PotentialMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move ('TableauToFoundation :&: 'PotentialMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move ('TableauToKingsFoundation :&: 'PotentialMove, 'CompleteMove))
-      .addJob[CompilationUnit]('Move ('ReserveToKingsFoundation :&: 'PotentialMove, 'CompleteMove))
+      //
+      .addJob[CompilationUnit](move('ReserveToTableau :&: move.generic, complete))
+      .addJob[CompilationUnit](move('ReserveToFoundation :&: move.generic, complete))
+      .addJob[CompilationUnit](move('TableauToFoundation :&: move.generic, complete))
+      .addJob[CompilationUnit](move('TableauToKingsFoundation :&: move.generic, complete))
+      .addJob[CompilationUnit](move('ReserveToKingsFoundation :&: move.generic, complete))
 
       // interesting note: We need to support release in tableau, when it comes from a reserve, but
       // since we can be having press comeo OUT of a tableau (destination: foundations) we have to
       // have move to deny the tableau to tableau.
-      .addJob[CompilationUnit]('Move ('TableauToTableau :&: 'GenericMove, 'CompleteMove))
+      .addJob[CompilationUnit](move('TableauToTableau :&: move.generic, complete))
+
+      .addJob[CompilationUnit](move('ReserveToTableau :&: move.potential, complete))
+      .addJob[CompilationUnit](move('ReserveToFoundation :&: move.potential, complete))
+      .addJob[CompilationUnit](move('TableauToFoundation :&: move.potential, complete))
+      .addJob[CompilationUnit](move('TableauToKingsFoundation :&: move.potential, complete))
+      .addJob[CompilationUnit](move('ReserveToKingsFoundation :&: move.potential, complete))
+
+
 
   // Find the Archway Variation.
   lazy val results = Results.addAll(jobs.run())

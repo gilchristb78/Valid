@@ -95,6 +95,12 @@ object constraintCodeGenerators {
       }
     },
 
+    CodeGeneratorRegistry[Expression, IsFaceUp] {
+      case (registry: CodeGeneratorRegistry[Expression], c: IsFaceUp) => {
+        Java(s"""${registry(c.element).get}.isFaceUp()""").expression()
+      }
+    },
+
     /** Note: This code will exist in a method that has game as an argument. */
     CodeGeneratorRegistry[Expression, SolitaireContainerTypes] {
       case (registry:CodeGeneratorRegistry[Expression], st:SolitaireContainerTypes) => {

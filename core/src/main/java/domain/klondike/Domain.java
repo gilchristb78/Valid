@@ -95,7 +95,7 @@ public class Domain extends Solitaire {
 
         // Flip a face-down card on Tableau.
         NotConstraint faceDown = new NotConstraint(new IsFaceUp(new TopCardOf(MoveComponents.Source)));
-        FlipCardMove tableauFlip = new FlipCardMove("FlipCard", tableau, new IfConstraint(faceDown));
+        FlipCardMove tableauFlip = new FlipCardMove("FlipCard", tableau, faceDown);
         rules.addPressMove(tableauFlip);
 
         // Move to foundation from Tableau

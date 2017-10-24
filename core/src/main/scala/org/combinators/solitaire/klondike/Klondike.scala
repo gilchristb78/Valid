@@ -28,24 +28,28 @@ class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
 
   /** Domain for Klondike defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new KlondikeDomain(s) with controllers {}
+  import repository._
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
-  lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit]('SolitaireVariation)
-    .addJob[CompilationUnit]('HelperCode)
+  lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
+
+    .addJob[CompilationUnit](constraints(complete))
+    .addJob[CompilationUnit](controller(buildablePile, complete))
+    .addJob[CompilationUnit](controller(pile, complete))
+    .addJob[CompilationUnit](controller(deck, complete))
+    .addJob[CompilationUnit](controller('WastePile, complete))
     .addJob[CompilationUnit]('WastePileClass)
     .addJob[CompilationUnit]('WastePileViewClass)
-    .addJob[CompilationUnit]('Controller('BuildablePile))
-    .addJob[CompilationUnit]('Controller('Pile))
-    .addJob[CompilationUnit]('Controller('WastePile))
-    .addJob[CompilationUnit]('Controller('Deck))
-    .addJob[CompilationUnit]('Move('MoveColumn :&: 'GenericMove, 'CompleteMove))
-    .addJob[CompilationUnit]('Move('DealDeck :&: 'GenericMove, 'CompleteMove))
-    .addJob[CompilationUnit]('Move('ResetDeck :&: 'GenericMove, 'CompleteMove))
-    .addJob[CompilationUnit]('Move('FlipCard :&: 'GenericMove, 'CompleteMove))
-    .addJob[CompilationUnit]('Move('MoveCard :&: 'GenericMove, 'CompleteMove))
-    .addJob[CompilationUnit]('Move('BuildFoundation :&: 'GenericMove, 'CompleteMove))
-    .addJob[CompilationUnit]('Move('BuildFoundationFromWaste :&: 'GenericMove, 'CompleteMove))
+//
+    .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
+    .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
+    .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
+    .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
+    .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
+    .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
+    .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
+
 
   //      .addJob[CompilationUnit]('Controller('Column))
 

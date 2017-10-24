@@ -19,23 +19,23 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     var updated = super.init(gamma, s)
     println (">>> Klondike Controller dynamic combinators.")
 
-    // structural
-    val ui = new UserInterface(s)
-
-    val els_it = ui.controllers
-    while (els_it.hasNext) {
-      val el = els_it.next()
-
-      // Each of these controllers are expected in the game.
-      updated = updated
-          .addCombinator (new WidgetController(Symbol(el)))
-          .addCombinator (new ControllerNaming(Symbol(el)))
-    }
-
-    // not much to do, if no rules...
-    if (s.getRules == null) {
-      return updated
-    }
+//    // structural
+//    val ui = new UserInterface(s)
+//
+//    val els_it = ui.controllers
+//    while (els_it.hasNext) {
+//      val el = els_it.next()
+//
+//      // Each of these controllers are expected in the game.
+//      updated = updated
+//          .addCombinator (new WidgetController(Symbol(el)))
+//          .addCombinator (new ControllerNaming(Symbol(el)))
+//    }
+//
+//    // not much to do, if no rules...
+//    if (s.getRules == null) {
+//      return updated
+//    }
 
     updated = createMoveClasses(updated, s)
 
@@ -49,6 +49,10 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       .addCombinator (new IgnoreClickedHandler('Pile))
       .addCombinator (new IgnoreClickedHandler('WastePile))
       .addCombinator (new IgnoreReleasedHandler('WastePile))
+
+    updated = updated
+      .addCombinator (new IgnoreReleasedHandler(deck))
+      .addCombinator (new IgnoreClickedHandler(deck))
 
     // these clarify the allowed moves
     updated = updated
@@ -104,38 +108,38 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     * NOTE: How to make this more compositional?
     */
   class DealToTableauHandlerLocal() {
-    def apply():Seq[Statement] = {
-      Java(s"""|m = new DealDeck(theGame.deck, theGame.fieldWastePiles);
+    def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
+      Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.fieldWastePiles);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
                |   // have solitaire game refresh widgets that were affected
                |   theGame.refreshWidgets();
                |   return;
-               |}""".stripMargin).statements()
+               |}}""".stripMargin).statements()
     }
 
-    val semanticType: Type = 'Deck1
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: 'Deck1
   }
 
   class ResetDeckLocal() {
-    def apply():Seq[Statement] = {
-      Java(s"""|m = new ResetDeck(theGame.deck, theGame.fieldWastePiles);
+    def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
+      Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.fieldWastePiles);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
                |   // have solitaire game refresh widgets that were affected
                |   theGame.refreshWidgets();
                |   return;
-               |}""".stripMargin).statements()
+               |}}""".stripMargin).statements()
     }
 
-    val semanticType: Type = 'Deck2
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: 'Deck2
   }
 
-  /**
-    * Statically knit together these two combinators to bring in the desired behavior
-    */
-  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2,
-    controller(deck, controller.pressed))
+//  /**
+//    * Statically knit together these two combinators to bring in the desired behavior
+//    */
+//  @combinator object ChainTogether extends StatementCombiner('Deck1, 'Deck2,
+//    controller(deck, controller.pressed))
 }
 
 
