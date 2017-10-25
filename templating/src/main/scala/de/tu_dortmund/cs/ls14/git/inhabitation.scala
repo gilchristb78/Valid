@@ -53,7 +53,7 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
   }
 
   sealed trait Results { self =>
-    val targets: Seq[Type]
+    val targets: Seq[(Type, Option[BigInt])]
     val raw: Enumeration[Seq[Tree]]
     val infinite: Boolean
     val persistenceActions: Enumeration[Seq[() => Unit]]
@@ -72,7 +72,7 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
 
     def add[T](inhabitationResult: InhabitationResult[T])(implicit persistable: Persistable.Aux[T]): Results =
       new Results {
-        val targets = self.targets :+ inhabitationResult.target
+        val targets = self.targets :+ (inhabitationResult.target, inhabitationResult.size)
         val raw = self.raw.product(inhabitationResult.terms).map {
           case (others, next) => others :+ next
         }

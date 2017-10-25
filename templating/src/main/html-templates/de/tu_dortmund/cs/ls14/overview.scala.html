@@ -6,7 +6,7 @@
 @(path: String,
     webJars: org.webjars.play.WebJarsUtil,
     combinators: Map[String, (Type, String)],
-    targets: Seq[Type],
+    targets: Seq[(Type, Option[BigInt])],
     rawTerms: Enumeration[Seq[Tree]],
     computedVariations: Set[Long],
     infinite: Boolean)
@@ -53,8 +53,8 @@
 
 <h3>Requests:</h3>
 <pre>
-@for(ty <- targets) {
-    &Gamma; &vdash; ? : @ty
+@for((ty, count) <- targets) {
+    &Gamma; &vdash; ? : @ty (@{count.map(_.toString).getOrElse("&infin;")})
 }
 </pre>
 <h3>Solutions:</h3>
