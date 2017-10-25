@@ -4,7 +4,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.{Solitaire, SolitaireContainerTypes}
 import domain.archway.{ArchwayContainerTypes, Domain}
-import org.combinators.solitaire.archway.{ArchwayDomain, Controllers, Game}
+import org.combinators.solitaire.archway.{ArchwayDomain, Controllers}
 import org.combinators.solitaire.shared.{Helper, SemanticTypes}
 
 class ArchwayTests (types:SemanticTypes) extends Helper(types) {

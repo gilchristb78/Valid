@@ -223,18 +223,31 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
 
   /**
     * Generate statements that constructs a single Deck (but no view), adds it to
-    * the model and initializes it to be ready.
+    * the model and initializes it to be ready. Handles MultiDeck as needed.
     *
     * @param modelName    name of model element to create
     */
-  def deckGen (modelName:String):Seq[Statement] = {
-    Java(
-      s"""|// Basic start of pretty much any solitaire game that requires a deck.
-          |$modelName = new Deck ("deck");
-          |int seed = getSeed();
-          |$modelName.create(seed);
-          |addModelElement ($modelName);
-          |""".stripMargin).statements()
+  def deckGen (modelName:String, stock:Container):Seq[Statement] = {
+
+    val decks =
+      if (stock.size > 1) {
+        Java(
+          s"""|// Multi-decks are constructed from stock size.
+              |$modelName = new MultiDeck ("$modelName", ${stock.size});
+              |""".stripMargin).statements()
+
+      } else {
+        Java(
+          s"""|// Single deck instantiated as is
+              |$modelName = new Deck ("$modelName");
+              |""".stripMargin).statements()
+      }
+
+    decks ++ Java(s"""|// Basic start of pretty much any solitaire game that requires a deck.
+                      |int seed = getSeed();
+                      |$modelName.create(seed);
+                      |addModelElement ($modelName);
+                      |""".stripMargin).statements()
   }
 
 
@@ -245,8 +258,8 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     *
     * @param modelName    name of model element to create
     */
-  def deckGenWithView (modelName:String, viewName:String):Seq[Statement] = {
-    deckGen(modelName) ++ Java(s"""$viewName = new DeckView($modelName);""".stripMargin).statements()
+  def deckGenWithView (modelName:String, viewName:String, stock:Container):Seq[Statement] = {
+    deckGen(modelName, stock) ++ Java(s"""$viewName = new DeckView($modelName);""".stripMargin).statements()
   }
 
   /**

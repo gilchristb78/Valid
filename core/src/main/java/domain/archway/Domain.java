@@ -59,16 +59,15 @@ public class Domain extends Solitaire {
 		}
 		containers.put(ArchwayContainerTypes.KingsDown, kingsFoundation);
 
-
-		places = new HorizontalPlacement(new Point (6*scale, 8*scale), card_width, 8*card_height, card_gap);
+		places = new HorizontalPlacement(new Point (10*scale, 10*scale), card_width, 8*card_height, card_gap);
 		Tableau tableau = new Tableau(places);
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < 4; i++) {
 			tableau.add(new Column());
 		}
 		containers.put(SolitaireContainerTypes.Tableau, tableau);
 
-		// defaults to 1 deck.
-		Stock stock = new Stock();
+		// Archway has two decks.
+		Stock stock = new Stock(2);
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
 		// wins once foundation contains same number of cards as stock

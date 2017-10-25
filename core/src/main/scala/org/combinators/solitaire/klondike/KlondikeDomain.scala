@@ -52,7 +52,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   @combinator object InitModel {
 
     def apply(): Seq[Statement] = {
-      val deck = deckGenWithView("deck", "deckView")
+      val deck = deckGenWithView("deck", "deckView", solitaire.containers.get(SolitaireContainerTypes.Stock))
 
       val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldBuildablePiles", "fieldBuildablePileViews", "BuildablePile")
       val foundGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldPiles", "fieldPileViews", "Pile")

@@ -56,7 +56,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object IdiotInitModel {
 
     def apply(): Seq[Statement] = {
-      val deck = deckGenWithView("deck", "deckView")
+      val deck = deckGenWithView("deck", "deckView", solitaire.containers.get(SolitaireContainerTypes.Stock))
 
       val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumns", "fieldColumnViews", "Column")
 

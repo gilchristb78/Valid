@@ -20,19 +20,28 @@ import org.combinators.solitaire.shared._
   */
 class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
 
+  /**
+    * Freecell requires specialized extensions for constraints to work.
+    */
   @combinator object DefaultGenerator {
     def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
-    val semanticType: Type = 'ConstraintGen
+    val semanticType: Type = constraints(constraints.generator)
+  }
+
+  @combinator object HelperMethodsArchway {
+    def apply(): Seq[MethodDeclaration] = Seq.empty
+
+    val semanticType: Type = constraints(constraints.methods)
   }
 
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.archway").name()
-    val semanticType: Type = 'RootPackage
+    val semanticType: Type = packageName
   }
 
   @combinator object NameOfTheGame {
     def apply: SimpleName = Java("Archway").simpleName()
-    val semanticType: Type = 'NameOfTheGame
+    val semanticType: Type = variationName
   }
 
   /**
@@ -52,31 +61,24 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
         * I need to remove all the cards and add them back from a
         * temporary deck in order to set up the Aces and Kings Foundations.
         */
-//      val deck = Java(
-//        s"""
-//           | deck = new MultiDeck(2);
-//           | int seed = getSeed();
-//           | deck.create(seed);
-//           | addModelElement(deck);
-//         """.stripMargin).statements()
-      val deck = deckGen("deck")
+      val deck = deckGen("deck", solitaire.containers.get(SolitaireContainerTypes.Stock))
 
-      val reserve = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldReservePiles", "fieldReservePileViews", "Pile")
-      val tableau = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldTableauColumns", "fieldTableauColumnViews", "Column")
+      val reserve = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldPiles", "fieldPileViews", "Pile")
+      val tableau = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumns", "fieldColumnViews", "Column")
 
       /*
        * The Foundation is split between Aces and Kings, so I have to manually
        * generate them instead of using loopConstructGen()
        */
-      val aces = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldAcesFoundationPiles", "fieldAcesFoundationPileViews", "AcesUpPile")
+      val aces = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldAcesUpPiles", "fieldAcesUpPileViews", "AcesUpPile")
 
-      val kings = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.KingsDown), "fieldKingsFoundationPiles", "fieldKingsFoundationPileViews", "KingsDownPile")
+      val kings = loopConstructGen(solitaire.containers.get(ArchwayContainerTypes.KingsDown), "fieldKingsDownPiles", "fieldKingsDownPileViews", "KingsDownPile")
 
 
       deck ++ aces ++ kings ++ reserve ++ tableau
     }
 
-    val semanticType: Type = 'Init ('Model)
+    val semanticType: Type = game(game.model)
   }
 
   /** Deal the cards.
@@ -100,27 +102,27 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
            |  Card card = tmpDeck.get();
            |  String card_string = card.toString();
            |
-           |  if (card_string.equals("AH")) { fieldAcesFoundationPiles[0].add(card); }
+           |  if (card_string.equals("AH")) { fieldAcesUpPiles[0].add(card); }
            |  else if (card_string.equals("AS")) {
-           |    fieldAcesFoundationPiles[1].add(card);
+           |    fieldAcesUpPiles[1].add(card);
            |  }
            |  else if (card_string.equals("AC")) {
-           |    fieldAcesFoundationPiles[2].add(card);
+           |    fieldAcesUpPiles[2].add(card);
            |  }
            |  else if (card_string.equals("AD")) {
-           |    fieldAcesFoundationPiles[3].add(card);
+           |    fieldAcesUpPiles[3].add(card);
            |  }
            |  else if (card_string.equals("KH")) {
-           |    fieldKingsFoundationPiles[0].add(card);
+           |    fieldKingsDownPiles[0].add(card);
            |  }
            |  else if (card_string.equals("KS")) {
-           |    fieldKingsFoundationPiles[1].add(card);
+           |    fieldKingsDownPiles[1].add(card);
            |  }
            |  else if (card_string.equals("KC")) {
-           |    fieldKingsFoundationPiles[2].add(card);
+           |    fieldKingsDownPiles[2].add(card);
            |  }
            |  else if (card_string.equals("KD")) {
-           |    fieldKingsFoundationPiles[3].add(card);
+           |    fieldKingsDownPiles[3].add(card);
            |  }
            |  else {
            |    deck.add(card);
@@ -130,19 +132,19 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
            |// Fill the Tableau.
            |for (int i = 0; i < 12; i++) {
            |  for (int j = 0; j < 4; j++) {
-           |    fieldTableauColumns[j].add(deck.get());
+           |    fieldColumns[j].add(deck.get());
            |  }
            |}
            |
            |// The rest goes to the Reserves.
            |for (int i = 0; i < 40; i++) {
            |  Card card = deck.get();
-           |  fieldReservePiles[card.getRank() - 2].add(card);
+           |  fieldPiles[card.getRank() - 2].add(card);
            |}
          """.stripMargin).statements()
     }
 
-    val semanticType: Type = 'Init ('InitialDeal)
+    val semanticType: Type = game(game.deal)
   }
 
   /*
@@ -160,45 +162,15 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
     def apply(): Seq[Statement] = {
 
 
-//      val lay = solitaire.getLayout
-//
-//      /* I had originally figured out the coordinates on graph paper,
-//       * then figured out the scale to make them all fit.
-//       */
-//      val scale = 27
-
-//      var x = Array( 2,  2, 2, 4, 10, 14, 18, 24, 26, 26, 26).map(_ * scale)
-//      var y = Array(15, 11, 7, 3, 1,  1,  1,  3,  7, 11, 15).map(_ * scale)
-//
-//      // Reserve
-//      val rs = layout_place_custom(lay, solitaire.getReserve, Java("fieldReservePileViews").name(), x, y, 97)
-
-      // Tableau
-//      x = Array(8, 12, 16, 20).map(_ * scale)
-//      y = Array(6, 6, 6, 6).map(_ * scale)
-//      val tab = layout_place_custom(lay, solitaire.getTableau, Java("fieldTableauColumnViews").name(), x, y, 12*97)
-
-      // Aces Foundation
-//      x = Array( 2,  5,  2,  5).map(_ * scale)
-//      y = Array(19, 19, 23, 23).map(_ * scale)
-//      val fnd = layout_place_custom(lay, solitaire.getFoundation, Java("fieldAcesFoundationPileViews").name(), x, y, 97)
-
-      // Kings Foundation
-//      x = Array(23, 26, 23, 26).map(_ * scale)
-//      y = Array(19, 19, 23, 23).map(_ * scale)
-//      val kf = layout_place_custom(lay, solitaire.getContainer("KingsDownFoundation"), Java("fieldKingsFoundationPileViews").name(), x, y, 97)
-//
-//      rs ++ tab ++ fnd ++ kf
-
-      var stmts = layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Foundation), Java("fieldAcesFoundationPileViews").name())
-      stmts = stmts ++ layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Reserve), Java("fieldReservePileViews").name())
-      stmts = stmts ++ layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Tableau), Java("fieldTableauColumnViews").name())
-      stmts = stmts ++ layout_place_it(solitaire.containers.get(ArchwayContainerTypes.KingsDown), Java("fieldKingsFoundationPileViews").name())
+      var stmts = layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Foundation), Java("fieldAcesUpPileViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Reserve), Java("fieldPileViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(SolitaireContainerTypes.Tableau), Java("fieldColumnViews").name())
+      stmts = stmts ++ layout_place_it(solitaire.containers.get(ArchwayContainerTypes.KingsDown), Java("fieldKingsDownPileViews").name())
 
       stmts
 
     }
-    val semanticType: Type = 'Init ('View)
+    val semanticType: Type = game(game.view)
   }
 
   /**
@@ -210,21 +182,21 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
       val name = NameOfGame.toString()
 
       /* Aces Foundation Controller */
-      val aces = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldAcesFoundationPileViews", "AcesUpPileController")
+      val aces = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldAcesUpPileViews", "AcesUpPileController")
 
       /* Kings Foundation Controller */
-      val kings = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.KingsDown), "fieldKingsFoundationPileViews", "KingsDownPileController")
+      val kings = loopControllerGen(solitaire.containers.get(ArchwayContainerTypes.KingsDown), "fieldKingsDownPileViews", "KingsDownPileController")
 
       /* Tableau Controller */
-      val tableau = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldTableauColumnViews", "ColumnController")
+      val tableau = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumnViews", "ColumnController")
 
       /* Reserve Controller */
-      val reserve = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldReservePileViews", "PileController")
+      val reserve = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldPileViews", "PileController")
 
       aces ++ kings ++ tableau ++ reserve
     }
 
-    val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
+    val semanticType: Type = variationName =>: game(game.control)
   }
 
   /**
@@ -237,7 +209,7 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
         Java(s"import $nameExpr.model.*;").importDeclaration()
       )
     }
-    val semanticType: Type = 'RootPackage =>: 'ExtraImports
+    val semanticType: Type = packageName =>: game(game.imports)
   }
 
   /**
@@ -255,21 +227,21 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
                |		java.util.Vector<Move> v = new java.util.Vector<Move>();
                |
                |	// Try all moves from the Reserve to the Aces and Kings Foundation and the Tableau.
-               |  for (Pile reserve : fieldReservePiles) {
+               |  for (Pile reserve : fieldPiles) {
                |
-               |    for (AcesUpPile acesFoundation : fieldAcesFoundationPiles) {
+               |    for (AcesUpPile acesFoundation : fieldAcesUpPiles) {
                |      ReserveToFoundation rtf = new PotentialReserveToFoundation(reserve, acesFoundation);
                |      if (rtf.valid(this)) {
                |        v.add(rtf);
                |      }
                |    }
-               |    for (KingsDownPile kingsFoundation : fieldKingsFoundationPiles) {
+               |    for (KingsDownPile kingsFoundation : fieldKingsDownPiles) {
                |      ReserveToKingsFoundation rkf = new PotentialReserveToKingsFoundation(reserve, kingsFoundation);
                |      if (rkf.valid(this)) {
                |        v.add(rkf);
                |      }
                |    }
-               |    for (Column tableau : fieldTableauColumns) {
+               |    for (Column tableau : fieldColumns) {
                |      ReserveToTableau rt = new PotentialReserveToTableau(reserve, tableau);
                |      if (rt.valid(this)) {
                |        v.add(rt);
@@ -278,8 +250,8 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
                |  }
                |
                |  // Try all moves from the Tableau to the Aces and Kings Foundation.
-               |  for (Column tableau : fieldTableauColumns) {
-               |    for (AcesUpPile acesFoundation : fieldAcesFoundationPiles) {
+               |  for (Column tableau : fieldColumns) {
+               |    for (AcesUpPile acesFoundation : fieldAcesUpPiles) {
                |      TableauToFoundation tf = new PotentialTableauToFoundation(tableau, acesFoundation);
                |      if (tf.valid(this)) {
                |        v.add(tf);
@@ -287,7 +259,7 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
                |    }
                |
                |    // TODO: The 3H is duplicated when returned to the Tableau.
-               |    for (KingsDownPile kingsFoundation : fieldKingsFoundationPiles) {
+               |    for (KingsDownPile kingsFoundation : fieldKingsDownPiles) {
                |      TableauToKingsFoundation tk = new PotentialTableauToKingsFoundation(tableau, kingsFoundation);
                |      if (tk.valid(this)) {
                |        v.add(tk);
@@ -302,7 +274,7 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
 
     }
 
-    val semanticType: Type = 'ExtraMethods :&: 'AvailableMoves
+    val semanticType: Type = game(game.methods :&: game.availableMoves)
   }
 
   /**
@@ -321,17 +293,17 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
              |IntegerView numLeftView;
              """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      /* The first argument becomes fieldTableauColumns */
-      val tableau = fieldGen("TableauColumn",         4)   // HACK: get from size of container
-      val reserve = fieldGen("ReservePile",          11)
-      val aces    = fieldGen("AcesFoundationPile",   4)
-      val kings   = fieldGen("KingsFoundationPile",  4)
+      /* The first argument becomes fieldColumns */
+      val tableau = fieldGen("Column",        solitaire.containers.get(SolitaireContainerTypes.Tableau).size)
+      val reserve = fieldGen("Pile",          solitaire.containers.get(SolitaireContainerTypes.Reserve).size)
+      val aces    = fieldGen("AcesUpPile",    solitaire.containers.get(SolitaireContainerTypes.Foundation).size)
+      val kings   = fieldGen("KingsDownPile", solitaire.containers.get(ArchwayContainerTypes.KingsDown).size)
 
-      val deck = Java("MultiDeck deck;").classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+      val deck = deckFieldGen(solitaire.containers.get(SolitaireContainerTypes.Stock))
 
       deck ++ fields ++ tableau ++ reserve ++ aces ++ kings
     }
 
-    val semanticType: Type = 'ExtraFields
+    val semanticType: Type = game(game.fields)
   }
 }

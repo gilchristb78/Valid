@@ -49,7 +49,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
     def apply(): Seq[Statement] = {
 
-      val dg = deckGen ("deck")
+      val dg = deckGen ("deck", solitaire.containers.get(SolitaireContainerTypes.Stock))
       val foundGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldPiles", "fieldPileViews", "Pile")
       val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumns", "fieldColumnViews", "Column")
       val resGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldReservePiles", "fieldReservePileViews", "ReservePile")

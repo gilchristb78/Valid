@@ -44,6 +44,12 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = constraints(constraints.generator)
   }
 
+  @combinator object HelperMethodsNarcotic {
+    def apply(): Seq[MethodDeclaration] = Seq.empty
+
+    val semanticType: Type = constraints(constraints.methods)
+  }
+
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.narcotic").name()
     val semanticType: Type = packageName
@@ -61,7 +67,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     // visit the domain model. That is an alternative worth considering.
 
     def apply(): Seq[Statement] = {
-      val deck = deckGenWithView("deck", "deckView")
+      val deck = deckGenWithView("deck", "deckView", solitaire.containers.get(SolitaireContainerTypes.Stock))
 
       val pileGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldPiles", "fieldPileViews", "Pile")
 
@@ -176,16 +182,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
     val semanticType: Type = game(game.fields)
   }
-
-  /**
-    * Need for helper
-    */
-  @combinator object HelperMethodsFreeCell {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
-
-    val semanticType: Type = constraints(constraints.methods)
-  }
-
 
 
 }

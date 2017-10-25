@@ -39,22 +39,6 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
     var updated = super.init(gamma, s)
     println (">>> Archway Controller dynamic combinators.")
 
-    // structural
-    val ui = new UserInterface(s)
-
-    val els_it = ui.controllers
-    while (els_it.hasNext()) {
-      val el = els_it.next()
-
-      updated = updated.
-        addCombinator (new WidgetController(Symbol(el)))
-    }
-
-    // Skip controllers if there are no rules defined.
-    if (s.getRules == null) {
-      return updated
-    }
-
     // DOC: Not sure.
     updated = createMoveClasses(updated, s)
     updated = createDragLogic(updated, s)
@@ -62,11 +46,11 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     // Create real class names for the Controllers. Becomes 'Symbol + "Controller"
     // i.e. 'AcesUpPile -> "AcesUpPileController"
-    updated = updated
-      .addCombinator (new ControllerNaming('AcesUpPile))
-      .addCombinator (new ControllerNaming('KingsDownPile))
-      .addCombinator (new ControllerNaming('Column))
-      .addCombinator (new ControllerNaming('Pile))
+//    updated = updated
+//      .addCombinator (new ControllerNaming('AcesUpPile))
+//      .addCombinator (new ControllerNaming('KingsDownPile))
+//      .addCombinator (new ControllerNaming('Column))
+//      .addCombinator (new ControllerNaming('Pile))
 
     updated = updated
 
@@ -80,17 +64,17 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaI
 
       // IgnoreReleasedHandler is necessary, because cards are only moved away
       // from the reserve, and never to it.
-      .addCombinator (new IgnoreClickedHandler('Pile))
-      .addCombinator (new IgnoreReleasedHandler('Pile))
-      .addCombinator (new SingleCardMoveHandler('Pile))
+      .addCombinator (new IgnoreClickedHandler(pile))
+      .addCombinator (new IgnoreReleasedHandler(pile))
+      .addCombinator (new SingleCardMoveHandler(pile))
 
       // Cards can be dragged to and from the Tableau.
-      .addCombinator (new IgnoreClickedHandler('Column))
-      .addCombinator (new SingleCardMoveHandler('Column))
+      .addCombinator (new IgnoreClickedHandler(column))
+      .addCombinator (new SingleCardMoveHandler(column))
 
-    updated = updated
-      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToAcesUpPile))
-      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToKingsDownPile))
+//    updated = updated
+//      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToAcesUpPile))
+//      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToKingsDownPile))
 //      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToAcesUpPile))
 //      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToKingsDownPile))
 //      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToColumn))

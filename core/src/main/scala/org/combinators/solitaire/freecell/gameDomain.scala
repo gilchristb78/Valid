@@ -43,11 +43,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = constraints(constraints.generator)
   }
 
-  @combinator object DebugFreeCellGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = freecellCodeGenerator.generators
-    val semanticType: Type = 'BigDebug
-  }
-
   /**
     * Every solitaire variation exists within a designated Java package.
     */
@@ -72,7 +67,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
     def apply(): Seq[Statement] = {
 
-      val dg = deckGen ("deck")
+      val dg = deckGen ("deck", solitaire.containers.get(SolitaireContainerTypes.Stock))
       val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumns", "fieldColumnViews", "Column")
       val resGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Reserve), "fieldFreePiles", "fieldFreePileViews", "FreePile")
       val foundGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldHomePiles", "fieldHomePileViews", "HomePile")

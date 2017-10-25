@@ -22,27 +22,6 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     var updated = super.init(gamma, s)
     println(">>> Narcotic Controller dynamic combinators.")
 
-    // handle automoves
-
-    //
-    //    // structural
-    //    val ui = new UserInterface(s)
-    //
-    //    val els_it = ui.controllers
-    //    while (els_it.hasNext) {
-    //      val el = els_it.next()
-    //
-    //      // Each of these controllers are expected in the game.
-    //      updated = updated.
-    //          addCombinator (new WidgetController(Symbol(el)))
-    //
-    //    }
-    //
-    //    // not much to do, if no rules...
-    //    if (s.getRules == null) {
-    //      return updated
-    //    }
-
     updated = createMoveClasses(updated, s)
 
     updated = createDragLogic(updated, s)
