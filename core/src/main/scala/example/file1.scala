@@ -48,41 +48,46 @@ trait SomeCombinators extends generic.JavaIdioms  {
 		   addSubtype("Imperial").
 		   addSubtype("Metric")
  
-// this is how you create a generic template for a combinator
-@combinator object UpInterface {
+  // this is how you create a generic template for a combinator
+  @combinator object UpInterface {
 
-  def apply(exp:Expression): CompilationUnit = {
-    val s = exp.toString
-    Java(s"""|public class TemperatureAdapter {
-             |  float getTemperature() {
-      	     |    return $s;
-             |  }
-             |}""".stripMargin).compilationUnit()
+    def apply(exp:Expression): CompilationUnit = {
+      val s = exp.toString
+      Java(s"""|public class TemperatureAdapter {
+               |  float getTemperature() {
+               |    return $s;
+               |  }
+               |}""".stripMargin).compilationUnit()
+    }
+
+    val semanticType:Type = 'Float :&: alpha =>: 'TemperatureInterface (alpha)
+  }
+  /*****
+  @combinator object Bad {
+    def apply() : Expression = {
+      Java (s"""\"string\"""").expression()
+    }
+
+    val semanticType:Type = 'Float :&: 'Fahrenheit
+  }
+  ******/
+
+  @combinator object ConvCelsiusToFahrenheit {
+
+    def apply(e1:Expression):Expression = {
+       val s = e1.toString
+       Java("""((9.0/5.0)*""" + s + """ + 32.0)""").expression()
+    }
+
+    val semanticType:Type = 'Float :&: 'Celsius =>:
+                            'Float :&: 'Fahrenheit
+
   }
 
-  val semanticType:Type = 'Float :&: alpha =>: 'TemperatureInterface (alpha)
-}
-/*****
-@combinator object Bad {
-  def apply() : Expression = {
-    Java (s"""\"string\"""").expression()
+  @combinator object SomeNumber {
+    def apply(): Int = 42
+    val semanticType = 'ReasonOfTheUniverse
   }
-
-  val semanticType:Type = 'Float :&: 'Fahrenheit
-}
-******/
-
-@combinator object ConvCelsiusToFahrenheit {
-
-  def apply(e1:Expression):Expression = {
-     val s = e1.toString
-     Java("""((9.0/5.0)*""" + s + """ + 32.0)""").expression()
-  }
-
-  val semanticType:Type = 'Float :&: 'Celsius =>: 
-                          'Float :&: 'Fahrenheit
-
-}
 
 }
 

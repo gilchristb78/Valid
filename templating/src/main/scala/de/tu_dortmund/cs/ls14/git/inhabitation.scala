@@ -56,6 +56,7 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
     val targets: Seq[(Type, Option[BigInt])]
     val raw: Enumeration[Seq[Tree]]
     val infinite: Boolean
+    val incomplete: Boolean
     val persistenceActions: Enumeration[Seq[() => Unit]]
     def storeToDisk(fileSystemRoot: Path, number: Long): Unit = {
       val result = persistenceActions.index(number)
@@ -70,17 +71,30 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
         override def path(elem: T) = repositoryPath
       })
 
-    def add[T](inhabitationResult: InhabitationResult[T])(implicit persistable: Persistable.Aux[T]): Results =
-      new Results {
-        val targets = self.targets :+ (inhabitationResult.target, inhabitationResult.size)
-        val raw = self.raw.product(inhabitationResult.terms).map {
-          case (others, next) => others :+ next
+    def add[T](inhabitationResult: InhabitationResult[T])(implicit persistable: Persistable.Aux[T]): Results = {
+      val size = inhabitationResult.size
+
+      size match {
+        case Some(x) if x == 0 => new Results {
+            val targets = self.targets :+ (inhabitationResult.target, size)
+            val raw = self.raw
+            val persistenceActions = self.persistenceActions
+            val infinite = self.infinite
+            val incomplete = true
+          }
+        case  _ => new Results {
+          val targets = self.targets :+ (inhabitationResult.target, inhabitationResult.size)
+          val raw = self.raw.product(inhabitationResult.terms).map {
+            case (others, next) => others :+ next
+          }
+          val persistenceActions = self.persistenceActions.product(inhabitationResult.interpretedTerms).map {
+            case (ps, r) => ps :+ (() => persistable.persist(root.resolve(sourceDirectory), r))
+          }
+          val infinite = self.infinite || inhabitationResult.isInfinite
+          val incomplete = self.incomplete
         }
-        val persistenceActions = self.persistenceActions.product(inhabitationResult.interpretedTerms).map {
-          case (ps, r) => ps :+ (() => persistable.persist(root.resolve(sourceDirectory), r))
-        }
-        val infinite = self.infinite || inhabitationResult.isInfinite
       }
+    }
 
     def addAll[R](results: R)(implicit canAddAll: InhabitationResultVector[R]): Results =
       canAddAll.add(results, this)
@@ -90,6 +104,7 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
     val raw = Enumeration.singleton(Seq())
     val persistenceActions = Enumeration.singleton(Seq())
     val infinite = false
+    val incomplete = false
   }
 
   val results: Results
@@ -147,7 +162,7 @@ abstract class InhabitationController(webJars: WebJarsUtil) extends InjectedCont
         (ReflectedRepository.fullTypeOf(dynamicInfo),
           dynamicInfo.position.mkString("\n"))
     }
-    Ok(html.overview.render(request.path, webJars, combinators, results.targets, results.raw, computedVariations.toSet, results.infinite))
+    Ok(html.overview.render(request.path, webJars, combinators, results.targets, results.raw, computedVariations.toSet, results.infinite, results.incomplete))
   }
   def raw(id: Long) = {
     TODO
