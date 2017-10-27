@@ -1,12 +1,17 @@
 package org.combinators.solitaire.klondike
 
+import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.expr.{Name, SimpleName}
 import de.tu_dortmund.cs.ls14.cls.interpreter._
+import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import domain.{Solitaire, SolitaireContainerTypes}
+import domain.{Move, Solitaire, SolitaireContainerTypes}
 import domain.klondike.Domain
 import org.combinators.solitaire.shared._
+import org.scalatest.FunSpec
+import scala.collection.JavaConverters._
 
-class KlondikeTests (types:SemanticTypes) extends Helper(types) {
+class KlondikeTests extends FunSpec  {
 
   describe("The possible inhabited domain models") {
     val domainModel:Solitaire = new Domain()
@@ -25,18 +30,39 @@ class KlondikeTests (types:SemanticTypes) extends Helper(types) {
           assert(domainModel.containers.get(SolitaireContainerTypes.Stock).size == 1)
         }
 
-        describe("(when used to create a repository)") {
-          lazy val controllerRepository = new KlondikeDomain(domainModel) with controllers {}
-          lazy val Gamma = controllerRepository.init(
-            ReflectedRepository(controllerRepository, classLoader = this.getClass.getClassLoader),
-            domainModel)
+        describe("For synthesis") {
+          val controllerRepository = new KlondikeDomain(domainModel) with controllers {}
+          import controllerRepository._
 
-          containsClass(singleInstance(Gamma, 'SolitaireVariation), "Klondike")
-          containsClass(singleInstance(Gamma, 'Controller ('BuildablePile)), "PileController")
-          containsClass(singleInstance(Gamma, 'Controller ('WastePile)), "WastePileController")
-          containsClass(singleInstance(Gamma, 'Controller ('Pile)), "PileController")
-          containsClass(singleInstance(Gamma, 'Controller ('Deck)), "DeckController")
+          val reflected = ReflectedRepository(controllerRepository, classLoader = controllerRepository.getClass.getClassLoader)
+          val Gamma= controllerRepository.init(reflected, domainModel)
+          val helper = new Helper(controllerRepository)
 
+          it ("Check for base classes") {
+            assert(helper.singleClass("ConstraintHelper",    Gamma.inhabit[CompilationUnit](constraints(complete))))
+
+            assert(helper.singleClass("Klondike",                 Gamma.inhabit[CompilationUnit](game(complete))))
+            assert(helper.singleClass("BuildablePileController",  Gamma.inhabit[CompilationUnit](controller(buildablePile, complete))))
+            assert(helper.singleClass("PileController",           Gamma.inhabit[CompilationUnit](controller(pile, complete))))
+            assert(helper.singleClass("DeckController",           Gamma.inhabit[CompilationUnit](controller(deck, complete))))
+            assert(helper.singleClass("WastePileController",      Gamma.inhabit[CompilationUnit](controller('WastePile, complete))))
+
+            assert(helper.singleClass("WastePile",        Gamma.inhabit[CompilationUnit]('WastePileClass)))
+            assert(helper.singleClass("WastePileView",    Gamma.inhabit[CompilationUnit]('WastePileViewClass)))
+
+            // Ensure all moves in the domain generate move classes as Compilation Units
+            val combined = domainModel.getRules.drags.asScala ++ domainModel.getRules.presses.asScala ++ domainModel.getRules.clicks.asScala
+            for (mv:Move <- combined) {
+              val sym = Constructor(mv.name)
+              assert(helper.singleClass(mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
+            }
+          }
+
+          // these are implied by the successful completion of 'game'
+          it ("Structural validation") {
+            assert(helper.singleInstance[SimpleName](Gamma.inhabit[SimpleName](variationName)))
+            assert(helper.singleInstance[Name](Gamma.inhabit[Name](packageName)))
+          }
         }
       }
     }

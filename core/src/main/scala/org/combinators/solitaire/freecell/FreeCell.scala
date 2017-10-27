@@ -42,6 +42,7 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit](game(complete :&: game.solvable))
 
+
       .addJob[CompilationUnit](constraints(complete))
       .addJob[CompilationUnit](controller(column, complete))
       .addJob[CompilationUnit](controller('FreePile, complete))
@@ -64,7 +65,6 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
       .addJob[CompilationUnit](move('PlaceColumn :&: move.potentialMultipleMove, complete))
       .addJob[CompilationUnit](move('BuildColumn :&: move.potentialMultipleMove, complete))
       .addJob[CompilationUnit](move('PlaceFreePileCard :&: move.potential, complete))
-
 
 
   lazy val results = Results.addAll(jobs.run())

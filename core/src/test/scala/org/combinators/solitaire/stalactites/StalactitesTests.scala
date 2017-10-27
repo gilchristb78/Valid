@@ -31,7 +31,7 @@ class StalactitesTests (types:SemanticTypes) extends Helper(types) {
               ReflectedRepository(fc_repository, classLoader = this.getClass.getClassLoader),
               domainModel)
 
-            containsClass(singleInstance(Gamma, 'Augment('increment, 'SolitaireVariation)), "Stalactites")
+//            containsClass(singleInstance(Gamma, 'Augment('increment, 'SolitaireVariation)), "Stalactites")
 //            checkExistence(Gamma, domainModel, 'Controller ('Pile), "PileController")
 //            checkExistence(Gamma, domainModel, 'Controller ('ReservePile), "ReservePileController")
 //            checkExistence(Gamma, domainModel, 'Controller ('Column), "ColumnController")

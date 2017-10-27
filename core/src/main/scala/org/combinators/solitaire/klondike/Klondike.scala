@@ -34,26 +34,6 @@ class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   import repository._
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
-  val cc5 = Gamma.inhabit[(SimpleName,SimpleName) => Seq[Statement]](drag(drag.variable, drag.ignore) =>:
-    controller('Deck1, controller.pressed)).interpretedTerms.values.flatMap(_._2).iterator
-  val r1 = cc5.next()
-  println ("BP1:" + r1)
-
-
-  val cc6 = Gamma.inhabit[(SimpleName,SimpleName) => Seq[Statement]](drag(drag.variable, drag.ignore) =>:
-    controller('Deck2, controller.pressed)).interpretedTerms.values.flatMap(_._2).iterator
-  val r2 = cc6.next()
-  println ("BP2:" + r2)
-
-  val r3 = ChainTogether.apply(r1,r2)
-  println ("COMB:" + r3)
-  val x:Seq[Statement] = r3(Java("widget").simpleName(), Java("ignore").simpleName())
-  println (x.mkString("\n"))
-
-  val cc7 = Gamma.inhabit[(SimpleName,SimpleName) => Seq[Statement]](drag(drag.variable, drag.ignore) =>:
-    controller(deck, controller.pressed)).interpretedTerms.values.flatMap(_._2).iterator
-  print ("BP:" + cc7.hasNext)
-
 
 
   lazy val combinatorComponents = Gamma.combinatorComponents
