@@ -26,6 +26,11 @@ GET   /klondike/raw_:number          org.combinators.solitaire.klondike.Klondike
 GET   /klondike/prepare              org.combinators.solitaire.klondike.Klondike.prepare(number: Long)
 GET   /klondike/klondike.git/*file  	  org.combinators.solitaire.klondike.Klondike.serveFile(file)
 
+GET   /castle                      org.combinators.solitaire.castle.Castle.overview()
+GET   /castle/raw_:number          org.combinators.solitaire.castle.Castle.raw(number: Long)
+GET   /castle/prepare              org.combinators.solitaire.castle.Castle.prepare(number: Long)
+GET   /castle/castle.git/*file  	  org.combinators.solitaire.castle.Castle.serveFile(file)
+
 GET   /example                      example.Example.overview()
 GET   /example/raw_:number          example.Example.raw(number: Long)
 GET   /example/prepare              example.Example.prepare(number: Long)
