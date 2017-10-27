@@ -44,22 +44,22 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     updated = generateMoveLogic(updated, s)
 
     updated = updated
-      .addCombinator (new SingleCardMoveHandler("Row", 'Row, 'Row))
-      .addCombinator (new IgnoreClickedHandler('Row, 'Row))
-      .addCombinator (new IgnoreClickedHandler('Pile, 'Pile))
-      .addCombinator (new IgnorePressedHandler('Pile, 'Pile))
+      .addCombinator (new SingleCardMoveHandler(row))
+      .addCombinator (new IgnoreClickedHandler(row))
+      .addCombinator (new IgnoreClickedHandler(pile))
+      .addCombinator (new IgnorePressedHandler('Pile))
 
-
-
-    // Potential moves clarify structure (by type not instance). FIX ME
-    // FIX ME FIX ME FIX ME
-    updated = updated
-      .addCombinator (new PotentialTypeConstructGen("Row", 'RowToRow))
-
-    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
-    updated = updated
-      .addCombinator (new ControllerNaming('Row, 'Row, "Castle"))
-      .addCombinator (new ControllerNaming('Pile, 'Pile, "Castle"))
+//
+//
+//    // Potential moves clarify structure (by type not instance). FIX ME
+//    // FIX ME FIX ME FIX ME
+//    updated = updated
+//      .addCombinator (new PotentialTypeConstructGen("Row", 'RowToRow))
+//
+//    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
+//    updated = updated
+//      .addCombinator (new ControllerNaming('Row, 'Row, "Castle"))
+//      .addCombinator (new ControllerNaming('Pile, 'Pile, "Castle"))
 
 
     updated

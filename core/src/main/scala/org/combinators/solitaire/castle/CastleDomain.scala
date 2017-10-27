@@ -2,7 +2,7 @@ package org.combinators.solitaire.castle
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{IntegerLiteralExpr, Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, IntegerLiteralExpr, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
@@ -20,14 +20,20 @@ import domain.ui._
   * @param solitaire    Application domain object with details about solitaire variation.
   */
 class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire)
-  with GameTemplate with Score52 with Controller {
+  with GameTemplate with Score52 with Controller with SemanticTypes {
+
+  /** Until extensions are necessary, must use default generator. */
+  @combinator object DefaultGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
+    val semanticType: Type = constraints(constraints.generator)
+  }
 
   /**
     * Every solitaire variation belongs in its own package.
     */
   @combinator object RootPackage {
     def apply: Name = Java("org.combinators.solitaire.castle").name()
-    val semanticType: Type = 'RootPackage
+    val semanticType: Type = packageName
   }
 
   /**
@@ -35,7 +41,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     */
   @combinator object NameOfTheGame {
     def apply: SimpleName = Java("Castle").simpleName()
-    val semanticType: Type = 'NameOfTheGame
+    val semanticType: Type = variationName
   }
 
 
@@ -60,10 +66,13 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
   @combinator object InitModel {
 
     def apply(): Seq[Statement] = {
-      val deck = deckGen("deck")
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
+      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val deck = deckGen("deck", stock)
 
-      val foundGen = loopConstructGen(solitaire.getFoundation, "fieldPiles", "fieldPileViews", "Pile")
-      val colGen = loopConstructGen(solitaire.getTableau, "fieldRows", "fieldRowViews", "Row")
+      val foundGen = loopConstructGen(found, "fieldPiles", "fieldPileViews", "Pile")
+      val colGen = loopConstructGen(tableau, "fieldRows", "fieldRowViews", "Row")
 
       val orient = Java(
         s"""
@@ -79,7 +88,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
       deck ++ colGen ++ foundGen ++ orient
     }
 
-    val semanticType: Type = 'Init ('Model)
+    val semanticType: Type = game(game.model)
   }
 
   /**
@@ -88,37 +97,20 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
   @combinator object InitView {
     def apply(): Seq[Statement] = {
 
-      var stmts = Java("").statements()     // MUST BE SOME BETTER WAY OF GETTING EMPTY STATEMENTS
-
-      // place ACEs piles
-      for (idx <- 0 to 3) {
-        val y = 110 * idx
-
-        // aces
-        stmts = stmts ++ Java(s"""
-           |fieldPileViews[$idx].setBounds(240, $y, 73, 97);
-           |addViewWidget(fieldPileViews[$idx]);
-            """.stripMargin).statements()
-
-        // rowviews on the left
-        stmts = stmts ++ Java(s"""
-           |fieldRowViews[$idx].setBounds(10, $y, 180, 97);
-           |addViewWidget(fieldRowViews[$idx]);
-          """.stripMargin).statements()
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
 
 
-        // rowviews on the right
-        val offset = idx + 4
-        stmts = stmts ++ Java(s"""
-           |fieldRowViews[$offset].setBounds(380, $y, 180, 97);
-           |addViewWidget(fieldRowViews[$offset]);
-        """.stripMargin).statements()
-       }
+      // start by constructing the DeckView
 
-      stmts
+      // when placing a single element in Layout, use this API
+      val fd = layout_place_it(found, Java("fieldPileViews").name())
+      val cs = layout_place_it(tableau,  Java("fieldRowViews").name())
+
+      cs ++ fd
     }
 
-    val semanticType: Type = 'Init ('View)
+    val semanticType: Type = game(game.view)
   }
 
   /**
@@ -126,11 +118,13 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     */
   @combinator object InitControl {
     def apply(NameOfGame: SimpleName): Seq[Statement] = {
+      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
 
       // this could be controlled from the UI model. That is, it would
       // map GUI elements into fields in the classes.
-      val colsetup = loopControllerGen(solitaire.getTableau, "fieldRowViews", "RowController")
-      val foundsetup = loopControllerGen(solitaire.getFoundation, "fieldPileViews", "PileController")
+      val colsetup = loopControllerGen(tableau, "fieldRowViews", "RowController")
+      val foundsetup = loopControllerGen(found, "fieldPileViews", "PileController")
       //val wastesetup = loopControllerGen(solitaire.getFoundation, "wastePileView", "WastePileController")
 
       // add controllers for the DeckView here...
@@ -139,7 +133,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
       colsetup ++ foundsetup // ++ wastesetup
     }
 
-    val semanticType: Type = 'NameOfTheGame =>: 'Init ('Control)
+    val semanticType: Type = variationName =>: game(game.control)
   }
 
   /**
@@ -168,7 +162,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
             """.stripMargin).statements()
     }
 
-    val semanticType: Type = 'Init ('InitialDeal)
+    val semanticType: Type = game(game.deal)
   }
 
 
@@ -180,7 +174,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
         Java(s"import $nameExpr.model.*;").importDeclaration()
       )
     }
-    val semanticType: Type = 'RootPackage =>: 'ExtraImports
+    val semanticType: Type = packageName =>: game(game.imports)
   }
 
   /**
@@ -196,14 +190,8 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
                |    return v.elements();
                |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
     }
-    val reserve = solitaire.getReserve.size()
-    val tableau = solitaire.getTableau.size()
-    val numFreePiles: IntegerLiteralExpr = Java(s"$reserve").expression()
-    val numColumns: IntegerLiteralExpr = Java(s"$tableau").expression()
 
-    java.ExtraMethods.render(numFreePiles, numColumns).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
-
-    val semanticType: Type = 'ExtraMethods :&: 'AvailableMoves
+    val semanticType: Type = game(game.methods :&: game.availableMoves)
   }
 
   /**
@@ -215,13 +203,24 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
         Java(s"""|IntegerView scoreView;
                  |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val fieldRows = fieldGen("Row", "Row", "RowView", solitaire.getTableau.size)
-      val foundPiles = fieldGen("Pile", "Pile", "PileView", solitaire.getFoundation.size)
-      val decks = deckGen(solitaire)
+      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
+      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
+
+      val fieldRows = fieldGen("Row", tableau.size)
+      val foundPiles = fieldGen("Pile", found.size)
+      val decks = deckFieldGen(stock)
 
       decks ++ fields ++ fieldRows ++ foundPiles
     }
 
-    val semanticType: Type = 'ExtraFields
+    val semanticType: Type = game(game.fields)
+  }
+
+  /** Need for helper */
+  @combinator object HelperMethodsKlondike {
+    def apply(): Seq[MethodDeclaration] = Seq.empty
+
+    val semanticType: Type = constraints(constraints.methods)
   }
 }

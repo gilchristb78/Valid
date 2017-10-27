@@ -3,15 +3,13 @@ package org.combinators.solitaire.idiot
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.expr.SimpleName
-import com.github.javaparser.ast.expr.Name
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
 import domain.idiot.Domain
-import org.combinators.solitaire.shared.SemanticTypes
 import org.webjars.play.WebJarsUtil
+
 // domain
 import domain._
 

@@ -33,6 +33,7 @@ trait SemanticTypes {
   val column: Constructor        = 'Column
   val buildablePile: Constructor = 'BuildablePile
   val pile: Constructor          = 'Pile
+  val row: Constructor           = 'Row
 
   /** only one part since synthesizing 'the' game. */
   object game {
