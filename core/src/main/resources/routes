@@ -26,17 +26,7 @@ GET   /klondike/raw_:number          org.combinators.solitaire.klondike.Klondike
 GET   /klondike/prepare              org.combinators.solitaire.klondike.Klondike.prepare(number: Long)
 GET   /klondike/klondike.git/*file  	  org.combinators.solitaire.klondike.Klondike.serveFile(file)
 
-GET   /archway                      org.combinators.solitaire.archway.Archway.overview()
-GET   /archway/raw_:number          org.combinators.solitaire.archway.Archway.raw(number: Long)
-GET   /archway/prepare              org.combinators.solitaire.archway.Archway.prepare(number: Long)
-GET   /archway/archway.git/*file  	  org.combinators.solitaire.archway.Archway.serveFile(file)
-
 GET   /example                      example.Example.overview()
 GET   /example/raw_:number          example.Example.raw(number: Long)
 GET   /example/prepare              example.Example.prepare(number: Long)
 GET   /example/example.git/*file    example.Example.serveFile(file)
-
-GET   /pyexample                      example.PythonExample.overview()
-GET   /pyexample/raw_:number          example.PythonExample.raw(number: Long)
-GET   /pyexample/prepare              example.PythonExample.prepare(number: Long)
-GET   /pyexample/pyexample.git/*file    example.PythonExample.serveFile(file)
