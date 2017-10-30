@@ -32,6 +32,12 @@ class PythonExample @Inject()(webJars: WebJarsUtil) extends InhabitationControll
       def apply: Python = Python("programmer")
       val semanticType = 'Person
     }
+
+    @combinator object ByTemplate {
+      def apply(mainBlock: Python): Python =
+        py.test.render(mainBlock)
+      val semanticType = 'MainCode =>: 'Program
+    }
   }
 
   // FreeCellDomain is base class for the solitaire variation. Note that this

@@ -95,6 +95,7 @@ lazy val core = (Project(id = "nextgen-solitaire", base = file("core")))
     TwirlKeys.templateFormats += ("py" -> "de.tu_dortmund.cs.ls14.twirl.PythonFormat"),
     TwirlKeys.templateImports := Seq(),
     TwirlKeys.templateImports += "de.tu_dortmund.cs.ls14.twirl.Java",
+    TwirlKeys.templateImports += "de.tu_dortmund.cs.ls14.twirl.Python",
     TwirlKeys.templateImports += "com.github.javaparser.ast._",
     TwirlKeys.templateImports += "com.github.javaparser.ast.body._",
     TwirlKeys.templateImports += "com.github.javaparser.ast.comments._",
