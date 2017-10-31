@@ -8,12 +8,11 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
-import org.combinators.solitaire.freecell.java
 import org.combinators.solitaire.shared._
 
 // domain
 import domain._
-import domain.ui._
+
 
 /**
   * Define domain using Score52 since this is a single-deck solitaire game.

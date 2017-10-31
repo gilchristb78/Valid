@@ -48,8 +48,15 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       .addCombinator (new IgnoreClickedHandler(row))
       .addCombinator (new IgnoreClickedHandler(pile))
       .addCombinator (new IgnorePressedHandler('Pile))
+      .addCombinator (new IgnoreReleasedHandler(deck))
 
-//
+    updated = updated
+      .addCombinator (new PotentialMultipleCardMove("row", 'RowToRow))
+      .addCombinator (new PotentialMultipleCardMove("row", 'PlaceRow))
+
+
+
+    //
 //
 //    // Potential moves clarify structure (by type not instance). FIX ME
 //    // FIX ME FIX ME FIX ME

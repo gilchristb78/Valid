@@ -42,7 +42,7 @@ public class Domain extends Solitaire {
 		for (int idx = 0; idx < 4; idx++) {
 			int y = 110 * idx;
 			anchors[idx] = new Point(10, y);
-			anchors[idx + 4] = new Point(380, y);
+			anchors[idx + 4] = new Point(153, y);
 		}
 		places = new CalculatedPlacement(anchors, 380, card_height); /* 380 = 73*5 + .. */
 
