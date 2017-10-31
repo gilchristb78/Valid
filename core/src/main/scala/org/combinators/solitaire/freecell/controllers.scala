@@ -1,11 +1,9 @@
 package org.combinators.solitaire.freecell
 
 // name clash
-import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
+import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Java
 import domain._
-import domain.ui._
 import org.combinators.generic
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
@@ -41,31 +39,6 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       .addCombinator (new IgnoreClickedHandler('FreePile))
       .addCombinator (new IgnoreClickedHandler('Column))
 
-    // Potential moves clarify structure (by type not instance). FIX ME
-    // FIX ME FIX ME FIX ME
-    updated = updated
-      .addCombinator (new PotentialMultipleCardMove("Column", 'PlaceColumn))
-      .addCombinator (new PotentialMultipleCardMove("Column", 'MoveColumn))
-      .addCombinator (new PotentialMultipleCardMove("Column", 'BuildColumn))
-
-    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
-//    updated = updated
-//      .addCombinator (new ControllerNaming('FreePile))
-//      .addCombinator (new ControllerNaming('HomePile))
-//      .addCombinator (new ControllerNaming('Column))
-
-//    // Go through and assign GUI interactions for each of the known moves. Clean these up...
-//    val ui = new UserInterface(s)
-//    val els_it = ui.controllers
-//    while (els_it.hasNext) {
-//      val el = els_it.next()
-//
-//      // generic widget controller with auto moves available since we
-//      // have that provided by our variation (see extra methods)
-//      print ("   ** " + el + ":WidgetController")
-//      updated = updated.addCombinator(new WidgetController(Symbol(el)))
-//    }
-
     // CASE STUDY: Add Automove logic at end of release handlers
     // this is done by manipulating the chosen combinator.
     updated
@@ -74,7 +47,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
   /**
     * When moving between columns, use the 'validColumn' method to confirm press sequence.
     */
-  @combinator object PC extends ColumnMoveHandler(column, Java("Column").simpleName(), Java(s"""validColumn""").simpleName())
+ // @combinator object PC extends ColumnMoveHandler(column, Java("Column").simpleName(), Java(s"""validColumn""").simpleName())
 }
 
 

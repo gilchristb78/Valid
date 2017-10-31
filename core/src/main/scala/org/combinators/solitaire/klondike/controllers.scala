@@ -41,22 +41,27 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
       .addCombinator (new deckPress.ResetDeckLocal())
       .addCombinator (new SingleCardMoveHandler(pile))
       .addCombinator (new SingleCardMoveHandler('WastePile))
-      .addCombinator (new buildablePilePress.CP1())
+      //.addCombinator (new buildablePilePress.CP1())
       .addCombinator (new buildablePilePress.CP2())
 
 
     updated
   }
 
+  /**
+    * Recognize that Klondike has two kinds of press moves (ones that act, and ones that lead to drags).
+    * While the automatic one is handled properly, it produces terminals that will be 'dragStart'. We need
+    * to chain together to form complete set.
+    */
   object buildablePilePress {
     val buildablePile1:Constructor = 'BuildablePile1
-    val buildablePile2:Constructor = 'BuildablePile2
 
     /**
      * Specify filtering method 'validColumn' in the base class to use to pre-filter mouse press.
      * Note: This introduces 'Stage1 as a means to combine the two press events in sequence.
      */
-    class CP1 extends ColumnMoveHandler(buildablePile1, Java("BuildablePile").simpleName(), Java("validColumn").simpleName())
+    //  HACK: FIX ME KLONDIKE!
+    //class CP1 extends ColumnMoveHandler(buildablePile, Java("BuildablePile").simpleName(), 'Something)
 
     class CP2() {
      def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
@@ -78,12 +83,12 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     }
 
     val semanticType: Type =
-      drag(drag.variable, drag.ignore) =>: controller (buildablePile2, controller.pressed)
+      drag(drag.variable, drag.ignore) =>: controller (buildablePile1, controller.pressed)
     }
 
     class ChainBuildablePileTogether extends ParameterizedStatementCombiner[SimpleName, SimpleName](
-      drag(drag.variable, drag.ignore) =>: controller(buildablePile2, controller.pressed),
       drag(drag.variable, drag.ignore) =>: controller(buildablePile1, controller.pressed),
+      drag(drag.variable, drag.ignore) =>: controller(buildablePile, controller.dragStart),
       drag(drag.variable, drag.ignore) =>: controller(buildablePile, controller.pressed))
   }
 

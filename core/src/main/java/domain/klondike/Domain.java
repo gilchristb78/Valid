@@ -87,7 +87,9 @@ public class Domain extends Solitaire {
         IfConstraint moveCol = new IfConstraint(isEmpty, new IsKing(bottomMoving), placeColumn);
         IfConstraint moveCard = new IfConstraint(isEmpty, new IsKing(MoveComponents.MovingCard), placeCard);
 
-        ColumnMove tableauToTableau = new ColumnMove("MoveColumn", tableau, tableau, moveCol);
+        // Note in Klondike, we can take advantage of fact that any face-up column of cards WILL be in Descending rank
+        // and alternating colors. We could choose to be paranoid and check, but see how this is done in FreeCell.
+        ColumnMove tableauToTableau = new ColumnMove("MoveColumn", tableau, new Truth(), tableau, moveCol);
         rules.addDragMove(tableauToTableau);
 
         SingleCardMove wasteToTableau = new SingleCardMove("MoveCard", waste, tableau, moveCard);
@@ -98,32 +100,37 @@ public class Domain extends Solitaire {
         FlipCardMove tableauFlip = new FlipCardMove("FlipCard", tableau, faceDown);
         rules.addPressMove(tableauFlip);
 
-        // Move to foundation from Tableau
-        IfConstraint if3 = new IfConstraint(isEmpty,
+        // Move to foundation from Waste
+        IfConstraint wf_tgt = new IfConstraint(isEmpty,
                         new IsAce(MoveComponents.MovingCard),
                         new AndConstraint(new NextRank(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
                                 new SameSuit(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination))));
 
-        IfConstraint if2 = new IfConstraint(isEmpty,
+        IfConstraint tf_tgt = new IfConstraint(isEmpty,
                         new IsAce(new BottomCardOf(MoveComponents.MovingColumn)),
                         new AndConstraint (new IsSingle(MoveComponents.MovingColumn),
                                 new NextRank(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination)),
                                 new SameSuit(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination))));
 
-        // build on the foundation, from tableau and waste
-        ColumnMove buildFoundation = new ColumnMove("BuildFoundation", tableau, found, if2);
+        // build on the foundation, from tableau and waste. Note that any SINGLECARD can be theoretically moved.
+        ColumnMove buildFoundation = new ColumnMove("BuildFoundation",
+                tableau, new IsSingle(MoveComponents.MovingColumn),
+                found,   tf_tgt);
         rules.addDragMove(buildFoundation);
-        SingleCardMove buildFoundationFromWaste = new SingleCardMove("BuildFoundationFromWaste", waste, found, if3);
+
+        SingleCardMove buildFoundationFromWaste = new SingleCardMove("BuildFoundationFromWaste",
+                waste,   new Truth(),
+                found,   wf_tgt);
         rules.addDragMove(buildFoundationFromWaste);
 
         // Deal card from deck
         NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
-        DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, waste, deck_move);
+        DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, waste, new Truth());
         rules.addPressMove(deckDeal);
 
         // reset deck if empty. Move is triggered by press on stock.
         // this creates DeckToPile, as in the above DeckDealMove.
-        ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, waste, new IsEmpty(MoveComponents.Source));
+        ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), waste, new Truth());
         rules.addPressMove(deckReset);
 
         setRules(rules);

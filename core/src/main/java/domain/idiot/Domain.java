@@ -49,8 +49,6 @@ public class Domain extends Solitaire {
 		rules.addDragMove(tableauToTableau);
 
 		// this special method is added by gameDomain to be accessible here.
-//		BooleanExpression sameSuitHigherRankVisible =
-//				new BooleanExpression("((org.combinators.solitaire.idiot.Idiot)game).isHigher((Column)source)");
 		HigherRankSameSuit sameSuitHigherRankVisible = new HigherRankSameSuit(MoveComponents.Source);
 
 		AndConstraint and = new AndConstraint(new NotConstraint(new IsEmpty(MoveComponents.Source)), sameSuitHigherRankVisible);
@@ -65,7 +63,7 @@ public class Domain extends Solitaire {
 
 		// deal four cards from Stock
 		NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
-		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, tableau, deck_move);
+		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau, new Truth());
 		rules.addPressMove(deckDeal);
 		setRules(rules);
 	}

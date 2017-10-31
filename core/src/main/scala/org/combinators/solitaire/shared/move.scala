@@ -1,7 +1,7 @@
 package org.combinators.solitaire.shared
 
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.`type`.{Type => JType}
+import domain.constraints.movetypes.MoveComponents
 import com.github.javaparser.ast.body.BodyDeclaration
 import com.github.javaparser.ast.expr.{Name, Expression, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
@@ -30,7 +30,7 @@ import domain.moves._
   * One can envision a future expansion that automatically synthesizes the
   * Undo logic given just the Do logic.
   */
-trait Moves extends Base with SemanticTypes {
+trait Moves extends Base with JavaSemanticTypes {
 
   /* 
    * From one source to many destinations. 
@@ -124,11 +124,11 @@ trait Moves extends Base with SemanticTypes {
     */
   class PotentialMoveMultipleCards(semanticMoveNameType: Type) {
     def apply(rootPackage: Name, moveName: SimpleName, draggingCardVariableName: SimpleName,
-              typeConstruct: JType): CompilationUnit = {
+              /*typeConstruct: JType*/): CompilationUnit = {
       shared.moves.java.PotentialMoveOneCardFromStack.render(
         RootPackage = rootPackage,
         MoveName = moveName,
-        Type = typeConstruct,
+        Type = Java("Column").simpleName(),   // typeConstruct,
         DraggingCardVariableName = draggingCardVariableName
       ).compilationUnit()
     }
@@ -137,7 +137,7 @@ trait Moves extends Base with SemanticTypes {
       packageName =>:
         move(semanticMoveNameType, className) =>:
         move(semanticMoveNameType, move.draggingVariableCardName) =>:
-        move(semanticMoveNameType, move.multipleCardMove) =>:
+       // move(semanticMoveNameType, move.multipleCardMove) =>:        // UNNECESSARY SINCE JUST ADD PROPER DYNAMIC ONE. DELETE
         move(semanticMoveNameType :&: move.potentialMultipleMove, complete)
   }
 
@@ -189,14 +189,6 @@ trait Moves extends Base with SemanticTypes {
   }
 
   /**
-    * Identify that a potential move can involve multiple cards, and uses the given Java type.
-    */
-  class PotentialMultipleCardMove(typ:String, constructor:Constructor) {
-    def apply(): JType = Java(typ).tpe()
-    val semanticType: Type = move(constructor, move.multipleCardMove)
-  }
-
-  /**
     * When a single card is being removed from the top card of a widget,
     * either a Column or a Pile
     */
@@ -231,16 +223,37 @@ trait Moves extends Base with SemanticTypes {
     * descending suits, for example.
     *
     * TODO: Work to bring move precondition in here, rather than relegating to an extra
-    * method
+    * method.
+    *
+    * The constraint will likely be an Or-Constraint.
+    *
+    * If there is BOTH a PRESS and a DRAG move with the same source, then we have to properly handle
+    * these two occurences, giving the Press a time to operate while also allowing the Drag a chance.
+    *
     */
-  class ColumnMoveHandler(tpe:Constructor, realType:SimpleName, name:SimpleName = null) {
-    def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+  class ColumnMoveHandler(tpe:Constructor, realType:SimpleName, c:Constraint, terminal:Type) {
+    def apply(generators: CodeGeneratorRegistry[Expression]): (SimpleName, SimpleName) => Seq[Statement] = {
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
         var filter:Seq[Statement] = Seq.empty
 
-        if (name != null) {
+        // Since source-constraint and target-constraint are concatenated together, we need to convert the
+        // MovingColumn component into .
+        // HACK to make as ((Column) me_widget.getModelElement())
+        val moveRegExp = MoveComponents.MovingColumn.getName().r
+        val cc3: Option[Expression] = generators(c)
+
+        val strExp = if (cc3.isEmpty) {
+          null
+        } else {
+          moveRegExp.replaceAllIn(cc3.get.toString, "((Column) " + widgetVariableName + ".getModelElement())")
+        }
+
+        if (strExp != null) {
           filter = Java(s"""
-               |if (!theGame.$name((Column) (${widgetVariableName}.getModelElement()))) {
+               |if ($strExp) {
+               |  // This mouse press is acceptable
+               |} else {
+               |  // This mouse press doesn't lead to a valid move. Reject and return.
                |  src.returnWidget($widgetVariableName);
                |	$ignoreWidgetVariableName = true;
                |	c.releaseDraggingObject();
@@ -249,10 +262,11 @@ trait Moves extends Base with SemanticTypes {
         }
 
         Java(s"""|$ignoreWidgetVariableName = false;
-                 |$realType srcElement = ($realType) src.getModelElement();
+                 |// name local variable source so it directly corresponds to predefined MoveComponentTypes
+                 |$realType source = ($realType) src.getModelElement();
                  |
                  |// Return in the case that the widget clicked on is empty
-                 |if (srcElement.count() == 0) {
+                 |if (source.count() == 0) {
                  |  return;
                  |}
                  |$widgetVariableName = src.getColumnView(me);
@@ -264,7 +278,7 @@ trait Moves extends Base with SemanticTypes {
                  |""".stripMargin).statements()
     }
 
-    val semanticType: Type =
-      drag(drag.variable, drag.ignore) =>: controller(tpe, controller.pressed)
+    val semanticType: Type = constraints(constraints.generator) =>:
+      drag(drag.variable, drag.ignore) =>: terminal
   }
 }

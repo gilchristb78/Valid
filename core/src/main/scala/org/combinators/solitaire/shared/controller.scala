@@ -5,18 +5,19 @@ import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.cls.types.Omega
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.Constructor
-
 import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.solitaire.shared
 import _root_.java.util.UUID
+
 import org.combinators.generic
 import domain._
+import domain.constraints.OrConstraint
 import domain.moves._
+
 import scala.collection.JavaConverters._
 
 trait Controller extends Base with shared.Moves with generic.JavaIdioms with SemanticTypes {
@@ -42,7 +43,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
         .addCombinator(new UndoGenerator(mv, moveSymbol))
         .addCombinator(new DoGenerator(mv, moveSymbol))
         .addCombinator(new MoveHelper(mv, new SimpleName(moveString), moveSymbol))
-        .addCombinator(new StatementCombinator (mv.constraint, moveSymbol))
+        .addCombinator(new StatementCombinator (mv.constraints(), moveSymbol))
 
       /**
         * A move typically contains a single source and a single destination. For some
@@ -76,7 +77,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
       ///val moveString = srcBase + "To" + tgtBase
       val moveString = mv.getName
-      val moveSymbol:Type = Symbol(moveString)
+      val moveSymbol = Constructor(moveString)   // was Symbol... and had moveSymbol:Type
 
 
       // capture information about the source and target of each move
@@ -93,17 +94,16 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
       updated = updated
         .addCombinator(new PotentialDraggingVariableGenerator (mv, moveSymbol))
 
-      // potential move structure varies based on kind of move: not
-      // yet dealing with DeckDealMove...
-      // HACK. TODO: FIX ME
+      // Dragging moves are either moving a single card or a single column. Must collect together
+      // all possible 'pre' moves
       mv match {
         case _ : SingleCardMove =>
           updated = updated
-            .addCombinator (new PotentialMoveSingleCard(moveSymbol))
+              .addCombinator (new PotentialMoveSingleCard(moveSymbol))
 
-        case _ : ColumnMove =>
+       case _ : ColumnMove =>
           updated = updated
-            .addCombinator (new PotentialMoveMultipleCards(moveSymbol))
+              .addCombinator (new PotentialMoveMultipleCards(moveSymbol))
       }
     }
 
@@ -117,16 +117,17 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
     // these cases. NOTE: TAKE FROM RULES NOT FROM S since that does not
     // have the proper instantiations of the elements inside
     var drag_handler_map:Map[Container,List[Move]] = Map()
+    var press_handler_map:Map[Container,List[Move]] = Map()
+
     val inner_rules_it = s.getRules.drags
     while (inner_rules_it.hasNext) {
       val inner_move = inner_rules_it.next()
 
+      // handle release events
       val tgtBaseHolder = inner_move.targetContainer
-      val srcBase = inner_move.srcContainer
-
       val tgtBase = tgtBaseHolder.get
-      // make sure has value
-      if (!drag_handler_map.contains(tgtBase)) {
+
+       if (!drag_handler_map.contains(tgtBase)) {
         drag_handler_map += (tgtBase -> List(inner_move))
       } else {
         val old:List[Move] = drag_handler_map(tgtBase)
@@ -134,12 +135,86 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
         drag_handler_map -= tgtBase
         drag_handler_map += (tgtBase -> newList)
       }
+
+      // handle press events
+      val srcBase = inner_move.srcContainer
+
+      if (!press_handler_map.contains(srcBase)) {
+        press_handler_map += (srcBase -> List(inner_move))
+      } else {
+        val old:List[Move] = press_handler_map(srcBase)
+        val newList:List[Move] = old :+ inner_move
+        press_handler_map -= srcBase
+        press_handler_map += (srcBase -> newList)
+      }
     }
 
-    // NOTE:This only is used to deal with release events. Note that in FreeCell
-    // all events are drag events.
+    // add press moves which are independent of drag
+    val press_rules_it = s.getRules.presses()
+    var haveNativePress = false
+    while (press_rules_it.hasNext) {
+      val inner_move = press_rules_it.next()
 
-    // key is Container, value is List of moves
+      haveNativePress = true
+//      // handle press events
+//      val srcBase = inner_move.srcContainer
+//
+//      if (!press_handler_map.contains(srcBase)) {
+//        press_handler_map += (srcBase -> List(inner_move))
+//      } else {
+//        val old:List[Move] = press_handler_map(srcBase)
+//        val newList:List[Move] = old :+ inner_move
+//        press_handler_map -= srcBase
+//        press_handler_map += (srcBase -> newList)
+//      }
+    }
+
+    // find all source constraints for all moves and package together into single OrConstraint. If any move
+    // is a ColumnMove (which means it is triggered by a press then drag) this block adds a ColumnMoveHandler
+    // to properly allow some moves to be initiating of a drag.
+    press_handler_map.keys.foreach { container =>
+      val list: List[Move] = press_handler_map(container)
+
+      // if any of the Moves is a ColumnMove, then we must create a pre-constraint filter for drags
+      var columnMoves:List[ColumnMove] = List.empty
+      var pressMoves:List[Move] = List.empty
+      for (m <- list) {
+        m match {
+          case cm:ColumnMove => columnMoves = cm :: columnMoves
+          case m:Move => pressMoves = m :: pressMoves       // any other moves go here
+        }
+      }
+
+//      val columnMoves: List[ColumnMove] = list.collect { case cm: ColumnMove => cm }
+//      val pressMoves: List[ColumnMove] = list.collect { x => x }
+
+
+      if (columnMoves.nonEmpty) {
+        val cons: List[Constraint] = list.map(x => x.sourceConstraint)
+        val or: OrConstraint = new OrConstraint(cons: _*)
+
+        val it: Iterator[String] = container.types.asScala
+        while (it.hasNext) {
+          val typeName: String = it.next
+          val tpe = Constructor(typeName)
+
+          // if there are any lingering press events (i.e., not all drag) then we need to somehow
+          // combine these two properly. Detect by inference.
+          val terminal = if (haveNativePress) {
+            // up to domain-version controller's to combine together to make final press...
+            controller(tpe, controller.dragStart)
+          } else {
+            controller(tpe, controller.pressed)
+          }
+
+          updated = updated
+            .addCombinator(new ColumnMoveHandler(tpe, Java(typeName).simpleName(), or, terminal))
+        }
+      }
+    }
+
+
+    // key is Container, value is List of moves; this block deals with release events.
     drag_handler_map.keys.foreach{ k =>
       // iterate over moves in the handler_map(k)
       var lastID:Option[Constructor] = None
@@ -167,7 +242,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
           updated = updated
             .addCombinator (new StatementCombiner(lastID.get, curID, subsequentID))
 
-          lastID = Some (subsequentID)
+          lastID = Some(subsequentID)
         } else {
           lastID = Some(curID)
         }
@@ -212,30 +287,36 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
           Java(s"""|Card c = source.get();
                    |c.setFaceUp (!c.isFaceUp());
                    |source.add(c);
-                   |""".stripMargin).statements()
+                   |return true;""".stripMargin).statements()
 
-        case _ : SingleCardMove => Java(s"""source.add(destination.get());""").statements()
+        case _ : SingleCardMove => Java(s"""
+                        |source.add(destination.get());
+                        |return true;""".stripMargin).statements()
 
         // No means for undoing the reset of a deck.
-        case _ : ResetDeckMove => Seq.empty
+        case _ : ResetDeckMove => Java(s"""|return false;""".stripMargin).statements()
 
         // reinsert the cards that had been removed into removedCards
         case _ : RemoveMultipleCardsMove =>
           Java(s"""|for (Stack s : destinations) {
                    |  s.add(removedCards.remove(0));
-                   |}""".stripMargin).statements()
+                   |}
+                   |return true;""".stripMargin).statements()
 
         case _ : RemoveSingleCardMove =>
-          Java(s"""source.add(removedCard);""".stripMargin).statements()
+          Java(s"""|source.add(removedCard);
+                   |return true;""".stripMargin).statements()
 
         case _ : DeckDealMove =>
           Java(s"""|for (Stack s : destinations) {
                    |  source.add(s.get());
-                   |}""".stripMargin).statements()
+                   |}
+                   |return true;""".stripMargin).statements()
 
         case _ : ColumnMove  =>
           Java(s"""|destination.select(numInColumn);
-                   |source.push(destination.getSelected());""".stripMargin)
+                   |source.push(destination.getSelected());
+                   |return true;""".stripMargin)
             .statements()
       }
     }

@@ -40,10 +40,8 @@ public class @Java(MoveName) extends ks.common.model.Move {
      */
     public boolean undo(ks.common.games.Solitaire game) {
 
-        // move back
+        // move back. Parameter is forced to return true or false
         @Java(Undo)
-
-        return true;
     }
 
     /**

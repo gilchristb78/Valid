@@ -63,19 +63,16 @@ public class Domain extends Solitaire {
 		/** Awkward constraint. Requires downcast to access method. Perhaps move into move class?*/
 		AllSameRank allSameRank = new AllSameRank(SolitaireContainerTypes.Tableau);
 
-		//		new BooleanExpression("((org.combinators.solitaire.narcotic.Narcotic)game).allSameRank()");
-
 		RemoveMultipleCardsMove tableauRemove = new RemoveMultipleCardsMove("RemoveAllCards", tableau, allSameRank);
 		rules.addPressMove(tableauRemove);
 
 		// deal four cards from Stock
 		NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
-		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, tableau, deck_move);
+		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau, new Truth());
 		rules.addPressMove(deckDeal);
 
-		// reset deck if empty. Move is triggered by press on stock.
-		// this creates DeckToPile, as in the above DeckDealMove.
-		ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, tableau, new IsEmpty(MoveComponents.Source));
+		// reset deck by pulling together all cards from the piles.
+		ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), tableau, new Truth());
 		rules.addPressMove(deckReset);
 
 		setRules(rules);
