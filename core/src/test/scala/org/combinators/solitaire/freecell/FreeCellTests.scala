@@ -52,19 +52,24 @@ class FreeCellTests extends FunSpec {
             assert(helper.singleClass("ColumnController",    Gamma.inhabit[CompilationUnit](controller(column, complete))))
 
             // Ensure all moves in the domain generate move classes as Compilation Units
-            val combined = domainModel.getRules.drags.asScala ++ domainModel.getRules.presses.asScala ++ domainModel.getRules.clicks.asScala
+            val combined = domainModel.getRules.presses.asScala ++ domainModel.getRules.clicks.asScala
             for (mv:Move <- combined) {
               val sym = Constructor(mv.name)
               assert(helper.singleClass(mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
             }
 
-            // would love to handle potential in automatic way; consider types of moves.
-            assert(helper.singleClass("PotentialBuildFreePileCard", Gamma.inhabit[CompilationUnit](move('BuildFreePileCard :&: move.potential, complete))))
-            assert(helper.singleClass("PotentialPlaceFreePileCard", Gamma.inhabit[CompilationUnit](move('PlaceFreePileCard :&: move.potential, complete))))
+            // potential moves are derived from DRAG events only
+            for (mv:Move <- domainModel.getRules.drags.asScala) {
+              val sym = Constructor(mv.name)
+              assert(helper.singleClass(mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
 
-            assert(helper.singleClass("PotentialMoveColumn", Gamma.inhabit[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))))
-            assert(helper.singleClass("PotentialPlaceColumn", Gamma.inhabit[CompilationUnit](move('PlaceColumn :&: move.potentialMultipleMove, complete))))
-            assert(helper.singleClass("PotentialBuildColumn", Gamma.inhabit[CompilationUnit](move('BuildColumn :&: move.potentialMultipleMove, complete))))
+              // based on domain model, we know whether potential move is a single-card move or a multiple-card move
+              if (mv.isSingleCardMove) {
+                assert(helper.singleClass("Potential" + mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.potential, complete))))
+              } else {
+                assert(helper.singleClass("Potential" + mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.potentialMultipleMove, complete))))
+              }
+            }
           }
 
           // these are implied by the successful completion of 'game'

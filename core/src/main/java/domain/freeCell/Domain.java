@@ -70,21 +70,22 @@ public class Domain extends Solitaire {
 		rules.addDragMove(freePileToFreePile);
 
 		// Column To Free Pile Logic
-		IsSingle isSingle = new IsSingle(MoveComponents.MovingColumn);
-        AndConstraint if1 = new AndConstraint(isEmpty, isSingle);
-
-		ColumnMove columnToFreePileMove = new ColumnMove("PlaceColumn", tableau, reserve, if1);
+		ColumnMove columnToFreePileMove = new ColumnMove("PlaceColumn",
+				tableau,   new IsSingle(MoveComponents.MovingColumn),
+				reserve,   isEmpty);
 		rules.addDragMove(columnToFreePileMove);
 
 		// Column To Home Pile logic. Just grab first column
 		Element aCol = tableau.iterator().next();
 		IfConstraint if2 = new IfConstraint(isEmpty,
             new IsAce(new TopCardOf(MoveComponents.MovingColumn)),
-            new AndConstraint(new IsSingle(MoveComponents.MovingColumn),
+            new AndConstraint(
                   new NextRank(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination)),
                   new SameSuit(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination))));
 
-		ColumnMove columnToHomePile = new ColumnMove("BuildColumn", tableau, found, if2);
+		ColumnMove columnToHomePile = new ColumnMove("BuildColumn",
+				tableau,  new IsSingle(MoveComponents.MovingColumn),
+				found,    if2);
 		rules.addDragMove(columnToHomePile);
 
 		// FreePile to HomePile
@@ -123,10 +124,11 @@ public class Domain extends Solitaire {
                 new NextRank(new TopCardOf(MoveComponents.Destination), new BottomCardOf(MoveComponents.MovingColumn)),
                 sufficientFree);
 
-		AndConstraint if4 = new AndConstraint(descend, alternating,
-						new IfConstraint(isEmpty, sufficientFree, if4_inner));
+		IfConstraint if4 = new IfConstraint(isEmpty, sufficientFree, if4_inner);
 
-		ColumnMove columnToColumn = new ColumnMove("MoveColumn", tableau, tableau, if4);
+		ColumnMove columnToColumn = new ColumnMove("MoveColumn",
+				tableau,    new AndConstraint(descend, alternating),
+				tableau,    if4);
 		rules.addDragMove(columnToColumn);
 
 		setRules(rules);

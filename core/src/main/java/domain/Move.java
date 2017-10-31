@@ -1,5 +1,8 @@
 package domain;
 
+import domain.constraints.AndConstraint;
+import domain.constraints.Truth;
+
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -49,33 +52,73 @@ import java.util.Optional;
 public abstract class Move {
 
    /** Assume always a source. */
-   public final Container        srcContainer;
+   public final Container srcContainer;
 
    /** Each move has a unique name, declared by invoker. */
    public final String name;
 
-   /** Optionally there may be a target. */
+   /** Optionally there may be a target. Store as Optional for ease of access directly to this field. */
    public final Optional<Container>        targetContainer;
-   public final Constraint                 constraint;
 
-   /** Constraint for a move with no target. */
-   public Move (String name, Container src, Constraint cons) {
+   /** There may be a valid constraint at the source of a move. */
+   public final Constraint                 sourceConstraint;
+
+   /** There may be a valid constraint at the target of a move. */
+   public final Constraint                 targetConstraint;
+
+
+   /**
+    * When a Move only has a source, then its given constraint is the source Constraint. The
+    * targetConstraint is set to Truth() and the targetContainer becomes Optional.empty
+    *
+    * @param name       The designated (unique) name for a move.
+    * @param src        The source container of the move.
+    * @param srcCons    The source constraint associated with the move.
+    */
+   public Move (String name, Container src, Constraint srcCons) {
       this.name = name;
       this.srcContainer = src;
+      this.sourceConstraint = srcCons;
+
       this.targetContainer = Optional.empty();
-      this.constraint = cons;
+      this.targetConstraint = new Truth();
    }
 
-   /** Constraint for a move with (src, target) and constraint. */
-   public Move (String name, Container src, Container target, Constraint cons) {
+   /**
+    * When a Move has a source and target, then it may have constraints for both the source and target.
+    * If either is 'empty' then the caller must pass in Truth()
+    *
+    * @param name       The designated (unique) name for a move.
+    * @param src        The source container of the move.
+    * @param srcCons    The source constraint associated with the move.
+    * @param target     The target container of the move.
+    * @param tgtCons    The target constraint associated with the move.
+    *
+    */
+   public Move (String name, Container src, Constraint srcCons, Container target, Constraint tgtCons) {
       this.name = name;
       this.srcContainer = src;
+      this.sourceConstraint = srcCons;
+
       this.targetContainer = Optional.of(target);
-      this.constraint = cons;
+      this.targetConstraint = tgtCons;
    }
 
    public String toString() {
-      return srcContainer + " -> " + targetContainer;
+      return srcContainer + "(" + sourceConstraint + ") -> " + targetContainer + "(" + targetConstraint + ")";
+   }
+
+   /**
+    * Helper method to return combined set of src- and target-constraints.
+    *
+    * Note: Could optimize if detecting Truth in either src/target, then return the other one
+    */
+   public Constraint constraints() {
+      if (targetContainer.isPresent()) {
+         return new AndConstraint(sourceConstraint, targetConstraint);
+      }
+
+      return sourceConstraint;
    }
 
    /** Return name of move. */
@@ -86,7 +129,7 @@ public abstract class Move {
    /** Get the source element of this move type. */
    public final Element   getSource() {
       Iterator<Element> it = srcContainer.iterator();
-      if (it == null || !it.hasNext()) { return null; }
+      if (!it.hasNext()) { return null; }
       return it.next();
    }
 
@@ -96,12 +139,12 @@ public abstract class Move {
       if (!opt.isPresent()) { return null; }
 
       Iterator<Element> it = opt.get().iterator();
-      if (it == null || !it.hasNext()) { return null; }
+      if (!it.hasNext()) { return null; }
       return it.next();
    }
 
    /** Get element being moved. */
-   public abstract Element   getMovableElement();
+   public abstract Element getMovableElement();
 
    /** Determine if single card being moved at a time. */
    public abstract boolean isSingleCardMove();

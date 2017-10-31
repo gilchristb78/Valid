@@ -5,12 +5,12 @@ import com.github.javaparser.ast.stmt._
 import com.github.javaparser.ast.body._
 
 import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
+
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.{Constraint, SolitaireContainerTypes}
 import domain.constraints._
 import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
+import de.tu_dortmund.cs.ls14.cls.types.syntax._
 
 import scala.collection.JavaConverters._
 
@@ -25,7 +25,7 @@ import scala.collection.JavaConverters._
 //      case (registry: CodeGeneratorRegistry[String], c: Constraint) => "other used"
 //    }
 //  )
-object constraintCodeGenerators {
+object constraintCodeGenerators  {
   val generators = CodeGeneratorRegistry.merge[Expression](
 
     CodeGeneratorRegistry[Expression, MoveComponents] {
@@ -201,7 +201,7 @@ object constraintCodeGenerators {
 }
 
 // codeGen.apply(ifc).get
-class StatementCombinator(c:Constraint, moveSymbol:Type, inits:Seq[Statement] = Seq.empty) extends SemanticTypes { // Constructor
+class StatementCombinator(c:Constraint, moveSymbol:Type, inits:Seq[Statement] = Seq.empty) extends JavaSemanticTypes { // Constructor
   def apply(generators: CodeGeneratorRegistry[Expression]): Seq[Statement] = {
     val cc3: Option[Expression] = generators(c)
     if (cc3.isEmpty) {

@@ -55,6 +55,7 @@ class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
     .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
     .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
 
+    .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
 
   //      .addJob[CompilationUnit]('Controller('Column))
 

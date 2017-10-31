@@ -14,8 +14,8 @@ public class RemoveMultipleCardsMove extends Move {
     /**
      * Determine conditions for removing multiple cards from container 
      */
-    public RemoveMultipleCardsMove (String name, Container src, Constraint constraint) {
-        super(name, src, constraint);
+    public RemoveMultipleCardsMove (String name, Container src, Constraint srcCons) {
+        super(name, src, srcCons);
     }
 
     /** This is slightly inconsistent, since it is
@@ -29,7 +29,7 @@ public class RemoveMultipleCardsMove extends Move {
     /** By definition, remove from all elements within the container. */
     public boolean isSingleDestination() { return false; }
 
-    /** Get element being moved. Hack to make work for FreeCell. */
+    /** Get element being moved. */
     public Element   getMovableElement() {
         return new Card();
     }

@@ -56,29 +56,6 @@ trait SemanticTypes {
     val deal:Type = 'Deal
   }
 
-  object score {
-    val increment: Type = 'Increment
-    val decrement: Type = 'Decrement
-  }
-
-  object numberCardsLeft {
-    val increment: Type = 'IncrementNumberCardsLeft
-    val decrement: Type = 'DecrementNumberCardsLeft
-  }
-
-  object drag {
-    def apply(variable: Type, ignore: Type) : Constructor = 'Drag (variable, ignore)
-
-    val variable: Type = 'WidgetVariableName
-    val ignore: Type = 'IgnoreWidgetVariableName
-  }
-
-  // might consider changing to Type, but was Constructor in original code.
-  object press {
-    val card:Type = 'GuardCardView
-    val column:Type = 'GuardColumnView
-  }
-
   // parts of the widgets during move : Dynamic Behavior
   object widget {
     def apply (entity:Type, part:Type): Constructor = 'MoveElement (entity, part)
@@ -88,32 +65,20 @@ trait SemanticTypes {
     val target:Type = 'TargetWidgetName
   }
 
-  // parts of the structural definition of a move class
-  object move {
-    def apply(entity: Type, part: Type): Constructor = 'Move (entity, part)
 
-    val helper: Type = 'HelperMethods
-    val doStatements: Type = 'DoStatements
-    val undoStatements: Type = 'UndoStatements
-    val validStatements: Type = 'CheckValidStatements
-
-    val draggingVariableCardName: Type = 'DraggingCardVariableName
-
-    /** When multiple cards are being moved. */
-    val multipleCardMove: Type = 'MultipleCardMove
-
-    val generic: Type = 'GenericMove
-    val potential: Type = 'PotentialMove
-    val potentialMultipleMove: Type = 'PotentialMultipleMove
-  }
 
   /**
     * Manages the press/click/release on widgets.
+    *
+    * When games (i.e., Klondike) have both natural press events (i.e., flipcard) that coexist with
+    * the beginning of a drag (i.e., moveColumn) then there needs to be special handling. Resolution
+    * comes in the controller shared trait.
     */
   object controller {
     def apply(context: Type, part: Type): Constructor = 'Controller (context, part)
 
-    val pressed:Type = 'Pressed
+    val pressed:Type = 'Pressed         // Pure press events
+    val dragStart:Type = 'DragStart     // Press events that will ultimately become drag events.
     val clicked:Type = 'Clicked
     val released:Type = 'Released
 

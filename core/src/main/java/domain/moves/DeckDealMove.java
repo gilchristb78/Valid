@@ -12,8 +12,8 @@ public class DeckDealMove extends Move {
     /**
      * Determine conditions for moving column of cards from src to target. 
      */
-    public DeckDealMove (String name, Container src, Container target, Constraint constraint) {
-        super(name, src, target, constraint);
+    public DeckDealMove (String name, Container src, Constraint srcCons, Container target, Constraint tgtCons) {
+        super(name, src, srcCons, target, tgtCons);
     }
 
     /** By definition will allow multiple cards to be moved. Less relevant for deck, but at least consistent. */

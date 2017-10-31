@@ -17,8 +17,8 @@ public class RemoveSingleCardMove extends Move {
     /**
      * Determine conditions for removing multiple cards from container
      */
-    public RemoveSingleCardMove(String name, Container src, Constraint constraint) {
-        super(name, src, constraint);
+    public RemoveSingleCardMove(String name, Container src, Constraint srcCons) {
+        super(name, src, srcCons);
     }
 
     /** By definition a single card. */

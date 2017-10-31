@@ -28,7 +28,7 @@ public class Domain extends Solitaire {
 
 	public Domain() {
 
-		PlacementGenerator places = new VerticalPlacement(new Point(200, 120),
+		PlacementGenerator places = new VerticalPlacement(new Point(200, 10),
 				card_width, card_height, card_gap);
 
 		Foundation found= new Foundation(places);

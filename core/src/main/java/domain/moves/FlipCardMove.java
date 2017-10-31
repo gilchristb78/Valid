@@ -10,8 +10,8 @@ import java.util.Optional;
  */
 public class FlipCardMove extends Move {
 
-    public FlipCardMove(String name, Container src, Constraint constraint) {
-        super(name,src, constraint);
+    public FlipCardMove(String name, Container src, Constraint srcCons) {
+        super(name,src, srcCons);
     }
 
     /** By definition only a single card being moved. */

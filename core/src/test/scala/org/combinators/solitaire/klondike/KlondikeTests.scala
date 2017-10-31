@@ -51,10 +51,22 @@ class KlondikeTests extends FunSpec  {
             assert(helper.singleClass("WastePileView",    Gamma.inhabit[CompilationUnit]('WastePileViewClass)))
 
             // Ensure all moves in the domain generate move classes as Compilation Units
-            val combined = domainModel.getRules.drags.asScala ++ domainModel.getRules.presses.asScala ++ domainModel.getRules.clicks.asScala
-            for (mv:Move <- combined) {
+            for (mv:Move <- domainModel.getRules.presses.asScala ++ domainModel.getRules.clicks.asScala) {
               val sym = Constructor(mv.name)
               assert(helper.singleClass(mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
+            }
+
+            // potential moves are derived only from drag moves.
+            for (mv:Move <- domainModel.getRules.drags.asScala) {
+              val sym = Constructor(mv.name)
+              assert(helper.singleClass(mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
+
+              // based on domain model, we know whether potential move is a single-card move or a multiple-card move
+              if (mv.isSingleCardMove) {
+                assert(helper.singleClass("Potential" + mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.potential, complete))), "Can't synthesize:" + mv.name)
+              } else {
+                assert(helper.singleClass("Potential" + mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.potentialMultipleMove, complete))), "Can't synthesize:" + mv.name)
+              }
             }
           }
 

@@ -1,18 +1,19 @@
 package domain.moves;
 
 import domain.*;
-import java.util.*;
 
 /**
- * A column of cards are allowed to be moved
+ * A Column of cards to be moved from a source to a target.
+ *
+ * This will typically entail constraints on both the source and the target.
  */
 public class ColumnMove extends Move {
 
     /**
      * Determine conditions for moving column of cards from src to target.
      */
-    public ColumnMove (String name, Container src, Container target, Constraint constraint) {
-        super(name, src, target, constraint);
+    public ColumnMove (String name, Container src, Constraint srcCons, Container target, Constraint tgtCons) {
+        super(name, src, srcCons, target, tgtCons);
     }
 
     /** By definition will allow multiple cards to be moved. */
