@@ -3,6 +3,7 @@ package domain.castle;
 import domain.*;
 import domain.constraints.*;
 import domain.constraints.movetypes.*;
+import domain.deal.*;
 import domain.moves.SingleCardMove;
 import domain.ui.CalculatedPlacement;
 import domain.ui.VerticalPlacement;
@@ -27,7 +28,7 @@ public class Domain extends Solitaire {
 	}
 
 	public Domain() {
-
+		super("BeleagueredCastle");
 		PlacementGenerator places = new VerticalPlacement(new Point(200, 10),
 				card_width, card_height, card_gap);
 
@@ -83,5 +84,23 @@ public class Domain extends Solitaire {
 		rules.addDragMove(tableauToFoundation);
 
 		setRules(rules);
+
+		Deal d = new Deal();
+
+		// Filter all aces out and add back on top
+		d.add(new FilterStep(new IsAce(DealComponents.Card)));
+
+		// deal aces first
+		d.add(new DealStep(new ContainerTarget(SolitaireContainerTypes.Foundation, found)));
+
+		// Each tableau gets a single card, six times.
+		for (int i = 0; i < 6; i++) {
+			d.add(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau)));
+		}
+
+		// Finally, four aces are dealt to the foundation
+
+
+		setDeal(d);
 	}
 }

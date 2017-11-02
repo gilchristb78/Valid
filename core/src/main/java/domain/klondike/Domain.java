@@ -1,10 +1,12 @@
 package domain.klondike;
 
 import domain.*;
+import domain.Container;
 import domain.constraints.*;
 import domain.constraints.movetypes.BottomCardOf;
 import domain.constraints.movetypes.MoveComponents;
 import domain.constraints.movetypes.TopCardOf;
+import domain.deal.*;
 import domain.moves.*;
 import domain.ui.HorizontalPlacement;
 import domain.ui.PlacementGenerator;
@@ -28,14 +30,7 @@ public class Domain extends Solitaire {
     }
 
     public Domain() {
-
-        //    val semanticType: Type =
-//        'Waste ('Valid :&: 'One :&: 'Pile) =>:
-//  }
-
-
-//      lay.add(Layout.WastePile, 95, 20, 73, 97)
-
+        super ("Klondike");
         PlacementGenerator places = new HorizontalPlacement(new Point(40, 200),
                 card_width, 13*card_height, card_gap);
 
@@ -134,5 +129,23 @@ public class Domain extends Solitaire {
         rules.addPressMove(deckReset);
 
         setRules(rules);
+
+
+        Deal d = new Deal();
+
+        // each of the BuildablePiles gets a number of facedown cards, 0 to first Pile, 1 to second pile, etc...
+        // don't forget zero-based indexing.
+        for (int pileNum = 1; pileNum < 7; pileNum++) {
+            Payload payload = new Payload(pileNum, false);
+            DealStep step = new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, tableau, pileNum), payload);
+            d.add(step);
+        }
+
+        // finally each one gets a single faceup Card
+        Payload payload = new Payload();
+        DealStep step = new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), payload);
+        d.add(step);
+
+        setDeal(d);
     }
 }

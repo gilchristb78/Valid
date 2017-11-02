@@ -2,6 +2,8 @@ package domain;
 
 import java.awt.*;
 import java.util.*;
+
+import domain.deal.Deal;
 import domain.ui.*;
 
 /**
@@ -38,7 +40,13 @@ import domain.ui.*;
 
  */
 
-public class Solitaire {
+public abstract class Solitaire {
+
+    public final String name;
+
+    public Solitaire (String name) {
+        this.name = name;
+    }
 
     /** User-defined containers can be specified as needed in this map. */
     public final Map <ContainerType, Container> containers = new Hashtable<ContainerType, Container>();
@@ -59,6 +67,11 @@ public class Solitaire {
     public boolean hasAutoMoves() { return autoMovesAvailable; }
     public void setAutoMoves(boolean b) { autoMovesAvailable = b; }
 
+    /** Deal information. */
+    Deal          deal;
+    public Deal   getDeal() { return deal; }
+    public void   setDeal (Deal d) { deal = d;}
+
     Rules         rules;
     public Rules  getRules() { return rules; }
     public void   setRules(Rules r) { rules = r; }
@@ -68,4 +81,29 @@ public class Solitaire {
 
     /** Common separation between widgets in layout. */
     public static final int card_gap = 15;
+
+
+    /**
+     * Compute minimum width and height required to realize this variation. Computes based on
+     * the associated placement of layouts
+     */
+    public Dimension getMinimumSize() {
+        Dimension min = new Dimension(0,0);
+        for (Container c : containers.values()) {
+            Iterator<Widget> it = c.placements();
+            while (it.hasNext()) {
+                Widget w = it.next();
+                if (w.y + w.height > min.height) {
+                    min.height = w.y + w.height;
+                    System.out.println ("Height -> " + min.height);
+                }
+                if (w.x + w.width > min.width) {
+                    min.width = w.x + w.width;
+                    System.out.println ("Width -> " + min.width);
+                }
+            }
+        }
+
+        return min;
+    }
 }

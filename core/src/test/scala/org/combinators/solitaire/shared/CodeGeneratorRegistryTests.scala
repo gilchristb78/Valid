@@ -2,6 +2,7 @@ package org.combinators.solitaire.shared
 
 import domain.Constraint
 import domain.constraints.{IfConstraint, OrConstraint}
+import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.scalatest.FunSpec
 
 class CodeGeneratorRegistryTests extends FunSpec {

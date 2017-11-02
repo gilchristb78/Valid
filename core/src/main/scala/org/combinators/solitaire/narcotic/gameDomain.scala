@@ -11,6 +11,7 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.idiot.HigherRankSameSuit
 import domain.narcotic.{AllSameRank, ToLeftOf}
 import org.combinators.solitaire.shared._
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators}
 
 // domain
 import domain._

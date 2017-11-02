@@ -10,6 +10,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.freeCell.SufficientFree
 import org.combinators.solitaire.shared._
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
 
 // domain
 import domain._

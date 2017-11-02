@@ -42,8 +42,6 @@ public class @Java(MoveName) extends ks.common.model.Move {
 
         // move back
         @Java(Undo)
-
-        return true;
     }
 
     /**

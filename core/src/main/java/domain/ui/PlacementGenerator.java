@@ -27,8 +27,4 @@ public abstract class PlacementGenerator implements Iterator<Widget> {
     public boolean hasNext() {
         return idx < max;
     }
-
-
-
-
 }

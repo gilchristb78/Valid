@@ -1,4 +1,4 @@
-package org.combinators.solitaire.shared
+package org.combinators.solitaire.shared.compilation
 
 import scala.reflect.ClassTag
 

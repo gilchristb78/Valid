@@ -26,7 +26,7 @@ public class Domain extends Solitaire {
 	}
 
 	public Domain() {
-
+		super ("FreeCell");
 		ReserveFoundationTableauLayout lay = new ReserveFoundationTableauLayout();
 
 		Foundation found = new Foundation(lay.foundation());

@@ -17,6 +17,7 @@ import org.combinators.generic
 import domain._
 import domain.constraints.OrConstraint
 import domain.moves._
+import org.combinators.solitaire.shared.compilation.StatementCombinator
 
 import scala.collection.JavaConverters._
 
@@ -156,17 +157,6 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
       val inner_move = press_rules_it.next()
 
       haveNativePress = true
-//      // handle press events
-//      val srcBase = inner_move.srcContainer
-//
-//      if (!press_handler_map.contains(srcBase)) {
-//        press_handler_map += (srcBase -> List(inner_move))
-//      } else {
-//        val old:List[Move] = press_handler_map(srcBase)
-//        val newList:List[Move] = old :+ inner_move
-//        press_handler_map -= srcBase
-//        press_handler_map += (srcBase -> newList)
-//      }
     }
 
     // find all source constraints for all moves and package together into single OrConstraint. If any move
@@ -184,10 +174,6 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
           case m:Move => pressMoves = m :: pressMoves       // any other moves go here
         }
       }
-
-//      val columnMoves: List[ColumnMove] = list.collect { case cm: ColumnMove => cm }
-//      val pressMoves: List[ColumnMove] = list.collect { x => x }
-
 
       if (columnMoves.nonEmpty) {
         val cons: List[Constraint] = list.map(x => x.sourceConstraint)
@@ -223,7 +209,6 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
         val moveString = m.getName
         val moveSymbol:Type = Symbol(moveString)
 
-        //val curID:Type = Symbol("ComponentOf-" + UUID.randomUUID().toString)
         val curID:Constructor = dynamic(Symbol(UUID.randomUUID().toString))
 
         val viewType =
@@ -237,7 +222,6 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
           .addCombinator (new IfBlock(viewType, widget(moveSymbol, complete), curID))
 
         if (lastID.nonEmpty) {
-          //val subsequentID:Constructor = Symbol("ComponentOf-" + UUID.randomUUID().toString)
           val subsequentID:Constructor = dynamic(Symbol(UUID.randomUUID().toString))
           updated = updated
             .addCombinator (new StatementCombiner(lastID.get, curID, subsequentID))
@@ -250,7 +234,6 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
       val originalTarget = k.types().next()
       val typ:Type = Symbol(originalTarget)
-      //val item = typ (Symbol(originalTarget), 'Released)
 
       val item = controller(typ, controller.released)
       updated = updated

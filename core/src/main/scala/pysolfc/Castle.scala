@@ -25,4 +25,13 @@ class Castle @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJ
 
   lazy val results:Results = Results.add(jobs.run(), Paths.get("castle.py"))
 
+  // Note: I want to also  be able to synthesize another file __init__.py, but I can't figure out how to do
+  // it without rewriting this file. Any ideas?
+//
+//  lazy val init_jobs = Gamma.InhabitationBatchJob[Python](game(pysol.initFile))
+//
+//  lazy val init_results:Results = Results.add(init_jobs.run(), Paths.get("__init__.py"))
+
+
+
 }

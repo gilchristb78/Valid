@@ -10,6 +10,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.idiot.HigherRankSameSuit
 import org.combinators.solitaire.shared._
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators}
 
 // domain
 import domain._

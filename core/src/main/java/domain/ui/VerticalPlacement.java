@@ -31,15 +31,22 @@ public class VerticalPlacement extends PlacementGenerator {
     int y;
     final int width;
     final int height;
-
+    final int anchorx;
+    final int anchory;
     final int gap;
 
     public VerticalPlacement(Point topLeft, int width, int height, int gap) {
-        this.x = topLeft.x;
-        this.y = topLeft.y;
+        this.x = this.anchorx = topLeft.x;
+        this.y = this.anchory = topLeft.y;
         this.width = width;
         this.height = height;
         this.gap = gap;
+    }
+
+    public void reset(int m) {
+        super.reset(m);
+        this.x = anchorx;
+        this.y = anchory;
     }
 
     /** Note: Must manually increment idx from superclass. */

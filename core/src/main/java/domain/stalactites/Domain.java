@@ -29,7 +29,7 @@ public class Domain extends Solitaire {
 	}
 
 	public Domain() {
-
+		super ("Stalactites");
 		PlacementGenerator places = new HorizontalPlacement(new Point (200, 120),
 				card_width, card_height, card_gap);
 

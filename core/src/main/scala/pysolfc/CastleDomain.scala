@@ -4,6 +4,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Python
 import org.combinators.solitaire.shared._
+import org.combinators.solitaire.shared.python.PythonSemanticTypes
 
 // domain
 import domain._
@@ -13,8 +14,7 @@ import scala.collection.JavaConverters._
   * Define domain using Score52 since this is a single-deck solitaire game.
   * @param solitaire    Application domain object with details about solitaire variation.
   */
-class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with PythonSemanticTypes
-  with GameTemplate with Score52 with Controller {
+class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with PythonSemanticTypes {
 
   /**
     * Knows that suits are identified by suit=i for 0..3

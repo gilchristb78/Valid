@@ -24,7 +24,7 @@ public class Domain extends Solitaire {
 	}
 
 	public Domain() {
-
+		super ("Idiot");
 		StockTableauLayout lay = new StockTableauLayout();
 
 		Tableau tableau = new Tableau(lay.tableau());

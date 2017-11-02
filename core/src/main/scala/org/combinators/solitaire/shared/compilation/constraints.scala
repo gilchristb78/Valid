@@ -1,16 +1,16 @@
-package org.combinators.solitaire.shared
+package org.combinators.solitaire.shared.compilation
 
 import com.github.javaparser.ast.expr._
 import com.github.javaparser.ast.stmt._
 import com.github.javaparser.ast.body._
-
 import de.tu_dortmund.cs.ls14.cls.types.Type
-
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.{Constraint, SolitaireContainerTypes}
 import domain.constraints._
 import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import domain.deal.DealComponents
+import org.combinators.solitaire.shared.JavaSemanticTypes
 
 import scala.collection.JavaConverters._
 
@@ -31,6 +31,12 @@ object constraintCodeGenerators  {
     CodeGeneratorRegistry[Expression, MoveComponents] {
       case (registry:CodeGeneratorRegistry[Expression], mc:MoveComponents) => {
         Java(s"""${mc.name}""").expression()
+      }
+    },
+
+    CodeGeneratorRegistry[Expression, DealComponents] {
+      case (registry:CodeGeneratorRegistry[Expression], dc:DealComponents) => {
+        Java(s"""${dc.name}""").expression()
       }
     },
 
@@ -196,7 +202,7 @@ object constraintCodeGenerators  {
 
     CodeGeneratorRegistry[Expression, NotConstraint] {
       case (registry:CodeGeneratorRegistry[Expression],not:NotConstraint) =>
-        Java(s"""!(${registry(not.constraint).get})""").expression();
+        Java(s"""!(${registry(not.constraint).get})""").expression()
     })
 }
 

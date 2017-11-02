@@ -1,7 +1,8 @@
-package org.combinators.solitaire.shared
+package org.combinators.solitaire.shared.python
 
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.solitaire.shared.SemanticTypes
 
 /**
   * These codify the semantic types necessary to do with Java version of solitaire.
@@ -19,6 +20,13 @@ trait PythonSemanticTypes extends SemanticTypes {
 
     val createGame:Type = 'CreateGame
     val startGame:Type = 'StartGame
+    val classes:Type = 'ClassDefinitions
     val structure:Type = 'Structure
+
+    val initFile:Type = 'InitFile
+  }
+
+  object pygames {
+    val castle:Int = 99000
   }
 }
