@@ -1,5 +1,6 @@
 package pysolfc
 
+import java.nio.file.{Path, Paths}
 import java.util.UUID
 
 import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
@@ -300,24 +301,24 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
 //  }
 
   @combinator object InitIndex {
-    def apply() : Python = {
-      Python(
-        s"""
-           |#!/usr/bin/env python
-           |## bring in newly generated games here...
-           |##---------------------------------------------------------------------------##
-           |import castle
-           |""".stripMargin)
+    def apply() : (Python, Path) = {
+      val code =
+        Python(s"""
+                 |#!/usr/bin/env python
+                 |## bring in newly generated games here...
+                 |##---------------------------------------------------------------------------##
+                 |import castle
+                 |""".stripMargin)
+      (code, Paths.get("__init__.py"))
     }
 
     val semanticType:Type = game(pysol.initFile)
   }
 
   @combinator object makeMain {
-    def apply(name:Python, id: Python, classDefs:Python, structure:Python, createGame: Python, startGame: Python): Python = {
-
-
-      Python(s"""|__all__ = []
+    def apply(name:Python, id: Python, classDefs:Python, structure:Python, createGame: Python, startGame: Python): (Python, Path) = {
+      val code =
+        Python(s"""|__all__ = []
                  |
                  |# imports
                  |import sys
@@ -350,7 +351,8 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
                  |registerGame(GameInfo($id, $name, "My$name", GI.GT_1DECK_TYPE, 1, 0, GI.SL_MOSTLY_SKILL))
                  |
                  """.stripMargin)
-      }
+      (code, Paths.get("castle.py"))
+    }
     val semanticType:Type = variationName =>:
       gameID =>:
       game(pysol.classes) =>:
