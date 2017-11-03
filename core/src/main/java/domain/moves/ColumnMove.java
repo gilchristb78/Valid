@@ -18,9 +18,7 @@ public class ColumnMove extends Move {
 
     /** By definition will allow multiple cards to be moved. */
     @Override
-    public boolean isSingleCardMove() {
-        return false;
-    }
+    public boolean isSingleCardMove() { return false; }
 
     /** By definition, will only be moved to a specific destination. */
     public boolean isSingleDestination() { return true; }

@@ -8,6 +8,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import domain.castle.SufficientFree
 import org.combinators.solitaire.shared._
 
 // domain
@@ -21,11 +22,52 @@ import domain._
 class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire)
   with GameTemplate with Score52 with Controller with SemanticTypes {
 
-  /** Until extensions are necessary, must use default generator. */
-  @combinator object DefaultGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
+  object castleCodeGenerator {
+    val generators = CodeGeneratorRegistry.merge[Expression](
+
+      CodeGeneratorRegistry[Expression, SufficientFree] {
+        case (registry:CodeGeneratorRegistry[Expression], c:SufficientFree) => {
+          val destination = registry(c.destination).get
+          val src = registry(c.src).get
+          val column = registry(c.column).get
+          val tableau = registry(c.tableau).get
+          Java(s"""ConstraintHelper.sufficientFree($column, $src, $destination, $tableau)""").expression()
+        }
+      },
+
+    ).merge(constraintCodeGenerators.generators)
+  }
+
+  /**
+    * Castle requires specialized extensions for constraints to work.
+    */
+  @combinator object CastleGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = castleCodeGenerator.generators
     val semanticType: Type = constraints(constraints.generator)
   }
+
+  /**
+    * Specialized methods to help out in processing constraints. Specifically,
+    * these are meant to be generic, things like getTableua, getReserve()
+    */
+  @combinator object HelperMethodsCastle {
+    def apply(): Seq[MethodDeclaration] = Seq (
+      generateHelper.fieldAccessHelper("tableau", "fieldRows"),
+
+      Java(s"""
+              |public static boolean sufficientFree (Column column, Stack src, Stack destination, Stack[] tableau) {
+              |	int numEmpty = 0;
+              |	for (Stack s : tableau) {
+              |		if (s.empty() && s != destination) numEmpty++;
+              |	}
+              |
+              |	return column.count() <= 1 + numEmpty;
+              |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head,
+    )
+
+    val semanticType: Type = constraints(constraints.methods)
+  }
+
 
   /**
     * Every solitaire variation belongs in its own package.
@@ -216,10 +258,4 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     val semanticType: Type = game(game.fields)
   }
 
-  /** Need for helper */
-  @combinator object HelperMethodsKlondike {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
-
-    val semanticType: Type = constraints(constraints.methods)
-  }
 }

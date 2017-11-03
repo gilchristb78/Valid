@@ -3,10 +3,13 @@ package domain.castle;
 import domain.*;
 import domain.constraints.*;
 import domain.constraints.movetypes.*;
+import domain.freeCell.SufficientFree;
+import domain.moves.ColumnMove;
 import domain.moves.SingleCardMove;
 import domain.ui.CalculatedPlacement;
 import domain.ui.VerticalPlacement;
 import domain.ui.PlacementGenerator;
+import scala.tools.nsc.transform.patmat.Logic;
 
 import java.awt.*;
 import java.util.Iterator;
@@ -28,7 +31,7 @@ public class Domain extends Solitaire {
 
 	public Domain() {
 
-		PlacementGenerator places = new VerticalPlacement(new Point(200, 10),
+		PlacementGenerator places = new VerticalPlacement(new Point(400, 10),
 				card_width, card_height, card_gap);
 
 		Foundation found= new Foundation(places);
@@ -40,9 +43,10 @@ public class Domain extends Solitaire {
 
 		Point[] anchors = new Point[8];
 		for (int idx = 0; idx < 4; idx++) {
-			int y = 110 * idx;
+			int y = 10 + 110 * idx;
+
 			anchors[idx] = new Point(10, y);
-			anchors[idx + 4] = new Point(153, y);
+			anchors[idx + 4] = new Point(400 + 10 + card_width, y);
 		}
 		places = new CalculatedPlacement(anchors, 380, card_height); /* 380 = 73*5 + .. */
 
@@ -72,14 +76,60 @@ public class Domain extends Solitaire {
 		// Tableau to Tableau
 		OrConstraint moveCheck = new OrConstraint(isEmpty, nextOne);
 
-		SingleCardMove tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, moveCheck);
-		rules.addDragMove(tableauToTableau);
+
+		//I add for tableau to tableau because there could be several empty spots
+        //move single card
+
+//        ColumnMove SingleCardToTableau = new ColumnMove("MoveColumn_1", tableau,
+//                new IsSingle(MoveComponents.MovingColumn), tableau, moveCheck);
+//        rules.addDragMove(SingleCardToTableau);
+
+        // move more cards
+
+        NotConstraint nonSingle = new NotConstraint(new IsSingle(MoveComponents.MovingColumn));
+
+        domain.castle.SufficientFree sufficientFree= new domain.castle.SufficientFree(
+                MoveComponents.MovingColumn,
+                MoveComponents.Source, MoveComponents.Destination,
+                SolitaireContainerTypes.Tableau
+        );
+
+        Descending descend = new Descending(MoveComponents.MovingColumn);
+
+        AndConstraint and_1= new AndConstraint(nonSingle,descend);
+
+        AndConstraint and_2= new AndConstraint(new NextRank(new TopCardOf(MoveComponents.Destination),
+                new BottomCardOf(MoveComponents.MovingColumn)), sufficientFree);
+
+        // number of moving cards== sufficientFree.column-1  ???
+
+        IfConstraint if7= new IfConstraint(isEmpty, sufficientFree, and_2 );
+
+        ColumnMove MoreCardToTableau= new ColumnMove("MoveColumn", tableau, and_1,tableau, if7);
+        rules.addDragMove(MoreCardToTableau);
+
+
+
+        //domain.castle.SufficientFree sufficientFree= new domain.castle.SufficientFree(
+               // MoveComponents.MovingColumn,
+                //MoveComponents.Source, MoveComponents.Destination,
+               // SolitaireContainerTypes.Tableau
+       // );
+
+
+
+
+        // fix the src constraint; won't always be Truth
+		//ColumnMove tableauToTableau = new ColumnMove("MoveColumn", tableau, new Truth(), tableau, moveCheck);
+		//rules.addDragMove(tableauToTableau);
+
+
 
 		AndConstraint and = new AndConstraint(
-				new NextRank(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
-				new SameSuit(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)));
+				new NextRank(MoveComponents.MovingColumn, new TopCardOf(MoveComponents.Destination)),
+				new SameSuit(MoveComponents.MovingColumn, new TopCardOf(MoveComponents.Destination)));
 
-		SingleCardMove tableauToFoundation = new SingleCardMove("BuildCard", tableau, found, and);
+		ColumnMove tableauToFoundation = new ColumnMove("BuildColumn", tableau, new Truth(), found, and);
 		rules.addDragMove(tableauToFoundation);
 
 		setRules(rules);
