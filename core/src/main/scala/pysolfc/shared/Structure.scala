@@ -1,21 +1,17 @@
-package pysolfc
-
+package pysolfc.shared
 
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
-import de.tu_dortmund.cs.ls14.twirl.{Java, Python}
-import domain.{Constraint, Container, Move, Solitaire}
+import de.tu_dortmund.cs.ls14.twirl.Python
 import domain.constraints.OrConstraint
+import domain.{Constraint, Container, Move, Solitaire, _}
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.python.{ConstraintExpander, PythonSemanticTypes, constraintCodeGenerators}
-import domain._
-
-import scala.collection.JavaConverters._
 
 trait Structure extends PythonSemanticTypes {
 
 
-  /** Generic class to synthesize a Python method. */
+  /** Generic class to synthesize a given Python block as a semantic type. */
   class PythonStructure(stmts: Python, tpe: Constructor) {
     def apply: Python = stmts
 
@@ -53,18 +49,6 @@ trait Structure extends PythonSemanticTypes {
 
     var stmts = ""
     var clazzes = ""
-
-    //    // these are the release moves.
-    //    val inner_rules_it = s.getRules.drags
-    //    while (inner_rules_it.hasNext) {
-    //      val inner_move = inner_rules_it.next()
-    //
-    //
-    //      val app = new ConstraintExpander(inner_move.targetConstraint, Constructor("Something"))
-    //      val release:Python = app.apply(constraintCodeGenerators.generators)
-    //
-    //      print (release.toString())
-    //    }
 
     // drag will be responsible for the release; press will be responsible for source constraints.
     // I believe flip and deal moves have to be handled in special way.
@@ -141,20 +125,32 @@ trait Structure extends PythonSemanticTypes {
         name = "MyTalon"
         base = "TalonStack"
       }
+
+      // unlikely to have DRAG bring release to waste pile; here for press
       if (container == s.containers.get(SolitaireContainerTypes.Waste)) {
         name = "MyWaste"
         base = "SequenceRowStack"
+        clazzes = clazzes +
+          s"""
+             |Waste_Class = MyWasteStack
+                   """.stripMargin
       }
 
       stmts = stmts +
         s"""
            |class ${name}Stack($base):
            |    def canMoveCards(self, cards):
+           |        # protect against empty moves
+           |        if len(cards) == 0:
+           |            return False
            |        if $press:
            |            return True
            |        return False
            |
            |    def acceptsCards(self, from_stack, cards):
+           |        # protect against empty moves
+           |        if len(cards) == 0:
+           |            return False
            |        if $release:
            |            return True
            |        return False

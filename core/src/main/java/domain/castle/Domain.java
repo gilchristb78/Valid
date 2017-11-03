@@ -32,7 +32,7 @@ public class Domain extends Solitaire {
 		PlacementGenerator places = new VerticalPlacement(new Point(200, 10),
 				card_width, card_height, card_gap);
 
-		Foundation found= new Foundation(places);
+		Foundation found = new Foundation(places);
 		found.add (new Pile());
 		found.add (new Pile());
 		found.add (new Pile());
@@ -97,9 +97,6 @@ public class Domain extends Solitaire {
 		for (int i = 0; i < 6; i++) {
 			d.add(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau)));
 		}
-
-		// Finally, four aces are dealt to the foundation
-
 
 		setDeal(d);
 	}

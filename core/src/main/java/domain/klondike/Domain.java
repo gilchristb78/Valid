@@ -95,14 +95,15 @@ public class Domain extends Solitaire {
         FlipCardMove tableauFlip = new FlipCardMove("FlipCard", tableau, faceDown);
         rules.addPressMove(tableauFlip);
 
-        // Move to foundation from Waste
+        // Move to foundation from Waste. For Java we never checked that card at least existed; need to do so for PysolFC
         IfConstraint wf_tgt = new IfConstraint(isEmpty,
-                        new IsAce(MoveComponents.MovingCard),
+                        new AndConstraint (new IsSingle(MoveComponents.MovingCard), new IsAce(MoveComponents.MovingCard)),
                         new AndConstraint(new NextRank(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
                                 new SameSuit(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination))));
 
+        // Tableau to foundation
         IfConstraint tf_tgt = new IfConstraint(isEmpty,
-                        new IsAce(new BottomCardOf(MoveComponents.MovingColumn)),
+                        new AndConstraint (new IsSingle(MoveComponents.MovingColumn), new IsAce(new BottomCardOf(MoveComponents.MovingColumn))),
                         new AndConstraint (new IsSingle(MoveComponents.MovingColumn),
                                 new NextRank(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination)),
                                 new SameSuit(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination))));
@@ -146,6 +147,9 @@ public class Domain extends Solitaire {
         DealStep step = new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), payload);
         d.add(step);
 
+        // deal one card to waste pile
+        step = new DealStep(new ContainerTarget(SolitaireContainerTypes.Waste, waste), new Payload());
+        d.add(step);
         setDeal(d);
     }
 }

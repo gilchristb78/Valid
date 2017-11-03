@@ -67,7 +67,8 @@ object constraintCodeGenerators  {
         val falseb = registry(ifCons.falseBranch)
 
         // python evaluates left to right, and short-circuits branches. No need for ConstraintHelper class
-        val str = Python(s"(${inner.get} and ${trueb.get}) or ${falseb.get}")
+        val str = Python(s"${trueb.get} if ${inner.get} else ${falseb.get}")
+        //val str = Python(s"(${inner.get} and ${trueb.get}) or ${falseb.get}")
         println ("IF-inner:" + str)
         Python(s"""$str""")
       }
@@ -140,7 +141,7 @@ object constraintCodeGenerators  {
 
     CodeGeneratorRegistry[Python, OppositeColor] {
       case (registry: CodeGeneratorRegistry[Python], opposite:OppositeColor) => {
-        Python(s"""${registry(opposite.left).get}.color != (${registry(opposite.right).get}.color""")
+        Python(s"""${registry(opposite.left).get}.color != ${registry(opposite.right).get}.color""")
       }
     },
 

@@ -42,9 +42,19 @@ public class Container implements Iterable<Element> {
 		this.places = places;
 	}
 
+
+    /**
+     * Retrieve Iterator of Widgets reflecting the elements in the container.
+     * @return
+     */
 	public Iterator<Widget> placements() {
 		places.reset(size());
 		return places;
+	}
+
+	/** Some containers have no visible presence (as detected by no widgets in placements). */
+	public boolean isInvisible() {
+		return !placements().hasNext();
 	}
 
 	/** Return the size of the container. */

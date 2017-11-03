@@ -18,6 +18,7 @@ trait PythonSemanticTypes extends SemanticTypes {
   object pysol {
     def apply (part:Type): Constructor = 'Pysol (part)
 
+    val fileName:Type = 'FileName
     val createGame:Type = 'CreateGame
     val startGame:Type = 'StartGame
     val classes:Type = 'ClassDefinitions
@@ -28,5 +29,6 @@ trait PythonSemanticTypes extends SemanticTypes {
 
   object pygames {
     val castle:Int = 99000
+    val klondike:Int = 99001
   }
 }

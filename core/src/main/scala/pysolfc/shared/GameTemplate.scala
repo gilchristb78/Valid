@@ -1,16 +1,13 @@
-package pysolfc
+package pysolfc.shared
 
 import java.nio.file.{Path, Paths}
-import java.util.UUID
 
 import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
-import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
+import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.{Java, Python}
-import domain.constraints.OrConstraint
+import de.tu_dortmund.cs.ls14.twirl.Python
 import domain._
 import domain.deal.{ContainerTarget, DealStep, ElementTarget, FilterStep}
-import domain.moves.{ColumnMove, SingleCardMove}
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{ConstraintExpander, PythonSemanticTypes, constraintCodeGenerators}
 import org.combinators.solitaire.shared.{Base, SolitaireDomain}
@@ -34,7 +31,7 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
 
     updated = updated
         .addCombinator(new GameName(s.name))
-        .addCombinator(new IdForGame(pygames.castle))
+        //.addCombinator(new IdForGame(pygames.castle))
         //.addCombinator(new Structure())
         .addCombinator(new CreateGameMethod(s))
         .addCombinator(new PythonStructure(processDeal(s), game(pysol.startGame)))
@@ -80,7 +77,7 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
     for (step <- s.getDeal.asScala) {
       step match {
         case f: FilterStep => {
-          val app = new ConstraintExpander(f.constraint, 'Intermediate)
+          val app = new ConstraintExpander(f.constraint, 'Intermediate)  // No symbol really needed. Could be anything
           val filterexp = app.apply(constraintCodeGenerators.generators)
 
           stmts = stmts +
@@ -98,7 +95,8 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
                |""".stripMargin
 
         }
-          // frames=0 means do no animation during the deal.
+
+        // frames=0 means do no animation during the deal.
         case d: DealStep => {
           println("Deal step:" + d)
           val payload = d.payload
@@ -119,6 +117,13 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
                             s"""
                              |for _ in range($numCards):
                              |    self.s.talon.dealRow(rows=self.s.rows, flip=$flip, frames=0)
+                             """.stripMargin
+                  }
+                  case SolitaireContainerTypes.Waste => {
+                    stmts = stmts +
+                      s"""
+                         |for _ in range($numCards):
+                         |    self.s.talon.dealRow(rows=[self.s.waste], flip=$flip, frames=0)
                              """.stripMargin
                   }
                 }
@@ -142,6 +147,13 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
                        |    self.s.talon.dealRow(rows=[self.s.rows[$idx]], flip=$flip, frames=0)
                         """.stripMargin
                   }
+                  case SolitaireContainerTypes.Waste => {
+                    stmts = stmts +
+                      s"""
+                         |for _ in range($numCards):
+                         |    self.s.talon.dealRow(rows=[self.s.waste[$idx]], flip=$flip, frames=0)
+                        """.stripMargin
+                  }
                 }
                 // just a single element
               }
@@ -155,13 +167,6 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
    Python(stmts)
   }
 
-  /**
-    * NO special constraints just yet
-    */
-  @combinator object DefaultGenerator {
-    def apply: CodeGeneratorRegistry[Python] = constraintCodeGenerators.generators
-    val semanticType: Type = constraints(constraints.generator)
-  }
 
 //  /**
 //    * How to infer this structure from the existing games is seriously tricky. Instead, I would
@@ -233,28 +238,17 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
       val height = min.height
       Python(
         s"""
-           |def createGame(self, playcards=13):
-           |        # create layout
-           |        l, s = Layout(self), self.s
+           |def createGame(self):
+           |    # create layout
+           |    l, s = Layout(self), self.s
            |
-         |        # set window
-           |        # (set size so that at least 13 cards are fully playable)
-           |        w = max(3*l.XS, l.XS+(playcards-1)*l.XOFFSET)
-           |        x0 = l.XM
-           |        x1 = x0 + w + 2*l.XM
-           |        x2 = x1 + l.XS + 2*l.XM
-           |        x3 = x2 + w + l.XM
-           |        h = l.YM + 4*l.YS
-           |        self.setSize($width, $height)
+           |    # set window size, based on layout domain
+           |    self.setSize($width, $height)
            |
-         |        ${view.indent.indent.getCode}
+           |    ${view.indent.getCode}
            |
-         |        # deck that exists only to deal out cards
-           |        x, y = self.width - l.XS, self.height - l.YS
-           |        s.talon = InitialDealTalonStack(x, y, self)
-           |
-         |        # default
-           |        l.defaultAll()
+           |    # complete layout
+           |    l.defaultAll()
        """.stripMargin)
     }
 
@@ -272,51 +266,32 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
     val semanticType:Type = gameID
   }
 
+
   /** Define the class name from domain model. */
   class GameName(s:String) {
     def apply: Python = Python(s)
 
     val semanticType:Type = variationName
   }
-//
-//  //    @(GameID:Python,
-//  //      Structure:Python,
-//  //      Hilight:Python,
-//  //      Shufflehook:Python,
-//  // //CreateGameParams)
-//  @combinator object ByTemplate {
-//    def apply(id:Python,
-//              structure:Python,
-//              hilight:Python,
-//              shuffle:Python,
-//              create: Python): Python =
-//      py.template.render(structure, hilight, shuffle, create, id)
-//
-//    val semanticType = 'GameId =>:
-//      'Structure =>:
-//      'Hilight =>:
-//      'Shuffle =>:
-//      'CreateGame =>:
-//      'Program
-//  }
+
 
   @combinator object InitIndex {
-    def apply() : (Python, Path) = {
+    def apply(name:String) : (Python, Path) = {
       val code =
         Python(s"""
                  |#!/usr/bin/env python
                  |## bring in newly generated games here...
                  |##---------------------------------------------------------------------------##
-                 |import castle
+                 |import ${name}
                  |""".stripMargin)
       (code, Paths.get("__init__.py"))
     }
 
-    val semanticType:Type = game(pysol.initFile)
+    val semanticType:Type = game(pysol.fileName) =>: game(pysol.initFile)
   }
 
   @combinator object makeMain {
-    def apply(name:Python, id: Python, classDefs:Python, structure:Python, createGame: Python, startGame: Python): (Python, Path) = {
+    def apply(name:Python, id: Python, fileName:String, classDefs:Python, structure:Python, createGame: Python, startGame: Python): (Python, Path) = {
       val code =
         Python(s"""|__all__ = []
                  |
@@ -347,14 +322,15 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
                  |
                  |${startGame.indent.getCode}
                  |
-                 |# register the game
+                 |# register the game (for now assume 1-deck card games)
                  |registerGame(GameInfo($id, $name, "My$name", GI.GT_1DECK_TYPE, 1, 0, GI.SL_MOSTLY_SKILL))
                  |
                  """.stripMargin)
-      (code, Paths.get("castle.py"))
+      (code, Paths.get(fileName + ".py"))
     }
     val semanticType:Type = variationName =>:
       gameID =>:
+      game(pysol.fileName) =>:
       game(pysol.classes) =>:
       game(pysol.structure) =>:
       game(pysol.createGame) =>:
