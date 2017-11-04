@@ -15,7 +15,8 @@ public enum MoveComponents implements MoveInformation {
     Destination("destination"),     // Destination of move (or potential move)
 
     MovingCard("movingCard"),       // when a single card is in play
-    MovingColumn("movingColumn");   // when multiple cards are in play
+    MovingColumn("movingColumn"),   // when multiple cards are in play
+    MovingRow("movingRow");         // when multiple cards are moved as a row. Not sure if needed...
 
     public final String name;
 

@@ -25,7 +25,7 @@ class Castle @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJ
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
     Gamma.InhabitationBatchJob[(Python, Path)](game(complete))
-        .addJob[(Python, Path)](game(pysol.initFile))
+       .addJob[(Python, Path)](game(pysol.initFile))
 
   /**
     * Tell the framework to store stuff of type (Python, Path) at the location specified in Path.

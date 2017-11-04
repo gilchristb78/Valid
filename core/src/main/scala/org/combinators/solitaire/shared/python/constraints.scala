@@ -25,6 +25,8 @@ object constraintCodeGenerators  {
           Python(s"""cards[0]""")
         } else if (mc == MoveComponents.MovingColumn) {
           Python(s"""cards""")
+        } else if (mc == MoveComponents.MovingRow) {
+          Python(s"""cards""")
         } else {
           Python(s"""None""")    // not sure what else to do...
         }
@@ -41,7 +43,7 @@ object constraintCodeGenerators  {
       case (registry:CodeGeneratorRegistry[Python], and: AndConstraint) => {
         println ("And:" + and.toString)
         if (and.constraints.isEmpty) {
-          Python(s"""true""")
+          Python(s"""True""")
         } else {
           and.constraints.tail.foldLeft(registry(and.constraints.head).get) {
             case (s, c) => {
@@ -106,10 +108,10 @@ object constraintCodeGenerators  {
       }
     },
 
-    /** HACK: May have no equivalent. */
+    /** Access via helper method of same name. */
     CodeGeneratorRegistry[Python, SolitaireContainerTypes] {
       case (registry:CodeGeneratorRegistry[Python], st:SolitaireContainerTypes) => {
-        Python(s"""${st.name}""")
+        Python(s"""${st.name}()""")
       }
     },
 
@@ -124,7 +126,6 @@ object constraintCodeGenerators  {
         Python(s"""${registry(top.base).get}[-1]""")
       }
     },
-
 
     CodeGeneratorRegistry[Python, BottomCardOf] {
       case (registry: CodeGeneratorRegistry[Python], bottom:BottomCardOf) => {

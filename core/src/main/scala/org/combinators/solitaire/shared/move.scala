@@ -122,13 +122,13 @@ trait Moves extends Base with JavaSemanticTypes {
     *
     * Choose this one (over PotentialMoveSingleCard) when moves involve columns.
     */
-  class PotentialMoveMultipleCards(semanticMoveNameType: Type) {
+  class PotentialMoveMultipleCards(semanticMoveNameType: Type, tpe:SimpleName) {
     def apply(rootPackage: Name, moveName: SimpleName, draggingCardVariableName: SimpleName,
               /*typeConstruct: JType*/): CompilationUnit = {
       shared.moves.java.PotentialMoveOneCardFromStack.render(
         RootPackage = rootPackage,
         MoveName = moveName,
-        Type = Java("Column").simpleName(),   // typeConstruct,
+        Type = tpe,   // typeConstruct,
         DraggingCardVariableName = draggingCardVariableName
       ).compilationUnit()
     }
@@ -231,7 +231,7 @@ trait Moves extends Base with JavaSemanticTypes {
     * these two occurences, giving the Press a time to operate while also allowing the Drag a chance.
     *
     */
-  class ColumnMoveHandler(tpe:Constructor, realType:SimpleName, c:Constraint, terminal:Type) {
+  class ColumnMoveHandler(tpe:Constructor, realType:SimpleName, c:Constraint, terminal:Type, draggingType:SimpleName) {
     def apply(generators: CodeGeneratorRegistry[Expression]): (SimpleName, SimpleName) => Seq[Statement] = {
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
         var filter:Seq[Statement] = Seq.empty
@@ -239,13 +239,15 @@ trait Moves extends Base with JavaSemanticTypes {
         // Since source-constraint and target-constraint are concatenated together, we need to convert the
         // MovingColumn component into .
         // HACK to make as ((Column) me_widget.getModelElement())
-        val moveRegExp = MoveComponents.MovingColumn.getName().r
+        val moveColumnRegExp = MoveComponents.MovingColumn.getName().r
+        val moveRowRegExp = MoveComponents.MovingRow.getName().r
         val cc3: Option[Expression] = generators(c)
 
         val strExp = if (cc3.isEmpty) {
           null
         } else {
-          moveRegExp.replaceAllIn(cc3.get.toString, "((Column) " + widgetVariableName + ".getModelElement())")
+          val s1 = moveColumnRegExp.replaceAllIn(cc3.get.toString, "((Column) " + widgetVariableName + ".getModelElement())")
+          moveRowRegExp.replaceAllIn(s1, "((Column) " + widgetVariableName + ".getModelElement())")
         }
 
         if (strExp != null) {
@@ -269,7 +271,7 @@ trait Moves extends Base with JavaSemanticTypes {
                  |if (source.count() == 0) {
                  |  return;
                  |}
-                 |$widgetVariableName = src.getColumnView(me);
+                 |$widgetVariableName = src.get${draggingType}(me);
                  |if ($widgetVariableName == null) {
                  |  return;
                  |}

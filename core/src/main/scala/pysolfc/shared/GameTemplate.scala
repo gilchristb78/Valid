@@ -30,11 +30,9 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
     var updated = gamma
 
     updated = updated
-        .addCombinator(new GameName(s.name))
-        //.addCombinator(new IdForGame(pygames.castle))
-        //.addCombinator(new Structure())
-        .addCombinator(new CreateGameMethod(s))
-        .addCombinator(new PythonStructure(processDeal(s), game(pysol.startGame)))
+          .addCombinator(new GameName(s.name))
+          .addCombinator(new CreateGameMethod(s))
+          .addCombinator(new ProcessDeal(s))
 
     updated = constructHelperClasses(updated, s)
 
@@ -63,109 +61,6 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
 //       """.stripMargin
 //  }
 
-
-
-  /**
-    * Construct Python statements to handle deal.
-    *
-    * @param s
-    * @return
-    */
-  def processDeal(s:Solitaire): Python = {
-
-    var stmts = ""
-    for (step <- s.getDeal.asScala) {
-      step match {
-        case f: FilterStep => {
-          val app = new ConstraintExpander(f.constraint, 'Intermediate)  // No symbol really needed. Could be anything
-          val filterexp = app.apply(constraintCodeGenerators.generators)
-
-          stmts = stmts +
-            s"""
-               |tmp = []
-               |for i in range(51,-1,-1):
-               |    card = self.s.talon.cards[i]
-               |    if $filterexp:
-               |        tmp.append(card)
-               |        del self.s.talon.cards[i]
-               |tmp.sort(reverse=True, key=lambda c: c.suit)    # properly sorts as C/S/D/H
-               |for cd in tmp:
-               |    self.s.talon.cards.append(cd)
-               |del tmp
-               |""".stripMargin
-
-        }
-
-        // frames=0 means do no animation during the deal.
-        case d: DealStep => {
-          println("Deal step:" + d)
-          val payload = d.payload
-          val flip:String = if (payload.faceUp) { "1" } else { "0" }
-          val numCards = payload.numCards
-            d.target match {
-              case ct:ContainerTarget => {
-                ct.targetType match {
-                  case SolitaireContainerTypes.Foundation => {
-                    stmts = stmts +
-                            s"""
-                             |for _ in range($numCards):
-                             |    self.s.talon.dealRow(rows=self.s.foundations, flip=$flip, frames=0)
-                             """.stripMargin
-                  }
-                  case SolitaireContainerTypes.Tableau => {
-                    stmts = stmts +
-                            s"""
-                             |for _ in range($numCards):
-                             |    self.s.talon.dealRow(rows=self.s.rows, flip=$flip, frames=0)
-                             """.stripMargin
-                  }
-                  case SolitaireContainerTypes.Waste => {
-                    stmts = stmts +
-                      s"""
-                         |for _ in range($numCards):
-                         |    self.s.talon.dealRow(rows=[self.s.waste], flip=$flip, frames=0)
-                             """.stripMargin
-                  }
-                }
-              }
-                // just reach out to one in particular
-              case et:ElementTarget => {
-                val idx = et.idx
-
-                et.targetType match {
-                  case SolitaireContainerTypes.Foundation => {
-                    stmts = stmts +
-                      s"""
-                       |for _ in range($numCards):
-                       |    self.s.talon.dealRow(rows=[self.s.foundations[$idx]], flip=$flip, frames=0)
-                       """.stripMargin
-                  }
-                  case SolitaireContainerTypes.Tableau => {
-                    stmts = stmts +
-                      s"""
-                       |for _ in range($numCards):
-                       |    self.s.talon.dealRow(rows=[self.s.rows[$idx]], flip=$flip, frames=0)
-                        """.stripMargin
-                  }
-                  case SolitaireContainerTypes.Waste => {
-                    stmts = stmts +
-                      s"""
-                         |for _ in range($numCards):
-                         |    self.s.talon.dealRow(rows=[self.s.waste[$idx]], flip=$flip, frames=0)
-                        """.stripMargin
-                  }
-                }
-                // just a single element
-              }
-            }
-        }
-      }
-    }
-
-   stmts = "def startGame(self):" + Python(stmts).indent.toString()
-
-   Python(stmts)
-  }
 
 
 //  /**
@@ -231,6 +126,20 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
 //    val semanticType:Type = game(pysol.startGame)
 //  }
 
+
+  object generateHelper {
+    /**
+      * Helper method for the ConstraintHelper class
+      */
+    def tableau() : Python = {
+      Python(s"""
+                |def tableau():
+                |	return solgame[0].s.rows
+         """.stripMargin)
+    }
+  }
+
+
   class CreateGameMethod(solitaire:Solitaire) {
     def apply(view:Python) :Python = {
       val min = solitaire.getMinimumSize
@@ -241,7 +150,7 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
            |def createGame(self):
            |    # create layout
            |    l, s = Layout(self), self.s
-           |
+           |    solgame[0] = self    # store for access; this is a bit of HACK
            |    # set window size, based on layout domain
            |    self.setSize($width, $height)
            |
@@ -261,7 +170,7 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
     * @param id
     */
   class IdForGame(id:Int) {
-    def apply: Python = Python(id.toString)
+    def apply: String = id.toString
 
     val semanticType:Type = gameID
   }
@@ -269,7 +178,7 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
 
   /** Define the class name from domain model. */
   class GameName(s:String) {
-    def apply: Python = Python(s)
+    def apply: String = s
 
     val semanticType:Type = variationName
   }
@@ -290,8 +199,111 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
     val semanticType:Type = game(pysol.fileName) =>: game(pysol.initFile)
   }
 
+  class ProcessDeal(s:Solitaire) {
+
+    def apply(generators: CodeGeneratorRegistry[Python]): Python = {
+      var stmts = ""
+      for (step <- s.getDeal.asScala) {
+        step match {
+          case f: FilterStep => {
+            val app = new ConstraintExpander(f.constraint, 'Intermediate)  // No symbol really needed. Could be anything
+            val filterexp = app.apply(constraintCodeGenerators.generators)
+
+            stmts = stmts +
+              s"""
+                 |tmp = []
+                 |for i in range(51,-1,-1):
+                 |    card = self.s.talon.cards[i]
+                 |    if $filterexp:
+                 |        tmp.append(card)
+                 |        del self.s.talon.cards[i]
+                 |tmp.sort(reverse=True, key=lambda c: c.suit)    # properly sorts as C/S/D/H
+                 |for cd in tmp:
+                 |    self.s.talon.cards.append(cd)
+                 |del tmp
+                 |""".stripMargin
+
+          }
+
+          // frames=0 means do no animation during the deal.
+          case d: DealStep => {
+            println("Deal step:" + d)
+            val payload = d.payload
+            val flip:String = if (payload.faceUp) { "1" } else { "0" }
+            val numCards = payload.numCards
+            d.target match {
+              case ct:ContainerTarget => {
+                ct.targetType match {
+                  case SolitaireContainerTypes.Foundation => {
+                    stmts = stmts +
+                      s"""
+                         |for _ in range($numCards):
+                         |    self.s.talon.dealRow(rows=self.s.foundations, flip=$flip, frames=0)
+                             """.stripMargin
+                  }
+                  case SolitaireContainerTypes.Tableau => {
+                    stmts = stmts +
+                      s"""
+                         |for _ in range($numCards):
+                         |    self.s.talon.dealRow(rows=self.s.rows, flip=$flip, frames=0)
+                             """.stripMargin
+                  }
+                  case SolitaireContainerTypes.Waste => {
+                    stmts = stmts +
+                      s"""
+                         |for _ in range($numCards):
+                         |    self.s.talon.dealRow(rows=[self.s.waste], flip=$flip, frames=0)
+                             """.stripMargin
+                  }
+                }
+              }
+              // just reach out to one in particular
+              case et:ElementTarget => {
+                val idx = et.idx
+
+                et.targetType match {
+                  case SolitaireContainerTypes.Foundation => {
+                    stmts = stmts +
+                      s"""
+                         |for _ in range($numCards):
+                         |    self.s.talon.dealRow(rows=[self.s.foundations[$idx]], flip=$flip, frames=0)
+                       """.stripMargin
+                  }
+                  case SolitaireContainerTypes.Tableau => {
+                    stmts = stmts +
+                      s"""
+                         |for _ in range($numCards):
+                         |    self.s.talon.dealRow(rows=[self.s.rows[$idx]], flip=$flip, frames=0)
+                        """.stripMargin
+                  }
+                  case SolitaireContainerTypes.Waste => {
+                    stmts = stmts +
+                      s"""
+                         |for _ in range($numCards):
+                         |    self.s.talon.dealRow(rows=[self.s.waste[$idx]], flip=$flip, frames=0)
+                        """.stripMargin
+                  }
+                }
+                // just a single element
+              }
+            }
+          }
+        }
+      }
+
+      stmts = "def startGame(self):" + Python(stmts).indent.toString()
+
+      Python(stmts)
+    }
+
+    val semanticType:Type = constraints(constraints.generator) =>: game(pysol.startGame)
+  }
+
   @combinator object makeMain {
-    def apply(name:Python, id: Python, fileName:String, classDefs:Python, structure:Python, createGame: Python, startGame: Python): (Python, Path) = {
+    def apply(name:String, id: String, fileName:String,
+              helperMethods:Python,
+              classDefs:Python, structure:Python, createGame: Python,
+              startGame: Python): (Python, Path) = {
       val code =
         Python(s"""|__all__ = []
                  |
@@ -307,10 +319,14 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
                  |from pysollib.layout import Layout
                  |from pysollib.pysoltk import MfxCanvasText
                  |
+                 |# stored instance created, for use by helper methods
+                 |solgame = [None]
                  |
                  |# ************************************************************************
                  |# * $name
                  |# ************************************************************************
+                 |
+                 |${helperMethods.getCode}
                  |
                  |${classDefs.getCode}
                  |
@@ -328,12 +344,9 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
                  """.stripMargin)
       (code, Paths.get(fileName + ".py"))
     }
-    val semanticType:Type = variationName =>:
-      gameID =>:
-      game(pysol.fileName) =>:
-      game(pysol.classes) =>:
-      game(pysol.structure) =>:
-      game(pysol.createGame) =>:
+    val semanticType:Type = variationName =>: gameID =>: game(pysol.fileName) =>:
+      constraints(constraints.methods) =>: game(pysol.classes) =>:
+      game(pysol.structure) =>: game(pysol.createGame) =>:
       game(pysol.startGame) =>:
       game(complete)
   }

@@ -156,9 +156,14 @@ object constraintCodeGenerators  {
       }
     },
 
+    /** Specialized isSingle, which has to deal with redundant 'isSingle' for MovingCard. */
     CodeGeneratorRegistry[Expression, IsSingle] {
       case (registry: CodeGeneratorRegistry[Expression], isSingle:IsSingle) => {
-        Java(s"""${registry(isSingle.element).get}.count() == 1""").expression()
+        if (isSingle.element == MoveComponents.MovingCard) {
+          Java(s"""${registry(isSingle.element).get} != null""").expression()
+        } else {
+          Java(s"""${registry(isSingle.element).get}.count() == 1""").expression()
+        }
       }
     },
 

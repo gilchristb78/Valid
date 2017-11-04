@@ -52,6 +52,7 @@ trait JavaSemanticTypes extends SemanticTypes {
   object press {
     val card:Type = 'GuardCardView
     val column:Type = 'GuardColumnView
+    val row:Type = 'GuardRowView
   }
 
   // parts of the structural definition of a move class

@@ -15,28 +15,6 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     var updated = super.init(gamma, s)
     println (">>> Castle Controller dynamic combinators.")
 
-    // structural
-    val ui = new UserInterface(s)
-
-    val els_it = ui.controllers
-    while (els_it.hasNext) {
-      val el = els_it.next()
-
-      // Each of these controllers are expected in the game.
-      if (el == "Pile") {
-        updated = updated.
-          addCombinator (new WidgetController(Symbol(el)))
-      } else if (el == "Row") {
-        updated = updated.
-          addCombinator (new WidgetController(Symbol(el)))
-      }
-    }
-
-    // not much to do, if no rules...
-    if (s.getRules == null) {
-      return updated
-    }
-
     updated = createMoveClasses(updated, s)
 
     updated = createDragLogic(updated, s)
@@ -44,16 +22,10 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     updated = generateMoveLogic(updated, s)
 
     updated = updated
-      .addCombinator (new SingleCardMoveHandler(row))
       .addCombinator (new IgnoreClickedHandler(row))
       .addCombinator (new IgnoreClickedHandler(pile))
-      .addCombinator (new IgnorePressedHandler('Pile))
+      .addCombinator (new IgnorePressedHandler(pile))
       .addCombinator (new IgnoreReleasedHandler(deck))
-
-//    updated = updated
-//      .addCombinator (new PotentialMultipleCardMove("row", 'RowToRow))
-//      .addCombinator (new PotentialMultipleCardMove("row", 'PlaceRow))
-
 
 
     //

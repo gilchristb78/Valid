@@ -37,6 +37,16 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   }
 
   /**
+    * Specialized methods to help out in processing constraints. Specifically,
+    * these are meant to be generic, things like getTableua, getReserve()
+    */
+  @combinator object HelperMethodsCastle {
+    def apply: Python = Python("")
+
+    val semanticType: Type = constraints(constraints.methods)
+  }
+
+  /**
     * Knows that suits are identified by suit=i for 0..3
     *
     * @param c

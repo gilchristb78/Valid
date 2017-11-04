@@ -3,13 +3,11 @@ package domain.castle;
 import domain.*;
 import domain.constraints.*;
 import domain.constraints.movetypes.*;
-import domain.freeCell.SufficientFree;
-import domain.moves.ColumnMove;
-import domain.moves.SingleCardMove;
+import domain.deal.*;
+import domain.moves.RowMove;
 import domain.ui.CalculatedPlacement;
 import domain.ui.VerticalPlacement;
 import domain.ui.PlacementGenerator;
-import scala.tools.nsc.transform.patmat.Logic;
 
 import java.awt.*;
 import java.util.Iterator;
@@ -30,7 +28,7 @@ public class Domain extends Solitaire {
 	}
 
 	public Domain() {
-
+		super ("BeleagueredCastle");
 		PlacementGenerator places = new VerticalPlacement(new Point(400, 10),
 				card_width, card_height, card_gap);
 
@@ -69,69 +67,51 @@ public class Domain extends Solitaire {
 		// wins once foundation contains same number of cards as stock
 		Rules rules = new Rules();
 
-
 		IsEmpty isEmpty = new IsEmpty (MoveComponents.Destination);
 		NextRank nextOne =  new NextRank(new TopCardOf(MoveComponents.Destination), MoveComponents.MovingCard);
 
 		// Tableau to Tableau
 		OrConstraint moveCheck = new OrConstraint(isEmpty, nextOne);
 
-
-		//I add for tableau to tableau because there could be several empty spots
-        //move single card
-
-//        ColumnMove SingleCardToTableau = new ColumnMove("MoveColumn_1", tableau,
-//                new IsSingle(MoveComponents.MovingColumn), tableau, moveCheck);
-//        rules.addDragMove(SingleCardToTableau);
-
-        // move more cards
-
-        NotConstraint nonSingle = new NotConstraint(new IsSingle(MoveComponents.MovingColumn));
-
         domain.castle.SufficientFree sufficientFree= new domain.castle.SufficientFree(
-                MoveComponents.MovingColumn,
+                MoveComponents.MovingRow,
                 MoveComponents.Source, MoveComponents.Destination,
                 SolitaireContainerTypes.Tableau
         );
 
-        Descending descend = new Descending(MoveComponents.MovingColumn);
-
-        AndConstraint and_1= new AndConstraint(nonSingle,descend);
+        Descending descend = new Descending(MoveComponents.MovingRow);
 
         AndConstraint and_2= new AndConstraint(new NextRank(new TopCardOf(MoveComponents.Destination),
-                new BottomCardOf(MoveComponents.MovingColumn)), sufficientFree);
+                new BottomCardOf(MoveComponents.MovingRow)), sufficientFree);
 
-        // number of moving cards== sufficientFree.column-1  ???
 
         IfConstraint if7= new IfConstraint(isEmpty, sufficientFree, and_2 );
 
-        ColumnMove MoreCardToTableau= new ColumnMove("MoveColumn", tableau, and_1,tableau, if7);
+		RowMove MoreCardToTableau= new RowMove("MoveRow", tableau, descend, tableau, if7);
         rules.addDragMove(MoreCardToTableau);
 
-
-
-        //domain.castle.SufficientFree sufficientFree= new domain.castle.SufficientFree(
-               // MoveComponents.MovingColumn,
-                //MoveComponents.Source, MoveComponents.Destination,
-               // SolitaireContainerTypes.Tableau
-       // );
-
-
-
-
-        // fix the src constraint; won't always be Truth
-		//ColumnMove tableauToTableau = new ColumnMove("MoveColumn", tableau, new Truth(), tableau, moveCheck);
-		//rules.addDragMove(tableauToTableau);
-
-
-
 		AndConstraint and = new AndConstraint(
-				new NextRank(MoveComponents.MovingColumn, new TopCardOf(MoveComponents.Destination)),
-				new SameSuit(MoveComponents.MovingColumn, new TopCardOf(MoveComponents.Destination)));
+				new NextRank(new BottomCardOf(MoveComponents.MovingRow), new TopCardOf(MoveComponents.Destination)),
+				new SameSuit(new BottomCardOf(MoveComponents.MovingRow), new TopCardOf(MoveComponents.Destination)));
 
-		ColumnMove tableauToFoundation = new ColumnMove("BuildColumn", tableau, new Truth(), found, and);
+		RowMove tableauToFoundation = new RowMove("BuildRow", tableau, new Truth(), found, and);
 		rules.addDragMove(tableauToFoundation);
 
 		setRules(rules);
+
+		Deal d = new Deal();
+
+		// Filter all aces out and add back on top
+		d.add(new FilterStep(new IsAce(DealComponents.Card)));
+
+		// deal aces first
+		d.add(new DealStep(new ContainerTarget(SolitaireContainerTypes.Foundation, found)));
+
+		// Each tableau gets a single card, six times.
+		for (int i = 0; i < 6; i++) {
+			d.add(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau)));
+		}
+
+		setDeal(d);
 	}
 }

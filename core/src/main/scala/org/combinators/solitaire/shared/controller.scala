@@ -104,7 +104,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
        case _ : ColumnMove =>
           updated = updated
-              .addCombinator (new PotentialMoveMultipleCards(moveSymbol))
+              .addCombinator (new PotentialMoveMultipleCards(moveSymbol, Java("Column").simpleName()))
+
+          // still is a 'Column' because that's how it is handled "under the hood" in framework
+        case _ : RowMove =>
+          updated = updated
+            .addCombinator (new PotentialMoveMultipleCards(moveSymbol, Java("Column").simpleName()))
       }
     }
 
@@ -165,17 +170,19 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
     press_handler_map.keys.foreach { container =>
       val list: List[Move] = press_handler_map(container)
 
-      // if any of the Moves is a ColumnMove, then we must create a pre-constraint filter for drags
+      // if any of the Moves is a ColumnMove (or rowMove), then we must create a pre-constraint filter for drags
       var columnMoves:List[ColumnMove] = List.empty
+      var rowMoves:List[RowMove] = List.empty
       var pressMoves:List[Move] = List.empty
       for (m <- list) {
         m match {
           case cm:ColumnMove => columnMoves = cm :: columnMoves
+          case rm:RowMove => rowMoves = rm :: rowMoves
           case m:Move => pressMoves = m :: pressMoves       // any other moves go here
         }
       }
 
-      if (columnMoves.nonEmpty) {
+      if (columnMoves.nonEmpty || rowMoves.nonEmpty) {
         val cons: List[Constraint] = list.map(x => x.sourceConstraint)
         val or: OrConstraint = new OrConstraint(cons: _*)
 
@@ -193,12 +200,18 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
             controller(tpe, controller.pressed)
           }
 
+          // Only RowView objects create RowView movables; all others create ColumnView... This is
+          // a bit of hack from framework.
+          val dragType:SimpleName = if (typeName == "RowView") {
+            Java("RowView").simpleName
+          } else {
+            Java("ColumnView").simpleName
+          }
           updated = updated
-            .addCombinator(new ColumnMoveHandler(tpe, Java(typeName).simpleName(), or, terminal))
+            .addCombinator(new ColumnMoveHandler(tpe, Java(typeName).simpleName(), or, terminal, dragType))
         }
       }
     }
-
 
     // key is Container, value is List of moves; this block deals with release events.
     drag_handler_map.keys.foreach{ k =>
@@ -215,6 +228,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
           m match {
             case _ : SingleCardMove => press.card
             case _ : ColumnMove => press.column
+            case _ : RowMove => press.row
           }
 
         println (moveSymbol + ":" + viewType)
@@ -254,8 +268,9 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
   class PotentialDraggingVariableGenerator(m:Move, moveSymbol:Type) {
     def apply(): SimpleName = {
       m match {
-        case _ : SingleCardMove => Java(s"""movingCard""").simpleName()
+        case _: SingleCardMove => Java(s"""movingCard""").simpleName()
         case _: ColumnMove     => Java(s"""movingColumn""").simpleName()
+        case _: RowMove        => Java(s"""movingRow""").simpleName()
       }
     }
     val semanticType: Type = move(moveSymbol, move.draggingVariableCardName)
@@ -298,6 +313,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
         case _ : ColumnMove  =>
           Java(s"""|destination.select(numInColumn);
+                   |source.push(destination.getSelected());
+                   |return true;""".stripMargin)
+            .statements()
+
+        case _ : RowMove  =>
+          Java(s"""|destination.select(numInColumn);     // conform to superclass usage
                    |source.push(destination.getSelected());
                    |return true;""".stripMargin)
             .statements()
@@ -344,6 +365,10 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
         case _ : ColumnMove =>
           Java(s"""destination.push(movingColumn);""").statements()
+
+        case _ : RowMove =>
+          Java(s"""destination.push(movingRow);""").statements()
+
       }
     }
     val semanticType: Type = move(moveSymbol, move.doStatements)
@@ -395,6 +420,15 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
                    |public $name(Stack from, Column cards, Stack to) {
                    |  this(from, to);
                    |  this.movingColumn = cards;
+                   |  this.numInColumn = cards.count();
+                   |}""".stripMargin).classBodyDeclarations()
+
+        case _ : RowMove =>
+          Java(s"""|Column movingRow;
+                   |int numInColumn;   // conform to superclass usage.
+                   |public $name(Stack from, Column cards, Stack to) {
+                   |  this(from, to);
+                   |  this.movingRow = cards;
                    |  this.numInColumn = cards.count();
                    |}""".stripMargin).classBodyDeclarations()
       }
@@ -497,7 +531,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
   /**
     * When a Press can be ignored, use this
     */
-  class IgnorePressedHandler(source:Symbol) {
+  class IgnorePressedHandler(source:Type) {
     def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
       (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
         Java(s"""$ignoreWidgetVariableName = true;""").statements()
@@ -522,6 +556,12 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
   @combinator object ColumnViewCheck {
     def apply: Expression = Java("w instanceof ColumnView").expression()
     val semanticType: Type = press.column
+  }
+
+  // Guards to ensure statements execute only for ColumnView (multiCard move)
+  @combinator object RowViewCheck {
+    def apply: Expression = Java("w instanceof RowView").expression()
+    val semanticType: Type = press.row
   }
 
   @combinator object CardViewCheck {

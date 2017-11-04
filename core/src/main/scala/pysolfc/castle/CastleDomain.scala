@@ -3,6 +3,7 @@ package pysolfc.castle
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Python
+import domain.castle.SufficientFree
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{PythonSemanticTypes, constraintCodeGenerators}
@@ -18,6 +19,57 @@ import scala.collection.JavaConverters._
   */
 class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with PythonSemanticTypes {
 
+  object castleCodeGenerator {
+    val generators = CodeGeneratorRegistry.merge[Python](
+
+      CodeGeneratorRegistry[Python, SufficientFree] {
+        case (registry:CodeGeneratorRegistry[Python], c:SufficientFree) => {
+          val destination = registry(c.destination).get
+          val src = registry(c.src).get
+          val column = registry(c.column).get
+          val tableau = registry(c.tableau).get
+          Python(s"""sufficientFree($column, $src, $destination, $tableau)""")
+        }
+      },
+
+    ).merge(constraintCodeGenerators.generators)
+  }
+
+  /**
+    * Castle requires specialized extensions for constraints to work.
+    */
+  @combinator object CastleGenerator {
+    def apply: CodeGeneratorRegistry[Python] = {
+      castleCodeGenerator.generators
+    }
+    val semanticType: Type = constraints(constraints.generator)
+  }
+
+
+  /**
+    * Specialized methods to help out in processing constraints. Specifically,
+    * these are meant to be generic, things like getTableua, getReserve()
+    */
+  @combinator object HelperMethodsCastle {
+    def apply: Python = {
+      val helpers:Seq[Python] = Seq(generateHelper.tableau(),
+
+      Python(s"""
+              |def sufficientFree (column, src, destination, tableau):
+              |    numEmpty = 0
+              |    for s in tableau:
+              |        if len(s.cards) == 0 and s != src and s != destination:
+              |            numEmpty = numEmpty + 1
+              |    return len(column) <= 1 + numEmpty
+              |""".stripMargin)
+      )
+
+      Python(helpers.mkString("\n"))
+    }
+
+     val semanticType: Type = constraints(constraints.methods)
+  }
+
   /**
     * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
    */
@@ -26,14 +78,6 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
   @combinator object OutputFile {
     def apply: String = "castle"
     val semanticType:Type = game(pysol.fileName)
-  }
-
-  /**
-    * NO special constraints just yet
-    */
-  @combinator object DefaultGenerator {
-    def apply: CodeGeneratorRegistry[Python] = constraintCodeGenerators.generators
-    val semanticType: Type = constraints(constraints.generator)
   }
 
   /**

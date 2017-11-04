@@ -1,23 +1,26 @@
 package pysolfc.shared
 
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
+import de.tu_dortmund.cs.ls14.cls.types.Constructor
+import de.tu_dortmund.cs.ls14.cls.types.Type
+import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Python
 import domain.constraints.OrConstraint
-import domain.{Constraint, Container, Move, Solitaire, _}
+import domain._
 import org.combinators.solitaire.shared.SolitaireDomain
+import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{ConstraintExpander, PythonSemanticTypes, constraintCodeGenerators}
 
 trait Structure extends PythonSemanticTypes {
 
-
-  /** Generic class to synthesize a given Python block as a semantic type. */
-  class PythonStructure(stmts: Python, tpe: Constructor) {
-    def apply: Python = stmts
-
-    val semanticType: Type = tpe
-  }
-
+//
+//  /** Generic class to synthesize a given Python block as a semantic type. */
+//  class PythonStructure(stmts: Python, tpe: Constructor) {
+//    def apply: Python = stmts
+//
+//    val semanticType: Type = tpe
+//  }
+//
 
   // ultimately every stack extension needs to provide the following:
   //  class SequenceStack_StackMethods:
@@ -46,9 +49,6 @@ trait Structure extends PythonSemanticTypes {
   // defines Structure.
   def constructHelperClasses[G <: SolitaireDomain](gamma: ReflectedRepository[G], s: Solitaire): ReflectedRepository[G] = {
     var updated = gamma
-
-    var stmts = ""
-    var clazzes = ""
 
     // drag will be responsible for the release; press will be responsible for source constraints.
     // I believe flip and deal moves have to be handled in special way.
@@ -85,59 +85,122 @@ trait Structure extends PythonSemanticTypes {
       }
     }
 
-    drag_handler_map.keys.foreach { container =>
-      val list: List[Move] = drag_handler_map(container)
+//
+//    drag_handler_map.keys.foreach { container =>
+//      val list: List[Move] = drag_handler_map(container)
+//
+//      val srcCons: List[Constraint] = list.map(x => x.sourceConstraint)
+//      val targetCons: List[Constraint] = list.map(x => x.targetConstraint)
+//
+//      val srcOr: OrConstraint = new OrConstraint(srcCons: _*)
+//      val targetOr: OrConstraint = new OrConstraint(targetCons: _*)
+//
+//      updated = updated
+//        .addCombinator(new PythonLocalClassConstruction(s, container, srcOr, targetOr))
+//        .addCombinator(new PythonFieldConstruction(s, container))
+//    }
 
-      val srcCons: List[Constraint] = list.map(x => x.sourceConstraint)
-      val targetCons: List[Constraint] = list.map(x => x.targetConstraint)
+    updated = updated
+        .addCombinator(new PythonFieldConstruction(s, drag_handler_map))
+        .addCombinator(new PythonLocalClassConstruction(s, drag_handler_map))
 
-      val srcOr: OrConstraint = new OrConstraint(srcCons: _*)
-      val targetOr: OrConstraint = new OrConstraint(targetCons: _*)
+    updated
+  }
 
-      // these are the or constraints for release
-      val srcApp = new ConstraintExpander(srcOr, Constructor("Something"))
-      val press: Python = srcApp.apply(constraintCodeGenerators.generators)
+  class PythonFieldConstruction(solitaire: Solitaire, map:Map[Container, List[Move]]) {
+    var clazzes:Seq[Python] = Seq.empty
+    def apply: Python = {
+      map.keys.foreach { container =>
+        clazzes = clazzes :+ oneField(solitaire, container)
+      }
 
-      val targetApp = new ConstraintExpander(targetOr, Constructor("SomethingElse"))
-      val release: Python = targetApp.apply(constraintCodeGenerators.generators)
+      Python(clazzes.mkString("\n"))
+    }
 
-      var name = "None"
-      var base = "None"
+    val semanticType: Type = game(pysol.structure)
+  }
+
+
+  class PythonLocalClassConstruction(s:Solitaire, map:Map[Container, List[Move]]) {
+
+    def apply(generators: CodeGeneratorRegistry[Python]): Python = {
+      var stmts:Seq[Python] = Seq.empty
+       map.keys.foreach { container =>
+        val list: List[Move] = map(container)
+
+        val srcCons: List[Constraint] = list.map(x => x.sourceConstraint)
+        val targetCons: List[Constraint] = list.map(x => x.targetConstraint)
+
+        val srcOr: OrConstraint = new OrConstraint(srcCons: _*)
+        val targetOr: OrConstraint = new OrConstraint(targetCons: _*)
+
+        val one:Python = oneClass(s, generators, container, srcOr, targetOr)
+         stmts = stmts :+ one
+      }
+
+      // convert into one mega statement
+      Python(stmts.mkString("\n"))
+    }
+
+    val semanticType:Type = constraints(constraints.generator) =>: game(pysol.classes)
+  }
+
+  def oneField (s:Solitaire, container:Container):Python = {
+     var clazz = ""
 
       // Makes a quick mapping from container type into class names
       if (container == s.containers.get(SolitaireContainerTypes.Foundation)) {
-        name = "MyFoundation"
-        base = "AbstractFoundationStack"
-        clazzes = clazzes +
-                  s"""
-                     |Foundation_Class = MyFoundationStack
+        clazz = clazz +
+          s"""
+             |Foundation_Class = MyFoundationStack
                    """.stripMargin
       }
       if (container == s.containers.get(SolitaireContainerTypes.Tableau)) {
-        name = "MyTableau"
-        base = "SequenceRowStack"
-        clazzes = clazzes +
+        clazz = clazz +
           s"""
              |RowStack_Class = MyTableauStack
            """.stripMargin
       }
-      if (container == s.containers.get(SolitaireContainerTypes.Stock)) {
-        name = "MyTalon"
-        base = "TalonStack"
-      }
 
       // unlikely to have DRAG bring release to waste pile; here for press
       if (container == s.containers.get(SolitaireContainerTypes.Waste)) {
-        name = "MyWaste"
-        base = "SequenceRowStack"
-        clazzes = clazzes +
+        clazz = clazz +
           s"""
              |Waste_Class = MyWasteStack
                    """.stripMargin
       }
 
-      stmts = stmts +
-        s"""
+      Python(clazz)
+    }
+
+  def oneClass(s:Solitaire, generators: CodeGeneratorRegistry[Python], container:Container, srcOr:OrConstraint, targetOr:OrConstraint): Python = {
+      var name = "None"
+      var base = "None"
+
+      // these are the or constraints for release
+      val press: Python = generators(srcOr).get
+      val release: Python = generators(targetOr).get
+
+      // Makes a quick mapping from container type into class names
+      if (container == s.containers.get(SolitaireContainerTypes.Foundation)) {
+        name = "MyFoundation"
+        base = "AbstractFoundationStack"
+      }
+      if (container == s.containers.get(SolitaireContainerTypes.Tableau)) {
+        name = "MyTableau"
+        base = "SequenceRowStack"
+      }
+      if (container == s.containers.get(SolitaireContainerTypes.Stock)) {
+        name = "MyTalon"
+        base = "TalonStack"
+      }
+      // unlikely to have DRAG bring release to waste pile; here for press
+      if (container == s.containers.get(SolitaireContainerTypes.Waste)) {
+        name = "MyWaste"
+        base = "SequenceRowStack"
+      }
+
+      var stmts = s"""
            |class ${name}Stack($base):
            |    def canMoveCards(self, cards):
            |        # protect against empty moves
@@ -155,12 +218,7 @@ trait Structure extends PythonSemanticTypes {
            |            return True
            |        return False
            |""".stripMargin
+
+      Python(stmts)
     }
-
-    updated = updated
-      .addCombinator(new PythonStructure(Python(stmts), game(pysol.classes)))
-      .addCombinator(new PythonStructure(Python(clazzes), game(pysol.structure)))
-
-    updated
-  }
 }

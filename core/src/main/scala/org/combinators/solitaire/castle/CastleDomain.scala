@@ -10,7 +10,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.castle.SufficientFree
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
 
 // domain
 import domain._
@@ -59,7 +59,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
               |public static boolean sufficientFree (Column column, Stack src, Stack destination, Stack[] tableau) {
               |	int numEmpty = 0;
               |	for (Stack s : tableau) {
-              |		if (s.empty() && s != destination) numEmpty++;
+              |		if (s.empty() && s != destination && s != src) numEmpty++;
               |	}
               |
               |	return column.count() <= 1 + numEmpty;
