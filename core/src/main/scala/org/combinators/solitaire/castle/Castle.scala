@@ -31,12 +31,12 @@ class Castle @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJ
       .addJob[CompilationUnit](constraints(complete))
       .addJob[CompilationUnit](controller(pile, complete))
       .addJob[CompilationUnit](controller('Row, complete))
-      .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
-      .addJob[CompilationUnit](move('BuildCard :&: move.generic, complete))
+      .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
+      .addJob[CompilationUnit](move('BuildColumn :&: move.generic, complete))
 
       // only need potential moves for those that are DRAGGING...
-      .addJob[CompilationUnit](move('MoveCard :&: move.potential, complete))
-      .addJob[CompilationUnit](move('BuildCard :&: move.potential, complete))
+      .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
+      .addJob[CompilationUnit](move('BuildColumn :&: move.potentialMultipleMove, complete))
 
   lazy val results:Results = Results.addAll(jobs.run())
 
