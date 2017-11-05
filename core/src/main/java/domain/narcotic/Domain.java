@@ -4,6 +4,7 @@ import domain.*;
 import domain.constraints.*;
 import domain.constraints.movetypes.MoveComponents;
 import domain.constraints.movetypes.TopCardOf;
+import domain.deal.*;
 import domain.moves.*;
 import domain.ui.StockTableauLayout;
 
@@ -60,11 +61,14 @@ public class Domain extends Solitaire {
 		SingleCardMove tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, tt_move);
 		rules.addDragMove(tableauToTableau);
 
-		/** Awkward constraint. Requires downcast to access method. Perhaps move into move class?*/
+		// All top cards are the same.
 		AllSameRank allSameRank = new AllSameRank(SolitaireContainerTypes.Tableau);
 
 		RemoveMultipleCardsMove tableauRemove = new RemoveMultipleCardsMove("RemoveAllCards", tableau, allSameRank);
 		rules.addPressMove(tableauRemove);
+
+		// note: for Python implementation, still need to implement concept of DeckDealMove, as well
+        // as ResetDeckMove.
 
 		// deal four cards from Stock
 		NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
@@ -78,6 +82,13 @@ public class Domain extends Solitaire {
 		setRules(rules);
 
 		// Not doing rules since changing to AST-based logic
+		Deal d = new Deal();
 
+		// Each one gets a single faceup Card
+		Payload payload = new Payload();
+		DealStep step = new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), payload);
+		d.add(step);
+
+		setDeal(d);
 	}
 }

@@ -50,3 +50,8 @@ GET   /pyklondike                         pysolfc.klondike.Klondike.overview()
 GET   /pyklondike/raw_:number             pysolfc.klondike.Klondike.raw(number: Long)
 GET   /pyklondike/prepare                 pysolfc.klondike.Klondike.prepare(number: Long)
 GET   /pyklondike/pyklondike.git/*file    pysolfc.klondike.Klondike.serveFile(file)
+
+GET   /pynarcotic                         pysolfc.narcotic.Narcotic.overview()
+GET   /pynarcotic/raw_:number             pysolfc.narcotic.Narcotic.raw(number: Long)
+GET   /pynarcotic/prepare                 pysolfc.narcotic.Narcotic.prepare(number: Long)
+GET   /pynarcotic/pynarcotic.git/*file    pysolfc.narcotic.Narcotic.serveFile(file)

@@ -30,5 +30,6 @@ trait PythonSemanticTypes extends SemanticTypes {
   object pygames {
     val castle:Int = 99000
     val klondike:Int = 99001
+    val narcotic:Int = 99002
   }
 }

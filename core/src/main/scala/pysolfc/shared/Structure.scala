@@ -1,7 +1,6 @@
 package pysolfc.shared
 
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Python
@@ -9,7 +8,9 @@ import domain.constraints.OrConstraint
 import domain._
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
-import org.combinators.solitaire.shared.python.{ConstraintExpander, PythonSemanticTypes, constraintCodeGenerators}
+import org.combinators.solitaire.shared.python.PythonSemanticTypes
+
+import scala.collection.JavaConverters._
 
 trait Structure extends PythonSemanticTypes {
 
@@ -221,4 +222,87 @@ trait Structure extends PythonSemanticTypes {
 
       Python(stmts)
     }
+
+
+  /**
+    * Knows that suits are identified by suit=i for 0..3
+    *
+    * @param c
+    * @return
+    */
+  def layout_place_foundation(c: Container): Python = {
+
+    var combined = ""
+    for (r <- c.placements().asScala) {
+      combined = combined +
+        s"""
+           |s.foundations.append(self.Foundation_Class(${r.x}, ${r.y}, self, suit=${r.idx}, max_move=0))
+           |""".stripMargin
+    }
+    Python(combined)
+  }
+
+  // THESE ARE ROWS. How to show orientation
+  def layout_place_tableau(c:Container): Python = {
+    var combined = ""
+
+    // tableau typically can be oriented vertically or horizontally
+    /** Orientation. By default, vertical downwards. */
+    val element:Element = c.iterator().next()
+
+    val offsets = if (element.getVerticalOrientation()) {
+      "stack.CARD_XOFFSET, stack.CARD_YOFFSET = 0, l.YOFFSET"
+    } else {
+      "stack.CARD_XOFFSET, stack.CARD_YOFFSET = l.XOFFSET, 0"
+    }
+
+    for (r <- c.placements().asScala) {
+      combined = combined +
+        s"""
+           |stack = self.RowStack_Class(${r.x}, ${r.y}, self)
+           |$offsets
+           |s.rows.append(stack)""".stripMargin
+    }
+    Python(combined)
+  }
+
+
+  // trying to constrct a talong doesn't easily work.
+  def layout_place_stock(c:Container): Python = {
+    var combined = ""
+    for (r <- c.placements().asScala) {
+      combined = combined + s"""
+                               |s.talon = TalonStack(${r.x}, ${r.y}, self)
+                               |""".stripMargin
+    }
+    Python(combined)
+  }
+
+  /** Waste takes its structure from existing classWasteStack. Need to deal with rounds/num deal at a time. */
+  def layout_place_stock_and_waste(stock:Container, waste:Container): Python = {
+    var combined = ""
+
+    for (r <- stock.placements().asScala) {
+      combined = combined +
+        s"""
+           |s.talon =  WasteTalonStack(${r.x}, ${r.y}, self, max_rounds=1, num_deal=1)
+                  """.stripMargin
+    }
+
+    for (r <- waste.placements().asScala) {
+      combined = combined +
+        s"""
+           |s.waste =  WasteStack(${r.x}, ${r.y}, self)
+            """.stripMargin
+    }
+    Python(combined)
+  }
+
+  /** Some games use a stock only to store cards which are all dealt out. */
+  def layout_invisible_stock(stock:Container): Python = {
+    Python(s"""
+              |x, y = self.getInvisibleCoords()
+              |s.talon = TalonStack(x, y, self)
+              |""".stripMargin)
+  }
 }

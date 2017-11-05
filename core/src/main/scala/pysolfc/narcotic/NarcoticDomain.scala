@@ -1,9 +1,9 @@
-package pysolfc.castle
+package pysolfc.narcotic
 
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Python
-import domain.castle.SufficientFree
+import domain.narcotic.{AllSameRank, ToLeftOf}
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{PythonSemanticTypes, constraintCodeGenerators}
@@ -12,24 +12,37 @@ import pysolfc.shared.GameTemplate
 // domain
 import domain._
 
-
 /**
   * @param solitaire    Application domain object with details about solitaire variation.
   */
-class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with PythonSemanticTypes {
+class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with PythonSemanticTypes {
+
+  /**
+    * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
+   */
+  @combinator object narcoticID extends IdForGame(pygames.klondike);
+
+  @combinator object OutputFile {
+    def apply: String = "narcotic"
+    val semanticType:Type = game(pysol.fileName)
+  }
 
   object castleCodeGenerator {
     val generators = CodeGeneratorRegistry.merge[Python](
 
-      CodeGeneratorRegistry[Python, SufficientFree] {
-        case (registry:CodeGeneratorRegistry[Python], c:SufficientFree) => {
+      CodeGeneratorRegistry[Python, ToLeftOf] {
+        case (registry:CodeGeneratorRegistry[Python], c:ToLeftOf) => {
           val destination = registry(c.destination).get
           val src = registry(c.src).get
-          val column = registry(c.column).get
-          val tableau = registry(c.tableau).get
-          Python(s"""sufficientFree($column, $src, $destination, $tableau)""")
+          Python(s"""toLeftOf($destination, $src)""")
         }
       },
+
+      CodeGeneratorRegistry[Python, AllSameRank] {
+        case (registry:CodeGeneratorRegistry[Python], c:AllSameRank) => {
+          Python(s"""allSameRank()""")
+        }
+      }
 
     ).merge(constraintCodeGenerators.generators)
   }
@@ -44,7 +57,6 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     val semanticType: Type = constraints(constraints.generator)
   }
 
-
   /**
     * Specialized methods to help out in processing constraints. Specifically,
     * these are meant to be generic, things like getTableua, getReserve()
@@ -53,57 +65,34 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     def apply: Python = {
       val helpers:Seq[Python] = Seq(generateHelper.tableau(),
 
-      Python(s"""
-              |def sufficientFree (column, src, destination, tableau):
-              |    numEmpty = 0
-              |    for s in tableau:
-              |        if len(s.cards) == 0 and s != src and s != destination:
-              |            numEmpty = numEmpty + 1
-              |    return len(column) <= 1 + numEmpty
-              |""".stripMargin)
+        Python(s"""
+                  |def toLeftOf (destination, source):
+                  |    return False
+                  |
+                  |def allSameRank():
+                  |    return False
+                  |""".stripMargin)
       )
 
       Python(helpers.mkString("\n"))
     }
 
-     val semanticType: Type = constraints(constraints.methods)
+    val semanticType: Type = constraints(constraints.methods)
   }
-
-  /**
-    * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
-   */
-  @combinator object castleID extends IdForGame(pygames.castle);
-
-  @combinator object OutputFile {
-    def apply: String = "castle"
-    val semanticType:Type = game(pysol.fileName)
-  }
-
 
   @combinator object InitView {
     def apply(): Python = {
 
       val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
-      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
       val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
-      // start by constructing the DeckView
-      // If deck is invisible, then place invisibly
-      val dw:Python = if (stock.isInvisible) {
-        Python(s"""|
-                   |x, y = self.getInvisibleCoords()
-                   |s.talon = InitialDealTalonStack(x, y, self)
-                   |""".stripMargin)
-      } else {
-        layout_place_stock(stock)
-      }
+      val sw:Python = layout_place_stock(stock)
 
       // when placing a single element in Layout, use this API
-      val fd:Python = layout_place_foundation(found)
       val cs:Python = layout_place_tableau(tableau)
 
       // Need way to simply concatenate Python blocks
-      val comb = Python(dw.getCode.toString ++ cs.getCode.toString ++ fd.getCode.toString)
+      val comb = Python(sw.getCode.toString ++ cs.getCode.toString)
       comb
     }
 
