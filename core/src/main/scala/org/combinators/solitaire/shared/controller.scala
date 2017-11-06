@@ -202,9 +202,10 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
           // Only RowView objects create RowView movables; all others create ColumnView... This is
           // a bit of hack from framework.
-          val dragType:SimpleName = if (typeName == "RowView") {
+          print ("TypeNameL" + typeName)
+          val dragType:SimpleName = if (typeName == "Row") {
             Java("RowView").simpleName
-          } else {
+          } else /* if (typeName == "Column") */ {
             Java("ColumnView").simpleName
           }
           updated = updated

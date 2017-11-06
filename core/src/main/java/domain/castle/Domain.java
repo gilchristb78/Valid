@@ -90,11 +90,13 @@ public class Domain extends Solitaire {
 		RowMove MoreCardToTableau= new RowMove("MoveRow", tableau, descend, tableau, if7);
         rules.addDragMove(MoreCardToTableau);
 
+        IsSingle isSingle = new IsSingle(MoveComponents.MovingRow);
+
 		AndConstraint and = new AndConstraint(
 				new NextRank(new BottomCardOf(MoveComponents.MovingRow), new TopCardOf(MoveComponents.Destination)),
 				new SameSuit(new BottomCardOf(MoveComponents.MovingRow), new TopCardOf(MoveComponents.Destination)));
 
-		RowMove tableauToFoundation = new RowMove("BuildRow", tableau, new Truth(), found, and);
+		RowMove tableauToFoundation = new RowMove("BuildRow", tableau, isSingle, found, and);
 		rules.addDragMove(tableauToFoundation);
 
 		setRules(rules);
