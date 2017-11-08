@@ -64,7 +64,7 @@ trait SomeCombinators extends generic.JavaIdioms  {
   }
   /*****
   @combinator object Bad {
-    def apply() : Expression = {
+    def apply() : Exp = {
       Java (s"""\"string\"""").expression()
     }
 
