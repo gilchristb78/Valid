@@ -24,14 +24,15 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
   model.data.add(new Neg)
   model.data.add(new Sub)
 
-  // operations (other than Eval) which is assumed to always be there.
+  // operations to have (including Eval)
+  model.ops.add(new Eval)
   model.ops.add(new PrettyP)
-  lazy val repository = new ExpressionSynthesis(model)
+  model.ops.add(new SimplifyAdd)
+
+  lazy val repository = new ExpressionSynthesis(model) with Structure {}
   import repository._
 
-  // not needed yet since we do not have dynamic combinators
-  // kinding is just a field access.
-  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), model)
 
   /** This needs to be defined, and it is set from Gamma. */
   lazy val combinatorComponents = Gamma.combinatorComponents

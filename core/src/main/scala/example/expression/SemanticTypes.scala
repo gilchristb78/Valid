@@ -1,10 +1,12 @@
 package example.expression
 
+import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.SimpleName
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import expression.Exp
 import expression.Operation
+import expression.types.{FrameworkTypes, GenericType, TypeInformation, Types}
 
 
 /**
@@ -14,6 +16,30 @@ import expression.Operation
   * make them Constructor.
   */
 trait SemanticTypes {
+
+  /** Implementations for an operation. Map(op, Map(exp,MethodDecls)). */
+  var implementations:Map[Class[_ <: Operation],Map[Class[_ <: Exp],MethodDeclaration]] = Map()
+
+  /**
+    * Return desired map of expressions by operation.
+    *
+    * @param op
+    * @return
+    */
+  def getImplementation(op:Operation):Map[Class[_ <: Exp],MethodDeclaration] = implementations(op.getClass)
+
+  /** Convert a type into its Java String equivalent. */
+  def Type_toString (ty:TypeInformation): String =
+    ty match {
+      case Types.Exp=> "Exp"           // base class of everything
+
+      case Types.Void => "void"
+      case Types.Int => "Integer"      // allow boxing/unboxing for generics
+      case Types.String => "String"
+      case g:GenericType => Type_toString(g.base) + "<" + Type_toString(g.generic) + ">"
+      case FrameworkTypes.List => "java.util.List"
+      case _ => "None"
+    }
 
   def driver:Type = 'Driver
 
