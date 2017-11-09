@@ -22,10 +22,12 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
     val generators = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, AllSameSuit] {
-        case (registry: CodeGeneratorRegistry[Expression], c: AllSameSuit) => {
-          Java(s"""((org.combinators.solitaire.bigforty.BigForty)game).allSameSuit()""").expression()
+        case (registry:CodeGeneratorRegistry[Expression], c:AllSameSuit) => {
+          val column = registry(c.base).get
+          Java(s"""ConstraintHelper.allSameSuit($column)""").expression()
         }
-      }
+      },
+
     ).merge(constraintCodeGenerators.generators)
   }
 
@@ -53,8 +55,15 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
     val semanticType: Type = variationName
   }
 
-  @combinator object HelperMethodsBigForty {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
+  @combinator object HelperMethodsFreeCell {
+    def apply(): Seq[MethodDeclaration] = Seq (
+      generateHelper.fieldAccessHelper("tableau", "fieldColumns"),
+
+      Java(s"""
+              |public static boolean allSameSuit (Column column) {
+              |  return true;
+              |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head,
+    )
 
     val semanticType: Type = constraints(constraints.methods)
   }
@@ -72,7 +81,7 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
     def apply(): Seq[Statement] = {
       val deck = deckGenWithView("deck", "deckView", solitaire.containers.get(SolitaireContainerTypes.Stock))
 
-      val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldBuildablePiles", "fieldBuildablePileViews", "BuildablePile")
+      val colGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumns", "fieldColumnViews", "Column")
       val foundGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldPiles", "fieldPileViews", "Pile")
       val wastePileGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Waste), "fieldWastePiles", "fieldWastePileViews", "WastePile")
 
@@ -100,7 +109,7 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
       val ds = layout_place_one(stock, Java("deckView").name())
       val ws = layout_place_it_expr(waste, Java("fieldWastePileViews[0]").expression())
       val fd = layout_place_it(found, Java("fieldPileViews").name())
-      val cs = layout_place_it(tableau, Java("fieldBuildablePileViews").name())
+      val cs = layout_place_it(tableau, Java("fieldColumnViews").name())
 
       ds ++ ws ++ cs ++ fd
     }
@@ -112,15 +121,15 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
     def apply(NameOfGame: SimpleName): Seq[Statement] = {
 
       // this could be controlled from the UI model. That is, it would
-      // map GUI elements into fields in the classes.
-      val bpsetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldBuildablePileViews", "BuildablePileController")
+//      // map GUI elements into fields in the classes.
+      val colsetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldColumnViews", "ColumnController")
       val foundsetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Foundation), "fieldPileViews", "PileController")
       val wastesetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Waste), "fieldWastePileViews", "WastePileController")
-
-      // add controllers for the DeckView here...
+//
+//      // add controllers for the DeckView here...
       val decksetup = controllerGen("deckView", "DeckController")
-
-      bpsetup ++ decksetup ++ foundsetup ++ wastesetup
+//
+      colsetup ++ foundsetup ++ decksetup  ++ wastesetup
     }
 
     val semanticType: Type = variationName =>: game(game.control)
@@ -136,7 +145,7 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
               		    |for (int pileNum = 0; pileNum < 10; pileNum++) {
               			  |  for (int num = 0; num < 4; num++) {
               				|    Card c = deck.get();
-              			  |  fieldBuildablePiles[pileNum].add (deck.get());}
+              			  |  fieldColumns[pileNum].add (c);}
               		    |}""".stripMargin).statements()
     }
 
@@ -158,8 +167,12 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
 
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {Java(s"""
+              |public Dimension getPreferredSize() {
+              |  return new Dimension (940, 600);
+              |}
+              |
               |public boolean validColumn(Column column) {
-              |		return column.AllSameSuit() && column.descending();
+              |		return column.descending();
               |}
             """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
     }
@@ -175,14 +188,14 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
       val fields = Java(s"""|IntegerView scoreView;
                             |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
 
-      val fieldBuildablePiles = fieldGen("BuildablePile", solitaire.containers.get(SolitaireContainerTypes.Tableau).size)
+      val fieldColumns = fieldGen("Column", solitaire.containers.get(SolitaireContainerTypes.Tableau).size)
       val foundPiles = fieldGen("Pile", solitaire.containers.get(SolitaireContainerTypes.Foundation).size)
       val wastePiles = fieldGen("WastePile", solitaire.containers.get(SolitaireContainerTypes.Waste).size)
       val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
       val decks = deckFieldGen(stock)
 
-      decks ++ fields ++ fieldBuildablePiles ++ wastePiles ++ foundPiles
+      decks ++ fields ++ fieldColumns ++ wastePiles ++ foundPiles
     }
 
     val semanticType: Type = game(game.fields)

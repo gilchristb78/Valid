@@ -59,4 +59,4 @@ GET   /pynarcotic/pynarcotic.git/*file    pysolfc.narcotic.Narcotic.serveFile(fi
 GET   /bigforty                      org.combinators.solitaire.bigforty.BigForty.overview()
 GET   /bigforty/raw_:number          org.combinators.solitaire.bigforty.BigForty.raw(number: Long)
 GET   /bigforty/prepare              org.combinators.solitaire.bigforty.BigForty.prepare(number: Long)
-GET   /bigforty/narcotic.git/*file   org.combinators.solitaire.bigforty.BigForty.serveFile(file)
+GET   /bigforty/bigforty.git/*file   org.combinators.solitaire.bigforty.BigForty.serveFile(file)

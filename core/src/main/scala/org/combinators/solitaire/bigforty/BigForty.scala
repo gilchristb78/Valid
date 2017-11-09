@@ -16,7 +16,7 @@ import domain._
 class BigForty @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars){
   val s:Solitaire = new Domain()
 
-  /** Domain for Klondike defined herein. Controllers are defined in Controllers area. */
+  /** Domain for BigForty defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new gameDomain(s) with controllers {}
   import repository._
 
@@ -24,25 +24,26 @@ class BigForty @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
 
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
-    Gamma.InhabitationBatchJob[CompilationUnit](game(complete :&: game.solvable))
+    Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
       .addJob[CompilationUnit](constraints(complete))
+      .addJob[CompilationUnit]('WastePileClass)
+      .addJob[CompilationUnit]('WastePileViewClass)
       .addJob[CompilationUnit](controller(pile, complete))
       .addJob[CompilationUnit](controller(column, complete))
       .addJob[CompilationUnit](controller(deck, complete))
       .addJob[CompilationUnit](controller('WastePile, complete))
-      .addJob[CompilationUnit]('WastePileClass)
-      .addJob[CompilationUnit]('WastePileViewClass)
       .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
+      .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
       .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
       .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
       .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
       .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
-
-      // only need potential moves for those that are DRAGGING...
+//
+//      // only need potential moves for those that are DRAGGING...
       .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
-      .addJob[CompilationUnit](move('MoveCard :&: move.potentialMultipleMove, complete))
+      .addJob[CompilationUnit](move('MoveCard :&: move.potential, complete))
       .addJob[CompilationUnit](move('BuildFoundation :&: move.potentialMultipleMove, complete))
-      .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.potentialMultipleMove, complete))
+      .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.potential, complete))
 
   lazy val results:Results = Results.addAll(jobs.run())
 

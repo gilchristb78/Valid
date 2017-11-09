@@ -28,16 +28,16 @@ public class Domain extends Solitaire {
                 card_width, 13*card_height, card_gap);
 
         Tableau tableau = new Tableau(places);
-        tableau.add (new BuildablePile());
-        tableau.add (new BuildablePile());
-        tableau.add (new BuildablePile());
-        tableau.add (new BuildablePile());
-        tableau.add (new BuildablePile());
-        tableau.add (new BuildablePile());
-        tableau.add (new BuildablePile());
-        tableau.add (new BuildablePile());
-        tableau.add (new BuildablePile());
-        tableau.add (new BuildablePile());
+        tableau.add (new Column());
+        tableau.add (new Column());
+        tableau.add (new Column());
+        tableau.add (new Column());
+        tableau.add (new Column());
+        tableau.add (new Column());
+        tableau.add (new Column());
+        tableau.add (new Column());
+        tableau.add (new Column());
+        tableau.add (new Column());
 
         containers.put(SolitaireContainerTypes.Tableau, tableau);
 
@@ -78,7 +78,7 @@ public class Domain extends Solitaire {
         OrConstraint or = new OrConstraint(isEmpty, and);
 
         //constraint to the source
-        Descending descend = new Descending(MoveComponents.MovingRow);
+        Descending descend = new Descending(MoveComponents.MovingColumn);
         AndConstraint and_2= new AndConstraint(descend,new AllSameSuit(MoveComponents.MovingColumn));
 
         ColumnMove tableauToTableau = new ColumnMove("MoveColumn", tableau, and_2, tableau, or);
@@ -86,7 +86,7 @@ public class Domain extends Solitaire {
 
         //2. waste to tableau
         OrConstraint moveCard= new OrConstraint(isEmpty,new NextRank(new TopCardOf(MoveComponents.Destination),
-                new BottomCardOf(MoveComponents.MovingColumn)));
+                MoveComponents.MovingCard));
         SingleCardMove wasteToTableau = new SingleCardMove("MoveCard", waste, tableau, moveCard);
         rules.addDragMove(wasteToTableau);
 
