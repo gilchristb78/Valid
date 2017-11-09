@@ -4,11 +4,13 @@ import _root_.java.nio.file.Path
 import _root_.java.nio.file.Files
 import _root_.java.nio.file.FileAlreadyExistsException
 
-import scala.collection.JavaConverters._
-
+/** Type class for persistable objects. */
 trait Persistable {
+  /** The type of the object to persist */
   type T
+  /** Serialized String representation of the object */
   def rawText(elem: T): String
+  /** Path where to store the object `elem` (relative to some later specified root) */
   def path(elem: T): Path
 
   /**
@@ -41,6 +43,7 @@ trait Persistable {
   }
 }
 
+/** Helper to obtain a type class instance for persistable objects. */
 object Persistable {
   type Aux[TT] = Persistable { type T = TT }
 
