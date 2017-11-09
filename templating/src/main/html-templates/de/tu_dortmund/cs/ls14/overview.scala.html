@@ -61,19 +61,17 @@
 <h3>Solutions:</h3>
 @if(incomplete) {
 <div class="bg-warning">
-<h4>Results are incomplete because of targets:</h4>
+<h4>Results are incomplete because of requests:</h4>
 <pre>
-@for((ty, count) <- targets) {
-    @if(count.map(_ == 0).getOrElse(false)) { @{ty.toString + "\n"} } }
+  @Html(targets.collect { case (ty, Some(n)) if n == BigInt(0) => s"&Gamma; &vdash; ? : ${ty.toString}" }.mkString("\n"))
 </pre>
 </div>
 }
 @if(infinite) {
 <div class="bg-warning">
-    <h4>Infinite results, truncated to the smallest 100 Raw-Terms, offending targets:</h4>
+    <h4>Infinite results, truncated to the smallest 100 Raw-Terms, offending requests:</h4>
     <pre>
-    @for((ty, count) <- targets) {
-        @if(count.map(x => false).getOrElse(true)) { @{ty.toString + "\n"} } }
+        @Html(targets.collect { case (ty, None) => s"&Gamma; &vdash; ? : ${ty.toString}" }.mkString("\n"))
     </pre>
 </div>
 } else {

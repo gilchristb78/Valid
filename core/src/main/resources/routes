@@ -56,10 +56,10 @@ GET   /pynarcotic/raw_:number             pysolfc.narcotic.Narcotic.raw(number: 
 GET   /pynarcotic/prepare                 pysolfc.narcotic.Narcotic.prepare(number: Long)
 GET   /pynarcotic/pynarcotic.git/*file    pysolfc.narcotic.Narcotic.serveFile(file)
 
-GET   /expression                      example.expression.Expression.overview()
-GET   /expression/raw_:number          example.expression.Expression.raw(number: Long)
-GET   /expression/prepare              example.expression.Expression.prepare(number: Long)
-GET   /expression/expression.git/*file    example.expression.Expression.serveFile(file)
+GET   /bigforty                      org.combinators.solitaire.bigforty.BigForty.overview()
+GET   /bigforty/raw_:number          org.combinators.solitaire.bigforty.BigForty.raw(number: Long)
+GET   /bigforty/prepare              org.combinators.solitaire.bigforty.BigForty.prepare(number: Long)
+GET   /bigforty/bigforty.git/*file   org.combinators.solitaire.bigforty.BigForty.serveFile(file)
 
 GET   /ep                      example.expression.Expression_EP.overview()
 GET   /ep/raw_:number          example.expression.Expression_EP.raw(number: Long)

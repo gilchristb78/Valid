@@ -155,13 +155,14 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
       }
     }
 
-    // add press moves which are independent of drag
+    // add press moves which are independent of drag; keep track of native press by container type
     val press_rules_it = s.getRules.presses()
-    var haveNativePress = false
+    var haveNativePress:Map[Container,Boolean] = Map()
     while (press_rules_it.hasNext) {
       val inner_move = press_rules_it.next()
+      val srcContainer = inner_move.srcContainer
 
-      haveNativePress = true
+      haveNativePress += (srcContainer -> true)
     }
 
     // find all source constraints for all moves and package together into single OrConstraint. If any move
@@ -193,7 +194,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
           // if there are any lingering press events (i.e., not all drag) then we need to somehow
           // combine these two properly. Detect by inference.
-          val terminal = if (haveNativePress) {
+          val terminal = if (haveNativePress.contains(container) && haveNativePress(container)) {
             // up to domain-version controller's to combine together to make final press...
             controller(tpe, controller.dragStart)
           } else {
