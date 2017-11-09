@@ -41,8 +41,6 @@ class FreeCell @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   // inhabit the controllers, then inhabit all the moves, based upon the domain model.
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit](game(complete :&: game.solvable))
-
-
       .addJob[CompilationUnit](constraints(complete))
       .addJob[CompilationUnit](controller(column, complete))
       .addJob[CompilationUnit](controller('FreePile, complete))

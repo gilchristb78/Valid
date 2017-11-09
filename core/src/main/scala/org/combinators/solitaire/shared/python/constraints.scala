@@ -15,7 +15,7 @@ object constraintCodeGenerators  {
     CodeGeneratorRegistry[Python, MoveComponents] {
       case (registry:CodeGeneratorRegistry[Python], mc:MoveComponents) => {
 
-        // following is based on this common API from PySolFC
+        // following is based on this common API from PySolFC RowStack and FoundationStack
         // def acceptsCards(self, from_stack, cards):
         if (mc == MoveComponents.Source) {
           Python(s"""from_stack""")
