@@ -2,10 +2,13 @@ package example.expression
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.{ConstructorDeclaration, FieldDeclaration, MethodDeclaration}
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import expression.data.{Add, Eval, Lit}
+import expression.extensions.{Neg, PrettyP, Sub}
+import expression.operations.SimplifyAdd
 import expression.{Attribute, DomainModel, Exp, Operation}
 
 import scala.collection.JavaConverters._
@@ -16,7 +19,53 @@ trait Structure extends Base with SemanticTypes {
   override def init[G <: ExpressionDomain](gamma: ReflectedRepository[G], model: DomainModel): ReflectedRepository[G] = {
     var updated = super.init(gamma, model)
 
-      // Add relevant combinators to construct the sub-type classes, based on domain model.
+    // implementations of operations: have to be defined before combinators?
+    addImpl(new Eval, new Lit, Java(s"""return e.getValue();""").statements())
+    addImpl(new Eval, new Neg, Java(s"""return -e.getExp().accept(this);""").statements())
+    addImpl(new Eval, new Add, Java(s"""return e.getLeft().accept(this) + e.getRight().accept(this);""").statements())
+    addImpl(new Eval, new Sub, Java(s"""return e.getLeft().accept(this) - e.getRight().accept(this);""").statements())
+
+    addImpl(new PrettyP, new Lit, Java(s"""return "" + e.getValue();""").statements())
+    addImpl(new PrettyP, new Neg, Java(s"""return "-" + e.getExp().accept(this);""").statements())
+    addImpl(new PrettyP, new Add, Java(s"""return "(" + e.getLeft().accept(this) + "+" + e.getRight().accept(this) + ")";""").statements())
+    addImpl(new PrettyP, new Sub, Java(s"""return "(" + e.getLeft().accept(this) + "-" +  e.getRight().accept(this) + ")";""").statements())
+
+    addImpl(new SimplifyAdd, new Lit, Java(s"""return e;""").statements())   // nothing to simplify.
+    addImpl(new SimplifyAdd, new Neg, Java(
+      s"""
+         |if (e.getExp().accept(new Eval()) == 0) {
+         |  return new Lit(0);
+         |} else {
+         |  return e;
+         |}
+         """.stripMargin).statements())
+
+    addImpl(new SimplifyAdd, new Sub, Java(
+      s"""
+         |if (e.getLeft().accept(new Eval()) == e.getRight().accept(new Eval())) {
+         |  return new Lit(0);
+         |} else {
+         |  return new Sub(e.getLeft().accept(this), e.getRight().accept(this));
+         |}
+         |""".stripMargin).statements())
+
+    addImpl(new SimplifyAdd, new Add, Java(
+      s"""
+         |int leftVal = e.getLeft().accept(new Eval());
+         |int rightVal = e.getRight().accept(new Eval());
+         |if ((leftVal == 0 && rightVal == 0) || (leftVal + rightVal == 0)) {
+         |  return new Lit(0);
+         |} else if (leftVal == 0) {
+         |  return e.getRight().accept(this);
+         |} else if (rightVal == 0) {
+         |  return e.getLeft().accept(this);
+         |} else {
+         |  return new Add(e.getLeft().accept(this), e.getRight().accept(this));
+         |}
+         |""".stripMargin).statements())
+
+
+    // Add relevant combinators to construct the sub-type classes, based on domain model.
       model.data.asScala.foreach {
         sub:Exp => {
           updated = updated
@@ -145,7 +194,31 @@ trait Structure extends Base with SemanticTypes {
     val semanticType:Type = ops (ops.visitor,op)
   }
 
+  // sample Driver
+  @combinator object Driver {
+    def apply:CompilationUnit = Java(
+      s"""
+         |package expression;
+         |
+         |public class Driver {
+         |	public static void main(String[] args) {
+         |		Exp e = new Add(new Add(new Lit(3), new Lit(9)), new Sub(new Lit(13), new Lit(5)));
+         |
+         |    System.out.println(e.accept(new Eval()));
+         |    System.out.println(e.accept(new PrettyP()));
+         |
+         |    e = new Add(new Add(new Lit(3), new Add(new Lit(5), new Sub (new Lit(3), new Lit(8)))), new Lit(-3));
+         |    System.out.println(e.accept(new Eval()));
+         |    System.out.println(e.accept(new PrettyP()));
+         |
+         |    Exp f = e.accept(new SimplifyAdd());
+         |    System.out.println(f.accept(new Eval()));
+         |    System.out.println(f.accept(new PrettyP()));
+         |  }
+         |}""".stripMargin).compilationUnit()
 
+    val semanticType:Type = driver
+  }
 
 }
 

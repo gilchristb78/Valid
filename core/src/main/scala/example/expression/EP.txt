@@ -1,0 +1,154 @@
+Full synthesized code
+
+package interfaceversion;
+
+import java.util.ArrayList;
+import java.util.List;
+
+interface Exp { int eval(); }
+interface Lit extends Exp {
+    int x();
+    default int eval() { return x(); }
+}
+interface Add extends Exp {
+    Exp e1(); Exp e2();
+    default int eval() {
+        return e1().eval() + e2().eval();
+    }
+}
+
+interface Sub extends Exp {
+    Exp e1(); Exp e2();
+    default int eval() {
+        return e1().eval() - e2().eval();
+    }
+}
+
+interface ExpP extends Exp { String print(); }
+interface LitP extends Lit, ExpP {
+    default String print() {return "" + x();}
+}
+interface AddP extends Add, ExpP {
+    ExpP e1(); ExpP e2();
+    default String print() {
+        return "(" + e1().print() + " + " + e2().print() + ")";
+    }
+}
+
+interface ExpC extends Exp { List<Integer> collectLit(); }
+interface LitC extends Lit, ExpC {
+    default List<Integer> collectLit() {
+        List<Integer> list = new ArrayList<Integer>();
+        list.add(x());
+        return list;
+    }
+}
+interface AddC extends Add, ExpC {
+    ExpC e1(); ExpC e2();
+    default List<Integer> collectLit() {
+        List<Integer> list = new ArrayList<Integer>();
+        list.addAll(e1().collectLit());
+        list.addAll(e2().collectLit());
+        return list;
+    }
+}
+
+interface ExpPC extends ExpP, ExpC{}
+interface LitPC extends ExpPC, LitP, LitC{}
+interface AddPC extends ExpPC, AddP, AddC {
+    ExpPC e1(); ExpPC e2();
+}
+
+class LitFinal implements Lit {
+    int x;
+    public LitFinal(int x) { this.x = x; }
+    public int x() { return x; }
+}
+class AddFinal implements Add {
+    Exp e1, e2;
+    public Exp e1() { return e1; }
+    public Exp e2() { return e2; }
+    AddFinal(Exp e1, Exp e2) {
+        this.e1 = e1;
+        this.e2 = e2;
+    }
+}
+
+class SubFinal implements Sub {
+    Exp e1, e2;
+    public Exp e1() { return e1; }
+    public Exp e2() { return e2; }
+    SubFinal(Exp e1, Exp e2) {
+        this.e1 = e1;
+        this.e2 = e2;
+    }
+}
+class LitPFinal implements LitP {
+    int x;
+    public LitPFinal(int x) { this.x = x; }
+    public int x() { return x; }
+}
+class AddPFinal implements AddP {
+    ExpP e1, e2;
+    AddPFinal(ExpP e1, ExpP e2) {
+        this.e1 = e1;
+        this.e2 = e2;
+    }
+    public ExpP e1() { return e1; }
+    public ExpP e2() { return e2; }
+}
+class LitCFinal implements LitC {
+    int x;
+    public LitCFinal(int x) { this.x = x; }
+    public int x() { return x; }
+}
+class AddCFinal implements AddC {
+    ExpC e1, e2;
+    AddCFinal(ExpC e1, ExpC e2) {
+        this.e1 = e1;
+        this.e2 = e2;
+    }
+    public ExpC e1() { return e1; }
+    public ExpC e2() { return e2; }
+}
+class LitPCFinal implements LitPC {
+    int x;
+    public LitPCFinal(int x) { this.x = x; }
+    public int x() { return x; }
+}
+class AddPCFinal implements AddPC {
+    ExpPC e1, e2;
+    AddPCFinal(ExpPC e1, ExpPC e2) {
+        this.e1 = e1;
+        this.e2 = e2;
+    }
+    public ExpPC e1() { return e1; }
+    public ExpPC e2() { return e2; }
+}
+
+public class InterfaceVersion {
+    public static void main(String args[]) {
+        System.out.println("======Add======");
+        Add add = new AddFinal(new LitFinal(7), new LitFinal(4));
+        System.out.println(add.eval());
+
+        System.out.println("======Sub======");
+        Sub sub = new SubFinal(new LitFinal(7), new LitFinal(4));
+        System.out.println(sub.eval());
+
+        System.out.println("======Print======");
+        /* the line below causes compile-time error, if now commented out. */
+        // AddPFinal exp = new AddPFinal(new Lit(7)), new Lit(4));
+        AddPFinal prt = new AddPFinal(new LitPFinal(7), new LitPFinal(4));
+        System.out.println(prt.print() + " = " + prt.eval());
+
+        System.out.println("======CollectLiterals======");
+        AddCFinal addc = new AddCFinal(new LitCFinal(3), new LitCFinal(4));
+        System.out.println(addc.collectLit().toString());
+
+        System.out.println("======Composition: Independent Extensibility======");
+        AddPCFinal addpc = new AddPCFinal(new LitPCFinal(3), new LitPCFinal(4));
+        System.out.println(addpc.print() + " = " + addpc.eval() + " Literals: " + addpc.collectLit().toString());
+    }
+
+}

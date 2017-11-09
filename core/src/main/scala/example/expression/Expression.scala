@@ -47,6 +47,7 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
       .addJob[CompilationUnit](exp(exp.visitor, new Neg))
       .addJob[CompilationUnit](ops(ops.visitor, new PrettyP))
       .addJob[CompilationUnit](ops(ops.visitor, new SimplifyAdd))
+
       .addJob[CompilationUnit](driver)
 
 //

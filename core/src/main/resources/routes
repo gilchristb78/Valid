@@ -60,3 +60,8 @@ GET   /expression                      example.expression.Expression.overview()
 GET   /expression/raw_:number          example.expression.Expression.raw(number: Long)
 GET   /expression/prepare              example.expression.Expression.prepare(number: Long)
 GET   /expression/expression.git/*file    example.expression.Expression.serveFile(file)
+
+GET   /ep                      example.expression.Expression_EP.overview()
+GET   /ep/raw_:number          example.expression.Expression_EP.raw(number: Long)
+GET   /ep/prepare              example.expression.Expression_EP.prepare(number: Long)
+GET   /ep/ep.git/*file         example.expression.Expression_EP.serveFile(file)
