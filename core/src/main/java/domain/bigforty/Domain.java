@@ -24,7 +24,7 @@ public class Domain extends Solitaire {
 
     public Domain() {
         super ("bigForty");
-        PlacementGenerator places = new HorizontalPlacement(new Point(40, 200),
+        PlacementGenerator places = new HorizontalPlacement(new Point(15, 200),
                 card_width, 13*card_height, card_gap);
 
         Tableau tableau = new Tableau(places);
