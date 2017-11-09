@@ -55,3 +55,8 @@ GET   /pynarcotic                         pysolfc.narcotic.Narcotic.overview()
 GET   /pynarcotic/raw_:number             pysolfc.narcotic.Narcotic.raw(number: Long)
 GET   /pynarcotic/prepare                 pysolfc.narcotic.Narcotic.prepare(number: Long)
 GET   /pynarcotic/pynarcotic.git/*file    pysolfc.narcotic.Narcotic.serveFile(file)
+
+GET   /bigforty                      org.combinators.solitaire.bigforty.BigForty.overview()
+GET   /bigforty/raw_:number          org.combinators.solitaire.bigforty.BigForty.raw(number: Long)
+GET   /bigforty/prepare              org.combinators.solitaire.bigforty.BigForty.prepare(number: Long)
+GET   /bigforty/narcotic.git/*file   org.combinators.solitaire.bigforty.BigForty.serveFile(file)
