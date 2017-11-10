@@ -1,7 +1,6 @@
 package domain.moves;
 
 import domain.*;
-import java.util.*;
 
 /**
  * Calls for the removal of a number of cards, all from different elements from within the container.

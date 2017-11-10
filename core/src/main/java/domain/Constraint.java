@@ -1,9 +1,6 @@
 package domain;
 
-import java.util.*;
-
 import domain.code.CodeGenFacility;
-import domain.constraints.*;
 
 /**
  * Records logic for allowed.

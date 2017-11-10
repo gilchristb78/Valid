@@ -1,11 +1,6 @@
 package domain.stalactites;
 
 import domain.*;
-import domain.constraints.*;
-import domain.freeCell.FreePile;
-import domain.freeCell.HomePile;
-import domain.moves.ColumnMove;
-import domain.moves.SingleCardMove;
 import domain.ui.HorizontalPlacement;
 import domain.ui.PlacementGenerator;
 import org.combinators.solitaire.stalactites.StalactitesContainerTypes;

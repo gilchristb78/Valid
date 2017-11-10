@@ -31,8 +31,6 @@ class Expression_EP @Inject()(webJars: WebJarsUtil) extends InhabitationControll
   //model.ops.add(new SimplifyAdd)
   model.ops.add(new Collect)
 
-  class AddPrettyPrint
-
   lazy val repository = new ExpressionSynthesis(model) with EP {}
   import repository._
 
@@ -42,27 +40,59 @@ class Expression_EP @Inject()(webJars: WebJarsUtil) extends InhabitationControll
   lazy val combinatorComponents = Gamma.combinatorComponents
 
   var jobs = Gamma.InhabitationBatchJob[CompilationUnit](ep(ep.interface, new Exp))
-        .addJob[CompilationUnit](driver)
-        .addJob[CompilationUnit](ep(ep.finalType, new Lit))
-        .addJob[CompilationUnit](ep(ep.finalType, new Add))
-        .addJob[CompilationUnit](ep(ep.finalType, new Sub))
-        .addJob[CompilationUnit](ep(ep.finalType, new Neg))
+    // type interfaces (note: Exp is assumed above)
+    .addJob[CompilationUnit](ep(ep.interface, new PrettyP))
+    .addJob[CompilationUnit](ep(ep.interface, new Collect))
 
-        .addJob[CompilationUnit](ep(ep.defaultMethods, new Lit, new Eval))
-        .addJob[CompilationUnit](ep(ep.defaultMethods, new Add, new Eval))
-        .addJob[CompilationUnit](ep(ep.defaultMethods, new Sub, new Eval))
-        .addJob[CompilationUnit](ep(ep.defaultMethods, new Neg, new Eval))
-        .addJob[CompilationUnit](ep(ep.interface, new PrettyP))
-        .addJob[CompilationUnit](ep(ep.interface, new Collect))
-        //.addJob[CompilationUnit](ep(ep.interface, new SimplifyAdd))
-        .addJob[CompilationUnit](ep(ep.interface, new Lit, new PrettyP))
-        .addJob[CompilationUnit](ep(ep.interface, new Add, new PrettyP))
-        .addJob[CompilationUnit](ep(ep.interface, new Sub, new PrettyP))
-        .addJob[CompilationUnit](ep(ep.interface, new Lit, new Collect))
-        .addJob[CompilationUnit](ep(ep.interface, new Add, new Collect))
-        .addJob[CompilationUnit](ep(ep.interface, new Sub, new Collect))
+    .addJob[CompilationUnit](driver)
+    .addJob[CompilationUnit](ep(ep.finalType, new Lit))
+    .addJob[CompilationUnit](ep(ep.finalType, new Add))
+    .addJob[CompilationUnit](ep(ep.finalType, new Sub))
+    .addJob[CompilationUnit](ep(ep.finalType, new Neg))
 
-//
+    // default
+    .addJob[CompilationUnit](ep(ep.defaultMethods, new Lit, new Eval))
+    .addJob[CompilationUnit](ep(ep.defaultMethods, new Add, new Eval))
+    .addJob[CompilationUnit](ep(ep.defaultMethods, new Sub, new Eval))
+    .addJob[CompilationUnit](ep(ep.defaultMethods, new Neg, new Eval))
+
+    //.addJob[CompilationUnit](ep(ep.interface, new SimplifyAdd))
+    .addJob[CompilationUnit](ep(ep.interface, new Lit, new PrettyP))
+    .addJob[CompilationUnit](ep(ep.interface, new Add, new PrettyP))
+    .addJob[CompilationUnit](ep(ep.interface, new Sub, new PrettyP))
+    .addJob[CompilationUnit](ep(ep.interface, new Neg, new PrettyP))
+
+    .addJob[CompilationUnit](ep(ep.interface, new Lit, new Collect))
+    .addJob[CompilationUnit](ep(ep.interface, new Add, new Collect))
+    .addJob[CompilationUnit](ep(ep.interface, new Sub, new Collect))
+    .addJob[CompilationUnit](ep(ep.interface, new Neg, new Collect))
+
+    .addJob[CompilationUnit](ep(ep.interface, new Lit, List(new PrettyP, new Collect)))
+    .addJob[CompilationUnit](ep(ep.interface, new Add, List(new PrettyP, new Collect)))
+    .addJob[CompilationUnit](ep(ep.interface, new Sub, List(new PrettyP, new Collect)))
+    .addJob[CompilationUnit](ep(ep.interface, new Neg, List(new PrettyP, new Collect)))
+
+    .addJob[CompilationUnit](ep(ep.interface, List(new PrettyP, new Collect)))
+
+    .addJob[CompilationUnit](ep(ep.finalType, new Lit, List(new PrettyP)))
+    .addJob[CompilationUnit](ep(ep.finalType, new Add, List(new PrettyP)))
+    .addJob[CompilationUnit](ep(ep.finalType, new Sub, List(new PrettyP)))
+    .addJob[CompilationUnit](ep(ep.finalType, new Neg, List(new PrettyP)))
+
+
+    .addJob[CompilationUnit](ep(ep.finalType, new Lit, List(new Collect)))
+    .addJob[CompilationUnit](ep(ep.finalType, new Add, List(new Collect)))
+    .addJob[CompilationUnit](ep(ep.finalType, new Sub, List(new Collect)))
+    .addJob[CompilationUnit](ep(ep.finalType, new Neg, List(new Collect)))
+
+    .addJob[CompilationUnit](ep(ep.finalType, new Lit, List(new PrettyP, new Collect)))
+    .addJob[CompilationUnit](ep(ep.finalType, new Add, List(new PrettyP, new Collect)))
+    .addJob[CompilationUnit](ep(ep.finalType, new Sub, List(new PrettyP, new Collect)))
+    .addJob[CompilationUnit](ep(ep.finalType, new Neg, List(new PrettyP, new Collect)))
+
+
+
+  //
 //  // wish I could do something like this, but I need help...
 //  model.data.asScala.foreach {
 //    sub:Exp => jobs.addJob[CompilationUnit](exp(exp.visitor, sub))

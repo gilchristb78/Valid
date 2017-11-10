@@ -1,6 +1,5 @@
 package domain.ui;
 
-import domain.Container;
 import domain.Solitaire;
 import domain.Widget;
 

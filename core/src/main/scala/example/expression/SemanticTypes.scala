@@ -72,7 +72,7 @@ trait SemanticTypes {
       case _ => "None"
     }
 
-  def driver:Type = 'Driver
+  val driver:Type = 'Driver
 
   // meta-concerns. When you have completed the definition of a constructor
   object generated {
@@ -116,6 +116,13 @@ trait SemanticTypes {
     def apply (phase:Type, exp:Exp, op:Operation) : Constructor = {
       val crossP = exp.getClass.getSimpleName + op.getClass.getSimpleName
       'Op(phase, Constructor(crossP))
+    }
+    def apply (phase:Type, exp:Exp, ops:List[Operation]) : Constructor = {
+      val crossP = exp.getClass.getSimpleName + ops.map(_.getClass.getSimpleName).mkString("")
+      'Op(phase, Constructor(crossP))
+    }
+    def apply (phase:Type, ops:List[Operation]) : Constructor = {
+      'Op(phase, Constructor(ops.map(_.getClass.getSimpleName).mkString("")))
     }
 
     val interface:Type       = 'Interface

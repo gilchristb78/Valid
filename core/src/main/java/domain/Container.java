@@ -1,5 +1,8 @@
 package domain;
 
+import domain.ui.*;
+import java.util.*;
+
 /**
  * Holds a number of distinct elements. Often is used to arrange
  * elements in specific rigid format in layout.
@@ -10,13 +13,10 @@ package domain;
  * to iterate over all unique types within a container, so theoretically one can place multiple
  * typed objects in the same container.
  */
-import domain.ui.*;
-import java.util.*;
-
 public class Container implements Iterable<Element> {
 
 	/** Use what is available. */
-	ArrayList<Element> elements = new ArrayList<Element>();
+	ArrayList<Element> elements = new ArrayList<>();
 
 	/** Iterator for placing widgets in container. */
 	final PlacementGenerator places;
@@ -45,7 +45,8 @@ public class Container implements Iterable<Element> {
 
     /**
      * Retrieve Iterator of Widgets reflecting the elements in the container.
-     * @return
+	 *
+     * @return    Widget objects, each with their boundaries and index into the container.
      */
 	public Iterator<Widget> placements() {
 		places.reset(size());
@@ -113,6 +114,6 @@ public class Container implements Iterable<Element> {
 	 */
 	@Override
 	public Iterator<Element> iterator() {
-		return elements.iterator();
+        return elements.iterator();
 	}
 }

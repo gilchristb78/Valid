@@ -19,4 +19,9 @@ public class DomainModel {
         super();
     }
 
+    public DomainModel(List<Exp> data, List<Operation> ops) {
+        this.data.addAll(data);
+        this.ops.addAll(ops);
+    }
+
 }

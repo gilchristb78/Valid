@@ -7,9 +7,9 @@ import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import expression.data.{Add, Eval, Lit}
-import expression.extensions.{Neg, PrettyP, Sub}
+import expression.extensions.{Collect, Neg, PrettyP, Sub}
 import expression.operations.SimplifyAdd
-import expression.{Attribute, DomainModel, Exp, Operation}
+import expression._
 
 import scala.collection.JavaConverters._
 
@@ -19,16 +19,50 @@ trait Structure extends Base with SemanticTypes {
   override def init[G <: ExpressionDomain](gamma: ReflectedRepository[G], model: DomainModel): ReflectedRepository[G] = {
     var updated = super.init(gamma, model)
 
-    // implementations of operations: have to be defined before combinators?
-    addImpl(new Eval, new Lit, Java(s"""return e.getValue();""").statements())
-    addImpl(new Eval, new Neg, Java(s"""return -e.getExp().accept(this);""").statements())
-    addImpl(new Eval, new Add, Java(s"""return e.getLeft().accept(this) + e.getRight().accept(this);""").statements())
-    addImpl(new Eval, new Sub, Java(s"""return e.getLeft().accept(this) - e.getRight().accept(this);""").statements())
+    def registerImpl (op:Operation, map:Map[Exp,String]): Unit = {
+      map.keys.foreach {
+        key =>
+          addImpl(op, key, Java(map(key)).statements())
+      }
+    }
 
-    addImpl(new PrettyP, new Lit, Java(s"""return "" + e.getValue();""").statements())
-    addImpl(new PrettyP, new Neg, Java(s"""return "-" + e.getExp().accept(this);""").statements())
-    addImpl(new PrettyP, new Add, Java(s"""return "(" + e.getLeft().accept(this) + "+" + e.getRight().accept(this) + ")";""").statements())
-    addImpl(new PrettyP, new Sub, Java(s"""return "(" + e.getLeft().accept(this) + "-" +  e.getRight().accept(this) + ")";""").statements())
+    // implementations of operations: have to be defined before combinators?
+    registerImpl(new Eval, Map(
+      new Lit -> "return e.getValue();",
+      new Add -> "return e.getLeft().accept(this) + e.getRight().accept(this);",
+      new Sub -> "return e.getLeft().accept(this) - e.getRight().accept(this);",
+      new Neg -> "return -e.getExp().accept(this);"
+    ))
+
+    registerImpl(new PrettyP, Map(
+      new Lit -> """return "" + e.getValue();""",
+      new Add -> """return "(" + e.getLeft().accept(this) + "+" + e.getRight().accept(this) + ")";""",
+      new Sub -> """return "(" + e.getLeft().accept(this) + "-" + e.getRight().accept(this) + ")";""",
+      new Neg -> """return "-" + e.getExp().accept(this);"""
+    ))
+
+    val combined:String =
+      """
+        |java.util.List<Integer> list = new java.util.ArrayList<Integer>();
+        |list.addAll(e.getLeft().accept(this));
+        |list.addAll(e.getRight().accept(this));
+        |return list;
+      """.stripMargin
+
+    registerImpl(new Collect, Map(
+      new Lit -> """
+                  |java.util.List<Integer> list = new java.util.ArrayList<Integer>();
+                  |list.add(e.getValue());
+                  |return list;
+                  """.stripMargin,
+      new Add -> combined,
+      new Sub -> combined,
+      new Neg -> """
+                   |java.util.List<Integer> list = new java.util.ArrayList<Integer>();
+                   |list.addAll(e.getExp().accept(this));
+                   |return list;
+                 """.stripMargin
+    ))
 
     addImpl(new SimplifyAdd, new Lit, Java(s"""return e;""").statements())   // nothing to simplify.
     addImpl(new SimplifyAdd, new Neg, Java(
@@ -81,13 +115,6 @@ trait Structure extends Base with SemanticTypes {
       }
     }
 
-//
-//    // Desired operations
-//    @combinator object EvalOp extends OpImpl(new Eval)
-//    @combinator object PrettypOp extends OpImpl(new PrettyP)
-//    @combinator object SimplifyAdd extends OpImpl(new SimplifyAdd)
-//
-
     updated
   }
 
@@ -107,7 +134,7 @@ trait Structure extends Base with SemanticTypes {
   /**
     * Construct class to represent subclass of Exp.
     *
-    * @param sub
+    * @param sub    sub-type of Exp (i.e., Lit) for whom implementation class is synthesized.
     */
   class ImplClass(sub:Exp) {
     def apply(unit:CompilationUnit): CompilationUnit = {
@@ -117,7 +144,7 @@ trait Structure extends Base with SemanticTypes {
       var cons:Seq[String] = Seq.empty
 
       sub.ops.asScala.foreach {
-        case att: Attribute => {
+        case att: Attribute =>
           val capAtt = att.attName.capitalize
           val tpe = Type_toString(att.attType)
           val fields:Seq[FieldDeclaration] = Java(s"""
@@ -131,13 +158,13 @@ trait Structure extends Base with SemanticTypes {
 
           // make the set/get methods
           val methods:Seq[MethodDeclaration] = Java(s"""
-                                                       |public $tpe get$capAtt() { return ${att.attName};}
-                                                       |public void set$capAtt($tpe val) { this.${att.attName} = val; }
-                    """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+                                           |public $tpe get$capAtt() { return ${att.attName};}
+                                           |public void set$capAtt($tpe val) { this.${att.attName} = val; }
+                                          """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
 
           methods.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
-        }
-        case _ => {}
+
+        case _ =>
       }
 
       // make constructor
@@ -203,17 +230,13 @@ trait Structure extends Base with SemanticTypes {
          |public class Driver {
          |	public static void main(String[] args) {
          |		Exp e = new Add(new Add(new Lit(3), new Lit(9)), new Sub(new Lit(13), new Lit(5)));
-         |
          |    System.out.println(e.accept(new Eval()));
          |    System.out.println(e.accept(new PrettyP()));
-         |
-         |    e = new Add(new Add(new Lit(3), new Add(new Lit(5), new Sub (new Lit(3), new Lit(8)))), new Lit(-3));
-         |    System.out.println(e.accept(new Eval()));
+         |    e = new Add(new Add(new Lit(3), new Add(new Lit(5), new Sub(new Lit(3), new Lit(8)))), new Lit(-3));
          |    System.out.println(e.accept(new PrettyP()));
-         |
-         |    Exp f = e.accept(new SimplifyAdd());
-         |    System.out.println(f.accept(new Eval()));
-         |    System.out.println(f.accept(new PrettyP()));
+         |    System.out.println(e.accept(new Eval()));
+         |    java.util.List<Integer> lits = e.accept(new Collect());
+         |    System.out.println(lits);
          |  }
          |}""".stripMargin).compilationUnit()
 

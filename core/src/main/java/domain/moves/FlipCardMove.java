@@ -2,9 +2,6 @@ package domain.moves;
 
 import domain.*;
 
-import java.util.Iterator;
-import java.util.Optional;
-
 /**
  * Flip a single card which had been face down.
  */

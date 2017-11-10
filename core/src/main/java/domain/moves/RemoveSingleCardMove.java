@@ -2,9 +2,6 @@ package domain.moves;
 
 import domain.*;
 
-import java.util.Iterator;
-import java.util.Optional;
-
 /**
  * Calls for the removal of a single card, from a single model element.
  *

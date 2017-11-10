@@ -1,7 +1,6 @@
 package domain.moves;
 
 import domain.*;
-import java.util.*;
 
 /**
  * Deck is reconstituted from the target elements.

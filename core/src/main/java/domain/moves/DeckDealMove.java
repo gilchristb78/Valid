@@ -1,7 +1,6 @@
 package domain.moves;
 
 import domain.*;
-import java.util.*;
 
 /**
  * A number of cards are dealt from the Stock one at a time

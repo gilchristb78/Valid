@@ -1,7 +1,6 @@
 package domain.klondike;
 
 import domain.*;
-import domain.Container;
 import domain.constraints.*;
 import domain.constraints.movetypes.BottomCardOf;
 import domain.constraints.movetypes.MoveComponents;

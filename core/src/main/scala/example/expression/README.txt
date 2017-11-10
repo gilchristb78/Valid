@@ -38,3 +38,40 @@ println (ae.print + " = " + ae.eval)
 Synthesis target: give an Expression that supports X,Y,Z
 
 Add needs two expressions
+
+Produced code:
+
+
+------------------------
+package expression;
+public class PrettyP extends Visitor<String> {
+  public String visit(Lit e) { return "" + e.value(); }
+  public String visit(Add e) { return "(" +
+    e.left().accept(this) + "+" + e.right().accept(this) + ")";
+  }
+  public String visit(Sub e) { return "(" +
+    e.left().accept(this) + "-" + e.right().accept(this) + ")";
+  }
+}
+
+------------------------
+
+package ep;
+interface LitPrettyP extends Lit, PrettyP {
+  default String print() { return "" + value(); }
+}
+interface AddPrettyP extends Add, PrettyP {
+  PrettyP left();
+  PrettyP right();
+  default String print() { return "(" +
+    left().print() + " + " + right().print() + ")";
+  }
+}
+interface SubPrettyP extends Sub, PrettyP {
+  PrettyP left();
+  PrettyP right();
+
+  default String print() { return "(" +
+    left().print() + " - " + right().print() + ")";
+  }
+}

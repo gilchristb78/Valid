@@ -12,9 +12,9 @@ import java.util.*;
 public class Rules {
 
     /** Eligible moves. */
-    List<Move> dragMoves  = new ArrayList<Move>();
-    List<Move> pressMoves = new ArrayList<Move>();
-    List<Move> clickMoves = new ArrayList<Move>();
+    List<Move> dragMoves  = new ArrayList<>();
+    List<Move> pressMoves = new ArrayList<>();
+    List<Move> clickMoves = new ArrayList<>();
 
     /** Add designated move to specific action type. */
     public void addDragMove(Move m)  { dragMoves.add(m); }

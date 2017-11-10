@@ -4,7 +4,6 @@ import domain.constraints.*;
 import domain.constraints.movetypes.*;
 import domain.deal.*;
 import domain.moves.*;
-import domain.ui.CalculatedPlacement;
 import domain.ui.HorizontalPlacement;
 import domain.ui.PlacementGenerator;
 

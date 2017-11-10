@@ -42,7 +42,7 @@ public class UserInterface {
      */
     public Iterator<String> controllers() {
         System.out.println (">> compute controllers");
-        ArrayList<String> elements = new ArrayList<String>();
+        ArrayList<String> elements = new ArrayList<>();
 
         /** Get each of the containers registered for the solitaire game. */
         for (Container c : solitaire.containers.values()) {

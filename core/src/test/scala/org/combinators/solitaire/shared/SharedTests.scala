@@ -24,7 +24,7 @@ class SharedTests extends FunSpec {
     describe("when validating Move elements") {
       val inhabitants = augmentedResult.inhabit[SimpleName]('Move('SomeSymbol, 'ClassName)).interpretedTerms
       it("should find ClassName") {
-        assert(!inhabitants.values.isEmpty)
+        assert(inhabitants.values.nonEmpty)
         assert(inhabitants.index(0).getIdentifier == "RealName")
       }
     }

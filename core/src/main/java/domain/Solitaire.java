@@ -4,7 +4,6 @@ import java.awt.*;
 import java.util.*;
 
 import domain.deal.Deal;
-import domain.ui.*;
 
 /**
 
@@ -49,7 +48,7 @@ public abstract class Solitaire {
     }
 
     /** User-defined containers can be specified as needed in this map. */
-    public final Map <ContainerType, Container> containers = new Hashtable<ContainerType, Container>();
+    public final Map <ContainerType, Container> containers = new Hashtable<>();
 
     /** Get the name for a given container type. */
     public Container getByName (String name) {
