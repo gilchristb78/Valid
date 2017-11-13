@@ -22,7 +22,7 @@ class Temperature @Inject()(webJars: WebJarsUtil) extends InhabitationController
   import repository._
   lazy val Gamma = ReflectedRepository(repository, kinding=kinding)
   lazy val combinatorComponents = Gamma.combinatorComponents
-  lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](artifact(artifact.converter) :&: precision(precision.floating))
+  lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](artifact(artifact.api) :&: precision(precision.floating))
   lazy val results = Results.addAll(jobs.run())
 
 }
@@ -34,19 +34,15 @@ object Manual {
     import repository._
     lazy val Gamma = ReflectedRepository(repository, kinding = kinding)
 
-    println("Expressions that return fahrenheit")
-    Gamma.inhabit[Expression](artifact(artifact.compute) :&: precision.floating :&: scale.fahrenheit)
+    println("Expressions that return Fahrenheit")
+    Gamma.inhabit[Expression](artifact(artifact.compute) :&: precision(precision.floating) :&: scale(scale.fahrenheit))
       .interpretedTerms.values.flatMap(_._2)
       .foreach(exp => println(exp))
 
 
-    println("Expressions that return arbitrary temperatures")
+    println("Expressions that return arbitrary temperatures in floating point")
 
-    Gamma.inhabit[Expression](artifact(artifact.compute) :&: precision.floating)
-      .interpretedTerms.values.flatMap(_._2).foreach(exp => println(exp))
-
-    println("Artifacts that return arbitrary temperatures")
-    Gamma.inhabit[Expression](artifact(artifact.converter))
+    Gamma.inhabit[Expression](artifact(artifact.compute) :&: precision(precision.floating))
       .interpretedTerms.values.flatMap(_._2).foreach(exp => println(exp))
 
     println("Artifacts that return arbitrary precisions")

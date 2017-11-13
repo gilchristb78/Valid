@@ -330,12 +330,16 @@ trait EP extends Base with SemanticTypes {
       val tpe = Type_toString(fm.returnType)
       val name = fm.name
 
-      val fields = Java(s"""
-                         |/* default */ $tpe $name() {
+      // methods are marked as default later
+      val methods = Java(s"""
+                         |$tpe $name() {
                          |    ${stmts.mkString("\n")}
                          |}""".stripMargin).methodDeclarations()
 
-      fields.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
+      // these are default methods
+      methods.foreach { m =>
+        m.setDefault(true)
+        unit.getTypes.get(0).getMembers.add(m) }
       unit
     }
 
@@ -371,9 +375,10 @@ trait EP extends Base with SemanticTypes {
 
       val tpe = Type_toString(op.`type`)
 
+      // methods are marked as default later
       val methods:Seq[MethodDeclaration] = Java(
         s"""
-           |/* default */ $tpe ${op.name}() {
+           |$tpe ${op.name}() {
            |   ${stmts.mkString("\n")}
            |}
          """.stripMargin).methodDeclarations()
@@ -393,8 +398,10 @@ trait EP extends Base with SemanticTypes {
         case _:FunctionMethod =>
       }
 
-
-      methods.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
+      // these are default methods
+      methods.foreach { m =>
+        m.setDefault(true)
+        unit.getTypes.get(0).getMembers.add(m) }
 
       unit
     }
@@ -414,18 +421,16 @@ trait EP extends Base with SemanticTypes {
       val combined:String = ops.map(_.getClass.getSimpleName).mkString("")
       val commas:String = ops.map(name + _.getClass.getSimpleName).mkString(",")
 
-      val unit:CompilationUnit = Java(s"""
-                                         |package ep;
-                                         |interface $name$combined extends $combined,$commas { }
-                                         |""".stripMargin).compilationUnit()
+      val unit:CompilationUnit = Java(s"""|package ep;
+                                          |interface $name$combined extends $combined,$commas { }
+                                          |""".stripMargin).compilationUnit()
 
       // grab any Exp operations and be sure they appear as $combined
       exp.ops.asScala.foreach {
          case att: Attribute =>
               // only redefine if originally the Exp field.
               if (att.attType == Types.Exp) {
-                val fields: Seq[MethodDeclaration] = Java(s"""$combined ${att.attName}();""")
-                  .classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+                val fields: Seq[MethodDeclaration] = Java(s"""$combined ${att.attName}();""").methodDeclarations()
 
                 fields.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
               }
@@ -451,8 +456,7 @@ trait EP extends Base with SemanticTypes {
 
      val tpe = Type_toString(op.`type`)
 
-       val methods:Seq[MethodDeclaration] = Java(s"""$tpe ${op.name}();""")
-         .classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+       val methods:Seq[MethodDeclaration] = Java(s"""$tpe ${op.name}();""").methodDeclarations()
 
        methods.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 
@@ -496,8 +500,7 @@ trait EP extends Base with SemanticTypes {
         case func:FunctionMethod =>
           val tpe = Type_toString(func.returnType)
 
-          val methods:Seq[MethodDeclaration] = Java(s"""$tpe ${func.name}();""")
-            .classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+          val methods:Seq[MethodDeclaration] = Java(s"""$tpe ${func.name}();""").methodDeclarations()
 
           methods.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 
