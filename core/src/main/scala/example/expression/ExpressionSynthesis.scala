@@ -33,7 +33,6 @@ class ExpressionSynthesis(override val domain:DomainModel) extends ExpressionDom
     val semanticType:Type = generated(generated.visitor)
   }
 
-
   /** Generate from domain. USER NEEDS TO SPECIFY THESE EITHER AUTOMATICALLY OR MANUALLY */
   @combinator object BaseExpClass {
     def apply() : CompilationUnit =
@@ -47,5 +46,4 @@ class ExpressionSynthesis(override val domain:DomainModel) extends ExpressionDom
 
     val semanticType:Type = exp(exp.base, new Exp)
   }
-
 }

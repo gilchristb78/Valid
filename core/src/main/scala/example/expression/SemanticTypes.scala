@@ -134,8 +134,6 @@ trait SemanticTypes {
   object architecture {
     def apply (one:Exp, two:Exp)           : Constructor = 'Arch(Constructor(one.getClass.getSimpleName), Constructor(two.getClass.getSimpleName))
     def apply (head:Exp, tail:Constructor) : Constructor = 'Arch(Constructor(head.getClass.getSimpleName), tail)
-
-
   }
 
 }

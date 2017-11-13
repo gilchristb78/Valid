@@ -27,6 +27,7 @@ trait Structure extends Base with SemanticTypes {
     }
 
     // implementations of operations: have to be defined before combinators?
+    // consider codegeneratorregistry as before with constraints
     registerImpl(new Eval, Map(
       new Lit -> "return e.getValue();",
       new Add -> "return e.getLeft().accept(this) + e.getRight().accept(this);",
@@ -148,8 +149,8 @@ trait Structure extends Base with SemanticTypes {
           val capAtt = att.attName.capitalize
           val tpe = Type_toString(att.attType)
           val fields:Seq[FieldDeclaration] = Java(s"""
-                                                     |private $tpe ${att.attName};
-                                                     |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+                           |private $tpe ${att.attName};
+                           |""".stripMargin).fieldDeclarations()
           fields.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 
           // prepare for constructor
@@ -158,9 +159,9 @@ trait Structure extends Base with SemanticTypes {
 
           // make the set/get methods
           val methods:Seq[MethodDeclaration] = Java(s"""
-                                           |public $tpe get$capAtt() { return ${att.attName};}
-                                           |public void set$capAtt($tpe val) { this.${att.attName} = val; }
-                                          """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+                       |public $tpe get$capAtt() { return ${att.attName};}
+                       |public void set$capAtt($tpe val) { this.${att.attName} = val; }
+                      """.stripMargin).methodDeclarations()
 
           methods.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 
@@ -172,7 +173,7 @@ trait Structure extends Base with SemanticTypes {
         s"""
            |public ${sub.getClass.getSimpleName} (${params.mkString(",")}) {
            |   ${cons.mkString("\n")}
-           |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[ConstructorDeclaration]).head
+           |}""".stripMargin).constructors().head
 
       unit.getTypes.get(0).getMembers.add(constructor)
 
@@ -181,7 +182,7 @@ trait Structure extends Base with SemanticTypes {
            |public <R> R accept(Visitor<R> v) {
            |   return v.visit(this);
            |}
-       """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+       """.stripMargin).methodDeclarations()
 
       visitor.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 

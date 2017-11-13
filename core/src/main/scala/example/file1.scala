@@ -63,7 +63,7 @@ trait SomeCombinators extends generic.JavaIdioms  {
     val semanticType:Type = 'Float :&: alpha =>: 'TemperatureInterface (alpha)
   }
   /*****
-  @combinator object Bad {
+  combinator object Bad {
     def apply() : Exp = {
       Java (s"""\"string\"""").expression()
     }

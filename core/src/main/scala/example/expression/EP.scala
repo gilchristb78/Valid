@@ -26,6 +26,7 @@ trait EP extends Base with SemanticTypes {
       sub:Exp => {
         updated = updated
           .addCombinator (new FinalClass(sub))
+          .addCombinator (new SubInterface(sub))
       }
     }
 
@@ -35,32 +36,22 @@ trait EP extends Base with SemanticTypes {
       sub:List[Operation] => {
         if (sub.length == 1) {
           updated = updated.addCombinator(new AddOperation(sub.head))
-
-          model.data.asScala.foreach { exp: Exp => {
-              updated = updated
-                .addCombinator(new FinalMultiClass(exp, sub))
-            }
-          }
         } else {
-
           // every subset gets its own interface
           updated = updated.addCombinator(new AddMultiOperationInterface(sub))
 
           model.data.asScala.foreach { exp: Exp => {
              updated = updated
               .addCombinator(new AddMultiOperation(sub, exp))
-              .addCombinator(new FinalMultiClass(exp, sub))
             }
           }
         }
-      }
-    }
 
-    // Add relevant combinators to construct the sub-type classes, based on domain model.
-    model.data.asScala.foreach {
-      sub:Exp => {
-        updated = updated
-          .addCombinator (new SubInterface(sub))
+        model.data.asScala.foreach { exp: Exp => {
+            updated = updated
+              .addCombinator(new FinalMultiClass(exp, sub))
+          }
+        }
       }
     }
 
@@ -168,8 +159,7 @@ trait EP extends Base with SemanticTypes {
           case att: Attribute =>
             val tpe = Type_toString(att.attType)
 
-            val fields:Seq[MethodDeclaration] = Java(s"""$tpe ${att.attName}();""")
-              .classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+            val fields:Seq[MethodDeclaration] = Java(s"""$tpe ${att.attName}();""").methodDeclarations()
 
             fields.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 
@@ -212,20 +202,19 @@ trait EP extends Base with SemanticTypes {
         case att: Attribute =>
           val tpe = Type_toString(att.attType)
 
-          val fields:Seq[FieldDeclaration] = Java(s"""
+          val fields = Java(s"""
                        |private $tpe ${att.attName};
-                       |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+                       |""".stripMargin).fieldDeclarations()
           fields.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 
           // prepare for constructor
           params = params :+ s"$tpe ${att.attName}"
           cons   = cons   :+ s"  this.${att.attName} = ${att.attName};"
 
-          val methods:Seq[MethodDeclaration] = Java(
+          val methods = Java(
             s"""
                |public $tpe ${att.attName}() { return ${att.attName};}
-              """.stripMargin)
-            .classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+              """.stripMargin).methodDeclarations()
 
           methods.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 
@@ -239,7 +228,7 @@ trait EP extends Base with SemanticTypes {
         s"""
            |public ${sub.getClass.getSimpleName}Final (${params.mkString(",")}) {
            |   ${cons.mkString("\n")}
-           |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[ConstructorDeclaration]).head
+           |}""".stripMargin).constructors().head
 
       unit.getTypes.get(0).getMembers.add(constructor)
 
@@ -292,7 +281,7 @@ trait EP extends Base with SemanticTypes {
           }
           val fields:Seq[FieldDeclaration] = Java(s"""
                                                      |private $revisedTypeName ${att.attName};
-                                                     |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+                                                     |""".stripMargin).fieldDeclarations()
           fields.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 
           // prepare for constructor
@@ -302,8 +291,7 @@ trait EP extends Base with SemanticTypes {
           val methods:Seq[MethodDeclaration] = Java(
             s"""
                |public $revisedTypeName ${att.attName}() { return ${att.attName};}
-              """.stripMargin)
-            .classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+              """.stripMargin).methodDeclarations()
 
           methods.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 
@@ -318,7 +306,7 @@ trait EP extends Base with SemanticTypes {
         s"""
            |public $name${combined}Final (${params.mkString(",")}) {
            |   ${cons.mkString("\n")}
-           |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[ConstructorDeclaration]).head
+           |}""".stripMargin).constructors().head
 
       unit.getTypes.get(0).getMembers.add(constructor)
 
@@ -342,16 +330,12 @@ trait EP extends Base with SemanticTypes {
       val tpe = Type_toString(fm.returnType)
       val name = fm.name
 
-        val fields:Seq[MethodDeclaration] = Java(
-          s"""
-             |/* default */ $tpe $name() {
-             |    ${stmts.mkString("\n")}
-             |}
-           """.stripMargin)
-          .classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+      val fields = Java(s"""
+                         |/* default */ $tpe $name() {
+                         |    ${stmts.mkString("\n")}
+                         |}""".stripMargin).methodDeclarations()
 
-        fields.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
-
+      fields.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
       unit
     }
 
@@ -392,8 +376,7 @@ trait EP extends Base with SemanticTypes {
            |/* default */ $tpe ${op.name}() {
            |   ${stmts.mkString("\n")}
            |}
-         """.stripMargin)
-        .classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+         """.stripMargin).methodDeclarations()
 
       // reclassify an field of type Exp with the more precise $expName
       // PrettyP left();
@@ -402,8 +385,7 @@ trait EP extends Base with SemanticTypes {
         case att: Attribute =>
           // only redefine if originally the Exp field.
           if (att.attType == Types.Exp) {
-            val fields: Seq[MethodDeclaration] = Java(s"""$opName ${att.attName}();""")
-              .classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+            val fields: Seq[MethodDeclaration] = Java(s"""$opName ${att.attName}();""").methodDeclarations()
 
             fields.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
           }
@@ -525,7 +507,7 @@ trait EP extends Base with SemanticTypes {
       unit
       }
 
-    val semanticType:Type = ep(ep.interface, new Exp)
+    val semanticType:Type = ep(ep.interface, exp)
   }
 
   // sample Driver

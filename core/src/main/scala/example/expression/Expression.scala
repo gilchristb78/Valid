@@ -57,5 +57,4 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
 //  }
 
   lazy val results = Results.addAll(jobs.run())
-
 }

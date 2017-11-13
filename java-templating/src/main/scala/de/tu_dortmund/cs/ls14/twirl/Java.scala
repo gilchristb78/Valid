@@ -4,7 +4,7 @@ import java.io.StringReader
 
 import com.github.javaparser._
 import com.github.javaparser.ast.`type`.Type
-import com.github.javaparser.ast.body.BodyDeclaration
+import com.github.javaparser.ast.body.{BodyDeclaration, ConstructorDeclaration, FieldDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name, NameExpr, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration, Node}
@@ -79,6 +79,24 @@ class Java private(elements: immutable.Seq[Java], text: String) extends Buffered
     */
   def classBodyDeclarations(): Seq[BodyDeclaration[_]] =
     JavaParser.parse(s"class C { ${fullText} }").getTypes().asScala.head.getMembers.asScala
+
+  /**
+    * Parse this element as a Field Declaration.
+    */
+  def fieldDeclarations(): Seq[FieldDeclaration] =
+    classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+
+  /**
+    * Parse this element as a Method Declaration.
+    */
+  def methodDeclarations(): Seq[MethodDeclaration] =
+    classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+
+  /**
+    * Parse this element as a Constructor Declaration.
+    */
+  def constructors(): Seq[ConstructorDeclaration] =
+    classBodyDeclarations().map(_.asInstanceOf[ConstructorDeclaration])
 
   /**
     * Parse this element as an interface body declaration (e.g. a method signature).
