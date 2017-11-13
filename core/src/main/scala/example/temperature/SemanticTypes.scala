@@ -8,17 +8,31 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
   */
 trait SemanticTypes {
 
-  val alpha = Variable("TempType")
+  // whenever you want a Generic like in java you use variable
+  val unitType = Variable("UnitType")
+  val precisionType = Variable("PrecisionType")
 
-  // by making this a FIELD it will be detected and then accessible. Note
-  // these params are strings but they will be referenced as 'Kelvin, i.e.
-  val taxonomyScales = Taxonomy(scale.label.toString).
-    addSubtype(scale.celsius.toString).
-    addSubtype(scale.fahrenheit.toString).
-    addSubtype(scale.kelvin.toString)
+  val precisions = Kinding(precisionType)
+  .addOption(precision.floating)
+    .addOption(precision.integer)
+
+  val units = Kinding(unitType)
+    .addOption(scale.celsius)
+    .addOption(scale.fahrenheit)
+    .addOption(scale.kelvin)
+
+  val kinding = precisions.merge(units)
+//
+//  // when you want subtyping use a taxonomy
+//  // by making this a FIELD it will be detected and then accessible. Note
+//  // these params are strings but they will be referenced as 'Kelvin, i.e.
+//  val taxonomyScales = Taxonomy("Scale").
+//    addSubtype(scale.celsius.toString).
+//    addSubtype(scale.fahrenheit.toString).
+//    addSubtype(scale.kelvin.toString)
 
   object scale {
-    val label:Type = 'Temperature
+    def apply (tpe:Type) = 'Precision(tpe)
 
     val celsius:Type = 'Celsius
     val fahrenheit:Type = 'Fahrenheit
@@ -27,7 +41,6 @@ trait SemanticTypes {
 
   object precision {
     def apply (tpe:Type) = 'Precision(tpe)
-    def unit:Type = 'Unit
 
     val integer: Type = 'Integer
     val floating:Type = 'Float
@@ -36,7 +49,8 @@ trait SemanticTypes {
   object artifact {
     def apply (part:Type) = 'Artifact(part)
 
-    val expression:Type = 'Expression
-    val interface:Type = 'Interface
+    val api:Type = 'WeatherAPI
+    val compute:Type = 'Compute
+    val converter:Type = 'Converter
   }
 }
