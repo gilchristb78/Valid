@@ -8,8 +8,9 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.{Move, Solitaire, SolitaireContainerTypes}
 import domain.archway.{ArchwayContainerTypes, Domain}
 import org.combinators.solitaire.archway.{ArchwayDomain, Controllers}
-import org.combinators.solitaire.shared.{Helper, SemanticTypes}
+import org.combinators.solitaire.shared.SemanticTypes
 import org.scalatest.FunSpec
+import test.Helper
 
 import scala.collection.JavaConverters._
 class ArchwayTests extends FunSpec {
@@ -37,8 +38,8 @@ class ArchwayTests extends FunSpec {
         import controllerRepository._
 
         val reflected = ReflectedRepository(controllerRepository, classLoader = controllerRepository.getClass.getClassLoader)
-        val Gamma= controllerRepository.init(reflected, domainModel)
-        val helper = new Helper(controllerRepository)
+        val Gamma = controllerRepository.init(reflected, domainModel)
+        val helper = new Helper()
 
         //
 

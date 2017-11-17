@@ -10,6 +10,8 @@ import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.expr.Name
 import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.types.Constructor
+import test.Helper
+
 import scala.collection.JavaConverters._
 
 class IdiotTests extends FunSpec  {
@@ -32,8 +34,8 @@ class IdiotTests extends FunSpec  {
           import controllerRepository._
 
           val reflected = ReflectedRepository(controllerRepository, classLoader = controllerRepository.getClass.getClassLoader)
-          val Gamma= controllerRepository.init(reflected, domainModel)
-          val helper = new Helper(controllerRepository)
+          val Gamma = controllerRepository.init(reflected, domainModel)
+          val helper = new Helper()
 
           it ("Check for base classes") {
             assert(helper.singleClass("ConstraintHelper",    Gamma.inhabit[CompilationUnit](constraints(complete))))

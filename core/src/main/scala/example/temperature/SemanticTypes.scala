@@ -51,6 +51,6 @@ trait SemanticTypes {
 
     val api:Type = 'WeatherAPI
     val compute:Type = 'Compute
-    val converter:Type = 'Converter
+    val impl:Type = 'Impl
   }
 }

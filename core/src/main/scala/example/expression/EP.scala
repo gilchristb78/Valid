@@ -7,6 +7,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import example.expression.j.JavaSemanticTypes
 import expression._
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
@@ -15,7 +16,7 @@ import expression.types.Types
 import scala.collection.JavaConverters._
 
 /** Use Modularity2016 Java solution. Built from same domain model. */
-trait EP extends Base with SemanticTypes {
+trait EP extends Base with JavaSemanticTypes {
 
   /** Add dynamic combinators as needed. */
   override def init[G <: ExpressionDomain](gamma: ReflectedRepository[G], model: DomainModel): ReflectedRepository[G] = {
@@ -331,10 +332,7 @@ trait EP extends Base with SemanticTypes {
       val name = fm.name
 
       // methods are marked as default later
-      val methods = Java(s"""
-                         |$tpe $name() {
-                         |    ${stmts.mkString("\n")}
-                         |}""".stripMargin).methodDeclarations()
+      val methods = Java(s"$tpe $name() { ${stmts.mkString} }").methodDeclarations()
 
       // these are default methods
       methods.foreach { m =>

@@ -1,19 +1,28 @@
-package org.combinators.solitaire.shared
+package test
 
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
-import com.github.javaparser.ast.expr.SimpleName
-import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.{InhabitationResult, ReflectedRepository}
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import domain.Solitaire
+import com.github.javaparser.ast.body.{MethodDeclaration, TypeDeclaration}
+import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
 import org.scalatest._
 
 
+import scala.collection.JavaConverters._
 /**
   * Defines helpers
   */
-class Helper (types:SemanticTypes) extends FunSpec {
+class Helper extends FunSpec {
+
+  /**
+    * Returns a List of declared methods for the only type in the given Compilation unit.
+    *
+    * @param unit
+    * @return
+    */
+  def methods(unit:CompilationUnit): List[MethodDeclaration] = {
+
+    val clazz:TypeDeclaration[_] = unit.getTypes.get(0)
+    clazz.getMethods.asScala.toList
+  }
 
   // Can't seem to place 'it' methods within this function
   def singleClass(name: String, result: InhabitationResult[CompilationUnit]):Boolean = {

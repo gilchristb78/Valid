@@ -9,6 +9,8 @@ import domain.{Move, Solitaire, SolitaireContainerTypes}
 import domain.narcotic.Domain
 import org.combinators.solitaire.shared._
 import org.scalatest.FunSpec
+import test.Helper
+
 import scala.collection.JavaConverters._
 
 class NarcoticTests extends FunSpec {
@@ -30,8 +32,8 @@ class NarcoticTests extends FunSpec {
           import controllerRepository._
 
           val reflected = ReflectedRepository(controllerRepository, classLoader = controllerRepository.getClass.getClassLoader)
-          val Gamma= controllerRepository.init(reflected, domainModel)
-          val helper = new Helper(controllerRepository)
+          val Gamma = controllerRepository.init(reflected, domainModel)
+          val helper = new Helper()
 
           it ("Check for base classes") {
             assert(helper.singleClass("ConstraintHelper",    Gamma.inhabit[CompilationUnit](constraints(complete))))

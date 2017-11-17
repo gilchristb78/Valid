@@ -6,6 +6,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import example.expression.j.JavaSemanticTypes
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
 import expression.operations.SimplifyAdd
@@ -13,7 +14,7 @@ import expression._
 
 import scala.collection.JavaConverters._
 
-trait Structure extends Base with SemanticTypes {
+trait Structure extends Base with JavaSemanticTypes {
 
   /** Add dynamic combinators as needed. */
   override def init[G <: ExpressionDomain](gamma: ReflectedRepository[G], model: DomainModel): ReflectedRepository[G] = {

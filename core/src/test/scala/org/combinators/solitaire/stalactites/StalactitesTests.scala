@@ -4,9 +4,10 @@ import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.{Solitaire, SolitaireContainerTypes}
 import domain.stalactites.Domain
-import org.combinators.solitaire.shared.{Helper, SemanticTypes}
+import org.combinators.solitaire.shared.SemanticTypes
+import test.Helper
 
-class StalactitesTests (types:SemanticTypes) extends Helper(types) {
+class StalactitesTests  extends Helper {
 
   describe("The possible inhabited domain models") {
 

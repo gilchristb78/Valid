@@ -4,12 +4,13 @@ import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.twirl.Java
+import example.expression.j.JavaSemanticTypes
 import expression._
 
 import scala.collection.JavaConverters._
 
 /** Future work to sanitize combinators to be independent of Exp. */
-class ExpressionSynthesis(override val domain:DomainModel) extends ExpressionDomain(domain) with SemanticTypes {
+class ExpressionSynthesis(override val domain:DomainModel) extends ExpressionDomain(domain) with JavaSemanticTypes {
 
   /** Construct visitor abstract class. */
   @combinator object Visitor {

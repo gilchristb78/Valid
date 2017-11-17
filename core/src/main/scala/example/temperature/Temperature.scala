@@ -52,11 +52,11 @@ object Manual {
       .interpretedTerms.values.flatMap(_._2).foreach(jt => println(jt))
 
     println ("interfaces...")
-    Gamma.inhabit[CompilationUnit](artifact(artifact.converter))
+    Gamma.inhabit[CompilationUnit](artifact(artifact.impl))
       .interpretedTerms.values.flatMap(_._2).foreach (cu => println(cu))
 
     println ("int interfaces...")
-    Gamma.inhabit[CompilationUnit](artifact(artifact.converter) :&: precision(precision.integer))
+    Gamma.inhabit[CompilationUnit](artifact(artifact.impl) :&: precision(precision.integer))
       .interpretedTerms.values.flatMap(_._2).foreach (cu => println(cu))
 
     // interfaces

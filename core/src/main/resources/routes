@@ -77,3 +77,10 @@ GET   /temperature                          example.temperature.Temperature.over
 GET   /temperature/raw_:number              example.temperature.Temperature.raw(number: Long)
 GET   /temperature/prepare                  example.temperature.Temperature.prepare(number: Long)
 GET   /temperature/temperature.git/*file    example.temperature.Temperature.serveFile(file)
+
+
+GET   /cpp_ep                              example.expression.cpp.Expression_CPP.overview()
+GET   /cpp_ep/raw_:number                  example.expression.cpp.Expression_CPP.raw(number: Long)
+GET   /cpp_ep/prepare                      example.expression.cpp.Expression_CPP.prepare(number: Long)
+GET   /cpp_ep/cpp_ep.git/*file             example.expression.cpp.Expression_CPP.serveFile(file)
+

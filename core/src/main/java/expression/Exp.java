@@ -25,4 +25,29 @@ public class Exp {
         ops.add(new FunctionMethod("eval", Types.Int));
     }
 
+    /**
+     * Two Exp objects are the same if they derive from same class.
+     * Necessary for merging DomainModel.
+     *
+     * @param o   Other Exp subtype to check for equality.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) { return false; }
+        if (o instanceof Exp) {
+            return o.getClass() == getClass();
+        }
+
+        return false;
+    }
+
+    /**
+     * Ensures hashing works.
+     *
+     * @return
+     */
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
 }

@@ -38,6 +38,15 @@ class PythonExample @Inject()(webJars: WebJarsUtil) extends InhabitationControll
         py.test.render(mainBlock)
       val semanticType = 'MainCode =>: 'Program
     }
+
+    @combinator object PT {
+      def apply: String =
+        """|This is a test
+           |aslkdjalksjd
+           |SLKDJSLKDJ""".stripMargin
+
+      val semanticType = 'PersistThis
+    }
   }
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
@@ -47,9 +56,18 @@ class PythonExample @Inject()(webJars: WebJarsUtil) extends InhabitationControll
   lazy val Gamma:ReflectedRepository[Repository] = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
-  lazy val jobs =
-    Gamma.InhabitationBatchJob[Python]('Program)
 
-  lazy val results:Results = Results.add(jobs.run(), Paths.get("a","b","c","test.py"))
+
+  lazy val sjobs =
+    Gamma.InhabitationBatchJob[String]('PersistThis)
+
+  lazy val results:Results = Results.add(sjobs.run(), Paths.get("a","b","c","sample"))
+
+//
+//  lazy val jobs =
+//    Gamma.InhabitationBatchJob[Python]('Program)
+//
+//  lazy val results:Results = Results.add(jobs.run(), Paths.get("a","b","c","test.py"))
+
 
 }

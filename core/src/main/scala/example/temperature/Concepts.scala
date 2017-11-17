@@ -9,17 +9,22 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import de.tu_dortmund.cs.ls14.cls.types.Type
 
 trait Concepts extends SemanticTypes {
-  @combinator object FloatType { val semanticType:Type = precision(precision.floating)
-  def apply() : JType = Java("float").tpe() }
+  @combinator object FloatType {
+    def apply : JType = Java("float").tpe()
+    val semanticType:Type = precision(precision.floating)
+  }
   @combinator object Truncate {
-    def apply(exp:Expression) : Expression = Java(s"""((int)$exp)""").expression()
+    def apply(exp:Expression) : Expression = Java(s"((int)$exp)").expression()
     val semanticType:Type = artifact(artifact.compute) :&: precision(precision.floating) =>:
                             artifact(artifact.compute) :&: precision(precision.integer)
   }
-  @combinator object IntegerType { val semanticType:Type = precision(precision.integer)
-    def apply() : JType = Java("int").tpe() }
+  @combinator object IntegerType {
+    def apply : JType = Java("int").tpe()
+    val semanticType:Type = precision(precision.integer)
+  }
+
   @combinator object CurrentWorcesterWeather {
-    def apply(): CompilationUnit = {
+    def apply: CompilationUnit = {
       Java(s"""|import java.io.*;
                |import java.net.*;
                |public class WorcesterWeather {
@@ -37,28 +42,23 @@ trait Concepts extends SemanticTypes {
     val semanticType:Type = artifact(artifact.api) :&: precision(precision.floating) :&: scale(scale.celsius)
   }
   @combinator object UpInterface {
-    def apply(temp:Expression, precision:JType): CompilationUnit = {
-      Java(s"""|public class TemperatureAdapter {
+    def apply(temp:Expression, precision:JType): CompilationUnit = Java(s"""|public class TemperatureAdapter {
                |  $precision getTemperature() {
                |    return $temp;
                |  }
                |}""".stripMargin).compilationUnit()
-    }
+
     val semanticType:Type = artifact(artifact.compute) :&: precision(precisionType) =>:
                             precision(precisionType)  =>:
-                            artifact(artifact.converter) :&: precision(precisionType)
+                            artifact(artifact.impl) :&: precision(precisionType)
   }
   @combinator object CelsiusToFahrenheit {
-    def apply(cels:Expression):Expression = {
-       Java("""((9.0/5.0)*""" + cels.toString + """ + 32.0)""").expression()
-    }
-    val semanticType:Type = scale(scale.celsius) =>:
+    def apply(cels:Expression):Expression = Java(s"((9/5.0)*$cels + 32)").expression()
+    val semanticType:Type = artifact(artifact.compute) :&: scale(scale.celsius) =>:
                             artifact(artifact.compute) :&: precision(precision.floating) :&: scale(scale.fahrenheit)
   }
   @combinator object TemperatureAPI {
-    def apply:Expression = {
-      Java(s"""WorcesterWeather.getTemperature()""").expression()
-    }
+    def apply:Expression = Java("WorcesterWeather.getTemperature()").expression()
     val semanticType:Type = artifact(artifact.compute) :&: precision(precision.floating) :&: scale(scale.celsius)
   }
 }

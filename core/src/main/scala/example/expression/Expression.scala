@@ -6,9 +6,10 @@ import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
-import expression.{DomainModel, Exp}
+import expression.{DomainModel, Exp, Operation}
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
+import expression.operations.SimplifyAdd
 import org.webjars.play.WebJarsUtil
 
 import scala.collection.JavaConverters._
@@ -19,10 +20,18 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
   // Configure the desired (sub)types and operations
   // no need to add 'Exp' to the model, since assumed always to be there
   // operations to have (including Eval). Could add SimplifyAdd
-  val model:DomainModel = new DomainModel(
-    List(new Lit, new Add, new Neg, new Sub).asJava,
-    List(new Eval, new PrettyP, new Collect).asJava
+  val first:DomainModel = new DomainModel(
+    List[Exp](new Lit, new Add, new Sub).asJava,
+    List[Operation](new Eval, new PrettyP).asJava
   )
+
+  val other:DomainModel = new DomainModel(
+    List[Exp](new Neg).asJava,
+    List[Operation](new Collect, new SimplifyAdd).asJava
+  )
+
+  // demonstrate how to merge domain models with new capabilities
+  val model = first.merge(other)
 
   lazy val repository = new ExpressionSynthesis(model) with Structure {}
   import repository._
@@ -43,6 +52,9 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
 
       .addJob[CompilationUnit](ops(ops.visitor, new PrettyP))
       .addJob[CompilationUnit](ops(ops.visitor, new Collect))
+
+    // new one...
+      .addJob[CompilationUnit](ops(ops.visitor, new SimplifyAdd))
 
       .addJob[CompilationUnit](driver)
 
