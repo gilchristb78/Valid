@@ -12,19 +12,19 @@ trait Concepts extends SemanticTypes {
 
   @combinator object Float {
     def apply : JType = Java("float").tpe()
-    val semanticType:Type = precision(precision.floating) :&: unit(unitType)
+    val semanticType:Type = precision(precision.floating)
   }
 
   @combinator object Integer {
     def apply : JType = Java("int").tpe()
-    val semanticType:Type = precision(precision.integer) :&: unit(unitType)
+    val semanticType:Type = precision(precision.integer)
   }
 
-  // Truncation of value doesn't change units
+  // Truncation of Raw value might lose information
   @combinator object Truncate {
     def apply(exp:Expression) : Expression = Java(s"((int)$exp)").expression()
-    val semanticType:Type = artifact(artifact.compute) :&: precision(precision.floating) :&: unit(unitType) =>:
-                            artifact(artifact.compute) :&: precision(precision.integer) :&: unit(unitType)
+    val semanticType:Type = artifact(artifact.compute) :&: precision(precision.fullPrecision) =>:
+                            artifact(artifact.compute) :&: precision(precision.lossyPrecision :&: precision.integer)
   }
 
   // Offers static API for extracting current temperature as celsius
@@ -44,7 +44,7 @@ trait Concepts extends SemanticTypes {
                |	}
                |}""".stripMargin).compilationUnit()
 
-    val semanticType:Type = artifact(artifact.api) :&: precision(precision.floating) :&: unit(unit.celsius)
+    val semanticType:Type = artifact(artifact.api) :&: precision(precision.floating :&: precision.fullPrecision) :&: unit(unit.celsius)
   }
 
   // Adapt some expression (precision/unit) without losing the (precision/unit)
@@ -56,22 +56,22 @@ trait Concepts extends SemanticTypes {
                |}""".stripMargin).compilationUnit()
 
     val semanticType:Type = artifact(artifact.compute) :&: precision(precisionType) :&: unit(unitType) =>:
-                            precision(precisionType) :&: unit(unitType) =>:
+                            precision(precisionType) =>:
                             artifact(artifact.impl) :&: precision(precisionType) :&: unit(unitType)
   }
   @combinator object CelsiusToFahrenheit {
     def apply(cels:Expression):Expression = Java(s"((9/5.0f)*$cels + 32)").expression()
-    val semanticType:Type = artifact(artifact.compute) :&: unit(unit.celsius) =>:
-                            artifact(artifact.compute) :&: precision(precision.floating) :&: unit(unit.fahrenheit)
+    val semanticType:Type = artifact(artifact.compute) :&: precision(precision.fullPrecision) :&: unit(unit.celsius) =>:
+                            artifact(artifact.compute) :&: precision(precision.floating :&: precision.fullPrecision) :&: unit(unit.fahrenheit)
   }
   @combinator object CelsiusToKelvin {
     def apply(cels:Expression):Expression = Java(s"($cels + 273.15f)").expression()
-    val semanticType:Type = artifact(artifact.compute) :&: unit(unit.celsius) =>:
-      artifact(artifact.compute) :&: precision(precision.floating) :&: unit(unit.kelvin)
+    val semanticType:Type = artifact(artifact.compute) :&: precision(precision.fullPrecision) :&: unit(unit.celsius) =>:
+                            artifact(artifact.compute) :&: precision(precision.floating :&: precision.fullPrecision) :&: unit(unit.kelvin)
   }
   @combinator object TemperatureAPI {
     def apply:Expression = Java("WorcesterWeather.getTemperature()").expression()
-    val semanticType:Type = artifact(artifact.compute) :&: precision(precision.floating) :&: unit(unit.celsius)
+    val semanticType:Type = artifact(artifact.compute) :&: precision(precision.floating :&: precision.fullPrecision) :&: unit(unit.celsius)
   }
 }
 

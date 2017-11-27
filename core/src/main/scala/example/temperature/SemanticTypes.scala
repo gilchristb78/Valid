@@ -19,6 +19,13 @@ trait SemanticTypes {
     .addOption(unit.fahrenheit)
     .addOption(unit.kelvin)
 
+  // Conforms to Java native types
+//  val taxonomyScales = Taxonomy(precision.floating.toString).
+//    addSubtype(precision.integer.toString)
+
+  val taxonomyLoss = Taxonomy(precision.lossyPrecision.toString).
+    addSubtype(precision.fullPrecision.toString)
+
   object unit {
     def apply (tpe:Type):Type = 'Unit(tpe)
 
@@ -30,6 +37,8 @@ trait SemanticTypes {
   object precision {
     def apply (tpe:Type):Type = 'Precision(tpe)
 
+    val fullPrecision:Type = 'Full
+    val lossyPrecision:Type = 'Lossy   // either Trunc or Round
     val integer: Type = 'Integer
     val floating:Type = 'Float
   }
@@ -43,6 +52,7 @@ trait SemanticTypes {
   }
 
   val kinding:Kinding = precisions.merge(units)
+  val taxonomy:Taxonomy = taxonomyLoss
 }
 
 
