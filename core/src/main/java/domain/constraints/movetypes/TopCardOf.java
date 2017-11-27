@@ -10,4 +10,7 @@ public class TopCardOf implements MoveInformation {
     public TopCardOf(MoveInformation m) {
         this.base = m;
     }
+
+    /** This is the top card, and is thus single. */
+    public boolean isSingleCard() { return true; }
 }

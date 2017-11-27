@@ -10,7 +10,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.idiot.HigherRankSameSuit
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
 
 // domain
 import domain._
@@ -20,12 +20,12 @@ import domain._
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
 
   object idiotCodeGenerator {
-    val generators = CodeGeneratorRegistry.merge[Expression](
+    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, HigherRankSameSuit] {
         case (registry:CodeGeneratorRegistry[Expression], c:HigherRankSameSuit) => {
           val src = registry(c.card).get
-          Java(s"""((org.combinators.solitaire.idiot.Idiot)game).higher($src)""").expression()
+          Java(s"""ConstraintHelper.higher(game, $src)""").expression()
         }
       }).merge(constraintCodeGenerators.generators)
   }
@@ -145,28 +145,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     */
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
-      Java(s"""|public boolean higher(Stack source) {
-               |        // empty columns are not eligible.
-               |        if (source.empty()) {
-               |            return false;
-               |        }
-               |        if (source.rank() == Card.ACE) {
-               |            return false;
-               |        }
-               |        for (int i = 0; i < fieldColumns.length; i++) {
-               |            // skip 'from' column and empty ones
-               |            if (fieldColumns[i] == source || fieldColumns[i].empty())
-               |                continue;
-               |            // must be same suit
-               |            if (fieldColumns[i].suit() != source.suit())
-               |                continue;
-               |            // Note ACES handles specially.
-               |            if (fieldColumns[i].rank() > source.rank() || fieldColumns[i].rank() == Card.ACE) {
-               |                return true;
-               |            }
-               |        }
-               |        return false;
-               |	}
+      Java(s"""|
                |
                |// Available moves based on this variation. Note this was hard-coded in generated code
                |// and then manually moved into this combinator.
@@ -175,7 +154,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
                |
                |		// try all column moves
                |		for (int i = 0; i < fieldColumns.length; i++) {
-               |			if (higher(fieldColumns[i])) {
+               |			if (ConstraintHelper.higher(this, fieldColumns[i])) {
                |				RemoveCard rc = new RemoveCard(fieldColumns[i]);
                |				if (rc.valid(this)) {
                |					v.add(rc);
@@ -245,13 +224,39 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = game(game.fields)
   }
 
-  /**
-    * Need for helper
-    */
-  @combinator object HelperMethodsIdiot {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
+
+  @combinator object HelperMethodsFreeCell {
+    def apply(): Seq[MethodDeclaration] = Seq (
+      generateHelper.fieldAccessHelper("tableau", "fieldColumns"),
+      Java(s"""
+              |public static boolean higher(Solitaire game, Stack source) {
+              |    // empty columns are not eligible.
+              |    if (source.empty()) {
+              |        return false;
+              |    }
+              |    if (source.rank() == Card.ACE) {
+              |        return false;
+              |    }
+              |
+              |    Stack[] tableau = tableau(game);
+              |    for (int i = 0; i < tableau(game).length; i++) {
+              |        // skip 'from' column and empty ones
+              |        if (tableau[i] == source || tableau[i].empty())
+              |            continue;
+              |        // must be same suit
+              |        if (tableau[i].suit() != source.suit())
+              |            continue;
+              |        // Note ACES handles specially.
+              |        if (tableau[i].rank() > source.rank() || tableau[i].rank() == Card.ACE) {
+              |            return true;
+              |        }
+              |    }
+              |    return false;
+              |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head,
+    )
 
     val semanticType: Type = constraints(constraints.methods)
   }
+
 
 }

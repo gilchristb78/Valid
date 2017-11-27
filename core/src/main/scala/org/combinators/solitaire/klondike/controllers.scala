@@ -28,6 +28,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     updated = updated
       .addCombinator (new IgnoreClickedHandler(buildablePile))
       .addCombinator (new IgnoreClickedHandler(pile))
+      .addCombinator (new IgnorePressedHandler(pile))
       .addCombinator (new IgnoreClickedHandler('WastePile))
       .addCombinator (new IgnoreReleasedHandler('WastePile))
 
@@ -39,9 +40,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     updated = updated
       .addCombinator (new deckPress.DealToTableauHandlerLocal())
       .addCombinator (new deckPress.ResetDeckLocal())
-      .addCombinator (new SingleCardMoveHandler(pile))
       .addCombinator (new SingleCardMoveHandler('WastePile))
-      //.addCombinator (new buildablePilePress.CP1())
       .addCombinator (new buildablePilePress.CP2())
 
 
@@ -56,16 +55,9 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
   object buildablePilePress {
     val buildablePile1:Constructor = 'BuildablePile1
 
-    /**
-     * Specify filtering method 'validColumn' in the base class to use to pre-filter mouse press.
-     * Note: This introduces 'Stage1 as a means to combine the two press events in sequence.
-     */
-    //  HACK: FIX ME KLONDIKE!
-    //class CP1 extends ColumnMoveHandler(buildablePile, Java("BuildablePile").simpleName(), 'Something)
-
     class CP2() {
      def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
-      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+      (widget, ignore) =>
 
         Java(s"""|BuildablePile srcPile = (BuildablePile) src.getModelElement();
                  |
@@ -98,11 +90,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
 
     val deck1:Constructor = 'Deck1
     val deck2:Constructor = 'Deck2
-  /**
-    * When dealing card(s) from the stock to all elements in Tableau
-    * If deck is empty, then reset.
-    * NOTE: How to make this more compositional?
-    */
+
+  /** When dealing card(s) from the stock to all elements in Tableau. */
   class DealToTableauHandlerLocal() {
     def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
       Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.fieldWastePiles);
@@ -117,6 +106,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck1, controller.pressed)
   }
 
+  /** When deck is empty and must be reset from waste pile. */
   class ResetDeckLocal() {
     def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
       Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.fieldWastePiles);

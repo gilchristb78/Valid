@@ -18,4 +18,6 @@ public enum DealComponents implements MoveInformation {
 
     public String getName() { return name; }
 
+    /** Each card being dealt is considered a single card. */
+    public boolean isSingleCard() { return true; }
 }

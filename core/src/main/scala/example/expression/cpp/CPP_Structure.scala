@@ -48,36 +48,41 @@ trait CPP_Structure extends Base with CPPSemanticTypes {
       new Neg -> """value_map_[e] = "-" + value_map_[e->getExp()];"""
     ))
 
-    val combined:String =
-      """
-        |java.util.List<Integer> list = new java.util.ArrayList<Integer>();
-        |list.addAll(e.getLeft().accept(this));
-        |list.addAll(e.getRight().accept(this));
-        |return list;
+    val combined:String = """
+        |std::vector<int> vec;
+        |std::vector<int> left = value_map_[e->getLeft()];
+        |std::vector<int> right = value_map_[e->getRight()];
+        |
+        |vec.insert(vec.end(), left.begin(), left.end());
+        |vec.insert(vec.end(), right.begin(), right.end());
+        |value_map_[e] = vec;
       """.stripMargin
 
     registerImpl(new Collect, Map(
-      new Lit -> """
-                  |java.util.List<Integer> list = new java.util.ArrayList<Integer>();
-                  |list.add(e.getValue());
-                  |return list;
+      new Lit -> """|std::vector<int> vec;
+                  |vec.push_back(*e->getValue());
+                  |value_map_[e] = vec;
                   """.stripMargin,
       new Add -> combined,
       new Sub -> combined,
       new Neg -> """
-                   |java.util.List<Integer> list = new java.util.ArrayList<Integer>();
-                   |list.addAll(e.getExp().accept(this));
-                   |return list;
+                   |std::vector<int> vec;
+                   |std::vector<int> exp = value_map_[e->getExp()];
+                   |
+                   |vec.insert(vec.end(), exp.begin(), exp.end());
+                   |value_map_[e] = vec;
                  """.stripMargin
     ))
 
     addImpl(new SimplifyAdd, new Lit, s"""return e;""")   // nothing to simplify.
     addImpl(new SimplifyAdd, new Neg,
       s"""
-         |if (e.getExp().accept(new Eval()) == 0) {
-         |  return new Lit(0);
-         |} else {
-         |  return e;
+         |Eval eval;
+         |e->Accept(&eval);
+         |if (eval.getValue(*e) == 0) {
+         |  int z = 0;
+         |  Lit zero = Lit(&z);
+         |  value_map_[e] = &zero;
          |}
          """.stripMargin)
 
@@ -208,8 +213,9 @@ trait CPP_Structure extends Base with CPPSemanticTypes {
       //implementations
       val methods:Map[Class[_ <: Exp],String] = getImplementation(op)
 
-      // each visitor stores local values for access
-      val base:Seq[String] = Seq(s"std::map<const Exp*, $tpe> value_map_;")
+      // each visitor stores local values for access. Hah! have to leave a space after $tpe
+      // just in case it would end in a ">"
+      val base:Seq[String] = Seq(s"std::map<const Exp*, $tpe > value_map_;")
 
       // need method for accessing these local values
       val accessor:Seq[String] = Seq(
@@ -232,29 +238,40 @@ trait CPP_Structure extends Base with CPPSemanticTypes {
     val code =
      s"""|int val1 = 1;
          |int val2 = 2;
-         |int val3 = 3;
+         |int val3 = -3;
          |Lit one   = Lit(&val1);
          |Lit two   = Lit(&val2);
          |Lit three = Lit(&val3);
          |
          |Add four = Add(&one, &two);
-         |Add five = Add(&four, &three);
-         |Neg six  = Neg(&five);
+         |Neg five  = Neg(&four);
+         |Sub six = Sub(&five, &three);
          |
          |PrettyP pp;
-         |five.Accept(&pp);
-         |std::cout << pp.getValue(five) << std::endl;
+         |six.Accept(&pp);
+         |std::cout << pp.getValue(six) << std::endl;
          |
          |Eval e;
-         |five.Accept(&e);
-         |std::cout << e.getValue(five) << std::endl;
+         |six.Accept(&e);
+         |std::cout << e.getValue(six) << std::endl;
          |
          |six.Accept(&pp);
          |std::cout << pp.getValue(six) << std::endl;
          |
          |six.Accept(&e);
          |std::cout << e.getValue(six) << std::endl;
-         |return 0;""".stripMargin
+         |
+         |Collect col;
+         |six.Accept(&col);
+         |std::vector<int> vec = col.getValue(six);
+         |
+         |for (std::vector<int>::const_iterator i = vec.begin(); i != vec.end(); ++i) {
+         |  std::cout << *i << ' ';
+         |}
+         |std::cout << std::endl;
+         |
+         |return 0;
+         |""".stripMargin
 
       new MainClass("Driver", Seq(code))
   }
@@ -270,12 +287,13 @@ trait CPP_Structure extends Base with CPPSemanticTypes {
   //  Eval
   //  Neg
   //  PrettyP
+  //  Collect
   //  Driver
 
   class BaseModule(model:DomainModel) {
     def apply(exp:CPPFile, visitor:CPPFile,
               lit:CPPFile, add:CPPFile, sub:CPPFile, neg:CPPFile,
-              eval:CPPFile, pp:CPPFile,
+              eval:CPPFile, pp:CPPFile, collect:CPPFile, simp:CPPFile,
               driver:CPPFile):CPPFile = {
       val header:Seq[String] =
         s"""
@@ -284,15 +302,16 @@ trait CPP_Structure extends Base with CPPSemanticTypes {
            |#include <memory>
            |#include <sstream>
            |#include <string>
+           |#include <vector>    // needed for Collect [hack]
            |
          """.stripMargin.split("\n")
 
       // class predefs
       val defs:Seq[String] = model.data.asScala.map(sub => s"class ${sub.getClass.getSimpleName};")
-      val data:Seq[String] = Seq(lit, add,sub,neg).map(sub => sub.toString)
-      val ops:Seq[String] = Seq(eval, pp).map(op => op.toString)
-
-      new StandAlone("base", header  ++ defs ++ Seq(exp.toString, visitor.toString) ++ data ++ ops ++ Seq(driver.toString))
+      val data:Seq[String] = Seq(lit, add, sub, neg).map(sub => sub.toString)
+      val ops:Seq[String] = Seq(eval, pp, collect).map(op => op.toString)
+      val simps:Seq[String] = Seq(simp).map(sub => sub.toString)  // depends on Eval
+      new StandAlone("base", header  ++ defs ++ Seq(exp.toString, visitor.toString) ++ data ++ ops ++ simps ++ Seq(driver.toString))
     }
 
     val semanticType:Type = generated(generated.visitor) =>: exp(exp.base, new Exp) =>:
@@ -302,6 +321,8 @@ trait CPP_Structure extends Base with CPPSemanticTypes {
       exp(exp.visitor, new Neg) =>:
       ops(ops.visitor, new Eval) =>:
       ops(ops.visitor, new PrettyP) =>:
+      ops(ops.visitor, new Collect) =>:
+      ops(ops.visitor, new SimplifyAdd) =>:
       driver =>:
       module(module.base)
   }

@@ -7,7 +7,6 @@ import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.{Move, Solitaire, SolitaireContainerTypes}
 import domain.freeCell.Domain
-import org.combinators.solitaire.shared.SemanticTypes
 import org.scalatest.FunSpec
 import test.Helper
 

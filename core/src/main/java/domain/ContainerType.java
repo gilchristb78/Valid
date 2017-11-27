@@ -13,4 +13,7 @@ import domain.constraints.MoveInformation;
 public interface ContainerType extends MoveInformation {
      /** Every entity must be capable of returning a (unique) name. */
      String getName();
+
+     /** By default, each container refers to an element of potentially multiple cards. */
+     default boolean isSingleCard() { return false; }
 }

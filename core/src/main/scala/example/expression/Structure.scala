@@ -27,29 +27,34 @@ trait Structure extends Base with JavaSemanticTypes {
       }
     }
 
+    // this is one way to "simplify" but it quickly becomes unreadable...
+    def litOp():com.github.javaparser.ast.expr.Expression = Java("e.getValue()").expression()
+    def leftAccept():com.github.javaparser.ast.expr.Expression = Java("e.getLeft().accept(this)").expression()
+    def rightAccept():com.github.javaparser.ast.expr.Expression = Java("e.getRight().accept(this)").expression()
+    def negOp():com.github.javaparser.ast.expr.Expression = Java("e.getExp().accept(this)").expression()
+
     // implementations of operations: have to be defined before combinators?
-    // consider codegeneratorregistry as before with constraints
+    // consider codegeneratorregistry as before with constraints.
     registerImpl(new Eval, Map(
-      new Lit -> "return e.getValue();",
+      new Lit -> s"return e.getValue();",
       new Add -> "return e.getLeft().accept(this) + e.getRight().accept(this);",
       new Sub -> "return e.getLeft().accept(this) - e.getRight().accept(this);",
       new Neg -> "return -e.getExp().accept(this);"
     ))
 
     registerImpl(new PrettyP, Map(
-      new Lit -> """return "" + e.getValue();""",
+      new Lit -> s"""return "" + ${litOp().toString};""",
       new Add -> """return "(" + e.getLeft().accept(this) + "+" + e.getRight().accept(this) + ")";""",
       new Sub -> """return "(" + e.getLeft().accept(this) + "-" + e.getRight().accept(this) + ")";""",
       new Neg -> """return "-" + e.getExp().accept(this);"""
     ))
 
-    val combined:String =
-      """
-        |java.util.List<Integer> list = new java.util.ArrayList<Integer>();
-        |list.addAll(e.getLeft().accept(this));
-        |list.addAll(e.getRight().accept(this));
-        |return list;
-      """.stripMargin
+    val combined:String ="""
+            |java.util.List<Integer> list = new java.util.ArrayList<Integer>();
+            |list.addAll(e.getLeft().accept(this));
+            |list.addAll(e.getRight().accept(this));
+            |return list;
+          """.stripMargin
 
     registerImpl(new Collect, Map(
       new Lit -> """
@@ -169,21 +174,20 @@ trait Structure extends Base with JavaSemanticTypes {
         case _ =>
       }
 
-      // make constructor
-      val constructor = Java(
-        s"""
-           |public ${sub.getClass.getSimpleName} (${params.mkString(",")}) {
-           |   ${cons.mkString("\n")}
-           |}""".stripMargin).constructors().head
+      // make constructor and add to class
+      val constructor = Java(s"""
+                   |public ${sub.getClass.getSimpleName} (${params.mkString(",")}) {
+                   |   ${cons.mkString("\n")}
+                   |}""".stripMargin).constructors().head
 
       unit.getTypes.get(0).getMembers.add(constructor)
 
-      val visitor = Java (
-        s"""
-           |public <R> R accept(Visitor<R> v) {
-           |   return v.visit(this);
-           |}
-       """.stripMargin).methodDeclarations()
+      // make accept method call and add to class
+      val visitor = Java (s"""
+                   |public <R> R accept(Visitor<R> v) {
+                   |   return v.visit(this);
+                   |}
+                   """.stripMargin).methodDeclarations()
 
       visitor.foreach { x => unit.getTypes.get(0).getMembers.add(x) }
 

@@ -20,17 +20,16 @@ import domain._
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with Controller with GameTemplate  {
 
   object freecellCodeGenerator {
-    val generators = CodeGeneratorRegistry.merge[Expression](
+    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, SufficientFree] {
-        case (registry:CodeGeneratorRegistry[Expression], c:SufficientFree) => {
+        case (registry:CodeGeneratorRegistry[Expression], c:SufficientFree) =>
           val destination = registry(c.destination).get
           val src = registry(c.src).get
           val column = registry(c.column).get
           val reserve = registry(c.reserve).get
           val tableau = registry(c.tableau).get
           Java(s"""ConstraintHelper.sufficientFree($column, $src, $destination, $reserve, $tableau)""").expression()
-        }
       },
 
     ).merge(constraintCodeGenerators.generators)

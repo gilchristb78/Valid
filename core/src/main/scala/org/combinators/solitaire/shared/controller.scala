@@ -13,6 +13,8 @@ import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.solitaire.shared
 import _root_.java.util.UUID
 
+import akka.actor.ActorSystem
+import akka.event.Logging
 import org.combinators.generic
 import domain._
 import domain.constraints.OrConstraint
@@ -23,6 +25,10 @@ import scala.collection.JavaConverters._
 
 trait Controller extends Base with shared.Moves with generic.JavaIdioms with SemanticTypes {
 
+  val logger = Logging.getLogger(ActorSystem("Controller"), "Controller")
+  logger.info("Controller logging activated...")
+
+
   // shared logic to process rules as needed for Solitaire extensions
   // Note: this creates Move classes for each of the moves that are
   // defined in either the presses, drags, or clicks sets 
@@ -31,19 +37,15 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
     val combined = s.getRules.drags.asScala ++ s.getRules.presses.asScala ++ s.getRules.clicks.asScala
     for (mv <- combined) {
+      val moveSymbol = Symbol(mv.getName)
 
-      val moveString = mv.getName
-      val moveSymbol = Symbol(moveString)
-
-
-      // undo & do generation
-      println ("    -- " + moveSymbol + " defined")
+      logger.debug ("    -- " + moveSymbol + " defined")
       updated = updated
-        .addCombinator(new ClassNameDef(moveSymbol, moveString))
-        .addCombinator(new ClassNameGenerator(moveSymbol, moveString))
+        .addCombinator(new ClassNameDef(moveSymbol, mv.getName))
+        .addCombinator(new ClassNameGenerator(moveSymbol, mv.getName))
         .addCombinator(new UndoGenerator(mv, moveSymbol))
         .addCombinator(new DoGenerator(mv, moveSymbol))
-        .addCombinator(new MoveHelper(mv, new SimpleName(moveString), moveSymbol))
+        .addCombinator(new MoveHelper(mv, new SimpleName(mv.getName), moveSymbol))
         .addCombinator(new StatementCombinator (mv.constraints(), moveSymbol))
 
       /**
@@ -66,9 +68,6 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
   def createDragLogic[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = gamma
 
-    // HACK: NEEDS TO BE REMOVED
-    // helper function for dealing with domain-specific mapping; that is,
-
     val rules_it = s.getRules.drags
     while (rules_it.hasNext) {
       val mv = rules_it.next()
@@ -76,10 +75,8 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
       val tgtBase = mv.getTarget.getClass.getSimpleName
       val movable = mv.getMovableElement.getClass.getSimpleName
 
-      ///val moveString = srcBase + "To" + tgtBase
       val moveString = mv.getName
-      val moveSymbol = Constructor(moveString)   // was Symbol... and had moveSymbol:Type
-
+      val moveSymbol = Constructor(moveString)
 
       // capture information about the source and target of each move
       updated = updated
@@ -203,11 +200,11 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
 
           // Only RowView objects create RowView movables; all others create ColumnView... This is
           // a bit of hack from framework.
-          print ("TypeNameL" + typeName)
+          logger.debug ("TypeName:" + typeName)
           val dragType:SimpleName = if (typeName == "Row") {
-            Java("RowView").simpleName
+            Java("RowView").simpleName()
           } else /* if (typeName == "Column") */ {
-            Java("ColumnView").simpleName
+            Java("ColumnView").simpleName()
           }
           updated = updated
             .addCombinator(new ColumnMoveHandler(tpe, Java(typeName).simpleName(), or, terminal, dragType))
@@ -233,7 +230,7 @@ trait Controller extends Base with shared.Moves with generic.JavaIdioms with Sem
             case _ : RowMove => press.row
           }
 
-        println (moveSymbol + ":" + viewType)
+        logger.debug (moveSymbol + ":" + viewType)
         updated = updated
           .addCombinator (new IfBlock(viewType, widget(moveSymbol, complete), curID))
 

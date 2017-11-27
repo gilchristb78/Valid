@@ -4,7 +4,6 @@ import de.tu_dortmund.cs.ls14.cls.interpreter._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.{Move, Solitaire, SolitaireContainerTypes}
 import domain.idiot.Domain
-import org.combinators.solitaire.shared._
 import org.scalatest.FunSpec
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.expr.Name

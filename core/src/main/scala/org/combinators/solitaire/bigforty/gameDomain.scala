@@ -2,7 +2,7 @@ package org.combinators.solitaire.bigforty
 import domain._
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, IntegerLiteralExpr, Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
@@ -14,18 +14,16 @@ import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, cons
 
 
 
-
 class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with SemanticTypes
   with GameTemplate with Score52 with Controller {
 
   object bigFortyCodeGenerator {
-    val generators = CodeGeneratorRegistry.merge[Expression](
+    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, AllSameSuit] {
-        case (registry:CodeGeneratorRegistry[Expression], c:AllSameSuit) => {
+        case (registry:CodeGeneratorRegistry[Expression], c:AllSameSuit) =>
           val column = registry(c.base).get
           Java(s"""ConstraintHelper.allSameSuit($column)""").expression()
-        }
       },
 
     ).merge(constraintCodeGenerators.generators)

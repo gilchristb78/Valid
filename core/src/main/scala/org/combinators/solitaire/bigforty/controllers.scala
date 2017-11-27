@@ -5,7 +5,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
 import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
-import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
+import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.generic
 import domain._

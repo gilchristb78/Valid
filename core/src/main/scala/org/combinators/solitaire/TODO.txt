@@ -1,0 +1,16 @@
+Tasks to complete
+
+1. Synthesize the availableMoves method.
+
+  This can be done by inspecting rules and generating code to try each
+  of the possible cross-product of source and target
+
+  Difficulty: Hard
+
+2. Synthesize the deal in Java using the domain model (as was done in Python).
+
+  Have to remove the logic from each individual variation
+
+  Difficulty: Medium
+
+3. Fix/Complete Stalactites. Still some thorny issues remain with regards to state

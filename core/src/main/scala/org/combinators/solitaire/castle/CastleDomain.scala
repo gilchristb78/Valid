@@ -2,7 +2,7 @@ package org.combinators.solitaire.castle
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, IntegerLiteralExpr, Name, SimpleName}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
@@ -15,7 +15,6 @@ import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, cons
 // domain
 import domain._
 
-
 /**
   * Define domain using Score52 since this is a single-deck solitaire game.
   * @param solitaire    Application domain object with details about solitaire variation.
@@ -24,16 +23,15 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
   with GameTemplate with Score52 with Controller with SemanticTypes {
 
   object castleCodeGenerator {
-    val generators = CodeGeneratorRegistry.merge[Expression](
+    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, SufficientFree] {
-        case (registry:CodeGeneratorRegistry[Expression], c:SufficientFree) => {
+        case (registry:CodeGeneratorRegistry[Expression], c:SufficientFree) =>
           val destination = registry(c.destination).get
           val src = registry(c.src).get
           val column = registry(c.column).get
           val tableau = registry(c.tableau).get
           Java(s"""ConstraintHelper.sufficientFree($column, $src, $destination, $tableau)""").expression()
-        }
       },
 
     ).merge(constraintCodeGenerators.generators)
@@ -98,7 +96,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
          |for (int j = 0; j < $nc; j++) {
          |  $modelName[j] = new $typ(${modelName}Prefix + (j+1));
          |  addModelElement ($modelName[j]);
-         |  $viewName[j] = new ${typView}($modelName[j]);
+         |  $viewName[j] = new $typView($modelName[j]);
          |}""".stripMargin).statements()
   }
 

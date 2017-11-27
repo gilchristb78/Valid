@@ -65,8 +65,6 @@ trait SemanticTypes {
     val target:Type = 'TargetWidgetName
   }
 
-
-
   /**
     * Manages the press/click/release on widgets.
     *

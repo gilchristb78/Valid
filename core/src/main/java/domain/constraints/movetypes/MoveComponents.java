@@ -26,4 +26,7 @@ public enum MoveComponents implements MoveInformation {
 
     public String getName() { return name; }
 
+    /** Only the MovingCard is a single card. All others are multiple. */
+    public boolean isSingleCard() { return this == MovingCard; }
+
 }

@@ -7,7 +7,6 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import domain.{Move, Solitaire, SolitaireContainerTypes}
 import domain.narcotic.Domain
-import org.combinators.solitaire.shared._
 import org.scalatest.FunSpec
 import test.Helper
 

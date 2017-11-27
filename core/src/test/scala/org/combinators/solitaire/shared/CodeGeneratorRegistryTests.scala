@@ -6,7 +6,7 @@ import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.scalatest.FunSpec
 
 class CodeGeneratorRegistryTests extends FunSpec {
-  val codeGen = CodeGeneratorRegistry.merge[String](
+  val codeGen:CodeGeneratorRegistry[String] = CodeGeneratorRegistry.merge[String](
     CodeGeneratorRegistry[String, IfConstraint] {
       case (registry: CodeGeneratorRegistry[String], ifc: IfConstraint) => "if used"
     },

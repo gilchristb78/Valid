@@ -27,7 +27,7 @@ class Stalactites @Inject()(webJars: WebJarsUtil) extends InhabitationController
 
   /*
   * Here I add subclasses, controllers, and moves.
-  *   - subclasses are defined in archway/gameDomain.scala,
+  *   - subclasses are defined in archway/ArchwayDomain.scala,
   *   - controllers are defined in archway/controllers.scala,
   *   - moves are defined in archway/game.scala.
   */

@@ -4,6 +4,8 @@ import java.awt.*;
 import java.util.*;
 
 import domain.deal.Deal;
+import domain.deal.DealStep;
+import domain.deal.Step;
 
 /**
 
@@ -67,11 +69,12 @@ public abstract class Solitaire {
     public void setAutoMoves(boolean b) { autoMovesAvailable = b; }
 
     /** Deal information. */
-    Deal          deal;
+    Deal deal = new Deal();
     public Deal   getDeal() { return deal; }
     public void   setDeal (Deal d) { deal = d;}
+    protected void addDealStep(Step step) { deal.add(step); }
 
-    Rules         rules;
+    Rules rules = new Rules();
     public Rules  getRules() { return rules; }
     public void   setRules(Rules r) { rules = r; }
 
@@ -80,6 +83,11 @@ public abstract class Solitaire {
 
     /** Common separation between widgets in layout. */
     public static final int card_gap = 15;
+
+    /** Simplify writing of domain rules. */
+    protected void addDragMove(Move m) { rules.addDragMove(m); }
+    protected void addPressMove(Move m) { rules.addPressMove(m); }
+    protected void addClickMove(Move m) { rules.addClickMove(m); }
 
 
     /**
@@ -94,11 +102,9 @@ public abstract class Solitaire {
                 Widget w = it.next();
                 if (w.y + w.height > min.height) {
                     min.height = w.y + w.height;
-                    System.out.println ("Height -> " + min.height);
                 }
                 if (w.x + w.width > min.width) {
                     min.width = w.x + w.width;
-                    System.out.println ("Width -> " + min.width);
                 }
             }
         }

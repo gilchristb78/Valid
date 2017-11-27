@@ -75,9 +75,8 @@ public class @{Java(Designate)}Controller extends SolitaireReleasedAdapter {
 
 		@Java(AutoMoves)
 
-		// release the dragging object (this will reset container's dragSource).
+		// release the dragging object and refresh display
 		c.releaseDraggingObject();
-
 		c.repaint();
 	}
 }

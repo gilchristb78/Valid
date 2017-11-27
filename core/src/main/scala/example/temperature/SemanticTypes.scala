@@ -3,40 +3,28 @@ package example.temperature
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 
-/**
-  * Generic small temperature example
-  */
+
 trait SemanticTypes {
 
-  // whenever you want a Generic like in java you use variable
+  // whenever you want a Generic (like in java) you use variable
   val unitType = Variable("UnitType")
   val precisionType = Variable("PrecisionType")
 
   val precisions = Kinding(precisionType)
-  .addOption(precision.floating)
+    .addOption(precision.floating)
     .addOption(precision.integer)
 
   val units = Kinding(unitType)
-    .addOption(scale.celsius)
-    .addOption(scale.fahrenheit)
-    .addOption(scale.kelvin)
+    .addOption(unit.celsius)
+    .addOption(unit.fahrenheit)
+    .addOption(unit.kelvin)
 
-  val kinding = precisions.merge(units)
-//
-//  // when you want subtyping use a taxonomy
-//  // by making this a FIELD it will be detected and then accessible. Note
-//  // these params are strings but they will be referenced as 'Kelvin, i.e.
-//  val taxonomyScales = Taxonomy("Scale").
-//    addSubtype(scale.celsius.toString).
-//    addSubtype(scale.fahrenheit.toString).
-//    addSubtype(scale.kelvin.toString)
+  object unit {
+    def apply (tpe:Type) = 'Unit(tpe)
 
-  object scale {
-    def apply (tpe:Type) = 'Precision(tpe)
-
-    val celsius:Type = 'Celsius
+    val celsius:Type    = 'Celsius
     val fahrenheit:Type = 'Fahrenheit
-    val kelvin:Type = 'Kelvin
+    val kelvin:Type     = 'Kelvin
   }
 
   object precision {
@@ -49,8 +37,21 @@ trait SemanticTypes {
   object artifact {
     def apply (part:Type) = 'Artifact(part)
 
-    val api:Type = 'WeatherAPI
+    val api:Type     = 'WeatherAPI
     val compute:Type = 'Compute
-    val impl:Type = 'Impl
+    val impl:Type    = 'Impl
   }
+
+  val kinding = precisions.merge(units)
 }
+
+
+
+//
+//  // when you want subtyping use a taxonomy
+//  // by making this a FIELD it will be detected and then accessible. Note
+//  // these params are strings but they will be referenced as 'Kelvin, i.e.
+//  val taxonomyScales = Taxonomy("Scale").
+//    addSubtype(scale.celsius.toString).
+//    addSubtype(scale.fahrenheit.toString).
+//    addSubtype(scale.kelvin.toString)

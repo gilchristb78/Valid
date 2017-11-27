@@ -13,12 +13,8 @@ import org.combinators.*;
 /**
  * Move element from one stack to another.
  */
-public class @Java(MoveName) extends ks.common.model.Move {
-
-    /** Destination. */
+public class @Java(MoveName) extends Move {
     protected Stack destination;
-
-    /** Source. */
     protected Stack source;
 
     public @Java(MoveName) (Stack from, Stack to) {
@@ -28,9 +24,7 @@ public class @Java(MoveName) extends ks.common.model.Move {
         this.destination = to;
     }
 
-    // helper methods go here...
-    // but also additional fields...
-    // but also additional constructors...
+    // Extra fields, methods and constructors brought in here
     @Java(Helper)
 
     /**
@@ -38,9 +32,7 @@ public class @Java(MoveName) extends ks.common.model.Move {
      *
      * @@param theGame ks.games.Solitaire
      */
-    public boolean undo(ks.common.games.Solitaire game) {
-
-        // move back. Parameter is forced to return true or false
+    public boolean undo(Solitaire game) {
         @Java(Undo)
     }
 
@@ -50,12 +42,9 @@ public class @Java(MoveName) extends ks.common.model.Move {
      * @@see ks.common.model.Move#doMove(ks.games.Solitaire)
      */
     public boolean doMove(Solitaire game) {
-        if (!valid (game)) {
-            return false;
-        }
+        if (!valid (game)) { return false; }
 
         @Java(Do)
-
         return true;
     }
 
@@ -65,8 +54,6 @@ public class @Java(MoveName) extends ks.common.model.Move {
      * @@see ks.common.model.Move#valid(ks.games.Solitaire)
      */
     public boolean valid(Solitaire game) {
-
         @Java(CheckValid)
-       // return false;   NOT NEEDED WITH NEW CONSTRAINT execution
     }
 }

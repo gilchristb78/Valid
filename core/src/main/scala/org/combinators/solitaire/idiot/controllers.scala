@@ -29,29 +29,13 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     // These are handling the PRESS events... SHOULD BE ABLE TO
     // INFER THESE FROM THE AVAILABLE MOVES
     updated = updated
-      .addCombinator (new SingleCardMoveHandler('Column))
+      .addCombinator (new SingleCardMoveHandler(column))
       .addCombinator (new DealToTableauHandlerLocal())
-      .addCombinator (new TryRemoveCardHandlerLocal('Column))
+      .addCombinator (new TryRemoveCardHandlerLocal(column))
 
     updated = updated
       .addCombinator (new IgnoreReleasedHandler(deck))
       .addCombinator (new IgnoreClickedHandler(deck))
-
-    // Potential moves clarify structure (by type not instance). FIX ME
-    // FIX ME FIX ME FIX ME
-//    updated = updated
-//      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToColumn))
-
-//    updated = updated
-//      .addCombinator (new PotentialMultipleCardMove("Column", 'PlaceColumn))
-//      .addCombinator (new PotentialMultipleCardMove("Column", 'MoveColumn))
-//      .addCombinator (new PotentialMultipleCardMove("Column", 'BuildColumn))
-
-    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
-//    updated = updated
-//      .addCombinator (new ControllerNaming('Column, 'Column, "Idiot"))
-
-    // CASE STUDY: Add Automove logic at end of release handlers
 
     updated
   }
@@ -79,7 +63,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaI
     *
     * @param source
     */
-  class TryRemoveCardHandlerLocal(source:Symbol) {
+  class TryRemoveCardHandlerLocal(source:Type) {
     def apply():Seq[Statement] = {
       Java(s"""|Column srcColumn = (Column) src.getModelElement();
                |Move m = new RemoveCard(srcColumn);

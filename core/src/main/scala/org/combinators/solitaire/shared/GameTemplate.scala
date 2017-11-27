@@ -26,15 +26,10 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
 
   /**
     * Process the solitaire domain object itself to identify combinators to add.
-    * @param gamma
-    * @param s
-    * @tparam G
-    * @return
     */
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = super.init(gamma, s)
 
-    println ("GameTemplate:init...")
     /** handles generating default (empty) automoves. */
     if (!s.hasAutoMoves) {
       updated = updated
@@ -52,20 +47,11 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
       val el = els_it.next()
       val elt:Constructor = Constructor(el)
 
-      println ("process:" + el + " which is equal to " + deck + ":" + (deck==elt))
       // Each of these controllers are expected in the game.
       updated = updated
         .addCombinator (new WidgetController(elt))
         .addCombinator (new ControllerNaming(elt))
     }
-
-//    /** If there is a deck, then need click/release ignored. */
-//    if (s.containers.containsKey(SolitaireContainerTypes.Stock)) {
-//      println ("Deck/Stock is visible; adding ignore...")
-//      updated = updated
-//        .addCombinator (new IgnoreReleasedHandler(deck))
-//        .addCombinator (new IgnoreClickedHandler(deck))
-//    }
 
     updated
   }
@@ -76,8 +62,6 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
 
     val semanticType: Type = game(game.autoMoves)
   }
-
-
 
   class ExtendModel(parent: String, subclass: String, typ:Symbol) {
 

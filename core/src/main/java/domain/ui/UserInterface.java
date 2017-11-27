@@ -51,7 +51,6 @@ public class UserInterface {
                 String typ = type_it.next();
                 if (!elements.contains(typ)) {
                     elements.add(typ);
-                    System.out.println (">> Control Add:" + typ);
                 }
             }
         }

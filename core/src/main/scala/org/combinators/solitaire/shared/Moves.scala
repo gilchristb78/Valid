@@ -239,8 +239,8 @@ trait Moves extends Base with JavaSemanticTypes {
         // Since source-constraint and target-constraint are concatenated together, we need to convert the
         // MovingColumn component into .
         // HACK to make as ((Column) me_widget.getModelElement())
-        val moveColumnRegExp = MoveComponents.MovingColumn.getName().r
-        val moveRowRegExp = MoveComponents.MovingRow.getName().r
+        val moveColumnRegExp = MoveComponents.MovingColumn.getName.r
+        val moveRowRegExp = MoveComponents.MovingRow.getName.r
         val cc3: Option[Expression] = generators(c)
 
         val strExp = if (cc3.isEmpty) {
@@ -271,7 +271,7 @@ trait Moves extends Base with JavaSemanticTypes {
                  |if (source.count() == 0) {
                  |  return;
                  |}
-                 |$widgetVariableName = src.get${draggingType}(me);
+                 |$widgetVariableName = src.get$draggingType(me);
                  |if ($widgetVariableName == null) {
                  |  return;
                  |}

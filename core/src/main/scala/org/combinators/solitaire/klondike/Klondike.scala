@@ -3,19 +3,15 @@ package org.combinators.solitaire.klondike
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.expr.SimpleName
-import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.{InhabitationResult, ReflectedRepository}
+import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
-import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.klondike.Domain
-import org.webjars.play.{RequireJS, WebJarsUtil}
+import org.webjars.play.WebJarsUtil
 
 // domain
 import domain._
-
 
 class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 

@@ -275,7 +275,7 @@ trait EP extends Base with JavaSemanticTypes {
       sub.ops.asScala.foreach {
         case att: Attribute =>
 
-          // override as needed to deal with specializations
+          // override as needed to deal with co-variant specializations
           var revisedTypeName = Type_toString(att.attType)
           if (att.attType == Types.Exp) {
             revisedTypeName = combined

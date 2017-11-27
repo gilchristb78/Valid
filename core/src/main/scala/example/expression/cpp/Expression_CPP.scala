@@ -8,6 +8,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
+import expression.operations.SimplifyAdd
 import expression.{DomainModel, Exp}
 import org.webjars.play.WebJarsUtil
 
@@ -25,7 +26,7 @@ class Expression_CPP @Inject()(webJars: WebJarsUtil) extends InhabitationControl
   // operations to have (including Eval)
   model.ops.add(new Eval)
   model.ops.add(new PrettyP)
-  //model.ops.add(new SimplifyAdd)
+  model.ops.add(new SimplifyAdd)
   model.ops.add(new Collect)
 
   lazy val repository = new ExpressionSynthesis_CPP(model) with CPP_Structure {}
