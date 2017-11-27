@@ -23,8 +23,8 @@ trait Concepts extends SemanticTypes {
   // Truncation of Raw value might lose information
   @combinator object Truncate {
     def apply(exp:Expression) : Expression = Java(s"((int)$exp)").expression()
-    val semanticType:Type = artifact(artifact.compute) :&: precision(precision.fullPrecision) =>:
-                            artifact(artifact.compute) :&: precision(precision.lossyPrecision :&: precision.integer)
+    val semanticType:Type = artifact(artifact.compute) :&: precision(precision.fullPrecision) :&: unit(unitType) =>:
+                            artifact(artifact.compute) :&: precision(precision.lossyPrecision :&: precision.integer) :&: unit(unitType)
   }
 
   // Offers static API for extracting current temperature as celsius

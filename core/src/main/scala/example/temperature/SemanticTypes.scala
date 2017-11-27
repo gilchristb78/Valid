@@ -20,8 +20,8 @@ trait SemanticTypes {
     .addOption(unit.kelvin)
 
   // Conforms to Java native types
-//  val taxonomyScales = Taxonomy(precision.floating.toString).
-//    addSubtype(precision.integer.toString)
+  val taxonomyScales = Taxonomy(precision.floating.toString).
+    addSubtype(precision.integer.toString)
 
   val taxonomyLoss = Taxonomy(precision.lossyPrecision.toString).
     addSubtype(precision.fullPrecision.toString)
