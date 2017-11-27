@@ -9,7 +9,7 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.generic
 import org.combinators.solitaire.shared
 
-trait StalactitesColumnController extends shared.Controller with generic.JavaIdioms {
+trait StalactitesColumnController extends shared.Controller with generic.JavaCodeIdioms {
 //
 //  // column move designated combinators
 //  @combinator object ColumnControllerDef extends WidgetController('StalactitesColumn)

@@ -14,7 +14,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import org.combinators.generic
 import domain._
 
-trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms {
+trait controllers extends shared.Controller with shared.Moves with generic.JavaCodeIdioms {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma: ReflectedRepository[G], s: Solitaire):

@@ -11,7 +11,7 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.generic
 import org.combinators.solitaire.shared
 
-trait PileToPileMoves extends shared.Moves with generic.JavaIdioms {
+trait PileToPileMoves extends shared.Moves with generic.JavaCodeIdioms {
 //  @combinator object ReservePileToFoundationPileMove extends SolitaireMove('ReservePileToFoundationPile)
 //
 //  @combinator object ReservePileToFoundationName {

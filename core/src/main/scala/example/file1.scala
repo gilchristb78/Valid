@@ -21,7 +21,7 @@ import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type}
 
 
 // just to show that traits can pull in other combinators by extension
-trait SomeCombinators extends generic.JavaIdioms  {
+trait SomeCombinators extends generic.JavaCodeIdioms  {
 
   val alpha = Variable("TempType")
 

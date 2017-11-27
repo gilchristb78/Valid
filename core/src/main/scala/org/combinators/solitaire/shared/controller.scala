@@ -23,7 +23,7 @@ import org.combinators.solitaire.shared.compilation.StatementCombinator
 
 import scala.collection.JavaConverters._
 
-trait Controller extends Base with shared.Moves with generic.JavaIdioms with SemanticTypes {
+trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with SemanticTypes {
 
   val logger = Logging.getLogger(ActorSystem("Controller"), "Controller")
   logger.info("Controller logging activated...")

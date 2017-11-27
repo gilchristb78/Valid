@@ -10,17 +10,17 @@ trait SemanticTypes {
   val unitType = Variable("UnitType")
   val precisionType = Variable("PrecisionType")
 
-  val precisions = Kinding(precisionType)
+  val precisions:Kinding = Kinding(precisionType)
     .addOption(precision.floating)
     .addOption(precision.integer)
 
-  val units = Kinding(unitType)
+  val units:Kinding = Kinding(unitType)
     .addOption(unit.celsius)
     .addOption(unit.fahrenheit)
     .addOption(unit.kelvin)
 
   object unit {
-    def apply (tpe:Type) = 'Unit(tpe)
+    def apply (tpe:Type):Type = 'Unit(tpe)
 
     val celsius:Type    = 'Celsius
     val fahrenheit:Type = 'Fahrenheit
@@ -28,21 +28,21 @@ trait SemanticTypes {
   }
 
   object precision {
-    def apply (tpe:Type) = 'Precision(tpe)
+    def apply (tpe:Type):Type = 'Precision(tpe)
 
     val integer: Type = 'Integer
     val floating:Type = 'Float
   }
 
   object artifact {
-    def apply (part:Type) = 'Artifact(part)
+    def apply (part:Type):Type = 'Artifact(part)
 
     val api:Type     = 'WeatherAPI
     val compute:Type = 'Compute
     val impl:Type    = 'Impl
   }
 
-  val kinding = precisions.merge(units)
+  val kinding:Kinding = precisions.merge(units)
 }
 
 

@@ -14,7 +14,6 @@ import org.webjars.play.WebJarsUtil
 
 import scala.collection.JavaConverters._
 
-
 class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
   // Configure the desired (sub)types and operations

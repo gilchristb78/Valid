@@ -31,7 +31,7 @@ import scala.collection.mutable.ListBuffer
   * Either a rule must be associated with an action, or the action must be
   * explicity ignored. See ArchwayRules in game.scala.
   */
-trait Controllers extends shared.Controller with shared.Moves with generic.JavaIdioms  {
+trait Controllers extends shared.Controller with shared.Moves with generic.JavaCodeIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :

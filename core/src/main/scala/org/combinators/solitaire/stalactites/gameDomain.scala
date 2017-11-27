@@ -9,14 +9,14 @@ import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared._
-import org.combinators.generic.JavaIdioms
+import org.combinators.generic.JavaCodeIdioms
 
 // domain
 import domain._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
-class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with JavaIdioms with Score52 {
+class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with JavaCodeIdioms with Score52 {
 
   /**
     * Every solitaire variation exists within a designated Java package.

@@ -3,7 +3,7 @@ package org.combinators.solitaire.stalactites
 import org.combinators.generic
 import org.combinators.solitaire.shared.{GameTemplate, Score52}
 
-trait Game extends GameTemplate with Score52 with generic.JavaIdioms {
+trait Game extends GameTemplate with Score52 with generic.JavaCodeIdioms {
 //
 //  /**
 //    * Stalactites's domain structure has:

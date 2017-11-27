@@ -10,7 +10,7 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.generic
 import domain._
 
-trait controllers extends shared.Controller with shared.Moves with generic.JavaIdioms {
+trait controllers extends shared.Controller with shared.Moves with generic.JavaCodeIdioms {
   override def init[G <: SolitaireDomain](gamma: ReflectedRepository[G], s: Solitaire): ReflectedRepository[G] = {
     var updated = super.init(gamma, s)
     println(">>> BigForty Controller dynamic combinators.")
