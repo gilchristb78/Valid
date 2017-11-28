@@ -18,7 +18,8 @@ class Temperature @Inject()(webJars: WebJarsUtil) extends InhabitationController
   // to consider how to deny the synthesis of the second one...
   lazy val repository = new Concepts {}
   import repository._
-  lazy val Gamma = ReflectedRepository(repository, kinding=kinding, semanticTaxonomy=taxonomy, classLoader = this.getClass.getClassLoader)
+  lazy val Gamma = ReflectedRepository(repository, kinding=precisions.merge(units), semanticTaxonomy=taxonomyLoss,
+    classLoader = this.getClass.getClassLoader)
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](artifact(artifact.api) :&: precision(precision.floating))
     .addJob[CompilationUnit](artifact(artifact.impl) :&: unit(unit.kelvin) :&: precision(precision.integer))
