@@ -78,6 +78,10 @@ GET   /temperature/raw_:number              example.temperature.Temperature.raw(
 GET   /temperature/prepare                  example.temperature.Temperature.prepare(number: Long)
 GET   /temperature/temperature.git/*file    example.temperature.Temperature.serveFile(file)
 
+GET   /timeGadget                          example.timeGadget.TimeGadgetController.overview()
+GET   /timeGadget/raw_:number              example.timeGadget.TimeGadgetController.raw(number: Long)
+GET   /timeGadget/prepare                  example.timeGadget.TimeGadgetController.prepare(number: Long)
+GET   /timeGadget/timeGadget.git/*file    example.timeGadget.TimeGadgetController.serveFile(file)
 
 GET   /cpp_ep                              example.expression.cpp.Expression_CPP.overview()
 GET   /cpp_ep/raw_:number                  example.expression.cpp.Expression_CPP.raw(number: Long)
