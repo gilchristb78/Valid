@@ -3,8 +3,7 @@ package example.expression
 import com.github.javaparser.ast.expr.SimpleName
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import expression.Exp
-import expression.Operation
+import expression.{Exp, Operation}
 
 
 /**
@@ -13,7 +12,7 @@ import expression.Operation
   * For any of these that are ever going to be translated directly into Java Type Names, you must
   * make them Constructor.
   */
-trait SemanticTypes {
+trait EP_SemanticTypes {
 
   val driver:Type = 'Driver
 

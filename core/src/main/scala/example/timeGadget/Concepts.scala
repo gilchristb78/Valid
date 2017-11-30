@@ -13,23 +13,25 @@ import time.TemperatureUnit
 trait Concepts extends SemanticTypes with VariableDeclarations {
 
   class CurrentTemperature(locationId: String) {
-    def apply(conversion: Expression => Expression): Seq[BodyDeclaration[_]] =
+    def apply(conversion: Expression => Expression): Seq[BodyDeclaration[_]] = {
       Java(s"""|private float lastTemperature = 0;
                |private java.time.LocalDateTime lastChecked = null;
                |
                |public float getTemperature(java.time.LocalDateTime currentTime) {
                |  if (lastChecked == null || currentTime.isAfter(lastChecked.plusMinutes(30))) {
                |    try {
-               |	    java.net.URL url = new java.net.URL("http://api.weatherunlocked.com/api/forecast/${locationId}?app_id={APPID}&app_key={APPKEY}");
+               |	    java.net.URL url = new java.net.URL("http://api.weatherunlocked.com/api/forecast/$locationId?app_id={APPID}&app_key={APPKEY}");
                |      java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader (url.openStream()));
                |      StringBuffer sb = new StringBuffer(br.readLine());
                |      int c = sb.indexOf("temp_c");
-               |      lastTemperature = Float.valueOf(sb.substring(c+9, sb.indexOf(",", c)));
+               |      float celsiusTemp = Float.valueOf(sb.substring(c+9, sb.indexOf(",", c)));
+               |      lastTemperature = ${conversion(Java("celsiusTemp").expression[Expression]())};
                |    } catch (Exception e) { return Float.NaN; }
                |    lastChecked = currentTime;
                |  }
                |  return lastTemperature;
                |}""".stripMargin).classBodyDeclarations()
+        }
 
     val semanticType:Type =
       converter(feature.temperature(TemperatureUnit.Celsius), temperatureUnit) =>:
@@ -37,11 +39,11 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
   }
 
   @combinator object FahrenheitConverter {
-    def apply: Expression => Expression = { celsius => Java(s"((9/5.0f)*$celsius + 32)").expression() }
+    def apply: Expression => Expression = { celsius => Java(s"((9/5.0f)*$celsius + 32)").expression[Expression]() }
     val semanticType: Type = converter(feature.temperature(TemperatureUnit.Celsius), feature.temperature(TemperatureUnit.Fahrenheit))
   }
   @combinator object KelvinConverter {
-    def apply: Expression => Expression = { celsius => Java(s"($celsius + 273.15f)").expression() }
+    def apply: Expression => Expression = { celsius => Java(s"($celsius + 273.15f)").expression[Expression]() }
     val semanticType: Type = converter(feature.temperature(TemperatureUnit.Celsius), feature.temperature(TemperatureUnit.Kelvin))
   }
   @combinator object CelsiusConverter {

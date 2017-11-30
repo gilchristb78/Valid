@@ -1,15 +1,11 @@
 package example.expression.j
 
 import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.types._
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import example.expression.SemanticTypes
 import expression.{Exp, Operation}
 import expression.types.{FrameworkTypes, GenericType, TypeInformation, Types}
-
 
 /**
   * These codify the semantic types used by the Expression problem.
@@ -29,6 +25,13 @@ trait JavaSemanticTypes extends SemanticTypes {
     * @return
     */
   def getImplementation(op:Operation):Map[Class[_ <: Exp],MethodDeclaration] = implementations(op.getClass)
+
+  def registerImpl (op:Operation, map:Map[Exp,String]): Unit = {
+    map.keys.foreach {
+      key =>
+        addImpl(op, key, Java(map(key)).statements())
+    }
+  }
 
   /**
     * For the given operation, add the sequence of statements to implement for given expression subtype.

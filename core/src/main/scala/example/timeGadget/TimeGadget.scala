@@ -14,7 +14,7 @@ import time.{TemperatureUnit, TimeGadget}
 
 class TimeGadgetController @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
-  val gadget = new TimeGadget("Worcester", TemperatureUnit.Kelvin)
+  val gadget = new TimeGadget("Worcester", TemperatureUnit.Fahrenheit)
 
   lazy val repository = new Concepts {}
   import repository._

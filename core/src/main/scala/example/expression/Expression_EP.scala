@@ -31,7 +31,7 @@ class Expression_EP @Inject()(webJars: WebJarsUtil) extends InhabitationControll
   //model.ops.add(new SimplifyAdd)
   model.ops.add(new Collect)
 
-  lazy val repository = new ExpressionSynthesis(model) with EP {}
+  lazy val repository = new EP_ExpressionSynthesis(model) with EP {}
   import repository._
 
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), model)

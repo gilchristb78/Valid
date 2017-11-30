@@ -1,12 +1,9 @@
 package example.expression.j
 
 import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.types._
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
-import example.expression.SemanticTypes
+import example.expression.EP_SemanticTypes
 import expression.{Exp, Operation}
 import expression.types.{FrameworkTypes, GenericType, TypeInformation, Types}
 
@@ -17,7 +14,7 @@ import expression.types.{FrameworkTypes, GenericType, TypeInformation, Types}
   * For any of these that are ever going to be translated directly into Java Type Names, you must
   * make them Constructor.
   */
-trait JavaSemanticTypes extends SemanticTypes {
+trait EP_JavaSemanticTypes extends EP_SemanticTypes {
 
   /** Implementations for an operation. Map(op, Map(exp,MethodDecls)). */
   var implementations:Map[Class[_ <: Operation],Map[Class[_ <: Exp],MethodDeclaration]] = Map()

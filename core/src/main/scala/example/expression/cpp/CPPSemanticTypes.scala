@@ -74,4 +74,7 @@ trait CPPSemanticTypes extends SemanticTypes {
     val base: Type = 'Base
   }
 
+  val driver:Type = 'Driver
+
+
 }

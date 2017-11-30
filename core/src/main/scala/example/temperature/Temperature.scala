@@ -47,8 +47,8 @@ object Manual {
   def main(args: Array[String]): Unit = {
     lazy val repository = new Concepts {}
     import repository._
-    lazy val Gamma = ReflectedRepository(repository, kinding = kinding)
-
+    lazy val Gamma = ReflectedRepository(repository, kinding=precisions.merge(units), semanticTaxonomy=taxonomyLoss,
+      classLoader = this.getClass.getClassLoader)
     println("Expressions that return Fahrenheit")
     Gamma.inhabit[Expression](artifact(artifact.compute) :&: precision(precision.floating) :&: unit(unit.fahrenheit))
       .interpretedTerms.values.flatMap(_._2)
