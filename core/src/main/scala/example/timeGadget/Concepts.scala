@@ -24,7 +24,8 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
                |      java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader (url.openStream()));
                |      StringBuffer sb = new StringBuffer(br.readLine());
                |      int c = sb.indexOf("temp_c");
-               |      lastTemperature = Float.valueOf(sb.substring(c+9, sb.indexOf(",", c)));
+               |      float celsiusTemperature = Float.valueOf(sb.substring(c+9, sb.indexOf(",", c)));
+               |      lastTemperature = ${conversion(Java("celsiusTemperature").expression())};
                |    } catch (Exception e) { return Float.NaN; }
                |    lastChecked = currentTime;
                |  }
