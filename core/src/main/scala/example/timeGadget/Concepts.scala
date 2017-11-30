@@ -25,7 +25,7 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
                |      StringBuffer sb = new StringBuffer(br.readLine());
                |      int c = sb.indexOf("temp_c");
                |      float celsiusTemperature = Float.valueOf(sb.substring(c+9, sb.indexOf(",", c)));
-               |      lastTemperature = ${conversion(Java("celsiusTemperature").expression())};
+               |      lastTemperature = ${conversion(Java("celsiusTemperature").expression[Expression]())};
                |    } catch (Exception e) { return Float.NaN; }
                |    lastChecked = currentTime;
                |  }
@@ -38,11 +38,11 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
   }
 
   @combinator object FahrenheitConverter {
-    def apply: Expression => Expression = { celsius => Java(s"((9/5.0f)*$celsius + 32)").expression() }
+    def apply: Expression => Expression = { celsius => Java(s"((9/5.0f)*$celsius + 32)").expression[Expression]() }
     val semanticType: Type = converter(feature.temperature(TemperatureUnit.Celsius), feature.temperature(TemperatureUnit.Fahrenheit))
   }
   @combinator object KelvinConverter {
-    def apply: Expression => Expression = { celsius => Java(s"($celsius + 273.15f)").expression() }
+    def apply: Expression => Expression = { celsius => Java(s"($celsius + 273.15f)").expression[Expression]() }
     val semanticType: Type = converter(feature.temperature(TemperatureUnit.Celsius), feature.temperature(TemperatureUnit.Kelvin))
   }
   @combinator object CelsiusConverter {
