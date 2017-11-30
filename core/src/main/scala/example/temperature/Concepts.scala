@@ -27,15 +27,20 @@ trait Concepts extends SemanticTypes {
                             artifact(artifact.compute) :&: precision(precision.lossyPrecision :&: precision.integer) :&: unit(unitType)
   }
 
+  @combinator object WorcesterLocation {
+    def apply: String = "01609"
+    val semanticType:Type = artifact(artifact.location)
+  }
+
   // Offers static API for extracting current temperature as celsius
-  @combinator object CurrentWorcesterWeather {
-    def apply: CompilationUnit =
+  @combinator object CurrentWeather {
+    def apply(zip:String): CompilationUnit =
       Java(s"""|import java.io.*;
                |import java.net.*;
-               |public class WorcesterWeather {
+               |public class WeatherAPI {
                |  public static float getTemperature() {
                |		try {
-               |			URL url = new URL("http://api.weatherunlocked.com/api/forecast/us.01609?app_id={APPID}&app_key={APPKEY}");
+               |			URL url = new URL("http://api.weatherunlocked.com/api/forecast/us.$zip?app_id={APPID}&app_key={APPKEY}");
                |			BufferedReader br = new BufferedReader(new InputStreamReader (url.openStream()));
                |			StringBuffer sb = new StringBuffer(br.readLine());
                |			int c = sb.indexOf("temp_c");
@@ -44,7 +49,8 @@ trait Concepts extends SemanticTypes {
                |	}
                |}""".stripMargin).compilationUnit()
 
-    val semanticType:Type = artifact(artifact.api) :&: precision(precision.floating :&: precision.fullPrecision) :&: unit(unit.celsius)
+    val semanticType:Type = artifact(artifact.location) =>:
+      artifact(artifact.api) :&: precision(precision.floating :&: precision.fullPrecision) :&: unit(unit.celsius)
   }
 
   // Adapt some expression (precision/unit) without losing the (precision/unit)
@@ -70,7 +76,7 @@ trait Concepts extends SemanticTypes {
                             artifact(artifact.compute) :&: precision(precision.floating :&: precision.fullPrecision) :&: unit(unit.kelvin)
   }
   @combinator object TemperatureAPI {
-    def apply:Expression = Java("WorcesterWeather.getTemperature()").expression()
+    def apply:Expression = Java("WeatherAPI.getTemperature()").expression()
     val semanticType:Type = artifact(artifact.compute) :&: precision(precision.floating :&: precision.fullPrecision) :&: unit(unit.celsius)
   }
 }

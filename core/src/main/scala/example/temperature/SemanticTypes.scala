@@ -5,24 +5,24 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 
 trait SemanticTypes {
 
-  // whenever you want a Generic (like in java) you use variable
-  val unitType = Variable("UnitType")
-  val precisionType = Variable("PrecisionType")
-
-  val precisions:Kinding = Kinding(precisionType)
-    .addOption(precision.floating)
-    .addOption(precision.integer)
-
+  // whenever you want a Generic (like in java) you use variable with kinding
+  val unitType      = Variable("UnitType")
   val units:Kinding = Kinding(unitType)
     .addOption(unit.celsius)
     .addOption(unit.fahrenheit)
     .addOption(unit.kelvin)
 
-  val taxonomyLoss = Taxonomy(precision.lossyPrecision.toString).
+  val precisionType = Variable("PrecisionType")
+  val precisions:Kinding = Kinding(precisionType)
+    .addOption(precision.floating)
+    .addOption(precision.integer)
+
+  // whenever you want a subtype, use Taxonomies
+  val taxonomyLoss:Taxonomy = Taxonomy(precision.lossyPrecision.toString).
     addSubtype(precision.fullPrecision.toString)
 
   object unit {
-    def apply (tpe:Type):Type = 'Unit(tpe)
+    def apply (part:Type):Type = 'Unit(part)
 
     val celsius:Type    = 'Celsius
     val fahrenheit:Type = 'Fahrenheit
@@ -30,7 +30,7 @@ trait SemanticTypes {
   }
 
   object precision {
-    def apply (tpe:Type):Type = 'Precision(tpe)
+    def apply (part:Type):Type = 'Precision(part)
 
     val fullPrecision:Type = 'Full
     val lossyPrecision:Type = 'Lossy
@@ -41,11 +41,9 @@ trait SemanticTypes {
   object artifact {
     def apply (part:Type):Type = 'Artifact(part)
 
-    val api:Type     = 'WeatherAPI
-    val compute:Type = 'Compute
-    val impl:Type    = 'Impl
+    val api:Type       = 'WeatherAPI
+    val impl:Type      = 'Impl
+    val compute:Type   = 'Compute
+    val location:Type  = 'Location
   }
-
-  val kinding:Kinding = precisions.merge(units)
-  val taxonomy:Taxonomy = taxonomyLoss
 }
