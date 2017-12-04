@@ -1,10 +1,10 @@
-package example.expression
+package example.expression.covariant
 
 import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.twirl.Java
-import example.expression.j.EP_JavaSemanticTypes
+import example.expression.ExpressionDomain
 import expression._
 
 import scala.collection.JavaConverters._

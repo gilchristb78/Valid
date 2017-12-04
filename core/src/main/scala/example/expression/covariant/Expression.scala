@@ -1,4 +1,4 @@
-package example.expression
+package example.expression.covariant
 
 import javax.inject.Inject
 
@@ -8,7 +8,6 @@ import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
-import expression.operations.SimplifyAdd
 import expression.{DomainModel, Exp}
 import org.webjars.play.WebJarsUtil
 
@@ -34,7 +33,7 @@ class Expression_EP @Inject()(webJars: WebJarsUtil) extends InhabitationControll
   lazy val repository = new EP_ExpressionSynthesis(model) with EP {}
   import repository._
 
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), model)
+  var Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), model)
 
   /** This needs to be defined, and it is set from Gamma. */
   lazy val combinatorComponents = Gamma.combinatorComponents
@@ -78,7 +77,6 @@ class Expression_EP @Inject()(webJars: WebJarsUtil) extends InhabitationControll
     .addJob[CompilationUnit](ep(ep.finalType, new Add, List(new PrettyP)))
     .addJob[CompilationUnit](ep(ep.finalType, new Sub, List(new PrettyP)))
     .addJob[CompilationUnit](ep(ep.finalType, new Neg, List(new PrettyP)))
-
 
     .addJob[CompilationUnit](ep(ep.finalType, new Lit, List(new Collect)))
     .addJob[CompilationUnit](ep(ep.finalType, new Add, List(new Collect)))

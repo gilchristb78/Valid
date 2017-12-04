@@ -1,7 +1,6 @@
-package example.expression
+package example.expression.covariant
 
-import com.github.javaparser.ast.expr.SimpleName
-import de.tu_dortmund.cs.ls14.cls.types._
+import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import expression.{Exp, Operation}
 
@@ -47,7 +46,7 @@ trait EP_SemanticTypes {
     * Types appear here
     */
   object data {
-    def apply (uniq:SimpleName) : Constructor = 'Data(Constructor(uniq.toString))
+    def apply (uniq:String) : Constructor = 'Data(Constructor(uniq))
   }
 
   object ep {

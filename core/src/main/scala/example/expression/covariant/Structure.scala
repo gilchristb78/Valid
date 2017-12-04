@@ -1,4 +1,5 @@
-package example.expression
+package example.expression.covariant;
+
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
@@ -7,10 +8,10 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
-import example.expression.j.EP_JavaSemanticTypes
-import expression._
+import example.expression.{Base, ExpressionDomain}
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
+import expression._
 import expression.types.Types
 
 import scala.collection.JavaConverters._
@@ -543,5 +544,3 @@ trait EP extends Base with EP_JavaSemanticTypes {
   }
 
 }
-
-
