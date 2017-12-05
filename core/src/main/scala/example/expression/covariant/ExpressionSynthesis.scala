@@ -10,7 +10,7 @@ import expression._
 import scala.collection.JavaConverters._
 
 /** Future work to sanitize combinators to be independent of Exp. */
-class EP_ExpressionSynthesis(override val domain:DomainModel) extends ExpressionDomain(domain) with EP_JavaSemanticTypes {
+class ExpressionSynthesis(override val domain:DomainModel) extends ExpressionDomain(domain) with SemanticTypes {
 
   /** Construct visitor abstract class. */
   @combinator object Visitor {

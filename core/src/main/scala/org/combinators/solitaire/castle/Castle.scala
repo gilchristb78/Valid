@@ -2,12 +2,12 @@ package org.combinators.solitaire.castle
 
 import javax.inject.Inject
 
-import domain.castle.Domain
 import org.webjars.play.WebJarsUtil
 import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
+
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
 
 // domain
@@ -15,13 +15,22 @@ import domain._
 
 class Castle @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
-  val s:Solitaire = new Domain()
+  val s:Solitaire = new domain.castle.Domain()
 
   /** Domain for Klondike defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new CastleDomain(s) with controllers {}
   import repository._
 
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+  var Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+
+  // move these to shared area
+  Gamma = Gamma
+    .addCombinator (new DefineRootPackage(s))
+    .addCombinator (new DefineNameOfTheGame(s))
+    .addCombinator (new ProcessView(s))
+    .addCombinator (new ProcessControl(s))
+    .addCombinator (new ProcessFields(s))
+    .addCombinator (new HelperMethodsCastle(s))
 
 
   lazy val combinatorComponents = Gamma.combinatorComponents

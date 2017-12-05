@@ -28,7 +28,6 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
   val logger = Logging.getLogger(ActorSystem("Controller"), "Controller")
   logger.info("Controller logging activated...")
 
-
   // shared logic to process rules as needed for Solitaire extensions
   // Note: this creates Move classes for each of the moves that are
   // defined in either the presses, drags, or clicks sets 

@@ -9,8 +9,6 @@ import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import org.combinators.solitaire.shared
 import org.combinators
-
-
 import de.tu_dortmund.cs.ls14.twirl.Java
 
 import scala.collection.JavaConverters._
@@ -19,7 +17,7 @@ import scala.collection.JavaConverters._
 import domain._
 import domain.ui._
 
-trait GameTemplate extends Base with Controller with SemanticTypes {
+trait GameTemplate extends Base with Controller with SemanticTypes with WinningLogic with DealLogic  {
 
   // domain model elements for game defined here...
   lazy val tableauType = Variable("TableauType")
@@ -54,6 +52,28 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     }
 
     updated
+  }
+
+
+  /**
+    * Every solitaire variation belongs in its own package. Take name of game
+    * and make it lowercase to conform to Java
+    */
+  class DefineRootPackage(s:Solitaire) {
+    def apply: Name = {
+      val name = s.name.toLowerCase
+      Java("org.combinators.solitaire." + name).name()
+    }
+    val semanticType: Type = packageName
+  }
+
+  /**
+    * Every solitaire variation has its own subclass with given name
+    */
+  class DefineNameOfTheGame(s:Solitaire) {
+    def apply: SimpleName = Java(s.name).simpleName()
+
+    val semanticType: Type = variationName
   }
 
   /** Do not use @combinator annotation since must wait until domain realized. */
@@ -119,9 +139,6 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
         game(initialized)
   }
 
-  // these next three functions help map domain model to Java code
-  // not entirely sure this is 'GUI' stuff.
-
   /**
     * Within a solitaire plugin, one needs to construct model elements that are added to the
     * model, and then view widgets to realize these model elements on the screen. This function
@@ -181,7 +198,6 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
             |}""".stripMargin).statements()
   }
 
-
   /**
     * Convenient function to iterate over the construction of individual entity and view widgets.
     *
@@ -203,6 +219,123 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
          |  addModelElement ($modelName[j]);
          |  $viewName[j] = new ${typ}View($modelName[j]);
          |}""".stripMargin).statements()
+  }
+
+  def processFieldGen(modelType:String, name:String, num:Int):Seq[FieldDeclaration] = {
+    Java(s"""
+            |public $modelType[] $name = new $modelType[$num];
+            |public static final String ${name}Prefix = "$name";
+            |public ${modelType}View[] ${name}View = new ${modelType}View[$num];
+            |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+  }
+
+  /** Process Solitaire domain model to construct game(game.fields). */
+  class ProcessFields (sol:Solitaire) {
+    def apply: Seq[FieldDeclaration] = {
+
+      var fields = Java(s"""
+             |IntegerView scoreView;
+             |IntegerView numLeftView;
+             """.stripMargin).fieldDeclarations()
+
+      for (containerType:ContainerType <- sol.containers.keySet.asScala) {
+        val container = sol.containers.get(containerType)
+        val name = typeOfContainer(containerType)
+        container match {
+
+          case d: Stock =>
+            fields = fields ++ deckFieldGen(d)
+
+          case _ =>
+            val tpe: String = container.types().next
+
+            fields = fields ++ processFieldGen(tpe, name, container.size())
+        }
+      }
+
+      fields
+    }
+
+    val semanticType: Type = game(game.fields)
+  }
+
+  /** Process Solitaire domain model to construct game(game.control). */
+  class ProcessControl (sol:Solitaire) {
+    def apply: Seq[Statement] = {
+      var stmts: Seq[Statement] = Seq.empty
+      for (containerType:ContainerType <- sol.containers.keySet.asScala) {
+        val container = sol.containers.get(containerType)
+        val name = typeOfContainer(containerType)
+         container match {
+
+          case d: Stock =>
+            if (!d.isInvisible) {
+              stmts = stmts ++ controllerGen(s"${name}View", "DeckController")
+            }
+
+          case _ =>
+            val tpe: String = container.types().next
+            stmts = stmts ++ loopControllerGen(container, s"${name}View", s"${tpe}Controller")
+        }
+      }
+
+      stmts
+    }
+
+    val semanticType: Type = game(game.control)
+  }
+
+  /** Process Solitaire domain model to construct game(game.view). */
+  class ProcessView (sol:Solitaire) {
+    def apply: Seq[Statement] = {
+      var stmts: Seq[Statement] = Seq.empty
+      for (containerType:ContainerType <- sol.containers.keySet.asScala) {
+        val container = sol.containers.get(containerType)
+        val name = typeOfContainer(containerType)
+
+        container match {
+
+          case d: Stock =>
+            if (!d.isInvisible) {
+              stmts = stmts ++ Java(s"""${name}View = new DeckView($name);""").statements()
+              stmts = stmts ++ layout_place_one(d, Java(s"${name}View").name())
+            }
+
+          case _ =>
+            stmts = stmts ++ layout_place_it(container, Java(s"${name}View").name())
+        }
+      }
+
+      stmts
+    }
+
+    val semanticType: Type = game(game.view)
+  }
+
+  /** Process Solitaire domain model to construct game(game.model). */
+  class ProcessModel (sol:Solitaire) {
+    def apply: Seq[Statement] = {
+      var stmts: Seq[Statement] = Seq.empty
+      for (containerType:ContainerType <- sol.containers.keySet.asScala) {
+        val container = sol.containers.get(containerType)
+        val name = typeOfContainer(containerType)
+
+        container match {
+
+          case d: Stock =>
+            stmts = stmts ++ deckGen(name, d)
+
+          case _ =>
+            val tpe: String = container.types().next
+
+            stmts = stmts ++ loopConstructGen(container, name, name + "View", tpe)
+        }
+      }
+
+      stmts
+    }
+
+    val semanticType: Type = game(game.model)
   }
 
   /**
@@ -399,4 +532,7 @@ trait GameTemplate extends Base with Controller with SemanticTypes {
     val semanticType: Type =
       packageName =>: variationName =>: constraints(constraints.methods) =>: constraints(complete)
   }
+
+
+
 }

@@ -9,7 +9,7 @@ import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
 
 // domain
 import domain._
@@ -46,7 +46,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   @combinator object MakeWastePileView extends ExtendView("PileView", "WastePileView", "WastePile", 'WastePileViewClass)
 
   /**
-    * Idiot has a deck and a collection of Columns.
+    * Klondike elements should be extracted from the domain
     */
   @combinator object InitModel {
 
@@ -110,25 +110,25 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = variationName =>: game(game.control)
   }
 
-  /**
-    * Fill in eventually
-    */
-  @combinator object InitLayout {
-    def apply(): Seq[Statement] = {
-      Java(s"""// prepare game by dealing facedown cards to all columns, then one face up
-		    |for (int pileNum = 0; pileNum < 7; pileNum++) {
-			  |  for (int num = 0; num < pileNum; num++) {
-				|    Card c = deck.get();
-        |    c.setFaceUp (false);
-				|    fieldBuildablePiles[pileNum].add (c);
-			  |  }
-        |  // This one is face up.
-			  |  fieldBuildablePiles[pileNum].add (deck.get());
-		    |}""".stripMargin).statements()
-    }
-
-    val semanticType: Type = game(game.deal)
-  }
+//  /**
+//    * NO longer needed, given deal semantics.
+//    */
+//  @combinator object InitLayout {
+//    def apply(): Seq[Statement] = {
+//      Java(s"""// prepare game by dealing facedown cards to all columns, then one face up
+//		    |for (int pileNum = 0; pileNum < 7; pileNum++) {
+//			  |  for (int num = 0; num < pileNum; num++) {
+//				|    Card c = deck.get();
+//        |    c.setFaceUp (false);
+//				|    fieldBuildablePiles[pileNum].add (c);
+//			  |  }
+//        |  // This one is face up.
+//			  |  fieldBuildablePiles[pileNum].add (deck.get());
+//		    |}""".stripMargin).statements()
+//    }
+//
+//    val semanticType: Type = game(game.deal)
+//  }
 
   // vagaries of java imports means these must be defined as well.
   @combinator object ExtraImports {
@@ -146,14 +146,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     * Useful for filtering the valid moves when pressing on a column.
     */
   @combinator object ExtraMethods {
-    def apply(): Seq[MethodDeclaration] = {
-      Java(s"""
-           |public boolean validColumn(Column column) {
-           |		return column.alternatingColors() && column.descending();
-           |}
-            """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
-
-    }
+    def apply(): Seq[MethodDeclaration] = Seq.empty
 
     val semanticType: Type = game(game.methods)
   }
@@ -165,7 +158,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     def apply(): Seq[FieldDeclaration] = {
       val fields =
         Java(s"""|IntegerView scoreView;
-                 |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
+                 |IntegerView numLeftView;""".stripMargin).fieldDeclarations()
 
       val fieldBuildablePiles = fieldGen("BuildablePile", solitaire.containers.get(SolitaireContainerTypes.Tableau).size)
       val foundPiles = fieldGen("Pile", solitaire.containers.get(SolitaireContainerTypes.Foundation).size)
@@ -180,40 +173,13 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = game(game.fields)
   }
 
-
-  //
-  //  // WHEN This is in controllers.scala it does not get inhabited by Web. Not sure why? HACK. TODO: PLEASE HELP
-  //  @combinator object ChainTogether extends StatementCombiner(
-  //    drag(drag.variable, drag.ignore) =>: 'Deck1,
-  //    drag(drag.variable, drag.ignore) =>: 'Deck2,
-  //    drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
-
-//  /**
-//    * I somehow couldn't use the above simpler combinator. Thoughts? TODO: FIX
-//    */
-//  @combinator object ChainTogether {
-//    def apply(d1:(SimpleName, SimpleName) => Seq[Statement],
-//              d2:(SimpleName, SimpleName) => Seq[Statement]):
-//    (SimpleName, SimpleName) => Seq[Statement] = {
-//      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) => {
-//        val s1:Seq[Statement] = d1.apply(widgetVariableName,ignoreWidgetVariableName)
-//        val s2:Seq[Statement] = d2.apply(widgetVariableName,ignoreWidgetVariableName)
-//        s1 ++ s2
-//      }
-//    }
-//
-//    val semanticType: Type =
-//      (drag(drag.variable, drag.ignore) =>: 'Deck1) =>:
-//        (drag(drag.variable, drag.ignore) =>: 'Deck2) =>:
-//        (drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
-//  }
-//
-
-  /**
-    * Need for helper
-    */
+  /** No helper methods for Klondike. */
   @combinator object HelperMethodsKlondike {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
+    def apply(): Seq[MethodDeclaration] = Seq(
+      generateHelper.fieldAccessHelper("foundation", "fieldPiles"),
+      generateHelper.fieldAccessHelper("tableau", "fieldBuildablePiles"),
+      generateHelper.fieldAccessHelper("wastePile", "fieldWastePiles"),
+    )
 
     val semanticType: Type = constraints(constraints.methods)
   }

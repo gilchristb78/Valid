@@ -40,9 +40,6 @@ public class Domain extends Solitaire {
 		Stock stock = new Stock(lay.stock());
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
-		// wins once foundation contains same number of cards as stock
-		Rules rules = new Rules();
-
 		IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
 
 		IfConstraint if_move = new IfConstraint(isEmpty);
@@ -59,13 +56,13 @@ public class Domain extends Solitaire {
 				toLeftOf, sameRank);
 
 		SingleCardMove tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, tt_move);
-		rules.addDragMove(tableauToTableau);
+		addDragMove(tableauToTableau);
 
 		// All top cards are the same.
 		AllSameRank allSameRank = new AllSameRank(SolitaireContainerTypes.Tableau);
 
 		RemoveMultipleCardsMove tableauRemove = new RemoveMultipleCardsMove("RemoveAllCards", tableau, allSameRank);
-		rules.addPressMove(tableauRemove);
+		addPressMove(tableauRemove);
 
 		// note: for Python implementation, still need to implement concept of DeckDealMove, as well
         // as ResetDeckMove.
@@ -73,22 +70,14 @@ public class Domain extends Solitaire {
 		// deal four cards from Stock
 		NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
 		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau, new Truth());
-		rules.addPressMove(deckDeal);
+		addPressMove(deckDeal);
 
 		// reset deck by pulling together all cards from the piles.
 		ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), tableau, new Truth());
-		rules.addPressMove(deckReset);
-
-		setRules(rules);
-
-		// Not doing rules since changing to AST-based logic
-		Deal d = new Deal();
+		addPressMove(deckReset);
 
 		// Each one gets a single faceup Card
 		Payload payload = new Payload();
-		DealStep step = new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), payload);
-		d.add(step);
-
-		setDeal(d);
+		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), payload));
 	}
 }

@@ -6,6 +6,8 @@ import java.util.*;
 import domain.deal.Deal;
 import domain.deal.DealStep;
 import domain.deal.Step;
+import domain.win.ScoreAchieved;
+import domain.win.WinningLogic;
 
 /**
 
@@ -74,9 +76,14 @@ public abstract class Solitaire {
     public void   setDeal (Deal d) { deal = d;}
     protected void addDealStep(Step step) { deal.add(step); }
 
+    /** Winning Logic. */
+    WinningLogic logic = new ScoreAchieved(52);  // default seems reasonable
+    public void setLogic(WinningLogic logic) { this.logic = logic; }
+    public WinningLogic getLogic() { return logic; }
+
+    /** Rules for the game. */
     Rules rules = new Rules();
     public Rules  getRules() { return rules; }
-    public void   setRules(Rules r) { rules = r; }
 
     public static final int card_width = 73;
     public static final int card_height = 97;
@@ -88,7 +95,6 @@ public abstract class Solitaire {
     protected void addDragMove(Move m) { rules.addDragMove(m); }
     protected void addPressMove(Move m) { rules.addPressMove(m); }
     protected void addClickMove(Move m) { rules.addClickMove(m); }
-
 
     /**
      * Compute minimum width and height required to realize this variation. Computes based on

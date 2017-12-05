@@ -64,9 +64,6 @@ public class Domain extends Solitaire {
 
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
-		// wins once foundation contains same number of cards as stock
-		Rules rules = new Rules();
-
 		IsEmpty isEmpty = new IsEmpty (MoveComponents.Destination);
 		NextRank nextOne =  new NextRank(new TopCardOf(MoveComponents.Destination), MoveComponents.MovingCard);
 
@@ -88,7 +85,7 @@ public class Domain extends Solitaire {
         IfConstraint if7= new IfConstraint(isEmpty, sufficientFree, and_2 );
 
 		RowMove MoreCardToTableau= new RowMove("MoveRow", tableau, descend, tableau, if7);
-        rules.addDragMove(MoreCardToTableau);
+        addDragMove(MoreCardToTableau);
 
         IsSingle isSingle = new IsSingle(MoveComponents.MovingRow);
 
@@ -97,23 +94,17 @@ public class Domain extends Solitaire {
 				new SameSuit(new BottomCardOf(MoveComponents.MovingRow), new TopCardOf(MoveComponents.Destination)));
 
 		RowMove tableauToFoundation = new RowMove("BuildRow", tableau, isSingle, found, and);
-		rules.addDragMove(tableauToFoundation);
-
-		setRules(rules);
-
-		Deal d = new Deal();
+		addDragMove(tableauToFoundation);
 
 		// Filter all aces out and add back on top
-		d.add(new FilterStep(new IsAce(DealComponents.Card)));
+		addDealStep(new FilterStep(new IsAce(DealComponents.Card)));
 
 		// deal aces first
-		d.add(new DealStep(new ContainerTarget(SolitaireContainerTypes.Foundation, found)));
+		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Foundation, found)));
 
 		// Each tableau gets a single card, six times.
 		for (int i = 0; i < 6; i++) {
-			d.add(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau)));
+			addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau)));
 		}
-
-		setDeal(d);
 	}
 }

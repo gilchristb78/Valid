@@ -1,4 +1,5 @@
 package org.combinators.solitaire.bigforty
+
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.types.syntax._

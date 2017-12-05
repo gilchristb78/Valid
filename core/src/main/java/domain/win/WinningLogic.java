@@ -1,4 +1,8 @@
 package domain.win;
 
-public class WinningLogic {
+/**
+ * Models the winning locic
+ */
+public interface WinningLogic {
+
 }

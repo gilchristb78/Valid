@@ -13,7 +13,7 @@ import org.webjars.play.WebJarsUtil
 
 // https://bitbucket.org/yanlinwang/ep_trivially/src/7086d91a45c92c1522ec4d6f0618c574c2e2d562/JavaCode/EP/src/interfaceversion/InterfaceVersion.java?at=master&fileviewer=file-view-default
 
-class Expression_EP @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
   // Configure the desired (sub)types and operations
   val model:DomainModel = new DomainModel()
@@ -30,7 +30,7 @@ class Expression_EP @Inject()(webJars: WebJarsUtil) extends InhabitationControll
   //model.ops.add(new SimplifyAdd)
   model.ops.add(new Collect)
 
-  lazy val repository = new EP_ExpressionSynthesis(model) with EP {}
+  lazy val repository = new ExpressionSynthesis(model) with Structure {}
   import repository._
 
   var Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), model)

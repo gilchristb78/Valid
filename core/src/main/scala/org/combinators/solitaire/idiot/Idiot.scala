@@ -1,13 +1,14 @@
 package org.combinators.solitaire.idiot
 
 import javax.inject.Inject
+import java.nio.file.Path
 
 import com.github.javaparser.ast.CompilationUnit
+import de.tu_dortmund.cs.ls14.Persistable
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
-import domain.idiot.Domain
 import org.webjars.play.WebJarsUtil
 
 // domain
@@ -16,13 +17,24 @@ import domain._
 
 class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
-  val s:Solitaire = new Domain()
+  val s:Solitaire = new domain.idiot.Domain()
 
   // semantic types are embedded/defined within the repository, so we need to
   // import them all for use.
   lazy val repository = new gameDomain(s) with controllers {}
   import repository._
-  lazy val Gamma:ReflectedRepository[gameDomain] = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+  var Gamma:ReflectedRepository[gameDomain] = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+
+  // move these to shared area
+  Gamma = Gamma
+    .addCombinator (new DefineRootPackage(s))
+    .addCombinator (new DefineNameOfTheGame(s))
+    .addCombinator (new ProcessModel(s))
+    .addCombinator (new ProcessView(s))
+    .addCombinator (new ProcessControl(s))
+    .addCombinator (new ProcessFields(s))
+    .addCombinator (new HelperMethodsIdiot(s))
+
 
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =

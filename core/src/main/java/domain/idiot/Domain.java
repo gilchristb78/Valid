@@ -3,8 +3,13 @@ package domain.idiot;
 import domain.*;
 import domain.constraints.*;
 import domain.constraints.movetypes.MoveComponents;
+import domain.deal.ContainerTarget;
+import domain.deal.DealStep;
+import domain.deal.Payload;
 import domain.moves.*;
 import domain.ui.StockTableauLayout;
+import domain.win.BoardState;
+import domain.win.ScoreAchieved;
 
 import java.util.Iterator;
 
@@ -39,14 +44,17 @@ public class Domain extends Solitaire {
 
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
-		// wins once foundation contains same number of cards as stock
-		Rules rules = new Rules();
+		// When only aces are left, there are 48 points.
+        BoardState state = new BoardState();
+        state.add(SolitaireContainerTypes.Stock, 0);
+        state.add(SolitaireContainerTypes.Tableau, 4);
+		setLogic (state);
 
 		IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
 
 		// Tableau to Tableau
 		SingleCardMove tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, isEmpty);
-		rules.addDragMove(tableauToTableau);
+		addDragMove(tableauToTableau);
 
 		// this special method is added by gameDomain to be accessible here.
 		HigherRankSameSuit sameSuitHigherRankVisible = new HigherRankSameSuit(MoveComponents.Source);
@@ -54,7 +62,7 @@ public class Domain extends Solitaire {
 		AndConstraint and = new AndConstraint(new NotConstraint(new IsEmpty(MoveComponents.Source)), sameSuitHigherRankVisible);
 
 		RemoveSingleCardMove removeCardFromTableau = new RemoveSingleCardMove("RemoveCard", tableau, and);
-		rules.addClickMove(removeCardFromTableau);
+		addClickMove(removeCardFromTableau);
 
 		// Remove a card from the tableau? This can be optimized by a click
 		// do I allow another Rule? Or reuse existing one?
@@ -64,7 +72,9 @@ public class Domain extends Solitaire {
 		// deal four cards from Stock
 		NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
 		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau, new Truth());
-		rules.addPressMove(deckDeal);
-		setRules(rules);
+		addPressMove(deckDeal);
+
+		// deal four cards out, one to each of the tableau
+		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), new Payload()));
 	}
 }

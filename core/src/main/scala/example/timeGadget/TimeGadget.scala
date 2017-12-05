@@ -14,13 +14,13 @@ import time.{TemperatureUnit, TimeGadget}
 
 class TimeGadgetController @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
-  val gadget = new TimeGadget("Worcester", TemperatureUnit.Fahrenheit)
+  val gadget = new TimeGadget("Worcester", "01609", TemperatureUnit.Fahrenheit)
 
   lazy val repository = new Concepts {}
   import repository._
   lazy val Gamma =
     ReflectedRepository(repository, kinding=kinding, classLoader = this.getClass.getClassLoader)
-        .addCombinator(new CurrentTemperature(gadget.location))
+        .addCombinator(new CurrentTemperature(gadget.zip))
   lazy val combinatorComponents = Gamma.combinatorComponents
 
   lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](artifact(artifact.mainProgram, feature(feature.temperature(gadget.temperatureUnit))))

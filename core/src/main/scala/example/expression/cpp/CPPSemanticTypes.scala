@@ -1,11 +1,10 @@
 package example.expression.cpp
 
-import example.expression.SemanticTypes
 import expression.types.{FrameworkTypes, GenericType, TypeInformation, Types}
 import expression.{Exp, Operation}
-
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import example.expression.covariant.SemanticTypes
 
 /**
   * These codify the semantic types used by the Expression problem.
@@ -21,8 +20,7 @@ trait CPPSemanticTypes extends SemanticTypes {
   /**
     * Return desired map of expressions by operation.
     *
-    * @param op
-    * @return
+    * @param op    Operation under consideration
     */
   def getImplementation(op:Operation):Map[Class[_ <: Exp],String] = implementations(op.getClass)
 
@@ -30,9 +28,9 @@ trait CPPSemanticTypes extends SemanticTypes {
     * For the given operation, add the sequence of statements to implement for given expression subtype.
     * This dynamically maintains a map which can be inspected for the code synthesis.
     *
-    * @param op
-    * @param exp
-    * @param stmts
+    * @param op     Operation under consideration
+    * @param exp    Expression context
+    * @param stmts  Statements that provides the desired implementation in context
     */
   def addImpl(op:Operation, exp:Exp, stmts:String): Unit = {
     val name = exp.getClass.getSimpleName
@@ -46,7 +44,7 @@ trait CPPSemanticTypes extends SemanticTypes {
     map += (exp.getClass ->
       s"""
          |void Visit${exp.getClass.getSimpleName}(const $name* e) {
-         |   ${stmts}
+         |   $stmts
          |}
         """.stripMargin)
 
@@ -73,8 +71,5 @@ trait CPPSemanticTypes extends SemanticTypes {
     // defines Exp and ExpVisitor classes.
     val base: Type = 'Base
   }
-
-  val driver:Type = 'Driver
-
 
 }

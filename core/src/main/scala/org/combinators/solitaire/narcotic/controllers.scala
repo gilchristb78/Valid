@@ -1,8 +1,6 @@
 package org.combinators.solitaire.narcotic
 
-// name clash
-import com.github.javaparser.ast.`type`.{Type => JType}
-import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
+import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type

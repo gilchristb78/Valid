@@ -8,14 +8,12 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
-import domain.idiot.HigherRankSameSuit
 import domain.narcotic.{AllSameRank, ToLeftOf}
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
 
 // domain
 import domain._
-import domain.ui._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
@@ -46,7 +44,8 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   }
 
   @combinator object HelperMethodsNarcotic {
-    def apply(): Seq[MethodDeclaration] = Seq.empty
+    def apply(): Seq[MethodDeclaration] = Seq(
+      generateHelper.fieldAccessHelper("tableau", "fieldPiles"))
 
     val semanticType: Type = constraints(constraints.methods)
   }
@@ -78,12 +77,13 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = game(game.model)
   }
 
-  // generic deal cards from deck into the tableau
-  @combinator object NarcoticInitLayout {
-    def apply(): Seq[Statement] = Seq.empty
-
-    val semanticType: Type = game(game.deal)
-  }
+//
+//  // generic deal cards from deck into the tableau
+//  @combinator object NarcoticInitLayout {
+//    def apply(): Seq[Statement] = Seq.empty
+//
+//    val semanticType: Type = game(game.deal)
+//  }
 
   @combinator object NarcoticInitView {
     def apply(): Seq[Statement] = {

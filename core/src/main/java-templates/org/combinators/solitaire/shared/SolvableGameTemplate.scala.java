@@ -74,12 +74,57 @@ public class @Java(nameParameter) extends Solitaire implements SolvableSolitaire
         w.setUndoAdapter(new SolitaireUndoAdapter(this));
     }
 
+class Entry {
+    final Solitaire solitaire;
+
+    Entry (Solitaire s) {
+        solitaire = s;
+    }
+
+    public String toString() { return solitaire.getName(); }
+}
+
+    static void register(Class variation) {
+        java.io.File ksDir = new java.io.File(System.getProperty("user.home"), ".ks");
+        java.io.File file = new java.io.File(ksDir, variation.getCanonicalName());
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     // force to be able to launch directly.
     public static void main(String[] args) {
+        register(@Java(nameParameter) .class);
         final JFrame jf = new JFrame();
         JPanel jp = new JPanel();
+        jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
         JButton jb = new JButton("Start");
+
+        DefaultListModel model = new DefaultListModel<>();
+        // try to load up all solitaire known variations
+        java.io.File ksDir = new java.io.File(System.getProperty("user.home"), ".ks");
+        java.io.File[] entries = ksDir.listFiles();
+        final @Java(nameParameter) myEntry = new @Java(nameParameter) ();
+        for (java.io.File f : entries) {
+            String name = f.getName();
+            try {
+                Class clazz = Class.forName(name);
+                Solitaire sol = (Solitaire) clazz.newInstance();
+                model.addElement(myEntry.new Entry(sol));
+            } catch (Exception e) {
+            }
+        }
+        JList jl = new JList(model);
+        jl.setSelectedIndex(0);
         jp.add(jb);
+        jp.add(new JLabel("Available Variations"));
+        jp.add(Box.createRigidArea(new Dimension(0,5)));
+        jp.add(jl);
+        jp.add(Box.createRigidArea(new Dimension(0,5)));
         jf.add(jp);
         jf.setSize(200, 200);
         jf.setVisible(true);
@@ -92,7 +137,8 @@ public class @Java(nameParameter) extends Solitaire implements SolvableSolitaire
                 CardImagesLoader.getDeck(jf, "oxymoron");
 
                 jf.setVisible(false);
-                final GameWindow gw = Main.generateWindow(new @(Java(nameParameter)) (), Deck.OrderBySuit);
+                final GameWindow gw = Main.generateWindow(((Entry)jl.getSelectedValue()).solitaire, Deck.OrderBySuit);
+
                 // properly exist program once selected.
                 gw.addWindowListener(new WindowAdapter() {
                     public void windowClosing(WindowEvent we) {

@@ -29,7 +29,7 @@ class Expression_CPP @Inject()(webJars: WebJarsUtil) extends InhabitationControl
   model.ops.add(new SimplifyAdd)
   model.ops.add(new Collect)
 
-  lazy val repository = new ExpressionSynthesis_CPP(model) with CPP_Structure {}
+  lazy val repository = new ExpressionSynthesis(model) with Structure {}
   import repository._
 
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), model)
@@ -48,8 +48,8 @@ class Expression_CPP @Inject()(webJars: WebJarsUtil) extends InhabitationControl
 //  }
 
   implicit def PersistInt: Persistable.Aux[CPPFile] = new Persistable {
-    override def path(elem: CPPFile): Path = Paths.get(elem.fileName() + ".cpp")
-    override def rawText(elem: CPPFile): String = elem.toString()
+    override def path(elem: CPPFile): Path = Paths.get(elem.fileName + ".cpp")
+    override def rawText(elem: CPPFile): String = elem.toString
     override type T = CPPFile
   }
 

@@ -2,6 +2,7 @@ package example.expression.covariant
 
 import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import example.expression.j.MethodMapper
 import expression.{Exp, Operation}
 
 
@@ -11,7 +12,7 @@ import expression.{Exp, Operation}
   * For any of these that are ever going to be translated directly into Java Type Names, you must
   * make them Constructor.
   */
-trait EP_SemanticTypes {
+trait SemanticTypes {
 
   val driver:Type = 'Driver
 

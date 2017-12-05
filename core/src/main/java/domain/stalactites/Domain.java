@@ -68,9 +68,6 @@ public class Domain extends Solitaire {
 		Stock stock = new Stock();
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
-		// wins once foundation contains same number of cards as stock
-		Rules rules = new Rules();
-
         /**
          * Wikipedia description:
          *
@@ -87,7 +84,6 @@ public class Domain extends Solitaire {
 
          */
 
-		setRules(rules);
 
 		// Not doing rules since changing to AST-based logic
 

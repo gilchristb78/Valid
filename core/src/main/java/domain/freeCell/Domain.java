@@ -7,6 +7,10 @@ import domain.constraints.*;
 import domain.constraints.movetypes.BottomCardOf;
 import domain.constraints.movetypes.MoveComponents;
 import domain.constraints.movetypes.TopCardOf;
+import domain.deal.ContainerTarget;
+import domain.deal.DealStep;
+import domain.deal.ElementTarget;
+import domain.deal.Payload;
 import domain.moves.*;
 import domain.ui.ReserveFoundationTableauLayout;
 
@@ -58,22 +62,17 @@ public class Domain extends Solitaire {
 		Stock stock = new Stock();
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
-		// wins once foundation contains same number of cards as stock
-		Rules rules = new Rules();
-
-		// Expression Problem Trivially Encoding (SPLASH 2015).
-
 		IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
 
 		// FreePile to FreePile
 		SingleCardMove freePileToFreePile = new SingleCardMove("ShuffleFreePile", reserve, reserve, isEmpty);
-		rules.addDragMove(freePileToFreePile);
+		addDragMove(freePileToFreePile);
 
 		// Column To Free Pile Logic
 		ColumnMove columnToFreePileMove = new ColumnMove("PlaceColumn",
 				tableau,   new IsSingle(MoveComponents.MovingColumn),
 				reserve,   isEmpty);
-		rules.addDragMove(columnToFreePileMove);
+		addDragMove(columnToFreePileMove);
 
 		// Column To Home Pile logic. Just grab first column
 		Element aCol = tableau.iterator().next();
@@ -86,7 +85,7 @@ public class Domain extends Solitaire {
 		ColumnMove columnToHomePile = new ColumnMove("BuildColumn",
 				tableau,  new IsSingle(MoveComponents.MovingColumn),
 				found,    if2);
-		rules.addDragMove(columnToHomePile);
+		addDragMove(columnToHomePile);
 
 		// FreePile to HomePile
 		Element aCard = new Card();
@@ -97,7 +96,7 @@ public class Domain extends Solitaire {
                                    new SameSuit(MoveComponents.MovingCard, new BottomCardOf(MoveComponents.Destination))));
 
 		SingleCardMove freePileToHomePile = new SingleCardMove("BuildFreePileCard", reserve, found, if3);
-		rules.addDragMove(freePileToHomePile);
+		addDragMove(freePileToHomePile);
 
 		// FreePile to Column.
         AndConstraint if5_inner = new AndConstraint(new OppositeColor(MoveComponents.MovingCard, new BottomCardOf(MoveComponents.Destination)),
@@ -105,7 +104,7 @@ public class Domain extends Solitaire {
 
 		IfConstraint if5 = new IfConstraint(isEmpty, new Truth(), if5_inner);
 		SingleCardMove freePileToColumnPile = new SingleCardMove("PlaceFreePileCard", reserve, tableau, if5);
-		rules.addDragMove(freePileToColumnPile);
+		addDragMove(freePileToColumnPile);
 
 		// column to column
 		Descending descend = new Descending(MoveComponents.MovingColumn);
@@ -129,11 +128,16 @@ public class Domain extends Solitaire {
 		ColumnMove columnToColumn = new ColumnMove("MoveColumn",
 				tableau,    new AndConstraint(descend, alternating),
 				tableau,    if4);
-		rules.addDragMove(columnToColumn);
+		addDragMove(columnToColumn);
 
-		setRules(rules);
+		// Eight tableau, each gets six cards, face up
+		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau),
+                new Payload(6, true)));
 
-		// Not doing rules since changing to AST-based logic
+        // first four columns get a single card
+		for (int pile = 0; pile < 4; pile++) {
+			addDealStep(new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, tableau, pile), new Payload()));
+		}
 
 	}
 }

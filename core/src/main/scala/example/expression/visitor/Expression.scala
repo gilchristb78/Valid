@@ -1,4 +1,4 @@
-package example.expression
+package example.expression.visitor
 
 import javax.inject.Inject
 
@@ -6,10 +6,10 @@ import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
-import expression.{DomainModel, Exp, Operation}
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
 import expression.operations.SimplifyAdd
+import expression.{DomainModel, Exp, Operation}
 import org.webjars.play.WebJarsUtil
 
 import scala.collection.JavaConverters._
@@ -37,7 +37,7 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
   lazy val repository = new ExpressionSynthesis(model) with Structure {}
   import repository._
 
-  var Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), model)
+  var Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
 
   // Programmatically add combinators based on domain model.
   domain.data.asScala.foreach {

@@ -1,6 +1,5 @@
 package org.combinators.solitaire.freecell
 
-// name clash
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain._
@@ -15,13 +14,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
   ReflectedRepository[G] = {
     var updated = super.init(gamma, s)
-    println (">>> PileController dynamic combinators.")
+    println (">>> FreeCell controllers dynamic combinators.")
 
-
-    // not much to do, if no rules...
-    if (s.getRules == null) {
-      return updated
-    }
 
     updated = createMoveClasses(updated, s)
 

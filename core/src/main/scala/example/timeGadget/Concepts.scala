@@ -12,7 +12,7 @@ import time.TemperatureUnit
 
 trait Concepts extends SemanticTypes with VariableDeclarations {
 
-  class CurrentTemperature(locationId: String) {
+  class CurrentTemperature(zipCode: String) {
     def apply(conversion: Expression => Expression): Seq[BodyDeclaration[_]] =
       Java(s"""|private float lastTemperature = 0;
                |private java.time.LocalDateTime lastChecked = null;
@@ -20,7 +20,7 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
                |public float getTemperature(java.time.LocalDateTime currentTime) {
                |  if (lastChecked == null || currentTime.isAfter(lastChecked.plusMinutes(30))) {
                |    try {
-               |	    java.net.URL url = new java.net.URL("http://api.weatherunlocked.com/api/forecast/${locationId}?app_id={APPID}&app_key={APPKEY}");
+               |	    java.net.URL url = new java.net.URL("http://api.weatherunlocked.com/api/forecast/us.$zipCode?app_id={APPID}&app_key={APPKEY}");
                |      java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader (url.openStream()));
                |      StringBuffer sb = new StringBuffer(br.readLine());
                |      int c = sb.indexOf("temp_c");
@@ -75,13 +75,13 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
       extraLoopCode: Expression => Seq[Statement]): CompilationUnit =
       Java(
         s"""public class TimeGadget {
-           |  ${extraDeclarations.mkString(";\n")}
+           |  ${extraDeclarations.mkString("\n")}
            |
            |  public void loop() {
            |    try { Thread.sleep(1000); } catch (Exception ex) {}
            |    java.time.LocalDateTime now = java.time.LocalDateTime.now();
            |
-           |    ${extraLoopCode(Java("now").expression()).mkString(";\n")};
+           |    ${extraLoopCode(Java("now").expression()).mkString("\n")}
            |    System.out.println(now);
            |  }
            |

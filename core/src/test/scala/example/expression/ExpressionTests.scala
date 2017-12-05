@@ -2,6 +2,7 @@ package example.expression
 
 import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import example.expression.visitor.{ExpressionSynthesis, Structure}
 import expression.DomainModel
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
@@ -36,8 +37,7 @@ class ExpressionTests extends FunSpec  {
         val repo = new ExpressionSynthesis(domainModel) with Structure {}
         import repo._
 
-        val reflected = ReflectedRepository(repo, classLoader = repo.getClass.getClassLoader)
-        val Gamma = repo.init(reflected, domainModel)
+        val Gamma = ReflectedRepository(repo, classLoader = repo.getClass.getClassLoader)
 
         val helper = new Helper()
 

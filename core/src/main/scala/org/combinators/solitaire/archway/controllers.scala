@@ -1,25 +1,11 @@
 package org.combinators.solitaire.archway
 
-import _root_.java.util.UUID
-import com.github.javaparser.ast.`type`.{Type => JType}
-import com.github.javaparser.ast.body.BodyDeclaration
-import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
-import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.twirl.Java
 import domain._
-import domain.constraints._
-import domain.moves._
-import domain.ui._
 import org.combinators.generic
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
-import scala.collection.mutable.ListBuffer
 
 /** Defines Archway's controllers and their behaviors.
   *
@@ -39,18 +25,9 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaC
     var updated = super.init(gamma, s)
     println (">>> Archway Controller dynamic combinators.")
 
-    // DOC: Not sure.
     updated = createMoveClasses(updated, s)
     updated = createDragLogic(updated, s)
     updated = generateMoveLogic(updated, s)
-
-    // Create real class names for the Controllers. Becomes 'Symbol + "Controller"
-    // i.e. 'AcesUpPile -> "AcesUpPileController"
-//    updated = updated
-//      .addCombinator (new ControllerNaming('AcesUpPile))
-//      .addCombinator (new ControllerNaming('KingsDownPile))
-//      .addCombinator (new ControllerNaming('Column))
-//      .addCombinator (new ControllerNaming('Pile))
 
     updated = updated
 
@@ -71,15 +48,6 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaC
       // Cards can be dragged to and from the Tableau.
       .addCombinator (new IgnoreClickedHandler(column))
       .addCombinator (new SingleCardMoveHandler(column))
-
-//    updated = updated
-//      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToAcesUpPile))
-//      .addCombinator (new PotentialMultipleCardMove("Column", 'ColumnToKingsDownPile))
-//      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToAcesUpPile))
-//      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToKingsDownPile))
-//      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToColumn))
-
-
 
     updated
   }

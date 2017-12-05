@@ -1,15 +1,13 @@
 package org.combinators.solitaire.archway
 
+import javax.inject.Inject
+
 import com.github.javaparser.ast.CompilationUnit
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
-import domain._
-import javax.inject.Inject
 
-import domain.archway.Domain
-import org.combinators.solitaire.shared._
 import org.webjars.play.WebJarsUtil
 
 /** Loads and runs the combinators to generate the Archway variation.
@@ -18,7 +16,7 @@ import org.webjars.play.WebJarsUtil
   */
 class Archway @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
-  val solitaire = new Domain()
+  val solitaire = new domain.archway.Domain()
 
   lazy val repository = new ArchwayDomain(solitaire) with Controllers {}
   import repository._

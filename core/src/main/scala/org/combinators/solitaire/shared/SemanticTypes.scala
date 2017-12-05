@@ -2,6 +2,7 @@ package org.combinators.solitaire.shared
 
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import domain.{ContainerType, SolitaireContainerTypes}
 
 
 /**
@@ -16,6 +17,9 @@ trait SemanticTypes {
   val packageName: Type = 'RootPackage
   val variationName: Type = 'NameOfTheGame
   val className:Type = 'ClassName
+
+  // library of all synthesized games
+  val libraryName: Type = 'Library
 
   // meta-concerns. When you have completed the definition of a constructor
   val complete: Type = 'Complete
@@ -34,6 +38,22 @@ trait SemanticTypes {
   val buildablePile: Constructor = 'BuildablePile
   val pile: Constructor          = 'Pile
   val row: Constructor           = 'Row
+
+  /**
+    * Return lower-case string matching the container type in domain.
+    *
+    * @param tpe    the container type
+    */
+  def typeOfContainer(tpe: ContainerType): String = {
+    tpe match {
+      case SolitaireContainerTypes.Foundation => "foundation"
+      case SolitaireContainerTypes.Tableau => "tableau"
+      case SolitaireContainerTypes.Reserve => "reserve"
+      case SolitaireContainerTypes.Waste => "waste"
+      case SolitaireContainerTypes.Stock => "deck"      // special
+      case _ => "None"
+     }
+  }
 
   /** only one part since synthesizing 'the' game. */
   object game {

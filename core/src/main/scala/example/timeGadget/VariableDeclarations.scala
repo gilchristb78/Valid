@@ -17,5 +17,5 @@ trait VariableDeclarations { self: SemanticTypes =>
       case (k, unit) => k.addOption(feature(feature.temperature(unit)))
     }.addOption(Omega)
 
-  val kinding = temperatureUnits.merge(featureTypes)
+  val kinding:Kinding = temperatureUnits.merge(featureTypes)
 }

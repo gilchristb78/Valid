@@ -1,13 +1,14 @@
 package org.combinators.solitaire.klondike
 
+import java.nio.file.Path
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
+import de.tu_dortmund.cs.ls14.Persistable
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
-import domain.klondike.Domain
 import org.webjars.play.WebJarsUtil
 
 // domain
@@ -23,18 +24,15 @@ class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
 //  lazy val it:Iterator[Solitaire] = reply.interpretedTerms.values.flatMap(_._2).iterator
 //  lazy val s:Solitaire = it.next()
 
-  val s:Solitaire = new Domain()
+  val s:Solitaire = new domain.klondike.Domain()
 
   /** Domain for Klondike defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new KlondikeDomain(s) with controllers {}
   import repository._
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
-
-
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
-
     .addJob[CompilationUnit](constraints(complete))
     .addJob[CompilationUnit](controller(buildablePile, complete))
     .addJob[CompilationUnit](controller(pile, complete))

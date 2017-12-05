@@ -8,6 +8,7 @@ import domain.moves.SingleCardMove;
 import domain.ui.CalculatedPlacement;
 import domain.ui.HorizontalPlacement;
 import domain.ui.PlacementGenerator;
+import domain.win.ScoreAchieved;
 
 import java.awt.Point;
 
@@ -71,8 +72,6 @@ public class Domain extends Solitaire {
 		Stock stock = new Stock(2);
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
-		// wins once foundation contains same number of cards as stock
-		Rules rules = new Rules();
 
 		// Get Domain objects from Solitaire Object.
 
@@ -97,43 +96,43 @@ public class Domain extends Solitaire {
       /* Add Rules */
 
 		// Note that the string argument becomes a real classname.
-		rules.addDragMove(
+		addDragMove(
 				new SingleCardMove("TableauToFoundation",
 						tableau, acesFoundation, moveToAcesCondition
 				)
 		);
 
-		rules.addDragMove(
+		addDragMove(
 				new SingleCardMove("ReserveToFoundation",
 						reserve, acesFoundation, moveToAcesCondition
 				)
 		);
 
-		rules.addDragMove(
+		addDragMove(
 				new SingleCardMove("TableauToKingsFoundation",
 						tableau, kingsFoundation, moveToKingsCondition
 				)
 		);
 
-		rules.addDragMove(
+		addDragMove(
 				new SingleCardMove("ReserveToKingsFoundation",
 						reserve, kingsFoundation, moveToKingsCondition
 				)
 		);
 
-		rules.addDragMove(
+		addDragMove(
 				new SingleCardMove("ReserveToTableau",
 						reserve, tableau, new IsEmpty(MoveComponents.Destination))
 		);
 
 		// Always deny these moves.
-		rules.addDragMove(
+		addDragMove(
 				new SingleCardMove("TableauToTableau", tableau, tableau, new Falsehood())
 		);
 
-		setRules(rules);
-
 		// Not doing rules since changing to AST-based logic
 
+		// wins once foundation contains same number of cards as stock
+		setLogic (new ScoreAchieved(104));
 	}
 }

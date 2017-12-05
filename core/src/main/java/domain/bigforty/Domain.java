@@ -60,8 +60,6 @@ public class Domain extends Solitaire {
         waste.add (new WastePile());
         containers.put(SolitaireContainerTypes.Waste, waste);
 
-        Rules rules = new Rules();
-
         IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
         NextRank nextOne =  new NextRank(new TopCardOf(MoveComponents.Destination), MoveComponents.MovingCard);
 
@@ -81,13 +79,13 @@ public class Domain extends Solitaire {
         AndConstraint and_2= new AndConstraint(descend,new AllSameSuit(MoveComponents.MovingColumn));
 
         ColumnMove tableauToTableau = new ColumnMove("MoveColumn", tableau, and_2, tableau, or);
-        rules.addDragMove(tableauToTableau);
+        addDragMove(tableauToTableau);
 
         //2. waste to tableau
         OrConstraint moveCard= new OrConstraint(isEmpty,new NextRank(new TopCardOf(MoveComponents.Destination),
                 MoveComponents.MovingCard));
         SingleCardMove wasteToTableau = new SingleCardMove("MoveCard", waste, tableau, moveCard);
-        rules.addDragMove(wasteToTableau);
+        addDragMove(wasteToTableau);
 
         //3. waste to foundation  4.tableau to foundation
         IsSingle isSingle = new IsSingle(MoveComponents.MovingColumn);
@@ -100,7 +98,7 @@ public class Domain extends Solitaire {
         ColumnMove buildFoundation = new ColumnMove("BuildFoundation",
                 tableau, new IsSingle(MoveComponents.MovingColumn),
                 found,   tf_tgt);
-        rules.addDragMove(buildFoundation);
+        addDragMove(buildFoundation);
         IfConstraint wf_tgt = new IfConstraint(isEmpty,
                 new AndConstraint (new IsSingle(MoveComponents.MovingCard), new IsAce(MoveComponents.MovingCard)),
                 new AndConstraint(new NextRank(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
@@ -109,42 +107,24 @@ public class Domain extends Solitaire {
         SingleCardMove buildFoundationFromWaste = new SingleCardMove("BuildFoundationFromWaste",
                 waste,   new Truth(),
                 found,   wf_tgt);
-        rules.addDragMove(buildFoundationFromWaste);
+        addDragMove(buildFoundationFromWaste);
 
         // Deal card from deck
         NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
         DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, waste, new Truth());
-        rules.addPressMove(deckDeal);
+        addPressMove(deckDeal);
 
         // reset deck if empty. Move is triggered by press on stock.
         // this creates DeckToPile, as in the above DeckDealMove.
         ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), waste, new Truth());
-        rules.addPressMove(deckReset);
-
-        setRules(rules);
-
-
-        Deal d = new Deal();
+        addPressMove(deckReset);
 
         //every pile gets four faceup cards
 
-        Payload payload = new Payload();
-        DealStep step = new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), payload);
-        d.add(step);
-        d.add(step);
-        d.add(step);
-        d.add(step);
+        DealStep step = new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), new Payload(4, true));
+        addDealStep(step);
 
         // deal one card to waste pile
-        step = new DealStep(new ContainerTarget(SolitaireContainerTypes.Waste, waste), new Payload());
-        d.add(step);
-        setDeal(d);
+        addDealStep (new DealStep(new ContainerTarget(SolitaireContainerTypes.Waste, waste), new Payload()));
     }
-
-
-
-
-
-
-
-    }
+}

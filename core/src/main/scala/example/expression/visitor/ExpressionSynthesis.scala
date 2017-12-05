@@ -1,17 +1,18 @@
-package example.expression
+package example.expression.visitor
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.twirl.Java
-import example.expression.j.JavaSemanticTypes
-import expression._
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import de.tu_dortmund.cs.ls14.twirl.Java
+import example.expression.ExpressionDomain
+import expression._
+
 import scala.collection.JavaConverters._
 
 /** Future work to sanitize combinators to be independent of Exp. */
-class ExpressionSynthesis(override val domain:DomainModel) extends ExpressionDomain(domain) with JavaSemanticTypes {
+class ExpressionSynthesis(override val domain:DomainModel) extends ExpressionDomain(domain) with SemanticTypes {
 
   /** Construct visitor abstract class. */
   @combinator object Visitor {

@@ -5,16 +5,16 @@ import akka.event.Logging
 import com.github.javaparser.ast.expr._
 import com.github.javaparser.ast.stmt._
 import com.github.javaparser.ast.body._
-import com.typesafe.config.ConfigFactory
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Java
-import domain.{Constraint, SolitaireContainerTypes}
+import domain._
 import domain.constraints._
 import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.deal.DealComponents
 import org.combinators.solitaire.shared.JavaSemanticTypes
 
+import scala.collection.JavaConverters._
 /**
   * Here is the default code registry for the existing Constraints in Solitaire domain.
   *
@@ -187,7 +187,7 @@ object constraintCodeGenerators  {
     })
 }
 
-// codeGen.apply(ifc).get
+/** Provides a return (EXPR) statement. */
 class StatementCombinator(c:Constraint, moveSymbol:Type) extends JavaSemanticTypes {
 
   def apply(generators: CodeGeneratorRegistry[Expression]): Seq[Statement] = {
@@ -203,6 +203,20 @@ class StatementCombinator(c:Constraint, moveSymbol:Type) extends JavaSemanticTyp
   var semanticType: Type = constraints(constraints.generator) =>: move(moveSymbol, move.validStatements)
 }
 
+/** When used, it isn't important what semantic Type is, which is why we omit it. */
+class ExpressionCombinator(c:Constraint) extends JavaSemanticTypes {
+
+  def apply(generators: CodeGeneratorRegistry[Expression]): Expression = {
+    val cc3: Option[Expression] = generators(c)
+    if (cc3.isEmpty) {
+      constraintCodeGenerators.logger.error("CodeGeneratorRegistry: Unable to locate:" + c.toString)
+      Java("false").expression()
+    } else {
+      cc3.get
+    }
+  }
+}
+
 object generateHelper {
   /**
     * Helper method for the ConstraintHelper class
@@ -212,5 +226,53 @@ object generateHelper {
              |  return getVariation(game).$fieldName;
              |}
           """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head
+  }
+
+  def fieldAccessOneHelper(name:String, fieldName:String) : MethodDeclaration = {
+    Java(s"""|public static Stack $name(Solitaire game) {
+             |  return getVariation(game).$fieldName;
+             |}
+          """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration]).head
+  }
+
+
+  /**
+    * Return lower-case string matching the container type in domain.
+    * HACK HACK
+    * TODO: This is duplicated from SemanticTypes
+    * @param tpe    the container type
+    */
+  def typeOfContainer(tpe: ContainerType): String = {
+    tpe match {
+      case SolitaireContainerTypes.Foundation => "foundation"
+      case SolitaireContainerTypes.Tableau => "tableau"
+      case SolitaireContainerTypes.Reserve => "reserve"
+      case SolitaireContainerTypes.Waste => "waste"
+      case SolitaireContainerTypes.Stock => "deck"      // special
+      case _ => "None"
+    }
+  }
+
+  /**
+    * Generate all helpers for the given solitaire domain.
+    *
+    * @param sol   Solitaire variation
+    */
+  def helpers(sol:Solitaire) : Seq[MethodDeclaration] = {
+    var methods:Seq[MethodDeclaration] = Seq.empty
+    for (containerType:ContainerType <- sol.containers.keySet.asScala) {
+      val container = sol.containers.get(containerType)
+      val name = typeOfContainer(containerType)
+
+      container match {
+        case d: Stock =>
+          methods = methods :+ generateHelper.fieldAccessOneHelper(name, name)
+
+        case _ =>
+          methods = methods :+ generateHelper.fieldAccessHelper(name, name)
+      }
+    }
+
+    methods
   }
 }

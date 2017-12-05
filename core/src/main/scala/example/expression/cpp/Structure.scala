@@ -17,7 +17,7 @@ import scala.collection.JavaConverters._
   *
   * https://github.com/eliben/code-for-blog/blob/master/2016/expression-problem/c%2B%2B/visitor-dispatch-in-data.cpp
   */
-trait CPP_Structure extends Base with CPPSemanticTypes {
+trait Structure extends Base with CPPSemanticTypes {
 
   /** Add dynamic combinators as needed. */
   override def init[G <: ExpressionDomain](gamma: ReflectedRepository[G], model: DomainModel): ReflectedRepository[G] = {
@@ -41,8 +41,8 @@ trait CPP_Structure extends Base with CPPSemanticTypes {
 
     registerImpl(new PrettyP, Map(
       new Lit -> """|std::ostringstream ss;
-                    |    ss << *e->getValue();
-                    |    value_map_[e] = ss.str();""".stripMargin,
+                    |ss << *e->getValue();
+                    |value_map_[e] = ss.str();""".stripMargin,
       new Add -> """value_map_[e] = "(" + value_map_[e->getLeft()] + "+" + value_map_[e->getRight()] + ")";""",
       new Sub -> """value_map_[e] = "(" + value_map_[e->getLeft()] + "-" + value_map_[e->getRight()] + ")";""",
       new Neg -> """value_map_[e] = "-" + value_map_[e->getExp()];"""

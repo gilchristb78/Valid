@@ -12,7 +12,7 @@ import expression.{Exp, Operation}
   * For any of these that are ever going to be translated directly into Java Type Names, you must
   * make them Constructor.
   */
-trait JavaSemanticTypes {
+trait MethodMapper {
 
   /** Implementations for an operation. Map(op, Map(exp,MethodDecls)). */
   var implementations:Map[Class[_ <: Operation],Map[Class[_ <: Exp],MethodDeclaration]] = Map()

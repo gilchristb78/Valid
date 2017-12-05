@@ -7,7 +7,7 @@ import time.TemperatureUnit
 
 trait SemanticTypes {
   object converter {
-    def apply(from: Type, to: Type) = 'Converter(from, to)
+    def apply(from: Type, to: Type):Type = 'Converter(from, to)
   }
 
   object feature {

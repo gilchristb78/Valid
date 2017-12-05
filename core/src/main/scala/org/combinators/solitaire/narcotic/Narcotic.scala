@@ -1,22 +1,23 @@
 package org.combinators.solitaire.narcotic
 
+import java.nio.file.Path
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.cls.interpreter.{InhabitationResult, ReflectedRepository}
+import de.tu_dortmund.cs.ls14.Persistable
+import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
-import de.tu_dortmund.cs.ls14.java.JavaPersistable._
-import domain.narcotic.Domain
-import org.combinators.solitaire.shared.SemanticTypes
 import org.webjars.play.WebJarsUtil
+
+import de.tu_dortmund.cs.ls14.java.JavaPersistable._
 
 // domain
 import domain._
 
 class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars){
 
-  val s:Solitaire = new Domain()
+  val s:Solitaire = new domain.narcotic.Domain()
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

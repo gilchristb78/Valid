@@ -1,10 +1,11 @@
 package org.combinators.solitaire.bigforty
 
+import java.nio.file.Path
 import javax.inject.Inject
 
-import domain.bigforty.Domain
 import org.webjars.play.WebJarsUtil
 import com.github.javaparser.ast.CompilationUnit
+import de.tu_dortmund.cs.ls14.Persistable
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
@@ -14,7 +15,7 @@ import de.tu_dortmund.cs.ls14.java.JavaPersistable._
 import domain._
 
 class BigForty @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars){
-  val s:Solitaire = new Domain()
+  val s:Solitaire = new domain.bigforty.Domain()
 
   /** Domain for BigForty defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new gameDomain(s) with controllers {}
