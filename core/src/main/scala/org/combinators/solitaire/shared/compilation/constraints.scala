@@ -12,6 +12,7 @@ import domain.constraints._
 import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.deal.DealComponents
+import domain.deal.map.{MapByRank, MapBySuit, MapCard}
 import org.combinators.solitaire.shared.JavaSemanticTypes
 
 import scala.collection.JavaConverters._
@@ -29,6 +30,21 @@ object constraintCodeGenerators  {
   // log everything as needed.
   val logger = Logging.getLogger(ActorSystem("ConstraintCodeGenerators"), constraintCodeGenerators.getClass)
   logger.info("Constraint Generation logging active...")
+
+
+  // used for map expressions
+  val mapGenerators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
+    CodeGeneratorRegistry[Expression, MapByRank] {
+      case (_:CodeGeneratorRegistry[Expression], m:MapByRank) =>
+        Java(s"""card.getRank() - Card.ACE""").expression()
+    },
+
+    CodeGeneratorRegistry[Expression, MapBySuit] {
+      case (_:CodeGeneratorRegistry[Expression], m:MapBySuit) =>
+        Java(s"""card.getSuit() - Card.CLUBS""").expression()
+    },
+
+  )
 
   val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
@@ -90,6 +106,18 @@ object constraintCodeGenerators  {
     CodeGeneratorRegistry[Expression, IsAce] {
       case (registry: CodeGeneratorRegistry[Expression], isAce: IsAce) =>
         Java(s"""${registry(isAce.element).get}.getRank() == Card.ACE""").expression()
+    },
+
+    // In Kombat solitaire, Suits are: CLUBS=1, DIAMONDS=2, HEARTS=3, SPADES=4. */
+    CodeGeneratorRegistry[Expression, IsSuit] {
+      case (registry: CodeGeneratorRegistry[Expression], isSuit: IsSuit) =>
+        Java(s"""${registry(isSuit.element).get}.getSuit() == ${isSuit.suit.value()}""").expression()
+    },
+
+    // In Kombat solitaire, Ranks are: Aces1, Two=2, ... Queen=12, King = 13. */
+    CodeGeneratorRegistry[Expression, IsRank] {
+      case (registry: CodeGeneratorRegistry[Expression], isRank: IsRank) =>
+        Java(s"""${registry(isRank.element).get}.getRank() == ${isRank.rank.value()}""").expression()
     },
 
     CodeGeneratorRegistry[Expression, IsKing] {
@@ -187,6 +215,7 @@ object constraintCodeGenerators  {
     })
 }
 
+
 /** Provides a return (EXPR) statement. */
 class StatementCombinator(c:Constraint, moveSymbol:Type) extends JavaSemanticTypes {
 
@@ -209,7 +238,21 @@ class ExpressionCombinator(c:Constraint) extends JavaSemanticTypes {
   def apply(generators: CodeGeneratorRegistry[Expression]): Expression = {
     val cc3: Option[Expression] = generators(c)
     if (cc3.isEmpty) {
-      constraintCodeGenerators.logger.error("CodeGeneratorRegistry: Unable to locate:" + c.toString)
+      constraintCodeGenerators.logger.error("ExpressionCombinator: Unable to locate:" + c.toString)
+      Java("false").expression()
+    } else {
+      cc3.get
+    }
+  }
+}
+
+/** When used, it isn't important what semantic Type is, which is why we omit it. */
+class MapExpressionCombinator(m:MapCard) extends JavaSemanticTypes {
+
+  def apply(generators: CodeGeneratorRegistry[Expression]): Expression = {
+    val cc3: Option[Expression] = generators(m)
+    if (cc3.isEmpty) {
+      constraintCodeGenerators.logger.error("MapExpressionCombinator: Unable to locate:" + m.toString)
       Java("false").expression()
     } else {
       cc3.get
@@ -237,23 +280,6 @@ object generateHelper {
 
 
   /**
-    * Return lower-case string matching the container type in domain.
-    * HACK HACK
-    * TODO: This is duplicated from SemanticTypes
-    * @param tpe    the container type
-    */
-  def typeOfContainer(tpe: ContainerType): String = {
-    tpe match {
-      case SolitaireContainerTypes.Foundation => "foundation"
-      case SolitaireContainerTypes.Tableau => "tableau"
-      case SolitaireContainerTypes.Reserve => "reserve"
-      case SolitaireContainerTypes.Waste => "waste"
-      case SolitaireContainerTypes.Stock => "deck"      // special
-      case _ => "None"
-    }
-  }
-
-  /**
     * Generate all helpers for the given solitaire domain.
     *
     * @param sol   Solitaire variation
@@ -262,7 +288,7 @@ object generateHelper {
     var methods:Seq[MethodDeclaration] = Seq.empty
     for (containerType:ContainerType <- sol.containers.keySet.asScala) {
       val container = sol.containers.get(containerType)
-      val name = typeOfContainer(containerType)
+      val name = containerType.getName
 
       container match {
         case d: Stock =>

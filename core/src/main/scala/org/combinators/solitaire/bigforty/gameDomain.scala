@@ -15,7 +15,7 @@ import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, cons
 
 
 class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with SemanticTypes
-  with GameTemplate with Score52 with Controller {
+  with GameTemplate  with Controller {
 
   object bigFortyCodeGenerator {
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
@@ -33,6 +33,14 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
     def apply: CodeGeneratorRegistry[Expression] = bigFortyCodeGenerator.generators
 
     val semanticType: Type = constraints(constraints.generator)
+  }
+
+  /**
+    * Deal may require additional generators.
+    */
+  @combinator object DefaultDealGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.mapGenerators
+    val semanticType: Type = constraints(constraints.map)
   }
 
   /**

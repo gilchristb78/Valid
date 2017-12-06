@@ -43,6 +43,14 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = constraints(constraints.generator)
   }
 
+  /**
+    * Deal may require additional generators.
+    */
+  @combinator object DefaultDealGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.mapGenerators
+    val semanticType: Type = constraints(constraints.map)
+  }
+
   @combinator object HelperMethodsNarcotic {
     def apply(): Seq[MethodDeclaration] = Seq(
       generateHelper.fieldAccessHelper("tableau", "fieldPiles"))

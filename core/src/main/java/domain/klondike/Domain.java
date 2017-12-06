@@ -93,6 +93,8 @@ public class Domain extends Solitaire {
         // this creates DeckToPile, as in the above DeckDealMove.
         addPressMove (new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), waste, new Truth()));
 
+        // DEAL arrangement for Klondike
+
         // each of the BuildablePiles gets a number of facedown cards, 0 to first Pile, 1 to second pile, etc...
         // don't forget zero-based indexing.
         for (int pileNum = 1; pileNum < 7; pileNum++) {

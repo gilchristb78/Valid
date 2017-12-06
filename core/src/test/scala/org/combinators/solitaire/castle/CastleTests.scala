@@ -32,13 +32,14 @@ class CastleTests extends FunSpec  {
           import controllerRepository._
 
           val reflected = ReflectedRepository(controllerRepository, classLoader = controllerRepository.getClass.getClassLoader)
-          val Gamma= controllerRepository.init(reflected, domainModel)
+          var Gamma= controllerRepository.init(reflected, domainModel)
+
           val helper = new Helper()
 
           it ("Check for base classes") {
             assert(helper.singleClass("ConstraintHelper",    Gamma.inhabit[CompilationUnit](constraints(complete))))
 
-            assert(helper.singleClass("Castle",              Gamma.inhabit[CompilationUnit](game(complete :&: game.solvable))))
+            assert(helper.singleClass("BeleagueredCastle",   Gamma.inhabit[CompilationUnit](game(complete :&: game.solvable))))
             assert(helper.singleClass("RowController",       Gamma.inhabit[CompilationUnit](controller(row, complete))))
             assert(helper.singleClass("PileController",      Gamma.inhabit[CompilationUnit](controller(pile, complete))))
 
@@ -48,7 +49,6 @@ class CastleTests extends FunSpec  {
               val sym = Constructor(mv.name)
               assert(helper.singleClass(mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
             }
-
           }
 
           // these are implied by the successful completion of 'game'

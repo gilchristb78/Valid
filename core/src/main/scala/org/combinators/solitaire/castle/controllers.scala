@@ -6,7 +6,7 @@ import org.combinators.generic
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
 
-trait controllers extends shared.Controller with shared.Moves with WinningLogic with generic.JavaCodeIdioms  {
+trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :  ReflectedRepository[G] = {
@@ -27,17 +27,14 @@ trait controllers extends shared.Controller with shared.Moves with WinningLogic 
 
 
     updated = createWinLogic(updated, s)
-    //
-//
-//    // Potential moves clarify structure (by type not instance). FIX ME
-//    // FIX ME FIX ME FIX ME
-//    updated = updated
-//      .addCombinator (new PotentialTypeConstructGen("Row", 'RowToRow))
-//
-//    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
-//    updated = updated
-//      .addCombinator (new ControllerNaming('Row, 'Row, "Castle"))
-//      .addCombinator (new ControllerNaming('Pile, 'Pile, "Castle"))
+
+    // move these to shared area
+    updated = updated
+      .addCombinator (new DefineRootPackage(s))
+      .addCombinator (new DefineNameOfTheGame(s))
+      .addCombinator (new ProcessView(s))
+      .addCombinator (new ProcessControl(s))
+      .addCombinator (new ProcessFields(s))
 
 
     updated

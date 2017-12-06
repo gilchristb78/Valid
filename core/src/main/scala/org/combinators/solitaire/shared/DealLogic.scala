@@ -6,9 +6,8 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.{Solitaire, SolitaireContainerTypes}
-import domain.deal.{ContainerTarget, DealStep, ElementTarget, FilterStep}
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, ExpressionCombinator, constraintCodeGenerators}
-
+import domain.deal._
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, ExpressionCombinator, MapExpressionCombinator, constraintCodeGenerators}
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 
@@ -29,111 +28,90 @@ trait DealLogic extends SemanticTypes with Base {
   /** Process deals in Java. */
   class ProcessDeal(s:Solitaire) {
 
-    def apply(generators: CodeGeneratorRegistry[Expression]): Seq[Statement] = {
+    def apply(mapGenerators: CodeGeneratorRegistry[Expression],
+              generators: CodeGeneratorRegistry[Expression]): Seq[Statement] = {
       var stmts = ""
       for (step <- s.getDeal.asScala) {
         step match {
           case f: FilterStep => {
             val app = new ExpressionCombinator(f.constraint)
-            val filterexp = app.apply(constraintCodeGenerators.generators)
+            val filterexp = app.apply(generators)
 
-            // filter removes cards
-            stmts = stmts +
-              s"""
+            // filter removes cards, but up to a certain limit only
+            stmts = stmts + s"""{
                  |java.util.ArrayList<Card> tmp = new java.util.ArrayList<Card>();
-                 |java.util.ArrayList<Card> keep = new java.util.ArrayList<Card>();
+                 |Stack keep = new Stack();
+                 |int _limit = ${f.limit};
                  |while (!deck.empty()) {
                  |    Card card = deck.get();
                  |    if ($filterexp) {
-                 |        tmp.add(card);
+                 |        if (_limit == 0) { keep.add(card); }
+                 |        else {
+                 |          _limit--;
+                 |          tmp.add(card);
+                 |        }
                  |    } else {
                  |        keep.add(card);
                  |    }
                  |}
-                 |for (Card c : keep) { deck.add(c); }
+                 |
+                 |while (!keep.empty()) {
+                 |  deck.add(keep.get());
+                 |}
                  |for (Card c : tmp) { deck.add(c); }
-                 |""".stripMargin
-
+                 |}""".stripMargin
           }
+
+          // Map step is like a DealStep, without the inner issue of going to a single target.
+              // TODO: Make 'card' a parameter to the map expression
+          case m: MapStep =>
+            println("Map step:" + m)
+            val payload = m.payload
+            val flipWithSemi:String = if (payload.faceUp) { "" } else { "c.setFaceUp (false);" }
+            val numCards = payload.numCards
+            val app = new MapExpressionCombinator(m.map)
+            val mapExpression = app.apply(mapGenerators)
+            val name = m.target.targetType.getName
+            stmts = stmts + s"""for (int i = 0; i < $numCards; i++) {
+                               |    Card card = deck.get();
+                               |    int _idx = $mapExpression;
+                               |    $flipWithSemi
+                               |    ConstraintHelper.$name(this)[_idx].add(card);
+                               |}""".stripMargin
+
 
           // frames=0 means do no animation during the deal.
           case d: DealStep => {
             println("Deal step:" + d)
             val payload = d.payload
-            val flip:String = if (payload.faceUp) { "" } else { "c.setFaceUp (false);" }
+            val flipWithSemi:String = if (payload.faceUp) { "" } else { "c.setFaceUp (false);" }
             val numCards = payload.numCards
             d.target match {
               case ct:ContainerTarget => {
-                ct.targetType match {
-                  case SolitaireContainerTypes.Foundation => {
-                    stmts = stmts +
-                      s"""
-                         |for (int i = 0; i < $numCards; i++) {
-                         |    for (Stack st : ConstraintHelper.foundation(this)) {
-                         |         Card c = deck.get();
-                         |         $flip
-                         |         st.add(c);
-                         |    }
-                         |}""".stripMargin
-                  }
-                  case SolitaireContainerTypes.Tableau => {
-                    stmts = stmts +
-                      s"""
-                         |for (int i = 0; i < $numCards; i++) {
-                         |    for (Stack st : ConstraintHelper.tableau(this)) {
-                         |         Card c = deck.get();
-                         |         $flip
-                         |         st.add(c);
-                         |    }
-                         |}""".stripMargin
-                  }
-                  case SolitaireContainerTypes.Waste => {
-                    stmts = stmts +
-                      s"""
-                         |for (int i = 0; i < $numCards; i++) {
-                         |    for (Stack st : ConstraintHelper.wastePile(this)) {
-                         |         Card c = deck.get();
-                         |         $flip
-                         |         st.add(c);
-                         |    }
-                         |}""".stripMargin
-                  }
-                }
+                val name = ct.targetType.getName
+                stmts = stmts + s"""
+                                 |for (int i = 0; i < $numCards; i++) {
+                                 |    for (Stack st : ConstraintHelper.$name(this)) {
+                                 |         Card c = deck.get();
+                                 |         $flipWithSemi
+                                 |         st.add(c);
+                                 |    }
+                                 |}""".stripMargin
+
               }
               // just reach out to one in particular
               case et:ElementTarget => {
                 val idx = et.idx
+                val name = et.targetType.getName
 
-                et.targetType match {
-                  case SolitaireContainerTypes.Foundation => {
-                    stmts = stmts +
-                      s"""
+                stmts = stmts + s"""
                          |for (int i = 0; i < $numCards; i++) {
                          |     Card c = deck.get();
-                         |     $flip
-                         |     ConstraintHelper.foundation(this)[$idx].add(c);
+                         |     $flipWithSemi
+                         |     ConstraintHelper.$name(this)[$idx].add(c);
                          |}""".stripMargin
-                  }
-                  case SolitaireContainerTypes.Tableau => {
-                    stmts = stmts +
-                      s"""
-                         |for (int i = 0; i < $numCards; i++) {
-                         |     Card c = deck.get();
-                         |     $flip
-                         |     ConstraintHelper.tableau(this)[$idx].add(c);
-                         |}""".stripMargin
-                  }
-                  case SolitaireContainerTypes.Waste => {
-                    stmts = stmts +
-                      s"""
-                         |for (int i = 0; i < $numCards; i++) {
-                         |     Card c = deck.get();
-                         |     $flip
-                         |     ConstraintHelper.wastePile(this)[$idx].add(c);
-                         |}""".stripMargin
-                  }
-                }
-                // just a single element
+
+
               }
             }
           }
@@ -143,6 +121,7 @@ trait DealLogic extends SemanticTypes with Base {
       Java(stmts).statements()
     }
 
-    val semanticType:Type = constraints(constraints.generator) =>: game(game.deal)
+    val semanticType:Type = constraints(constraints.map) =>:
+      constraints(constraints.generator) =>: game(game.deal)
   }
 }

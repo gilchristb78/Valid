@@ -240,7 +240,6 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
 
       for (containerType:ContainerType <- sol.containers.keySet.asScala) {
         val container = sol.containers.get(containerType)
-        val name = typeOfContainer(containerType)
         container match {
 
           case d: Stock =>
@@ -249,7 +248,7 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
           case _ =>
             val tpe: String = container.types().next
 
-            fields = fields ++ processFieldGen(tpe, name, container.size())
+            fields = fields ++ processFieldGen(tpe, containerType.getName, container.size())
         }
       }
 
@@ -265,17 +264,16 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
       var stmts: Seq[Statement] = Seq.empty
       for (containerType:ContainerType <- sol.containers.keySet.asScala) {
         val container = sol.containers.get(containerType)
-        val name = typeOfContainer(containerType)
-         container match {
+        container match {
 
           case d: Stock =>
             if (!d.isInvisible) {
-              stmts = stmts ++ controllerGen(s"${name}View", "DeckController")
+              stmts = stmts ++ controllerGen(s"${containerType.getName}View", "DeckController")
             }
 
           case _ =>
             val tpe: String = container.types().next
-            stmts = stmts ++ loopControllerGen(container, s"${name}View", s"${tpe}Controller")
+            stmts = stmts ++ loopControllerGen(container, s"${containerType.getName}View", s"${tpe}Controller")
         }
       }
 
@@ -291,8 +289,7 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
       var stmts: Seq[Statement] = Seq.empty
       for (containerType:ContainerType <- sol.containers.keySet.asScala) {
         val container = sol.containers.get(containerType)
-        val name = typeOfContainer(containerType)
-
+        val name = containerType.getName
         container match {
 
           case d: Stock =>
@@ -318,7 +315,7 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
       var stmts: Seq[Statement] = Seq.empty
       for (containerType:ContainerType <- sol.containers.keySet.asScala) {
         val container = sol.containers.get(containerType)
-        val name = typeOfContainer(containerType)
+        val name = containerType.getName
 
         container match {
 

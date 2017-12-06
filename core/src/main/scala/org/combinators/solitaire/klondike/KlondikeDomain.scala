@@ -27,6 +27,14 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   }
 
   /**
+    * Deal may require additional generators.
+    */
+  @combinator object DefaultDealGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.mapGenerators
+    val semanticType: Type = constraints(constraints.map)
+  }
+
+  /**
     * Every solitaire variation belongs in its own package.
     */
   @combinator object RootPackage {

@@ -1,6 +1,6 @@
 package domain.win;
 
-import domain.SolitaireContainerTypes;
+import domain.ContainerType;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,7 +13,7 @@ public class BoardState implements WinningLogic, Iterable<BoardStatePair> {
 
     public final List<BoardStatePair> elements = new ArrayList<>();
 
-    public void add(SolitaireContainerTypes type, int total) {
+    public void add(ContainerType type, int total) {
        elements.add(new BoardStatePair (type, total));
     }
 

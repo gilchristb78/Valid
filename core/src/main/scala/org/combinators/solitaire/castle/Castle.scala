@@ -21,17 +21,7 @@ class Castle @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJ
   lazy val repository = new CastleDomain(s) with controllers {}
   import repository._
 
-  var Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
-
-  // move these to shared area
-  Gamma = Gamma
-    .addCombinator (new DefineRootPackage(s))
-    .addCombinator (new DefineNameOfTheGame(s))
-    .addCombinator (new ProcessView(s))
-    .addCombinator (new ProcessControl(s))
-    .addCombinator (new ProcessFields(s))
-    .addCombinator (new HelperMethodsCastle(s))
-
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =

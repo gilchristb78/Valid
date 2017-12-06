@@ -2,6 +2,7 @@ package org.combinators.solitaire.shared
 
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import domain.{ContainerType, SolitaireContainerTypes}
 
 /**
   * These codify the semantic types necessary to do with Java version of solitaire.
@@ -9,6 +10,8 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
   * Extends SemanticTypes to clarify
   */
 trait JavaSemanticTypes extends SemanticTypes {
+
+  var constraintCodeGenerators = org.combinators.solitaire.shared.compilation.constraintCodeGenerators
 
   /** only one part since synthesizing 'the' game. */
   object kombat {

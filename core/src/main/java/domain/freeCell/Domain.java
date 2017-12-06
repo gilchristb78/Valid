@@ -13,6 +13,7 @@ import domain.deal.ElementTarget;
 import domain.deal.Payload;
 import domain.moves.*;
 import domain.ui.ReserveFoundationTableauLayout;
+import domain.win.BoardState;
 
 
 /**
@@ -92,8 +93,8 @@ public class Domain extends Solitaire {
 		NotConstraint nonEmpty = new NotConstraint(new IsEmpty(MoveComponents.Destination));
 		IfConstraint if3 = new IfConstraint(isEmpty,
                 new IsAce(MoveComponents.MovingCard),
-                new AndConstraint (new NextRank(MoveComponents.MovingCard, new BottomCardOf(MoveComponents.Destination)),
-                                   new SameSuit(MoveComponents.MovingCard, new BottomCardOf(MoveComponents.Destination))));
+                new AndConstraint (new NextRank(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
+                                   new SameSuit(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination))));
 
 		SingleCardMove freePileToHomePile = new SingleCardMove("BuildFreePileCard", reserve, found, if3);
 		addDragMove(freePileToHomePile);
@@ -138,6 +139,11 @@ public class Domain extends Solitaire {
 		for (int pile = 0; pile < 4; pile++) {
 			addDealStep(new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, tableau, pile), new Payload()));
 		}
+
+		// When foundation is full, we are done.
+		BoardState state = new BoardState();
+		state.add(SolitaireContainerTypes.Foundation, 52);
+		setLogic (state);
 
 	}
 }

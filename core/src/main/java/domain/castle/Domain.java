@@ -8,6 +8,7 @@ import domain.moves.RowMove;
 import domain.ui.CalculatedPlacement;
 import domain.ui.VerticalPlacement;
 import domain.ui.PlacementGenerator;
+import domain.win.BoardState;
 
 import java.awt.*;
 import java.util.Iterator;
@@ -106,5 +107,10 @@ public class Domain extends Solitaire {
 		for (int i = 0; i < 6; i++) {
 			addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau)));
 		}
+
+		// When foundation is full, we are done.
+		BoardState state = new BoardState();
+		state.add(SolitaireContainerTypes.Foundation, 52);
+		setLogic (state);
 	}
 }

@@ -1,6 +1,12 @@
 
 ->    /                              shared.Routes
 
+GET   /archway                      org.combinators.solitaire.archway.Archway.overview()
+GET   /archway/raw_:number          org.combinators.solitaire.archway.Archway.raw(number: Long)
+GET   /archway/prepare              org.combinators.solitaire.archway.Archway.prepare(number: Long)
+GET   /archway/archway.git/*file   org.combinators.solitaire.archway.Archway.serveFile(file)
+
+
 GET   /narcotic                      org.combinators.solitaire.narcotic.Narcotic.overview()
 GET   /narcotic/raw_:number          org.combinators.solitaire.narcotic.Narcotic.raw(number: Long)
 GET   /narcotic/prepare              org.combinators.solitaire.narcotic.Narcotic.prepare(number: Long)

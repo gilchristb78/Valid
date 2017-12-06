@@ -8,7 +8,7 @@ public enum SolitaireContainerTypes implements ContainerType {
     Tableau("tableau"),
     Reserve("reserve"),
     Waste("waste"),
-    Stock("stock");
+    Stock("deck");      // always called deck. HACK. TODO: LOOK INTO THIS SOME MORE
 
     /**
      * Each container type has a unique name. Make sure of this

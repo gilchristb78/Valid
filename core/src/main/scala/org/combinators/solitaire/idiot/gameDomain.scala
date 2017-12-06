@@ -39,6 +39,14 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   }
 
   /**
+    * Deal may require additional generators.
+    */
+  @combinator object DefaultDealGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.mapGenerators
+    val semanticType: Type = constraints(constraints.map)
+  }
+
+  /**
     * Vagaries of java imports means these must be defined as well.
     */
   @combinator object ExtraImports {
@@ -110,9 +118,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
 
   /** Idiot has logic to determine if any existing card on the tableau is higher in same suit. */
-  class HelperMethodsIdiot(sol:Solitaire) {
+  @combinator object HelperMethodsIdiot {
     def apply(): Seq[MethodDeclaration] = {
-      var methods = generateHelper.helpers(sol)
+      var methods = generateHelper.helpers(solitaire)
 
       methods ++ Java(s"""
                          |public static boolean higher(Solitaire game, Stack source) {

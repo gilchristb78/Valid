@@ -81,10 +81,20 @@ object constraintCodeGenerators  {
         Python(s"""False""")
     },
 
-
     CodeGeneratorRegistry[Python, IsAce] {
       case (registry: CodeGeneratorRegistry[Python], isAce: IsAce) =>
         Python(s"""${registry(isAce.element).get}.rank == 0""")
+    },
+
+    CodeGeneratorRegistry[Python, IsSuit] {
+      case (registry: CodeGeneratorRegistry[Python], isSuit: IsSuit) =>
+        Python(s"""${registry(isSuit.element).get}.suit == ${isSuit.suit.value}""")
+    },
+
+    /** PySolFC has Ace as 0, and King as 12. */
+    CodeGeneratorRegistry[Python, IsRank] {
+      case (registry: CodeGeneratorRegistry[Python], isRank: IsRank) =>
+        Python(s"""${registry(isRank.element).get}.rank == (${isRank.rank.value}-1)""")
     },
 
     CodeGeneratorRegistry[Python, IsKing] {

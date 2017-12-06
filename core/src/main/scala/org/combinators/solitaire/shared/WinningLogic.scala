@@ -45,7 +45,7 @@ trait WinningLogic extends SemanticTypes {
                   |}""".stripMargin).statements()
 
           case _ =>
-            val name = typeOfContainer(pair.tpe)
+            val name = pair.tpe.getName
 
             stmts = stmts ++
             Java(s"""|{

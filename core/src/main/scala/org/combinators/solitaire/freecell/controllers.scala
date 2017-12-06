@@ -8,7 +8,7 @@ import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
 
 
-trait controllers extends shared.Controller with shared.Moves with generic.JavaCodeIdioms  {
+trait controllers extends shared.Controller with GameTemplate with shared.Moves with generic.JavaCodeIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
@@ -32,6 +32,17 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
       .addCombinator (new SingleCardMoveHandler('FreePile))
       .addCombinator (new IgnoreClickedHandler('FreePile))
       .addCombinator (new IgnoreClickedHandler('Column))
+
+    updated = createWinLogic(updated, s)
+
+    // move these to shared area
+    updated = updated
+      .addCombinator (new DefineRootPackage(s))
+      .addCombinator (new DefineNameOfTheGame(s))
+      .addCombinator (new ProcessModel(s))
+      .addCombinator (new ProcessView(s))
+      .addCombinator (new ProcessControl(s))
+      .addCombinator (new ProcessFields(s))
 
     // CASE STUDY: Add Automove logic at end of release handlers
     // this is done by manipulating the chosen combinator.

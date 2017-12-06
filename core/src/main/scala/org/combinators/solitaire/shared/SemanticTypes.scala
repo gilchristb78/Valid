@@ -39,22 +39,6 @@ trait SemanticTypes {
   val pile: Constructor          = 'Pile
   val row: Constructor           = 'Row
 
-  /**
-    * Return lower-case string matching the container type in domain.
-    *
-    * @param tpe    the container type
-    */
-  def typeOfContainer(tpe: ContainerType): String = {
-    tpe match {
-      case SolitaireContainerTypes.Foundation => "foundation"
-      case SolitaireContainerTypes.Tableau => "tableau"
-      case SolitaireContainerTypes.Reserve => "reserve"
-      case SolitaireContainerTypes.Waste => "waste"
-      case SolitaireContainerTypes.Stock => "deck"      // special
-      case _ => "None"
-     }
-  }
-
   /** only one part since synthesizing 'the' game. */
   object game {
     def apply (part:Type): Constructor = 'Game (part)
@@ -110,6 +94,7 @@ trait SemanticTypes {
 
     val methods:Type = 'Methods
     val generator:Type = 'ConstraintGen
+    val map:Type = 'Map
   }
 
 }

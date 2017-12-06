@@ -17,7 +17,7 @@ import org.combinators.solitaire.shared._
   * Either a rule must be associated with an action, or the action must be
   * explicity ignored. See ArchwayRules in game.scala.
   */
-trait Controllers extends shared.Controller with shared.Moves with generic.JavaCodeIdioms  {
+trait Controllers extends shared.Controller with shared.Moves with GameTemplate with generic.JavaCodeIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
@@ -48,6 +48,18 @@ trait Controllers extends shared.Controller with shared.Moves with generic.JavaC
       // Cards can be dragged to and from the Tableau.
       .addCombinator (new IgnoreClickedHandler(column))
       .addCombinator (new SingleCardMoveHandler(column))
+
+
+    updated = createWinLogic(updated, s)
+
+    // move these to shared area
+    updated = updated
+      .addCombinator (new DefineRootPackage(s))
+      .addCombinator (new DefineNameOfTheGame(s))
+      .addCombinator (new ProcessModel(s))
+      .addCombinator (new ProcessView(s))
+      .addCombinator (new ProcessControl(s))
+      .addCombinator (new ProcessFields(s))
 
     updated
   }

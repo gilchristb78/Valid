@@ -28,15 +28,18 @@ class Helper extends FunSpec {
   def singleClass(name: String, result: InhabitationResult[CompilationUnit]):Boolean = {
     val inhab: Iterator[CompilationUnit] = result.interpretedTerms.values.flatMap(_._2).iterator
 
-   if (inhab.hasNext) {
-     val actual = inhab.next
-     val clazz = actual.getClassByName(name)
-     if (!inhab.hasNext) {
-       return clazz.isPresent && clazz.get().getNameAsString == name
-     }
-   }
-
-   false
+    if (inhab.hasNext) {
+      val actual = inhab.next
+      val clazz = actual.getClassByName(name)
+      if (!inhab.hasNext) {
+        return clazz.isPresent && clazz.get().getNameAsString == name
+      }
+      println (name + " has more than one inhabitant.")
+      false
+    } else {
+      println (name + " has no inhabitant.")
+      false
+    }
   }
 
   /**

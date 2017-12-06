@@ -3,9 +3,7 @@ package domain.constraints;
 import domain.*;
 
 /**
- * This constraint is (for some reason) defined with extra precision. Reason is that
- * determining the rank of a Stack uses .rank() method, while rank of a Card
- * uses .getRank() method.
+ * Is the given target an ace?
  */
 public class IsAce extends Constraint {
 

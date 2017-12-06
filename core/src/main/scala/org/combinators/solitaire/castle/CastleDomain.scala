@@ -20,7 +20,7 @@ import domain._
   * @param solitaire    Application domain object with details about solitaire variation.
   */
 class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire)
-  with GameTemplate with Score52 with Controller with SemanticTypes {
+  with GameTemplate with Controller with SemanticTypes {
 
   object castleCodeGenerator {
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
@@ -46,12 +46,20 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
   }
 
   /**
+    * Deal may require additional generators.
+    */
+  @combinator object DefaultDealGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.mapGenerators
+    val semanticType: Type = constraints(constraints.map)
+  }
+
+  /**
     * Specialized methods to help out in processing constraints. Specifically,
     * these are meant to be generic, things like getTableua, getReserve()
     */
-  class HelperMethodsCastle(sol:Solitaire) {
+  @combinator object  HelperMethodsCastle {
     def apply(): Seq[MethodDeclaration] = {
-      var methods = generateHelper.helpers(sol)
+      var methods = generateHelper.helpers(solitaire)
 
       methods ++ Java(
         s"""

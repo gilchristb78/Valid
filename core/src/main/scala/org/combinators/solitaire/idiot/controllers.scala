@@ -11,7 +11,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import org.combinators.generic
 import domain._
 
-trait controllers extends shared.Controller with shared.Moves with WinningLogic with generic.JavaCodeIdioms  {
+trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :  ReflectedRepository[G] = {
@@ -38,6 +38,16 @@ trait controllers extends shared.Controller with shared.Moves with WinningLogic 
       .addCombinator (new IgnoreClickedHandler(deck))
 
     updated = createWinLogic(updated, s)
+
+
+    // move these to shared area
+    updated = updated
+      .addCombinator (new DefineRootPackage(s))
+      .addCombinator (new DefineNameOfTheGame(s))
+      .addCombinator (new ProcessModel(s))
+      .addCombinator (new ProcessView(s))
+      .addCombinator (new ProcessControl(s))
+      .addCombinator (new ProcessFields(s))
 
     updated
   }

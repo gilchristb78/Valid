@@ -25,17 +25,6 @@ class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJa
   import repository._
   var Gamma:ReflectedRepository[gameDomain] = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
-  // move these to shared area
-  Gamma = Gamma
-    .addCombinator (new DefineRootPackage(s))
-    .addCombinator (new DefineNameOfTheGame(s))
-    .addCombinator (new ProcessModel(s))
-    .addCombinator (new ProcessView(s))
-    .addCombinator (new ProcessControl(s))
-    .addCombinator (new ProcessFields(s))
-    .addCombinator (new HelperMethodsIdiot(s))
-
-
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
     Gamma.InhabitationBatchJob[CompilationUnit](game(complete :&: game.solvable))
