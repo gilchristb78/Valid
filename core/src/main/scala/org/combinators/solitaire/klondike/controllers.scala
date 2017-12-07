@@ -11,7 +11,7 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.generic
 import domain._
 
-trait controllers extends shared.Controller with shared.Moves with generic.JavaCodeIdioms with SemanticTypes  {
+trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms with SemanticTypes  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :  ReflectedRepository[G] = {
@@ -43,6 +43,17 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
       .addCombinator (new SingleCardMoveHandler('WastePile))
       .addCombinator (new buildablePilePress.CP2())
 
+    updated = createWinLogic(updated, s)
+
+
+    // move these to shared area
+    updated = updated
+      .addCombinator (new DefineRootPackage(s))
+      .addCombinator (new DefineNameOfTheGame(s))
+      .addCombinator (new ProcessModel(s))
+      .addCombinator (new ProcessView(s))
+      .addCombinator (new ProcessControl(s))
+      .addCombinator (new ProcessFields(s))
 
     updated
   }
@@ -92,9 +103,10 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
     val deck2:Constructor = 'Deck2
 
   /** When dealing card(s) from the stock to all elements in Tableau. */
+  // This should be generated from one of the rules.
   class DealToTableauHandlerLocal() {
     def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
-      Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.fieldWastePiles);
+      Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.waste);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
                |   // have solitaire game refresh widgets that were affected
@@ -107,9 +119,10 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
   }
 
   /** When deck is empty and must be reset from waste pile. */
+  // This should be generated from one of the rules.
   class ResetDeckLocal() {
     def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
-      Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.fieldWastePiles);
+      Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.waste);
                |if (m.doMove(theGame)) {
                |   theGame.pushMove(m);
                |   // have solitaire game refresh widgets that were affected
@@ -121,7 +134,8 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
     val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck2, controller.pressed)
   }
 
-
+  // in face, once the earlier two are properly generated, then we don't need to chain
+  // together, but we can do all at once.
   class ChainTogether extends ParameterizedStatementCombiner[SimpleName, SimpleName](
     drag(drag.variable, drag.ignore) =>: controller(deck1, controller.pressed),
     drag(drag.variable, drag.ignore) =>: controller(deck2, controller.pressed),

@@ -8,7 +8,7 @@ import domain.*;
  * All elements from the container would suffer the removal of a card.
  * These move classes might not be necessary.
  */
-public class RemoveMultipleCardsMove extends Move {
+public class RemoveMultipleCardsMove extends ActualMove {
 
     /**
      * Determine conditions for removing multiple cards from container 

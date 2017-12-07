@@ -13,6 +13,7 @@ import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import domain.deal.DealComponents
 import domain.deal.map.{MapByRank, MapBySuit, MapCard}
+import domain.moves._
 import org.combinators.solitaire.shared.JavaSemanticTypes
 
 import scala.collection.JavaConverters._
@@ -30,6 +31,222 @@ object constraintCodeGenerators  {
   // log everything as needed.
   val logger = Logging.getLogger(ActorSystem("ConstraintCodeGenerators"), constraintCodeGenerators.getClass)
   logger.info("Constraint Generation logging active...")
+
+  // Halfway there.
+  // TODO: Right now the doGenerator/undoGenerator/helperGenerator are non extensible. However, if
+  // TODO: you look at how the constraints were done, there is a way to fold it in. future work.
+
+  //  EnhancedMove
+  //  Score ** new one
+  //
+  // used for do statements expressions
+  val doGenerators:CodeGeneratorRegistry[Seq[Statement]] = CodeGeneratorRegistry.merge[Seq[Statement]](
+    CodeGeneratorRegistry[Seq[Statement], FlipCardMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:FlipCardMove) =>
+        Java(s"""|Card c = source.get();
+                 |c.setFaceUp (!c.isFaceUp());
+                 |source.add(c);
+                 |""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], SingleCardMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:SingleCardMove) =>
+        Java(s"""destination.add(movingCard);""").statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], RemoveMultipleCardsMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RemoveMultipleCardsMove) =>
+        Java(s"""|for (Stack s : destinations) {
+                 |  removedCards.add(s.get());
+                 |}""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], RemoveSingleCardMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RemoveSingleCardMove) =>
+        Java(s"""removedCard = source.get();""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], ResetDeckMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:ResetDeckMove) =>
+        Java(s"""|// Note destinations contain the stacks that are to
+                 |// be reformed into a single deck.
+                 |for (Stack s : destinations) {
+                 |  while (!s.empty()) {
+                 |	source.add(s.get());
+                 |  }
+                 |}""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], DeckDealMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:DeckDealMove) =>
+        Java(s"""|for (Stack s : destinations) {
+                 |  s.add (source.get());
+                 |}""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], ColumnMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:ColumnMove) =>
+        Java(s"""destination.push(movingColumn);""").statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], RowMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RowMove) =>
+        Java(s"""destination.push(movingRow);""").statements()
+    },
+
+    // First example of a nested move. Total points comes from the number of cards field
+    //  CodeGeneratorRegistry[Seq[Statement], Score] {
+    //    case (registry:CodeGeneratorRegistry[Seq[Statement]], m:Score) =>
+    //      val head = Java(s"""!(${registry(m.base).get})""").statements()
+    //      val tail = if (m.isSingleCardMove) {
+    //         Java(s"""game.updateScore(+1);""").statements()
+    //      } else {
+    //         // not sure how to discover total number of moved cards without recursively generating it. awkward
+    //      }
+    //
+    //      head ++ tail
+    //    },
+  )
+
+  // I really want these to be [Seq[BodyDeclaration[_]] but I get some kind of strange Scala error, so this
+  // is just String untl I figure out more
+  val helperGenerators:CodeGeneratorRegistry[String] = CodeGeneratorRegistry.merge[String](
+    CodeGeneratorRegistry[String, FlipCardMove] {
+      case (_ : CodeGeneratorRegistry[String], m:FlipCardMove) =>
+        val name = new SimpleName(m.getName)
+        Java(s"""|//Card movingCard;
+                 |public $name(Stack from) {
+                 |  this(from, from);
+                 |}""".stripMargin).classBodyDeclarations().mkString("\n")
+    },
+
+    CodeGeneratorRegistry[String, SingleCardMove] {
+      case (_:CodeGeneratorRegistry[String], m:SingleCardMove) =>
+        val name = new SimpleName(m.getName)
+        Java(s"""|Card movingCard;
+                 |public $name(Stack from, Card card, Stack to) {
+                 |  this(from, to);
+                 |  this.movingCard = card;
+                 |}""".stripMargin).classBodyDeclarations().mkString("\n")
+    },
+
+    CodeGeneratorRegistry[String, DeckDealMove] {
+      case (_:CodeGeneratorRegistry[String], m:DeckDealMove) => ""
+    },
+
+    CodeGeneratorRegistry[String, RemoveMultipleCardsMove] {
+      case (_:CodeGeneratorRegistry[String], m:RemoveMultipleCardsMove) =>
+      val name = new SimpleName(m.getName)
+      Java(s"""|java.util.ArrayList<Card> removedCards = new java.util.ArrayList<Card>();
+               |public $name(Stack dests[]) {
+               |  this(null, dests);
+               |}
+               |""".stripMargin).classBodyDeclarations().mkString("\n")
+    },
+
+    CodeGeneratorRegistry[String, RemoveSingleCardMove] {
+      case (_:CodeGeneratorRegistry[String], m:RemoveSingleCardMove) =>
+      val name = new SimpleName(m.getName)
+      Java(s"""|Card removedCard = null;
+               |public $name(Stack src) {
+               |  this(src, null);
+               |}
+               |""".stripMargin).classBodyDeclarations().mkString("\n")
+    },
+
+    CodeGeneratorRegistry[String, ResetDeckMove] {
+      case (_:CodeGeneratorRegistry[String], m:ResetDeckMove) => ""
+    },
+
+    CodeGeneratorRegistry[String, ColumnMove] {
+      case (_:CodeGeneratorRegistry[String], m:ColumnMove) =>
+      val name = new SimpleName(m.getName)
+      Java(s"""|Column movingColumn;
+               |int numInColumn;
+               |public $name(Stack from, Column cards, Stack to) {
+               |  this(from, to);
+               |  this.movingColumn = cards;
+               |  this.numInColumn = cards.count();
+               |}""".stripMargin).classBodyDeclarations().mkString("\n")
+    },
+
+    CodeGeneratorRegistry[String, ColumnMove] {
+      case (_:CodeGeneratorRegistry[String], m:ColumnMove) =>
+      val name = new SimpleName(m.getName)
+      Java(s"""|Column movingRow;
+               |int numInColumn;   // conform to superclass usage.
+               |public $name(Stack from, Column cards, Stack to) {
+               |  this(from, to);
+               |  this.movingRow = cards;
+               |  this.numInColumn = cards.count();
+               |}""".stripMargin).classBodyDeclarations().mkString("\n")
+    },
+
+  )
+
+
+  // used for do statements expressions
+  val undoGenerators:CodeGeneratorRegistry[Seq[Statement]] = CodeGeneratorRegistry.merge[Seq[Statement]](
+    CodeGeneratorRegistry[Seq[Statement], FlipCardMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:FlipCardMove) =>
+        Java(s"""|Card c = source.get();
+                 |c.setFaceUp (!c.isFaceUp());
+                 |source.add(c);
+                 |return true;""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], SingleCardMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:SingleCardMove) =>
+        Java(s"""|source.add(destination.get());
+                 |return true;""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], RemoveMultipleCardsMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RemoveMultipleCardsMove) =>
+        Java(s"""|for (Stack s : destinations) {
+                 |  s.add(removedCards.remove(0));
+                 |}
+                 |return true;""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], RemoveSingleCardMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RemoveSingleCardMove) =>
+        Java(s"""|source.add(removedCard);
+                 |return true;""".stripMargin).statements()
+
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], DeckDealMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:DeckDealMove) =>
+        Java(s"""|for (Stack s : destinations) {
+                 |  source.add(s.get());
+                 |}
+                 |return true;""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], ResetDeckMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:ResetDeckMove) =>
+        Java("return false;").statements()
+    },
+
+
+    CodeGeneratorRegistry[Seq[Statement], ColumnMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:ColumnMove) =>
+        Java(s"""|destination.select(numInColumn);
+                 |source.push(destination.getSelected());
+                 |return true;""".stripMargin)
+          .statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], RowMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RowMove) =>
+        Java(s"""|destination.select(numInColumn);     // conform to superclass usage
+                 |source.push(destination.getSelected());
+                 |return true;""".stripMargin)
+          .statements()
+    },
+
+  )
 
 
   // used for map expressions
@@ -254,6 +471,36 @@ class MapExpressionCombinator(m:MapCard) extends JavaSemanticTypes {
     if (cc3.isEmpty) {
       constraintCodeGenerators.logger.error("MapExpressionCombinator: Unable to locate:" + m.toString)
       Java("false").expression()
+    } else {
+      cc3.get
+    }
+  }
+}
+
+class SeqStatementCombinator(m:Move) extends JavaSemanticTypes {
+  def apply(generators: CodeGeneratorRegistry[Seq[Statement]]): Seq[Statement] = {
+    val cc3: Option[Seq[Statement]] = generators(m)
+    if (cc3.isEmpty) {
+      constraintCodeGenerators.logger.error("SeqStatementCombinator: Unable to locate:" + m.toString)
+      val empty:Seq[Statement] = Seq.empty
+
+      empty
+    } else {
+      cc3.get
+    }
+  }
+}
+
+
+// should be Seq[BodyDeclaration[_]] but can't get to compile, so make String for now
+class HelperDeclarationCombinator(m:Move) extends JavaSemanticTypes {
+  def apply(generators: CodeGeneratorRegistry[String]): String = {
+    val cc3: Option[String] = generators(m)
+    if (cc3.isEmpty) {
+      constraintCodeGenerators.logger.error("HelperDeclarationCombinator: Unable to locate:" + m.toString)
+      val empty:Seq[BodyDeclaration[_]] = Seq.empty
+
+      ""
     } else {
       cc3.get
     }

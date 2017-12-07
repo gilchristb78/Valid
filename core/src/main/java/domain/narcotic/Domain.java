@@ -7,6 +7,7 @@ import domain.constraints.movetypes.TopCardOf;
 import domain.deal.*;
 import domain.moves.*;
 import domain.ui.StockTableauLayout;
+import domain.win.BoardState;
 
 import java.util.Iterator;
 
@@ -79,5 +80,10 @@ public class Domain extends Solitaire {
 		// Each one gets a single faceup Card
 		Payload payload = new Payload();
 		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), payload));
+
+		// wins once all cards are removed from tableau
+		BoardState state = new BoardState();
+		state.add(SolitaireContainerTypes.Tableau, 0);
+		setLogic (state);
 	}
 }

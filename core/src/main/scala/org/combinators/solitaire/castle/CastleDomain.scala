@@ -76,148 +76,29 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     val semanticType: Type = constraints(constraints.methods)
   }
 
-//
-//  /**
-//    * Every solitaire variation belongs in its own package.
-//    */
-//  @combinator object RootPackage {
-//    def apply: Name = Java("org.combinators.solitaire.castle").name()
-//    val semanticType: Type = packageName
-//  }
-//
-//  /**
-//    * Every solitaire variation has its own subclass with given name
-//    */
-//  @combinator object NameOfTheGame {
-//    def apply: SimpleName = Java("Castle").simpleName()
-//    val semanticType: Type = variationName
-//  }
 
 
   @combinator object MakeRow extends ExtendModel("Column", "Row", 'RowClass)
 
 
-
-//  def loopCustomConstructGen(cont: Container, modelName: String, viewName : String, typ:String, typView:String): Seq[Statement] = {
-//    val nc = cont.size()
-//    Java(
-//      s"""
-//         |for (int j = 0; j < $nc; j++) {
-//         |  $modelName[j] = new $typ(${modelName}Prefix + (j+1));
-//         |  addModelElement ($modelName[j]);
-//         |  $viewName[j] = new $typView($modelName[j]);
-//         |}""".stripMargin).statements()
-//  }
-
   /**
-    * Idiot has a deck and a collection of Rows.
+    * Castle needs additional code to control the orientation of the RowView. I think
+    * these could be moved into application domain and solution domain, but for now
+    * this is the easiest way to just extend an existing combinator
     */
-  @combinator object InitModel  {
+  @combinator object InitModel extends ProcessModel(solitaire:Solitaire) {
 
-    def apply(): Seq[Statement] = {
-
-      val pm:ProcessModel = new ProcessModel(solitaire:Solitaire)
-      val original:Seq[Statement] = pm.apply
-
-//      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
-//      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
-//      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
-//      val deck = deckGen("deck", stock)
-//
-//      val foundGen = loopConstructGen(found, "fieldPiles", "fieldPileViews", "Pile")
-//      val colGen = loopConstructGen(tableau, "fieldRows", "fieldRowViews", "Row")
-
-      val orient = Java(
-        s"""
-           |for (int j = 0; j < 8; j++) {
-           |   if (j < 4) {
-           |      tableauView[j].setJustification(RowView.RIGHT);
-           |    } else {
-           |      tableauRowView[j].setDirection(RowView.LEFT);
-           |    }
-           |}
-         """.stripMargin).statements()
-
-      original ++ orient
-    }
-
-    val semanticType: Type = game(game.model)
+    override def apply: Seq[Statement] = super.apply ++
+              Java(s"""
+                   |for (int j = 0; j < 8; j++) {
+                   |   if (j < 4) {
+                   |      tableauView[j].setJustification(RowView.RIGHT);
+                   |    } else {
+                   |      tableauView[j].setDirection(RowView.LEFT);
+                   |    }
+                   |}
+                 """.stripMargin).statements()
   }
-
-//  /**
-//    * Layout properly positions deck in left and rows on right.
-//    */
-//  @combinator object InitView {
-//    def apply(): Seq[Statement] = {
-//
-//      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
-//      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
-//
-//
-//      // start by constructing the DeckView
-//
-//      // when placing a single element in Layout, use this API
-//      val fd = layout_place_it(found, Java("fieldPileViews").name())
-//      val cs = layout_place_it(tableau,  Java("fieldRowViews").name())
-//
-//      cs ++ fd
-//    }
-//
-//    val semanticType: Type = game(game.view)
-//  }
-
-//  /**
-//    * Controllers are associated with each view widget by name.
-//    */
-//  @combinator object InitControl {
-//    def apply(NameOfGame: SimpleName): Seq[Statement] = {
-//      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
-//      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
-//
-//      // this could be controlled from the UI model. That is, it would
-//      // map GUI elements into fields in the classes.
-//      val colsetup = loopControllerGen(tableau, "fieldRowViews", "RowController")
-//      val foundsetup = loopControllerGen(found, "fieldPileViews", "PileController")
-//      //val wastesetup = loopControllerGen(solitaire.getFoundation, "wastePileView", "WastePileController")
-//
-//      // add controllers for the DeckView here...
-//      //val decksetup = controllerGen("deckView", "DeckController")
-//
-//      colsetup ++ foundsetup // ++ wastesetup
-//    }
-//
-//    val semanticType: Type = variationName =>: game(game.control)
-//  }
-
-  /**
-    * Create the initial deal of Castle.
-    *
-    * Start by dealing out all cards, six to each row BUT when find ace, place them in an empty
-    * foundation.
-    */
-//  @combinator object InitLayout {
-//    def apply(): Seq[Statement] = {
-//      Java(s"""
-//           |int found = 0;
-//           |int col = 0;
-//           |while (!deck.empty()) {
-//           |   Card c = deck.get();
-//           |
-//           |   if (c.isAce()) {
-//           |     fieldPiles[found++].add(c);
-//           |   } else {
-//           |      fieldRows[col].add(c);
-//           |      if (fieldRows[col].count() == 6) {
-//           |         col++;
-//           |      }
-//           |   }
-//           |}
-//            """.stripMargin).statements()
-//    }
-//
-//    val semanticType: Type = game(game.deal)
-//  }
-
 
   // vagaries of java imports means these must be defined as well.
   @combinator object ExtraImports {
@@ -246,28 +127,5 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
 
     val semanticType: Type = game(game.methods :&: game.availableMoves)
   }
-
-//  /**
-//    * Create the necessary fields, including ScoreView and NumLeftView
-//    */
-//  @combinator object ExtraFields {
-//    def apply(): Seq[FieldDeclaration] = {
-//      val fields =
-//        Java(s"""|IntegerView scoreView;
-//                 |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-//
-//      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
-//      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
-//      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
-//
-//      val fieldRows = fieldGen("Row", tableau.size)
-//      val foundPiles = fieldGen("Pile", found.size)
-//      val decks = deckFieldGen(stock)
-//
-//      decks ++ fields ++ fieldRows ++ foundPiles
-//    }
-//
-//    val semanticType: Type = game(game.fields)
-//  }
 
 }

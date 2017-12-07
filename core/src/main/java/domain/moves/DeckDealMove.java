@@ -6,7 +6,7 @@ import domain.*;
  * A number of cards are dealt from the Stock one at a time
  * to multiple destinations.
  */
-public class DeckDealMove extends Move {
+public class DeckDealMove extends ActualMove {
 
     /**
      * Determine conditions for moving column of cards from src to target. 

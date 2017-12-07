@@ -12,6 +12,7 @@ import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.solitaire.shared
 import _root_.java.util.UUID
+import javafx.beans.binding.DoubleExpression
 
 import akka.actor.ActorSystem
 import akka.event.Logging
@@ -19,7 +20,7 @@ import org.combinators.generic
 import domain._
 import domain.constraints.OrConstraint
 import domain.moves._
-import org.combinators.solitaire.shared.compilation.StatementCombinator
+import org.combinators.solitaire.shared.compilation._
 
 import scala.collection.JavaConverters._
 
@@ -44,7 +45,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
         .addCombinator(new ClassNameGenerator(moveSymbol, mv.getName))
         .addCombinator(new UndoGenerator(mv, moveSymbol))
         .addCombinator(new DoGenerator(mv, moveSymbol))
-        .addCombinator(new MoveHelper(mv, new SimpleName(mv.getName), moveSymbol))
+        .addCombinator(new MoveHelper(mv, moveSymbol))
         .addCombinator(new StatementCombinator (mv.constraints(), moveSymbol))
 
       /**
@@ -126,7 +127,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
       val inner_move = inner_rules_it.next()
 
       // handle release events
-      val tgtBaseHolder = inner_move.targetContainer
+      val tgtBaseHolder = inner_move.getTargetContainer
       val tgtBase = tgtBaseHolder.get
 
        if (!drag_handler_map.contains(tgtBase)) {
@@ -139,7 +140,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
       }
 
       // handle press events
-      val srcBase = inner_move.srcContainer
+      val srcBase = inner_move.getSourceContainer
 
       if (!press_handler_map.contains(srcBase)) {
         press_handler_map += (srcBase -> List(inner_move))
@@ -156,7 +157,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
     var haveNativePress:Map[Container,Boolean] = Map()
     while (press_rules_it.hasNext) {
       val inner_move = press_rules_it.next()
-      val srcContainer = inner_move.srcContainer
+      val srcContainer = inner_move.getSourceContainer
 
       haveNativePress += (srcContainer -> true)
     }
@@ -180,7 +181,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
       }
 
       if (columnMoves.nonEmpty || rowMoves.nonEmpty) {
-        val cons: List[Constraint] = list.map(x => x.sourceConstraint)
+        val cons: List[Constraint] = list.map(x => x.getSourceConstraint)
         val or: OrConstraint = new OrConstraint(cons: _*)
 
         val it: Iterator[String] = container.types.asScala
@@ -278,49 +279,8 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
   /** Same code, just by coincidence. */
   class UndoGenerator(m:Move, moveSymbol:Type) {
     def apply(): Seq[Statement] = {
-      m match {
-        case _ : FlipCardMove =>
-          Java(s"""|Card c = source.get();
-                   |c.setFaceUp (!c.isFaceUp());
-                   |source.add(c);
-                   |return true;""".stripMargin).statements()
+      new SeqStatementCombinator(m).apply(constraintCodeGenerators.undoGenerators)
 
-        case _ : SingleCardMove => Java(s"""
-                        |source.add(destination.get());
-                        |return true;""".stripMargin).statements()
-
-        // No means for undoing the reset of a deck.
-        case _ : ResetDeckMove => Java(s"""|return false;""".stripMargin).statements()
-
-        // reinsert the cards that had been removed into removedCards
-        case _ : RemoveMultipleCardsMove =>
-          Java(s"""|for (Stack s : destinations) {
-                   |  s.add(removedCards.remove(0));
-                   |}
-                   |return true;""".stripMargin).statements()
-
-        case _ : RemoveSingleCardMove =>
-          Java(s"""|source.add(removedCard);
-                   |return true;""".stripMargin).statements()
-
-        case _ : DeckDealMove =>
-          Java(s"""|for (Stack s : destinations) {
-                   |  source.add(s.get());
-                   |}
-                   |return true;""".stripMargin).statements()
-
-        case _ : ColumnMove  =>
-          Java(s"""|destination.select(numInColumn);
-                   |source.push(destination.getSelected());
-                   |return true;""".stripMargin)
-            .statements()
-
-        case _ : RowMove  =>
-          Java(s"""|destination.select(numInColumn);     // conform to superclass usage
-                   |source.push(destination.getSelected());
-                   |return true;""".stripMargin)
-            .statements()
-      }
     }
     val semanticType: Type = move(moveSymbol, move.undoStatements)
   }
@@ -328,108 +288,19 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
   /** When given a Move (SingleCardMove or ColumnMove) ascribes proper Do. */
   /** Same code, just by coincidence. */
   class DoGenerator(m:Move, moveSymbol:Type) {
-    def apply(): Seq[Statement] = {
-      m match {
-        case _ : FlipCardMove =>
-          Java(s"""|Card c = source.get();
-                   |c.setFaceUp (!c.isFaceUp());
-                   |source.add(c);
-                   |""".stripMargin).statements()
+    def apply(): Seq[Statement] =  {
+      new SeqStatementCombinator(m).apply(constraintCodeGenerators.doGenerators)
 
-        case _ : SingleCardMove => Java(s"""destination.add(movingCard);""").statements()
-
-        // remove cards and prent any attempt for undo.
-        case _ : RemoveMultipleCardsMove =>
-          Java(s"""|for (Stack s : destinations) {
-                   |  removedCards.add(s.get());
-                   |}""".stripMargin).statements()
-
-        case _ : RemoveSingleCardMove =>
-          Java(s"""removedCard = source.get();""".stripMargin).statements()
-
-        case _ : ResetDeckMove =>
-          Java(s"""|// Note destinations contain the stacks that are to
-                   |// be reformed into a single deck.
-                   |for (Stack s : destinations) {
-                   |  while (!s.empty()) {
-                   |	source.add(s.get());
-                   |  }
-                   |}""".stripMargin).statements()
-
-        case _ : DeckDealMove =>
-          Java(s"""|for (Stack s : destinations) {
-                   |  s.add (source.get());
-                   |}""".stripMargin).statements()
-
-        case _ : ColumnMove =>
-          Java(s"""destination.push(movingColumn);""").statements()
-
-        case _ : RowMove =>
-          Java(s"""destination.push(movingRow);""").statements()
-
-      }
     }
     val semanticType: Type = move(moveSymbol, move.doStatements)
   }
 
   /** Every move class needs a constructor with helper fields. */
-  class MoveHelper(m:Move, name:SimpleName, moveSymbol: Type) {
+  class MoveHelper(m:Move, moveSymbol: Type) {
     def apply() : Seq[BodyDeclaration[_]] = {
-      m match {
-        case _ : FlipCardMove =>
-          Java(s"""|//Card movingCard;
-                   |public $name(Stack from) {
-                   |  this(from, from);
-                   |}""".stripMargin).classBodyDeclarations()
+      val s:String = new HelperDeclarationCombinator(m).apply(constraintCodeGenerators.helperGenerators)
+      Java(s).classBodyDeclarations()
 
-        case _ : SingleCardMove =>
-          Java(s"""|Card movingCard;
-                   |public $name(Stack from, Card card, Stack to) {
-                   |  this(from, to);
-                   |  this.movingCard = card;
-                   |}""".stripMargin).classBodyDeclarations()
-
-        case _ : DeckDealMove => Seq.empty
-
-        // place to store removed cards.
-        case _ : RemoveMultipleCardsMove =>
-          Java(s"""|java.util.ArrayList<Card> removedCards = new java.util.ArrayList<Card>();
-                   |public $name(Stack dests[]) {
-                   |  this(null, dests);
-                   |}
-                   |""".stripMargin).classBodyDeclarations()
-
-        case _ : RemoveSingleCardMove =>
-          Java(s"""|Card removedCard = null;
-                   |public $name(Stack src) {
-                   |  this(src, null);
-                   |}
-                   |""".stripMargin).classBodyDeclarations()
-
-        case _ : ResetDeckMove => Seq.empty
-
-          /**
-            * Fundamental API for moving multiple cards is to have numInColumn holding number.
-            * This becomes relevant in PotentialMoveOneCardFromStack...
-            */
-        case _ : ColumnMove =>
-          Java(s"""|Column movingColumn;
-                   |int numInColumn;
-                   |public $name(Stack from, Column cards, Stack to) {
-                   |  this(from, to);
-                   |  this.movingColumn = cards;
-                   |  this.numInColumn = cards.count();
-                   |}""".stripMargin).classBodyDeclarations()
-
-        case _ : RowMove =>
-          Java(s"""|Column movingRow;
-                   |int numInColumn;   // conform to superclass usage.
-                   |public $name(Stack from, Column cards, Stack to) {
-                   |  this(from, to);
-                   |  this.movingRow = cards;
-                   |  this.numInColumn = cards.count();
-                   |}""".stripMargin).classBodyDeclarations()
-      }
     }
 
     val semanticType: Type = move(moveSymbol, move.helper)

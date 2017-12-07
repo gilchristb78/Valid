@@ -54,20 +54,20 @@ class FreeCellTests extends FunSpec {
             // Ensure all moves in the domain generate move classes as Compilation Units
             val combined = domainModel.getRules.presses.asScala ++ domainModel.getRules.clicks.asScala
             for (mv:Move <- combined) {
-              val sym = Constructor(mv.name)
-              assert(helper.singleClass(mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
+              val sym = Constructor(mv.getName)
+              assert(helper.singleClass(mv.getName, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
             }
 
             // potential moves are derived from DRAG events only
             for (mv:Move <- domainModel.getRules.drags.asScala) {
-              val sym = Constructor(mv.name)
-              assert(helper.singleClass(mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
+              val sym = Constructor(mv.getName)
+              assert(helper.singleClass(mv.getName, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
 
               // based on domain model, we know whether potential move is a single-card move or a multiple-card move
               if (mv.isSingleCardMove) {
-                assert(helper.singleClass("Potential" + mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.potential, complete))))
+                assert(helper.singleClass("Potential" + mv.getName, Gamma.inhabit[CompilationUnit](move(sym :&: move.potential, complete))))
               } else {
-                assert(helper.singleClass("Potential" + mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.potentialMultipleMove, complete))))
+                assert(helper.singleClass("Potential" + mv.getName, Gamma.inhabit[CompilationUnit](move(sym :&: move.potentialMultipleMove, complete))))
               }
             }
           }

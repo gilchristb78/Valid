@@ -46,8 +46,8 @@ class CastleTests extends FunSpec  {
             // Ensure all moves in the domain generate move classes as Compilation Units
             val combined = domainModel.getRules.drags.asScala ++ domainModel.getRules.presses.asScala ++ domainModel.getRules.clicks.asScala
             for (mv:Move <- combined) {
-              val sym = Constructor(mv.name)
-              assert(helper.singleClass(mv.name, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
+              val sym = Constructor(mv.getName)
+              assert(helper.singleClass(mv.getName, Gamma.inhabit[CompilationUnit](move(sym :&: move.generic, complete))))
             }
           }
 

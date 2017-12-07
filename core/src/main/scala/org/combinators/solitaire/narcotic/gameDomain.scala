@@ -17,7 +17,7 @@ import domain._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
-class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Score52 with Controller {
+class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 
   object narcoticCodeGenerator {
     val generators = CodeGeneratorRegistry.merge[Expression](
@@ -52,80 +52,11 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   }
 
   @combinator object HelperMethodsNarcotic {
-    def apply(): Seq[MethodDeclaration] = Seq(
-      generateHelper.fieldAccessHelper("tableau", "fieldPiles"))
+    def apply(): Seq[MethodDeclaration] = generateHelper.helpers(solitaire)
 
     val semanticType: Type = constraints(constraints.methods)
   }
 
-  @combinator object RootPackage {
-    def apply: Name = Java("org.combinators.solitaire.narcotic").name()
-    val semanticType: Type = packageName
-  }
-
-  @combinator object NameOfTheGame {
-    def apply: SimpleName = Java("Narcotic").simpleName()
-    val semanticType: Type = variationName
-  }
-
-  // Narcotic model derived from the domain model
-  @combinator object NarcoticInitModel {
-
-    // note: we could avoid passing in these parameters and just solely
-    // visit the domain model. That is an alternative worth considering.
-
-    def apply(): Seq[Statement] = {
-      val deck = deckGenWithView("deck", "deckView", solitaire.containers.get(SolitaireContainerTypes.Stock))
-
-      val pileGen = loopConstructGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldPiles", "fieldPileViews", "Pile")
-
-      deck ++ pileGen
-    }
-
-    val semanticType: Type = game(game.model)
-  }
-
-//
-//  // generic deal cards from deck into the tableau
-//  @combinator object NarcoticInitLayout {
-//    def apply(): Seq[Statement] = Seq.empty
-//
-//    val semanticType: Type = game(game.deal)
-//  }
-
-  @combinator object NarcoticInitView {
-    def apply(): Seq[Statement] = {
-
-      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
-      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
-
-      // start by constructing the DeckView
-      var stmts = Java("deckView = new DeckView(deck);").statements()
-
-      stmts = stmts ++ layout_place_one(stock, Java("deckView").name())
-      stmts = stmts ++ layout_place_it(tableau, Java("fieldPileViews").name())
-
-      stmts
-    }
-
-    val semanticType: Type = game(game.view)
-  }
-
-  @combinator object NarcoticInitControl {
-    def apply(NameOfGame: SimpleName): Seq[Statement] = {
-
-      // this could be controlled from the UI model. That is, it would
-      // map GUI elements into fields in the classes.
-      val pilesetup = loopControllerGen(solitaire.containers.get(SolitaireContainerTypes.Tableau), "fieldPileViews",  "PileController")
-
-      // add controllers for the DeckView here...
-      val decksetup = controllerGen("deckView", "DeckController")
-
-      pilesetup ++ decksetup
-    }
-
-    val semanticType: Type = variationName =>: game(game.control)
-  }
 
   // vagaries of java imports means these must be defined as well.
   @combinator object ExtraImports {
@@ -142,11 +73,11 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     def apply(): Seq[MethodDeclaration] = {
       Java(s"""|public boolean toLeftOf(Stack target, Stack src) {
                |  // Check whether target is to left of src
-               |  for (int i = 0; i < fieldPiles.length; i++) {
-               |    if (fieldPiles[i] == target) {
+               |  for (int i = 0; i < tableau.length; i++) {
+               |    if (tableau[i] == target) {
                |      return true;   // found target first (in left-right)
                |    }
-               |    if (fieldPiles[i] == src) {
+               |    if (tableau[i] == src) {
                |      return false;  // found src first
                |    }
                |  }
@@ -154,11 +85,11 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
                |}
                |
                 | public boolean allSameRank() {
-               |   if (fieldPiles[0].empty()) { return false; }
+               |   if (tableau[0].empty()) { return false; }
                |   // Check whether tops of all piles are same rank
-               |   for (int i = 1; i < fieldPiles.length; i++) {
-               |      if (fieldPiles[i].empty()) { return false; }
-               |      if (fieldPiles[i].rank() != fieldPiles[i-1].rank()) {
+               |   for (int i = 1; i < tableau.length; i++) {
+               |      if (tableau[i].empty()) { return false; }
+               |      if (tableau[i].rank() != tableau[i-1].rank()) {
                |        return false;
                |      }
                |   }
@@ -170,27 +101,5 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
     val semanticType: Type = game(game.methods)
   }
-
-  // This maps the elements in the Solitaire domain model into actual java 
-  // fields. Not really compositional.
-  @combinator object ExtraFields {
-    def apply(): Seq[FieldDeclaration] = {
-      val fields =
-        Java(s"""|IntegerView scoreView;
-                 |IntegerView numLeftView;""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
-
-      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
-      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
-
-      val decks = deckFieldGen(stock)
-
-      val fieldPiles = fieldGen("Pile",  tableau.size())
-
-      decks ++ fields ++ fieldPiles
-    }
-
-    val semanticType: Type = game(game.fields)
-  }
-
 
 }

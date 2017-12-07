@@ -12,7 +12,7 @@ import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import org.combinators.generic
 import domain._
 
-trait controllers extends shared.Controller with shared.Moves with generic.JavaCodeIdioms {
+trait controllers extends shared.Controller with GameTemplate with WinningLogic with shared.Moves with generic.JavaCodeIdioms {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma: ReflectedRepository[G], s: Solitaire):
@@ -34,7 +34,6 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
       .addCombinator(new IgnoreReleasedHandler(deck))
       .addCombinator(new IgnoreClickedHandler(deck))
 
-
     // Each move has a source and a target. The SOURCE is the locus
     // for the PRESS while the TARGET is the locus for the RELEASE.
     // These are handling the PRESS events... SHOULD BE ABLE TO
@@ -44,16 +43,16 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
       .addCombinator(new deckPress.DealToTableauHandlerLocal())
       .addCombinator(new deckPress.ResetDeckLocal())
 
-    // Potential moves clarify structure (by type not instance). FIX ME
-    // FIX ME FIX ME FIX ME
-    //    updated = updated
-    //      .addCombinator (new PotentialSingleCardMove("Pile", 'PileToPile))
+    updated = createWinLogic(updated, s)
 
-    // these identify the controller names. SHOULD INFER FROM DOMAIN MODEL. FIX ME
-    //    updated = updated
-    //      .addCombinator (new ControllerNaming('Pile))
-
-    // CASE STUDY: Add Automove logic at end of release handlers
+    // move these to shared area
+    updated = updated
+      .addCombinator (new DefineRootPackage(s))
+      .addCombinator (new DefineNameOfTheGame(s))
+      .addCombinator (new ProcessModel(s))
+      .addCombinator (new ProcessView(s))
+      .addCombinator (new ProcessControl(s))
+      .addCombinator (new ProcessFields(s))
 
     updated
   }
@@ -70,7 +69,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
       */
     class DealToTableauHandlerLocal() {
       def apply(): (SimpleName, SimpleName) => Seq[Statement] = (widget, ignore) => {
-        Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.fieldPiles);
+        Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.tableau);
            |if (m.doMove(theGame)) {
            |   theGame.pushMove(m);
            |   // have solitaire game refresh widgets that were affected
@@ -86,7 +85,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
 
     class ResetDeckLocal() {
       def apply(): (SimpleName, SimpleName) => Seq[Statement] = (widget, ignore) => {
-        Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.fieldPiles);
+        Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.tableau);
            |if (m.doMove(theGame)) {
            |   theGame.pushMove(m);
            |   // have solitaire game refresh widgets that were affected
@@ -106,11 +105,6 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
       drag(drag.variable, drag.ignore) =>: controller(deck2, controller.pressed),
       drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed))
 
-//
-//    class ParameterizedStatementCombiner[A](sem1: Type, sem2: Type, sem3: Type) {
-//      def apply(head: A => Seq[Statement], tail: A => Seq[Statement]): A => Seq[Statement] = x => head(x) ++ tail(x)
-//      val semanticType: Type = sem1 =>: sem2 =>: sem3
-//    }
 
   }
 
@@ -131,7 +125,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
                  |  return;
                  |}
                  |// Deal with situation when all are the same.
-                 |Move rm = new RemoveAllCards(theGame.fieldPiles);
+                 |Move rm = new RemoveAllCards(theGame.tableau);
                  |if (rm.doMove(theGame)) {
                  |   theGame.pushMove(rm);
                  |   c.repaint();

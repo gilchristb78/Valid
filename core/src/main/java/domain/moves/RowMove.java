@@ -7,7 +7,7 @@ import domain.*;
  *
  * Still uses a 'Column' of moveable elements
  */
-public class RowMove extends Move {
+public class RowMove extends ActualMove {
 
     /**
      * Determine conditions for moving column of cards from src to target.

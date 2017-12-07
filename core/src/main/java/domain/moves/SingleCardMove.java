@@ -6,7 +6,7 @@ import domain.constraints.Truth;
 /**
  * A single card being moved to a single destination.
  */
-public class SingleCardMove extends Move {
+public class SingleCardMove extends ActualMove {
 
     /**
      * Determine conditions for moving column of cards from src to target. 

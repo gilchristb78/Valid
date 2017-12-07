@@ -61,7 +61,7 @@ trait Structure extends PythonSemanticTypes {
       val inner_move = inner_rules_it.next()
 
       // handle release events
-      val tgtBaseHolder = inner_move.targetContainer
+      val tgtBaseHolder = inner_move.getTargetContainer
       val tgtBase = tgtBaseHolder.get
 
       if (!drag_handler_map.contains(tgtBase)) {
@@ -74,7 +74,7 @@ trait Structure extends PythonSemanticTypes {
       }
 
       // handle press events
-      val srcBase = inner_move.srcContainer
+      val srcBase = inner_move.getSourceContainer
 
       if (!press_handler_map.contains(srcBase)) {
         press_handler_map += (srcBase -> List(inner_move))
@@ -129,8 +129,8 @@ trait Structure extends PythonSemanticTypes {
        map.keys.foreach { container =>
         val list: List[Move] = map(container)
 
-        val srcCons: List[Constraint] = list.map(x => x.sourceConstraint)
-        val targetCons: List[Constraint] = list.map(x => x.targetConstraint)
+        val srcCons: List[Constraint] = list.map(x => x.getSourceConstraint)
+        val targetCons: List[Constraint] = list.map(x => x.getTargetConstraint)
 
         val srcOr: OrConstraint = new OrConstraint(srcCons: _*)
         val targetOr: OrConstraint = new OrConstraint(targetCons: _*)

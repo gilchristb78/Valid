@@ -34,10 +34,6 @@ import java.util.Optional;
  * container, which is a sort of short-cut to specifying each of the
  * available moves.
  * 
- * Note a UnaryMove class is a simpler concept required for moves
- * initiated without need for a terminating action. This includes (for
- * example), flipping a card or dealing cards from the stock to tableau.
- *
  * TODO: Create two sets of constraints (sourceConstraint for applicability
  * TODO: on the source, and targetConstraint for applicability on the target).
  * TODO: The source constraint would be used to synthesize press controllers
@@ -47,108 +43,29 @@ import java.util.Optional;
  * TODO: Move might also be useful to have placeholder for extra statements to
  * TODO: Execute (both during move and during undo, which makes this complex).
  * TODO: Think of stalactites and ability to fix the orientation during game play.
- * @author heineman
  */
-public abstract class Move {
+public interface Move {
+    /** Does this move involve just a single card, or multiple cards. */
+    boolean isSingleCardMove();
 
-   /** Assume always a source. */
-   public final Container srcContainer;
+    /** By definition, will only be moved to a specific destination. */
+    boolean isSingleDestination();
 
-   /** Each move has a unique name, declared by invoker. */
-   public final String name;
+    /** Get element being moved. */
+    Element getMovableElement();
 
-   /** Optionally there may be a target. Store as Optional for ease of access directly to this field. */
-   public final Optional<Container>        targetContainer;
+    /** Every move has a name. */
+    String getName();
 
-   /** There may be a valid constraint at the source of a move. */
-   public final Constraint                 sourceConstraint;
+    /** Every move has constraints associated with it. */
+    Constraint constraints();
 
-   /** There may be a valid constraint at the target of a move. */
-   public final Constraint                 targetConstraint;
+    Element getSource();
+    Element getTarget();
 
+    Container getSourceContainer();
+    Optional<Container> getTargetContainer();
 
-   /**
-    * When a Move only has a source, then its given constraint is the source Constraint. The
-    * targetConstraint is set to Truth() and the targetContainer becomes Optional.empty
-    *
-    * @param name       The designated (unique) name for a move.
-    * @param src        The source container of the move.
-    * @param srcCons    The source constraint associated with the move.
-    */
-   public Move (String name, Container src, Constraint srcCons) {
-      this.name = name;
-      this.srcContainer = src;
-      this.sourceConstraint = srcCons;
-
-      this.targetContainer = Optional.empty();
-      this.targetConstraint = new Truth();
-   }
-
-   /**
-    * When a Move has a source and target, then it may have constraints for both the source and target.
-    * If either is 'empty' then the caller must pass in Truth()
-    *
-    * @param name       The designated (unique) name for a move.
-    * @param src        The source container of the move.
-    * @param srcCons    The source constraint associated with the move.
-    * @param target     The target container of the move.
-    * @param tgtCons    The target constraint associated with the move.
-    *
-    */
-   public Move (String name, Container src, Constraint srcCons, Container target, Constraint tgtCons) {
-      this.name = name;
-      this.srcContainer = src;
-      this.sourceConstraint = srcCons;
-
-      this.targetContainer = Optional.of(target);
-      this.targetConstraint = tgtCons;
-   }
-
-   public String toString() {
-      return srcContainer + "(" + sourceConstraint + ") -> " + targetContainer + "(" + targetConstraint + ")";
-   }
-
-   /**
-    * Helper method to return combined set of src- and target-constraints.
-    *
-    * Note: Could optimize if detecting Truth in either src/target, then return the other one
-    */
-   public Constraint constraints() {
-      if (targetContainer.isPresent()) {
-         return new AndConstraint(sourceConstraint, targetConstraint);
-      }
-
-      return sourceConstraint;
-   }
-
-   /** Return name of move. */
-   public String getName() {
-     return name;
-   }
-
-   /** Get the source element of this move type. */
-   public final Element   getSource() {
-      Iterator<Element> it = srcContainer.iterator();
-      if (!it.hasNext()) { return null; }
-      return it.next();
-   }
-
-   /** Get the target element of this move type. */
-   public final Element   getTarget() {
-      Optional<Container> opt = targetContainer;
-      if (!opt.isPresent()) { return null; }
-
-      Iterator<Element> it = opt.get().iterator();
-      if (!it.hasNext()) { return null; }
-      return it.next();
-   }
-
-   /** Get element being moved. */
-   public abstract Element getMovableElement();
-
-   /** Determine if single card being moved at a time. */
-   public abstract boolean isSingleCardMove();
-
-   /** Determine if single destination, or whether moved to all elements in the destination. */
-   public abstract boolean isSingleDestination();
+    Constraint getSourceConstraint();
+    Constraint getTargetConstraint();
 }

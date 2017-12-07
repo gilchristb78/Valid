@@ -7,7 +7,7 @@ import domain.*;
  *
  * This will typically entail constraints on both the source and the target.
  */
-public class ColumnMove extends Move {
+public class ColumnMove extends ActualMove {
 
     /**
      * Determine conditions for moving column of cards from src to target.

@@ -5,7 +5,7 @@ import domain.*;
 /**
  * Flip a single card which had been face down.
  */
-public class FlipCardMove extends Move {
+public class FlipCardMove extends ActualMove {
 
     public FlipCardMove(String name, Container src, Constraint srcCons) {
         super(name,src, srcCons);

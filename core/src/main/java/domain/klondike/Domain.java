@@ -9,6 +9,7 @@ import domain.deal.*;
 import domain.moves.*;
 import domain.ui.HorizontalPlacement;
 import domain.ui.PlacementGenerator;
+import domain.win.BoardState;
 
 import java.awt.*;
 
@@ -104,5 +105,10 @@ public class Domain extends Solitaire {
         // finally each one gets a single faceup Card, and deal one to waste pile
         addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), new Payload()));
         addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Waste, waste), new Payload()));
+
+        // wins once all cards in foundation.
+        BoardState state = new BoardState();
+        state.add(SolitaireContainerTypes.Foundation, 52);
+        setLogic (state);
     }
 }

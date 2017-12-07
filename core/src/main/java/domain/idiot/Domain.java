@@ -9,10 +9,8 @@ import domain.deal.Payload;
 import domain.moves.*;
 import domain.ui.StockTableauLayout;
 import domain.win.BoardState;
-import domain.win.ScoreAchieved;
 
 import java.util.Iterator;
-
 
 /**
  * Programmatically construct full domain model for Idiot.

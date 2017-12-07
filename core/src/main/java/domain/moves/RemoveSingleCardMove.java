@@ -9,7 +9,7 @@ import domain.*;
  * not essential.
  *
  */
-public class RemoveSingleCardMove extends Move {
+public class RemoveSingleCardMove extends ActualMove {
 
     /**
      * Determine conditions for removing multiple cards from container

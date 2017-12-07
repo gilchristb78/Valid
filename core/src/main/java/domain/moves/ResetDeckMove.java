@@ -5,7 +5,7 @@ import domain.*;
 /**
  * Deck is reconstituted from the target elements.
  */
-public class ResetDeckMove extends Move {
+public class ResetDeckMove extends ActualMove {
 
     /**
      * Determine conditions for resetting deck. 
