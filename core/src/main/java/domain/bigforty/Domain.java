@@ -6,6 +6,7 @@ import domain.deal.*;
 import domain.moves.*;
 import domain.ui.HorizontalPlacement;
 import domain.ui.PlacementGenerator;
+import domain.win.BoardState;
 
 import java.awt.*;
 import java.util.Iterator;
@@ -22,7 +23,7 @@ public class Domain extends Solitaire {
     }
 
     public Domain() {
-        super ("bigForty");
+        super ("BigForty");
         PlacementGenerator places = new HorizontalPlacement(new Point(15, 200),
                 card_width, 13*card_height, card_gap);
 
@@ -119,12 +120,15 @@ public class Domain extends Solitaire {
         ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), waste, new Truth());
         addPressMove(deckReset);
 
-        //every pile gets four faceup cards
-
-        DealStep step = new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), new Payload(4, true));
-        addDealStep(step);
+        // Deal Logic
+        addDealStep (new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), new Payload(4, true)));
 
         // deal one card to waste pile
         addDealStep (new DealStep(new ContainerTarget(SolitaireContainerTypes.Waste, waste), new Payload()));
+
+        // wins once all cards in foundation.
+        BoardState state = new BoardState();
+        state.add(SolitaireContainerTypes.Foundation, 52);
+        setLogic (state);
     }
 }

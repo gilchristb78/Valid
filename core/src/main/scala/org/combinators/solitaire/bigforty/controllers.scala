@@ -11,7 +11,7 @@ import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.generic
 import domain._
 
-trait controllers extends shared.Controller with shared.Moves with generic.JavaCodeIdioms {
+trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms {
   override def init[G <: SolitaireDomain](gamma: ReflectedRepository[G], s: Solitaire): ReflectedRepository[G] = {
     var updated = super.init(gamma, s)
     println(">>> BigForty Controller dynamic combinators.")
@@ -40,6 +40,17 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
       .addCombinator(new deckPress.ResetDeckLocal())
 
 
+    updated = createWinLogic(updated, s)
+
+    // move these to shared area
+    updated = updated
+      .addCombinator (new DefineRootPackage(s))
+      .addCombinator (new DefineNameOfTheGame(s))
+      .addCombinator (new ProcessModel(s))
+      .addCombinator (new ProcessView(s))
+      .addCombinator (new ProcessControl(s))
+      .addCombinator (new ProcessFields(s))
+
     updated
 
   }
@@ -58,7 +69,7 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
       */
     class DealToTableauHandlerLocal() {
       def apply(): (SimpleName, SimpleName) => Seq[Statement] = (widget, ignore) => {
-        Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.fieldWastePiles);
+        Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.waste);
                  |if (m.doMove(theGame)) {
                  |   theGame.pushMove(m);
                  |   // have solitaire game refresh widgets that were affected
@@ -71,10 +82,9 @@ trait controllers extends shared.Controller with shared.Moves with generic.JavaC
       val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck1, controller.pressed)
     }
 
-
     class ResetDeckLocal() {
       def apply(): (SimpleName, SimpleName) => Seq[Statement] = (widget, ignore) => {
-        Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.fieldWastePiles);
+        Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.waste);
                  |if (m.doMove(theGame)) {
                  |   theGame.pushMove(m);
                  |   // have solitaire game refresh widgets that were affected

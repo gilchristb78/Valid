@@ -7,10 +7,3 @@ Tasks to complete
 
   Difficulty: Hard
 
-2. Synthesize the deal in Java using the domain model (as was done in Python).
-
-  Have to remove the logic from each individual variation
-
-  Difficulty: Medium
-
-3. Fix/Complete Stalactites. Still some thorny issues remain with regards to state
