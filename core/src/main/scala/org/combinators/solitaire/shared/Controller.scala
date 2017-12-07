@@ -12,7 +12,6 @@ import de.tu_dortmund.cs.ls14.cls.types.Constructor
 import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.solitaire.shared
 import _root_.java.util.UUID
-import javafx.beans.binding.DoubleExpression
 
 import akka.actor.ActorSystem
 import akka.event.Logging
@@ -26,7 +25,7 @@ import scala.collection.JavaConverters._
 
 trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with SemanticTypes {
 
-  val logger = Logging.getLogger(ActorSystem("Controller"), "Controller")
+  private val logger = Logging.getLogger(ActorSystem("Controller"), "Controller")
   logger.info("Controller logging activated...")
 
   // shared logic to process rules as needed for Solitaire extensions
@@ -402,7 +401,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
     */
   class IgnorePressedHandler(source:Type) {
     def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
-      (widgetVariableName: SimpleName, ignoreWidgetVariableName: SimpleName) =>
+      (_: SimpleName, ignoreWidgetVariableName: SimpleName) =>
         Java(s"""$ignoreWidgetVariableName = true;""").statements()
     }
 

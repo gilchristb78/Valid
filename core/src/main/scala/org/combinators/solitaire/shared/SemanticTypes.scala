@@ -2,7 +2,6 @@ package org.combinators.solitaire.shared
 
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import domain.{ContainerType, SolitaireContainerTypes}
 
 
 /**

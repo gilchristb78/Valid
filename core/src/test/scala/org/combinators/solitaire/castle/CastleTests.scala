@@ -32,7 +32,7 @@ class CastleTests extends FunSpec  {
           import controllerRepository._
 
           val reflected = ReflectedRepository(controllerRepository, classLoader = controllerRepository.getClass.getClassLoader)
-          var Gamma= controllerRepository.init(reflected, domainModel)
+          val Gamma= controllerRepository.init(reflected, domainModel)
 
           val helper = new Helper()
 

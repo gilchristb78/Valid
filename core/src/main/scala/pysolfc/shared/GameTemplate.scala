@@ -20,11 +20,6 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
 
   /**
     * Opportunity to customize based on solitaire domain object.
-    *
-    * @param gamma
-    * @param s
-    * @tparam G
-    * @return
     */
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = gamma
@@ -38,93 +33,6 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
 
     updated
   }
-
-
-
-//
-//  def captureStructure(s:Solitaire): Python = {
-//    val name = s.name
-//
-//    // get constraints
-//    var code =
-//      s"""
-//         |# Build up local stack to handle Foundations
-//         |class ${name}_FoundationStack(AbstractFoundationStack):
-//         |    def acceptsCards(self, from_stack, cards):
-//         |        if not AbstractFoundationStack.acceptsCards(self, from_stack, cards):
-//         |            return False
-//         |        if self.cards:
-//         |            # check the rank
-//         |            if (self.cards[-1].rank + self.cap.dir) % self.cap.mod != cards[0].rank:
-//         |                return False
-//         |        return True
-//       """.stripMargin
-//  }
-
-
-
-//  /**
-//    * How to infer this structure from the existing games is seriously tricky. Instead, I would
-//    * like to generate raw, given constraints.
-//    */
-//  class Structure {
-//    def apply: Python = Python(
-//      s"""|shallHighlightMatch = Game._shallHighlightMatch_RK
-//          |
-//          |Foundation_Class = SS_FoundationStack
-//          |RowStack_Class = SuperMoveRK_RowStack
-//        """.stripMargin)
-//
-//    val semanticType:Type = game(pysol.structure)
-//  }
-
-//
-//  /**
-//    * Manually deals with cards...
-//    */
-//  class PlaceAcesMethod {
-//    def apply:Python = Python(
-//      s"""
-//         |def startGame(self):
-//         |		aces = []
-//         |		for i in range(51,-1,-1):
-//         |			cd = self.s.talon.cards[i]
-//         |			if cd.rank == 0:
-//         |				aces.append(cd)
-//         |				del self.s.talon.cards[i]
-//         |		for cd in aces:
-//         |			self.s.talon.cards.append(cd)
-//         |		aces=[]
-//         |		self.s.talon.dealRow(rows=self.s.foundations)
-//         |		for i in range(6):
-//         |			self.s.talon.dealRow(frames=0)
-//       """.stripMargin)
-//
-//    val semanticType:Type = game(pysol.startGame)
-//  }
-
-//  /**
-//    * This uses the _shuffleHook capability to pull to the end the ACES, which are then dealt
-//    * last to the foundation. Relies on domain knowledge of PySol
-//    */
-//  class StartGameMethod {
-//    def apply:Python = Python(
-//      s"""
-//         |def _shuffleHook(self, cards):
-//         |    # move Aces to bottom of the Talon (i.e. last cards to be dealt)
-//         |    return self._shuffleHookMoveToBottom(cards, lambda c: (c.rank == 0, c.suit))
-//         |
-//         |def startGame(self):
-//         |    for i in range(6):
-//         |        self.s.talon.dealRow(frames=0)
-//         |    #self.startDealSample()
-//         |
-//         |    # Final aces go out
-//         |    self.s.talon.dealRow(rows=self.s.foundations)
-//       """.stripMargin)
-//
-//    val semanticType:Type = game(pysol.startGame)
-//  }
 
 
   object generateHelper {
@@ -166,8 +74,6 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
 
   /**
     * Convert ID into string.
-    *
-    * @param id
     */
   class IdForGame(id:Int) {
     def apply: String = id.toString
@@ -191,7 +97,7 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
                  |#!/usr/bin/env python
                  |## bring in newly generated games here...
                  |##---------------------------------------------------------------------------##
-                 |import ${name}
+                 |import $name
                  |""".stripMargin)
       (code, Paths.get("__init__.py"))
     }
@@ -205,7 +111,7 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
       var stmts = ""
       for (step <- s.getDeal.asScala) {
         step match {
-          case f: FilterStep => {
+          case f: FilterStep =>
             val app = new ConstraintExpander(f.constraint, 'Intermediate)  // No symbol really needed. Could be anything
             val filterexp = app.apply(constraintCodeGenerators.generators)
 
@@ -223,71 +129,72 @@ trait GameTemplate extends Base with Structure with PythonSemanticTypes {
                  |del tmp
                  |""".stripMargin
 
-          }
+
 
           // frames=0 means do no animation during the deal.
-          case d: DealStep => {
+          case d: DealStep =>
             println("Deal step:" + d)
             val payload = d.payload
             val flip:String = if (payload.faceUp) { "1" } else { "0" }
             val numCards = payload.numCards
             d.target match {
-              case ct:ContainerTarget => {
+              case ct:ContainerTarget =>
                 ct.targetType match {
-                  case SolitaireContainerTypes.Foundation => {
+                  case SolitaireContainerTypes.Foundation =>
                     stmts = stmts +
                       s"""
                          |for _ in range($numCards):
                          |    self.s.talon.dealRow(rows=self.s.foundations, flip=$flip, frames=0)
                              """.stripMargin
-                  }
-                  case SolitaireContainerTypes.Tableau => {
+
+                  case SolitaireContainerTypes.Tableau =>
                     stmts = stmts +
                       s"""
                          |for _ in range($numCards):
                          |    self.s.talon.dealRow(rows=self.s.rows, flip=$flip, frames=0)
                              """.stripMargin
-                  }
-                  case SolitaireContainerTypes.Waste => {
+
+                  case SolitaireContainerTypes.Waste =>
                     stmts = stmts +
                       s"""
                          |for _ in range($numCards):
                          |    self.s.talon.dealRow(rows=[self.s.waste], flip=$flip, frames=0)
                              """.stripMargin
-                  }
+
                 }
-              }
+
+
               // just reach out to one in particular
-              case et:ElementTarget => {
+              case et:ElementTarget =>
                 val idx = et.idx
 
                 et.targetType match {
-                  case SolitaireContainerTypes.Foundation => {
+                  case SolitaireContainerTypes.Foundation =>
                     stmts = stmts +
                       s"""
                          |for _ in range($numCards):
                          |    self.s.talon.dealRow(rows=[self.s.foundations[$idx]], flip=$flip, frames=0)
                        """.stripMargin
-                  }
-                  case SolitaireContainerTypes.Tableau => {
+
+                  case SolitaireContainerTypes.Tableau =>
                     stmts = stmts +
                       s"""
                          |for _ in range($numCards):
                          |    self.s.talon.dealRow(rows=[self.s.rows[$idx]], flip=$flip, frames=0)
                         """.stripMargin
-                  }
-                  case SolitaireContainerTypes.Waste => {
+
+                  case SolitaireContainerTypes.Waste =>
                     stmts = stmts +
                       s"""
                          |for _ in range($numCards):
                          |    self.s.talon.dealRow(rows=[self.s.waste[$idx]], flip=$flip, frames=0)
                         """.stripMargin
-                  }
+
                 }
                 // just a single element
-              }
+
             }
-          }
+
         }
       }
 

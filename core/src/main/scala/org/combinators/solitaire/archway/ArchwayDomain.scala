@@ -1,23 +1,20 @@
 package org.combinators.solitaire.archway
 
-import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.ImportDeclaration
-import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain._
-import domain.archway._
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
 /**
   * Defines Java package, the game's name, initializes the domain model,
   * the UI, and the controllers (doesn't define them, just generates),
   * and includes extra fields and methods.
-  * TODO: Score52...
   */
 class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 

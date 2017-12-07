@@ -1,7 +1,7 @@
 package org.combinators.solitaire.shared.compilation
 
 import akka.actor.ActorSystem
-import akka.event.Logging
+import akka.event.{Logging, LoggingAdapter}
 import com.github.javaparser.ast.expr._
 import com.github.javaparser.ast.stmt._
 import com.github.javaparser.ast.body._
@@ -29,7 +29,7 @@ import scala.collection.JavaConverters._
 object constraintCodeGenerators  {
 
   // log everything as needed.
-  val logger = Logging.getLogger(ActorSystem("ConstraintCodeGenerators"), constraintCodeGenerators.getClass)
+  val logger:LoggingAdapter = Logging.getLogger(ActorSystem("ConstraintCodeGenerators"), constraintCodeGenerators.getClass)
   logger.info("Constraint Generation logging active...")
 
   // Halfway there.
@@ -42,7 +42,7 @@ object constraintCodeGenerators  {
   // used for do statements expressions
   val doGenerators:CodeGeneratorRegistry[Seq[Statement]] = CodeGeneratorRegistry.merge[Seq[Statement]](
     CodeGeneratorRegistry[Seq[Statement], FlipCardMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:FlipCardMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:FlipCardMove) =>
         Java(s"""|Card c = source.get();
                  |c.setFaceUp (!c.isFaceUp());
                  |source.add(c);
@@ -50,24 +50,24 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[Seq[Statement], SingleCardMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:SingleCardMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:SingleCardMove) =>
         Java(s"""destination.add(movingCard);""").statements()
     },
 
     CodeGeneratorRegistry[Seq[Statement], RemoveMultipleCardsMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RemoveMultipleCardsMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:RemoveMultipleCardsMove) =>
         Java(s"""|for (Stack s : destinations) {
                  |  removedCards.add(s.get());
                  |}""".stripMargin).statements()
     },
 
     CodeGeneratorRegistry[Seq[Statement], RemoveSingleCardMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RemoveSingleCardMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:RemoveSingleCardMove) =>
         Java(s"""removedCard = source.get();""".stripMargin).statements()
     },
 
     CodeGeneratorRegistry[Seq[Statement], ResetDeckMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:ResetDeckMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:ResetDeckMove) =>
         Java(s"""|// Note destinations contain the stacks that are to
                  |// be reformed into a single deck.
                  |for (Stack s : destinations) {
@@ -78,19 +78,19 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[Seq[Statement], DeckDealMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:DeckDealMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:DeckDealMove) =>
         Java(s"""|for (Stack s : destinations) {
                  |  s.add (source.get());
                  |}""".stripMargin).statements()
     },
 
     CodeGeneratorRegistry[Seq[Statement], ColumnMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:ColumnMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:ColumnMove) =>
         Java(s"""destination.push(movingColumn);""").statements()
     },
 
     CodeGeneratorRegistry[Seq[Statement], RowMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RowMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:RowMove) =>
         Java(s"""destination.push(movingRow);""").statements()
     },
 
@@ -131,7 +131,7 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[String, DeckDealMove] {
-      case (_:CodeGeneratorRegistry[String], m:DeckDealMove) => ""
+      case (_:CodeGeneratorRegistry[String], _:DeckDealMove) => ""
     },
 
     CodeGeneratorRegistry[String, RemoveMultipleCardsMove] {
@@ -155,7 +155,7 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[String, ResetDeckMove] {
-      case (_:CodeGeneratorRegistry[String], m:ResetDeckMove) => ""
+      case (_:CodeGeneratorRegistry[String], _:ResetDeckMove) => ""
     },
 
     CodeGeneratorRegistry[String, ColumnMove] {
@@ -188,7 +188,7 @@ object constraintCodeGenerators  {
   // used for do statements expressions
   val undoGenerators:CodeGeneratorRegistry[Seq[Statement]] = CodeGeneratorRegistry.merge[Seq[Statement]](
     CodeGeneratorRegistry[Seq[Statement], FlipCardMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:FlipCardMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:FlipCardMove) =>
         Java(s"""|Card c = source.get();
                  |c.setFaceUp (!c.isFaceUp());
                  |source.add(c);
@@ -196,13 +196,13 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[Seq[Statement], SingleCardMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:SingleCardMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:SingleCardMove) =>
         Java(s"""|source.add(destination.get());
                  |return true;""".stripMargin).statements()
     },
 
     CodeGeneratorRegistry[Seq[Statement], RemoveMultipleCardsMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RemoveMultipleCardsMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:RemoveMultipleCardsMove) =>
         Java(s"""|for (Stack s : destinations) {
                  |  s.add(removedCards.remove(0));
                  |}
@@ -210,14 +210,14 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[Seq[Statement], RemoveSingleCardMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RemoveSingleCardMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:RemoveSingleCardMove) =>
         Java(s"""|source.add(removedCard);
                  |return true;""".stripMargin).statements()
 
     },
 
     CodeGeneratorRegistry[Seq[Statement], DeckDealMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:DeckDealMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:DeckDealMove) =>
         Java(s"""|for (Stack s : destinations) {
                  |  source.add(s.get());
                  |}
@@ -225,13 +225,13 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[Seq[Statement], ResetDeckMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:ResetDeckMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:ResetDeckMove) =>
         Java("return false;").statements()
     },
 
 
     CodeGeneratorRegistry[Seq[Statement], ColumnMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:ColumnMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:ColumnMove) =>
         Java(s"""|destination.select(numInColumn);
                  |source.push(destination.getSelected());
                  |return true;""".stripMargin)
@@ -239,7 +239,7 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[Seq[Statement], RowMove] {
-      case (_:CodeGeneratorRegistry[Seq[Statement]], m:RowMove) =>
+      case (_:CodeGeneratorRegistry[Seq[Statement]], _:RowMove) =>
         Java(s"""|destination.select(numInColumn);     // conform to superclass usage
                  |source.push(destination.getSelected());
                  |return true;""".stripMargin)
@@ -252,12 +252,12 @@ object constraintCodeGenerators  {
   // used for map expressions
   val mapGenerators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
     CodeGeneratorRegistry[Expression, MapByRank] {
-      case (_:CodeGeneratorRegistry[Expression], m:MapByRank) =>
+      case (_:CodeGeneratorRegistry[Expression], _:MapByRank) =>
         Java(s"""card.getRank() - Card.ACE""").expression()
     },
 
     CodeGeneratorRegistry[Expression, MapBySuit] {
-      case (_:CodeGeneratorRegistry[Expression], m:MapBySuit) =>
+      case (_:CodeGeneratorRegistry[Expression], _:MapBySuit) =>
         Java(s"""card.getSuit() - Card.CLUBS""").expression()
     },
 
@@ -311,12 +311,12 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[Expression, Truth] {
-      case (registry:CodeGeneratorRegistry[Expression], _:Truth) =>
+      case (_:CodeGeneratorRegistry[Expression], _:Truth) =>
         Java(s"""true""").expression()
     },
 
     CodeGeneratorRegistry[Expression, Falsehood] {
-      case (registry:CodeGeneratorRegistry[Expression], _:Falsehood) =>
+      case (_:CodeGeneratorRegistry[Expression], _:Falsehood) =>
         Java(s"""false""").expression()
     },
 
@@ -349,7 +349,7 @@ object constraintCodeGenerators  {
 
     /** Note: This code will be invoked in a method that has game as an argument. */
     CodeGeneratorRegistry[Expression, SolitaireContainerTypes] {
-      case (registry:CodeGeneratorRegistry[Expression], st:SolitaireContainerTypes) =>
+      case (_:CodeGeneratorRegistry[Expression], st:SolitaireContainerTypes) =>
         Java(s"""ConstraintHelper.${st.name}(game)""").expression()
     },
 
@@ -498,7 +498,6 @@ class HelperDeclarationCombinator(m:Move) extends JavaSemanticTypes {
     val cc3: Option[String] = generators(m)
     if (cc3.isEmpty) {
       constraintCodeGenerators.logger.error("HelperDeclarationCombinator: Unable to locate:" + m.toString)
-      val empty:Seq[BodyDeclaration[_]] = Seq.empty
 
       ""
     } else {
@@ -538,7 +537,7 @@ object generateHelper {
       val name = containerType.getName
 
       container match {
-        case d: Stock =>
+        case _: Stock =>
           methods = methods :+ generateHelper.fieldAccessOneHelper(name, name)
 
         case _ =>

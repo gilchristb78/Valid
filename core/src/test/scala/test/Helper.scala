@@ -14,9 +14,6 @@ class Helper extends FunSpec {
 
   /**
     * Returns a List of declared methods for the only type in the given Compilation unit.
-    *
-    * @param unit
-    * @return
     */
   def methods(unit:CompilationUnit): List[MethodDeclaration] = {
 
@@ -44,16 +41,12 @@ class Helper extends FunSpec {
 
   /**
     * Determine if a single instance of given type.
-    *
-    * @param result
-    * @tparam T
-    * @return
     */
   def singleInstance[T](result: InhabitationResult[T]):Boolean = {
     val inhab: Iterator[T] = result.interpretedTerms.values.flatMap(_._2).iterator
 
     if (inhab.hasNext) {
-      val actual = inhab.next   // advance
+      inhab.next   // advance
       if (!inhab.hasNext) {
         return true
       }

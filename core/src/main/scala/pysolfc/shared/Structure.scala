@@ -201,7 +201,7 @@ trait Structure extends PythonSemanticTypes {
         base = "SequenceRowStack"
       }
 
-      var stmts = s"""
+      val stmts = s"""
            |class ${name}Stack($base):
            |    def canMoveCards(self, cards):
            |        # protect against empty moves
@@ -226,9 +226,6 @@ trait Structure extends PythonSemanticTypes {
 
   /**
     * Knows that suits are identified by suit=i for 0..3
-    *
-    * @param c
-    * @return
     */
   def layout_place_foundation(c: Container): Python = {
 
@@ -250,7 +247,7 @@ trait Structure extends PythonSemanticTypes {
     /** Orientation. By default, vertical downwards. */
     val element:Element = c.iterator().next()
 
-    val offsets = if (element.getVerticalOrientation()) {
+    val offsets = if (element.getVerticalOrientation) {
       "stack.CARD_XOFFSET, stack.CARD_YOFFSET = 0, l.YOFFSET"
     } else {
       "stack.CARD_XOFFSET, stack.CARD_YOFFSET = l.XOFFSET, 0"

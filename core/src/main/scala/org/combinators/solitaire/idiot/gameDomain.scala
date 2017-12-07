@@ -10,7 +10,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.idiot.HigherRankSameSuit
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
 // domain
 import domain._
@@ -120,7 +120,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   /** Idiot has logic to determine if any existing card on the tableau is higher in same suit. */
   @combinator object HelperMethodsIdiot {
     def apply(): Seq[MethodDeclaration] = {
-      var methods = generateHelper.helpers(solitaire)
+      val methods = generateHelper.helpers(solitaire)
 
       methods ++ Java(s"""
                          |public static boolean higher(Solitaire game, Stack source) {

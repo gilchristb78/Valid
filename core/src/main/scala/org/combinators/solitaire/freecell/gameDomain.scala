@@ -1,8 +1,7 @@
 package org.combinators.solitaire.freecell
 
-import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, IntegerLiteralExpr, Name, SimpleName}
-import com.github.javaparser.ast.stmt.Statement
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.ImportDeclaration
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
@@ -10,7 +9,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.freeCell.SufficientFree
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
 // domain
 import domain._
@@ -93,12 +92,12 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
 
-      val reserve = solitaire.containers.get(SolitaireContainerTypes.Reserve).size()
-      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau).size()
-      val numFreePiles: IntegerLiteralExpr = Java(s"$reserve").expression()
-      val numColumns: IntegerLiteralExpr = Java(s"$tableau").expression()
-
+//      val reserve = solitaire.containers.get(SolitaireContainerTypes.Reserve).size()
+//      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau).size()
+//      val numFreePiles: IntegerLiteralExpr = Java(s"$reserve").expression()
+//      val numColumns: IntegerLiteralExpr = Java(s"$tableau").expression()
 //      val methods = java.ExtraMethods.render(numFreePiles, numColumns).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+
       val methods = Java(
         s"""
            |/**

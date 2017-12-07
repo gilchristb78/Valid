@@ -88,8 +88,8 @@ class TypeNameStatistics[A](repository: ReflectedRepository[A]) {
   private def arityWarning(info: (String, TypeUsage)): String = {
     val arityUsages = info._2.arityUsages
     if (arityUsages.size > 1) {
-      s"${info._1} ${arityUsages.toSeq.sortBy(_._1).map { case (arity, info) =>
-          s"arity: $arity usage:\n\t\t ${arityWarningEntry(info).mkString(";\n\t\t")}"
+      s"${info._1} ${arityUsages.toSeq.sortBy(_._1).map { case (arity, inf) =>
+          s"arity: $arity usage:\n\t\t ${arityWarningEntry(inf).mkString(";\n\t\t")}"
         }.mkString("\n\t", ";\n\t", "")}"
     } else ""
   }

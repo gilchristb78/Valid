@@ -2,7 +2,6 @@ package example.expression.covariant
 
 import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import example.expression.j.MethodMapper
 import expression.{Exp, Operation}
 
 

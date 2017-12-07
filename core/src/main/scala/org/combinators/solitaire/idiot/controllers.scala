@@ -72,8 +72,6 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
   /**
     * HACK: Move this logic into class which is synthesized, rather than taking existing RSC class as is
     * from the template area.
-    *
-    * @param source
     */
   class TryRemoveCardHandlerLocal(source:Type) {
     def apply():Seq[Statement] = {

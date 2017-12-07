@@ -41,37 +41,11 @@ class Expression_CPP @Inject()(webJars: WebJarsUtil) extends InhabitationControl
     * Tell the framework to store stuff of type (Python, Path) at the location specified in Path.
     * The Path is relative to the Git repository.
     */
-//  implicit def PersistInt: Persistable.Aux[(CPPClass, Path)] = new Persistable {
-//    override def path(elem: (CPPClass, Path)): Path = elem._2
-//    override def rawText(elem: (CPPClass, Path)): String = elem._1.toString()
-//    override type T = (CPPClass, Path)
-//  }
-
   implicit def PersistInt: Persistable.Aux[CPPFile] = new Persistable {
     override def path(elem: CPPFile): Path = Paths.get(elem.fileName + ".cpp")
     override def rawText(elem: CPPFile): String = elem.toString
     override type T = CPPFile
   }
-
-//  var jobs = Gamma.InhabitationBatchJob[CPPFile](generated(generated.visitor))
-//          .addJob[CPPFile](exp(exp.base, new Exp))
-//          .addJob[CPPFile](ops(ops.visitor, new Eval))    // assumed to always be there...
-//
-//          .addJob[CPPFile](exp(exp.visitor, new Lit))
-//          .addJob[CPPFile](exp(exp.visitor, new Add))
-//          .addJob[CPPFile](exp(exp.visitor, new Sub))
-//          .addJob[CPPFile](exp(exp.visitor, new Neg))
-//
-//          .addJob[CPPFile](ops(ops.visitor, new PrettyP))
-//          //.addJob[CPPFile](ops(ops.visitor, new Collect))
-//
-//
-//
-//          // new one...
-//          //.addJob[CPPClass](ops(ops.visitor, new SimplifyAdd))
-//
-//          .addJob[CPPFile](driver)
-//          .addJob[CPPFile](module(module.base))
 
   // produce concatenation of files in specific order for compilation purpose.
   // may prove challenging to have independent extensions...

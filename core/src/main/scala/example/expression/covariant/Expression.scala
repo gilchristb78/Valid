@@ -90,16 +90,6 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
 
 
 
-  //
-//  // wish I could do something like this, but I need help...
-//  model.data.asScala.foreach {
-//    sub:Exp => jobs.addJob[CompilationUnit](exp(exp.visitor, sub))
-//  }
-//
-//  model.ops.asScala.foreach {
-//    op:Operation => jobs.addJob[CompilationUnit](ops(ops.visitor, op))
-//  }
-
   lazy val results = Results.addAll(jobs.run())
 
 }

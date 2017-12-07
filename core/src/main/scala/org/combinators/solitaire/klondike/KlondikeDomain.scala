@@ -1,21 +1,19 @@
 package org.combinators.solitaire.klondike
 
 import com.github.javaparser.ast.ImportDeclaration
-import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
-import com.github.javaparser.ast.stmt.Statement
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.expr.{Expression, Name}
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
 // domain
 import domain._
 
 /**
-  * Define domain using Score52 since this is a single-deck solitaire game.
   * @param solitaire    Application domain object with details about solitaire variation.
   */
 class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with SemanticTypes

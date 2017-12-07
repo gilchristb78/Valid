@@ -20,7 +20,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   /**
     * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
    */
-  @combinator object narcoticID extends IdForGame(pygames.klondike);
+  @combinator object narcoticID extends IdForGame(pygames.klondike)
 
   @combinator object OutputFile {
     def apply: String = "narcotic"
@@ -28,20 +28,19 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   }
 
   object castleCodeGenerator {
-    val generators = CodeGeneratorRegistry.merge[Python](
+    val generators:CodeGeneratorRegistry[Python] = CodeGeneratorRegistry.merge[Python](
 
       CodeGeneratorRegistry[Python, ToLeftOf] {
-        case (registry:CodeGeneratorRegistry[Python], c:ToLeftOf) => {
+        case (registry:CodeGeneratorRegistry[Python], c:ToLeftOf) =>
           val destination = registry(c.destination).get
           val src = registry(c.src).get
           Python(s"""toLeftOf($destination, $src)""")
-        }
+
       },
 
       CodeGeneratorRegistry[Python, AllSameRank] {
-        case (registry:CodeGeneratorRegistry[Python], c:AllSameRank) => {
+        case (_:CodeGeneratorRegistry[Python], _:AllSameRank) =>
           Python(s"""allSameRank()""")
-        }
       }
 
     ).merge(constraintCodeGenerators.generators)

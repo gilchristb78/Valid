@@ -1,15 +1,10 @@
 package example.temperature
 
-import java.nio.file.{Path, Paths}
-import java.util.UUID
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.expr.Expression
-import com.github.javaparser.ast.`type`.{Type => JType}
-import de.tu_dortmund.cs.ls14.Persistable
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.Omega
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.java.JavaPersistable._
@@ -24,13 +19,6 @@ class Temperature @Inject()(webJars: WebJarsUtil) extends InhabitationController
   lazy val Gamma = ReflectedRepository(repository, kinding=precisions.merge(units), semanticTaxonomy=taxonomyLoss,
     classLoader = this.getClass.getClassLoader)
   lazy val combinatorComponents = Gamma.combinatorComponents
-
-  /* Just for testing
-  implicit val persistExp: Persistable.Aux[Expression] = new Persistable {
-    type T = Expression
-    def rawText(exp: Expression): String = exp.toString
-    def path(exp: Expression): Path = Paths.get(UUID.randomUUID().toString)
-  } */
 
   lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](artifact(artifact.api) :&: precision(precision.floating))
     .addJob[CompilationUnit](artifact(artifact.impl) :&: precision(precision.integer) :&: unit(unit.celsius))

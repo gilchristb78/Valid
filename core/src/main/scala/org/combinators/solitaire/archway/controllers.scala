@@ -17,7 +17,7 @@ import org.combinators.solitaire.shared._
   * Either a rule must be associated with an action, or the action must be
   * explicity ignored. See ArchwayRules in game.scala.
   */
-trait Controllers extends shared.Controller with shared.Moves with GameTemplate with generic.JavaCodeIdioms  {
+trait controllers extends shared.Controller with shared.Moves with GameTemplate with generic.JavaCodeIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :

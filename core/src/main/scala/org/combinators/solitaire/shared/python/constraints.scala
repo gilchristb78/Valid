@@ -1,5 +1,7 @@
 package org.combinators.solitaire.shared.python
 
+import akka.actor.ActorSystem
+import akka.event.{Logging, LoggingAdapter}
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import domain.{Constraint, SolitaireContainerTypes}
 import domain.constraints._
@@ -10,6 +12,11 @@ import domain.deal.DealComponents
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 
 object constraintCodeGenerators  {
+
+  // log everything as needed.
+  val logger:LoggingAdapter = Logging.getLogger(ActorSystem("ConstraintCodeGenerators"), constraintCodeGenerators.getClass)
+  logger.info("Constraint Generation logging active...")
+
   val generators:CodeGeneratorRegistry[Python] = CodeGeneratorRegistry.merge[Python](
 
     CodeGeneratorRegistry[Python, MoveComponents] {
@@ -28,6 +35,7 @@ object constraintCodeGenerators  {
         } else if (mc == MoveComponents.MovingRow) {
           Python(s"""cards""")
         } else {
+          logger.warning(s"Unable to process MoveComponent (${mc.name}) in Python constraints.")
           Python(s"""None""") // not sure what else to do...
         }
     },
@@ -58,26 +66,25 @@ object constraintCodeGenerators  {
     /** Takes advantage of () -> operator in Java 1.8. */
     CodeGeneratorRegistry[Python, IfConstraint] {
       case (registry: CodeGeneratorRegistry[Python], ifCons: IfConstraint) =>
-        println ("If:" + ifCons.toString)
-
+        logger.debug(s"PythonConstraints:If: ${ifCons.toString}")
         val inner = registry(ifCons.constraint)
         val trueb = registry(ifCons.trueBranch)
         val falseb = registry(ifCons.falseBranch)
 
         // python evaluates left to right, and short-circuits branches. No need for ConstraintHelper class
         val str = Python(s"${trueb.get} if ${inner.get} else ${falseb.get}")
-        //val str = Python(s"(${inner.get} and ${trueb.get}) or ${falseb.get}")
-        println ("IF-inner:" + str)
+
+        logger.debug(s"PythonConstraints:If-inner: $str")
         Python(s"""$str""")
     },
 
     CodeGeneratorRegistry[Python, Truth] {
-      case (registry:CodeGeneratorRegistry[Python], t:Truth) =>
+      case (_:CodeGeneratorRegistry[Python], _:Truth) =>
         Python(s"""True""")
     },
 
     CodeGeneratorRegistry[Python, Falsehood] {
-      case (registry:CodeGeneratorRegistry[Python], f:Falsehood) =>
+      case (_:CodeGeneratorRegistry[Python], _:Falsehood) =>
         Python(s"""False""")
     },
 
@@ -110,7 +117,7 @@ object constraintCodeGenerators  {
 
     /** Access via helper method of same name. */
     CodeGeneratorRegistry[Python, SolitaireContainerTypes] {
-      case (registry:CodeGeneratorRegistry[Python], st:SolitaireContainerTypes) =>
+      case (_:CodeGeneratorRegistry[Python], st:SolitaireContainerTypes) =>
         Python(s"""${st.name}()""")
     },
 
@@ -172,7 +179,8 @@ object constraintCodeGenerators  {
 
     CodeGeneratorRegistry[Python, OrConstraint] {
       case (registry: CodeGeneratorRegistry[Python], or: OrConstraint) =>
-        println ("Or:" + or.toString)
+        logger.debug(s"PythonConstraints:Or: ${or.toString}")
+
         if (or.constraints.isEmpty) {
           Python(s"""False""")
         } else {
@@ -194,7 +202,7 @@ class ConstraintExpander(c:Constraint, tpe:Type) extends PythonSemanticTypes {
   def apply(generators: CodeGeneratorRegistry[Python]): Python = {
     val cc3: Option[Python] = generators(c)
     if (cc3.isEmpty) {
-      println("Unable to locate:" + c)
+      constraintCodeGenerators.logger.warning(s"ConstraintExpander: Unable to locate: ${c.toString}")
       Python("None") // not sure what to do
     } else {
       Python(s"""${cc3.get}""")

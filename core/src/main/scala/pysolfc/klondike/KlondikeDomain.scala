@@ -11,8 +11,6 @@ import pysolfc.shared.GameTemplate
 // domain
 import domain._
 
-import scala.collection.JavaConverters._
-
 /**
   * @param solitaire    Application domain object with details about solitaire variation.
   */
@@ -21,7 +19,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   /**
     * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
    */
-  @combinator object klondikeID extends IdForGame(pygames.klondike);
+  @combinator object klondikeID extends IdForGame(pygames.klondike)
 
   @combinator object OutputFile {
     def apply: String = "klondike"

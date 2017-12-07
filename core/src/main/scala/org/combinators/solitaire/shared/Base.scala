@@ -9,10 +9,6 @@ trait Base {
 
   /**
     * To be overridden by sub-typed traits that are part of the dynamic constructions process.
-    * @param gamma
-    * @param s
-    * @tparam G
-    * @return
     */
   def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = gamma
 

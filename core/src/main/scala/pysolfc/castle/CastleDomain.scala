@@ -19,16 +19,16 @@ import domain._
 class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with PythonSemanticTypes {
 
   object castleCodeGenerator {
-    val generators = CodeGeneratorRegistry.merge[Python](
+    val generators:CodeGeneratorRegistry[Python]= CodeGeneratorRegistry.merge[Python](
 
       CodeGeneratorRegistry[Python, SufficientFree] {
-        case (registry:CodeGeneratorRegistry[Python], c:SufficientFree) => {
+        case (registry:CodeGeneratorRegistry[Python], c:SufficientFree) =>
           val destination = registry(c.destination).get
           val src = registry(c.src).get
           val column = registry(c.column).get
           val tableau = registry(c.tableau).get
           Python(s"""sufficientFree($column, $src, $destination, $tableau)""")
-        }
+
       },
 
     ).merge(constraintCodeGenerators.generators)
@@ -72,7 +72,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
   /**
     * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
    */
-  @combinator object castleID extends IdForGame(pygames.castle);
+  @combinator object castleID extends IdForGame(pygames.castle)
 
   @combinator object OutputFile {
     def apply: String = "castle"

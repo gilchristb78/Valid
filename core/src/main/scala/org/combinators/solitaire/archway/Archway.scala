@@ -18,7 +18,7 @@ class Archway @Inject()(webJars: WebJarsUtil) extends InhabitationController(web
 
   val solitaire = new domain.archway.Domain()
 
-  lazy val repository = new ArchwayDomain(solitaire) with Controllers {}
+  lazy val repository = new ArchwayDomain(solitaire) with controllers {}
   import repository._
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 

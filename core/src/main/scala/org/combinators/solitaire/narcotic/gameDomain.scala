@@ -1,16 +1,15 @@
 package org.combinators.solitaire.narcotic
 
 import com.github.javaparser.ast.ImportDeclaration
-import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
-import com.github.javaparser.ast.stmt.Statement
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.expr.{Expression, Name}
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.narcotic.{AllSameRank, ToLeftOf}
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
 // domain
 import domain._
@@ -20,20 +19,20 @@ import domain._
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 
   object narcoticCodeGenerator {
-    val generators = CodeGeneratorRegistry.merge[Expression](
+    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, ToLeftOf] {
-        case (registry:CodeGeneratorRegistry[Expression], c:ToLeftOf) => {
+        case (registry:CodeGeneratorRegistry[Expression], c:ToLeftOf) =>
           val destination = registry(c.destination).get
           val src = registry(c.src).get
           Java(s"""((org.combinators.solitaire.narcotic.Narcotic)game).toLeftOf($destination, $src)""").expression()
-        }
+
       },
 
       CodeGeneratorRegistry[Expression, AllSameRank] {
-        case (registry:CodeGeneratorRegistry[Expression], c:AllSameRank) => {
+        case (_:CodeGeneratorRegistry[Expression], _:AllSameRank) =>
           Java(s"""((org.combinators.solitaire.narcotic.Narcotic)game).allSameRank()""").expression()
-        }
+
       }
     ).merge(constraintCodeGenerators.generators)
   }

@@ -1,8 +1,8 @@
 package org.combinators.solitaire.castle
 
 import com.github.javaparser.ast.ImportDeclaration
-import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.stmt.Statement
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types._
@@ -10,13 +10,13 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Java
 import domain.castle.SufficientFree
 import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, constraintCodeGenerators, generateHelper}
+import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
 // domain
 import domain._
 
 /**
-  * Define domain using Score52 since this is a single-deck solitaire game.
+  *
   * @param solitaire    Application domain object with details about solitaire variation.
   */
 class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire)
@@ -59,7 +59,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     */
   @combinator object  HelperMethodsCastle {
     def apply(): Seq[MethodDeclaration] = {
-      var methods = generateHelper.helpers(solitaire)
+      val methods = generateHelper.helpers(solitaire)
 
       methods ++ Java(
         s"""

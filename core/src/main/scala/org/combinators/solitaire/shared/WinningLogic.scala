@@ -35,7 +35,6 @@ trait WinningLogic extends SemanticTypes {
       var stmts:Seq[Statement] = Java ("boolean hasWon = true;").statements()
 
       for (pair:BoardStatePair <- bs.elements.asScala) {
-        val name = pair.tpe.toString
 
         pair.tpe match {
           case SolitaireContainerTypes.Stock => stmts = stmts ++
