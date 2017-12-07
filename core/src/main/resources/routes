@@ -22,11 +22,6 @@ GET   /idiot/raw_:number          org.combinators.solitaire.idiot.Idiot.raw(numb
 GET   /idiot/prepare              org.combinators.solitaire.idiot.Idiot.prepare(number: Long)
 GET   /idiot/idiot.git/*file  	  org.combinators.solitaire.idiot.Idiot.serveFile(file)
 
-GET   /stalactites                      org.combinators.solitaire.stalactites.Stalactites.overview()
-GET   /stalactites/raw_:number          org.combinators.solitaire.stalactites.Stalactites.raw(number: Long)
-GET   /stalactites/prepare              org.combinators.solitaire.stalactites.Stalactites.prepare(number: Long)
-GET   /stalactites/stalactites.git/*file  	  org.combinators.solitaire.stalactites.Stalactites.serveFile(file)
-
 GET   /klondike                      org.combinators.solitaire.klondike.Klondike.overview()
 GET   /klondike/raw_:number          org.combinators.solitaire.klondike.Klondike.raw(number: Long)
 GET   /klondike/prepare              org.combinators.solitaire.klondike.Klondike.prepare(number: Long)
