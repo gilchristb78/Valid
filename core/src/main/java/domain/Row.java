@@ -1,6 +1,4 @@
-package domain.castle;
-
-import domain.Column;
+package domain;
 
 public class Row extends Column {
 

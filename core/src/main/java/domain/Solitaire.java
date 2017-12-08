@@ -2,6 +2,7 @@ package domain;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import domain.deal.Deal;
 import domain.deal.DealStep;
@@ -100,6 +101,11 @@ public abstract class Solitaire {
     protected void addDragMove(Move m) { rules.addDragMove(m); }
     protected void addPressMove(Move m) { rules.addPressMove(m); }
     protected void addClickMove(Move m) { rules.addClickMove(m); }
+
+    /** Occasionally a variation needs its own model elements, which are registered here. */
+    List<Element> specializedElements = new ArrayList<>();
+    protected void registerElement(Element e) { specializedElements.add(e); }
+    public Iterator<Element> domainElements() { return specializedElements.iterator(); }
 
     /**
      * Compute minimum width and height required to realize this variation. Computes based on

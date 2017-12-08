@@ -32,6 +32,12 @@ public class Domain extends Solitaire {
 
 	public Domain() {
 		super ("FreeCell");
+
+
+		// register new elements for this domain
+		registerElement(new FreePile());
+		registerElement(new HomePile());
+
 		ReserveFoundationTableauLayout lay = new ReserveFoundationTableauLayout();
 
 		Foundation found = new Foundation();

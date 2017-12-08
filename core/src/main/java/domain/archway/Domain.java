@@ -21,6 +21,11 @@ import java.awt.Point;
 public class Domain extends Solitaire {
 	public Domain() {
 		super ("Archway");
+
+		// register new elements for this domain
+		registerElement(new AcesUpPile());
+		registerElement(new KingsDownPile());
+
 		int scale = 27;
 
 		int xs[] = new int[] { 2,  5,  2,  5};

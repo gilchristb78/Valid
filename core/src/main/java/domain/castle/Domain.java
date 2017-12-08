@@ -30,6 +30,10 @@ public class Domain extends Solitaire {
 
 	public Domain() {
 		super ("BeleagueredCastle");
+
+		// register new elements for this domain
+		registerElement(new Row());
+
 		PlacementGenerator places = new VerticalPlacement(new Point(400, 10),
 				card_width, card_height, card_gap);
 
