@@ -267,7 +267,7 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
         container match {
 
           case d: Stock =>
-            if (!d.isInvisible) {
+            if (sol.isVisible(d)) {  //   (!d.isInvisible) {
               stmts = stmts ++ controllerGen(s"${containerType.getName}View", "DeckController")
             }
 
@@ -292,14 +292,16 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
         val name = containerType.getName
         container match {
 
-          case d: Stock =>
-            if (!d.isInvisible) {
+          case d: Stock => {
+            // Need to keep these "redundant braces" to ensure we don't fall through to next case
+            if (sol.isVisible(d)) { ///  (!d.isInvisible) {
               stmts = stmts ++ Java(s"""${name}View = new DeckView($name);""").statements()
-              stmts = stmts ++ layout_place_one(d, Java(s"${name}View").name())
+              stmts = stmts ++ layout_place_one(sol, d, Java(s"${name}View").name())
             }
+          }
 
           case _ =>
-            stmts = stmts ++ layout_place_it(container, Java(s"${name}View").name())
+            stmts = stmts ++ layout_place_it(sol, container, Java(s"${name}View").name())
         }
       }
 
@@ -445,10 +447,11 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
         game(complete :&: game.solvable)
   }
 
-  def layout_place_it (c:Container, view:Name): Seq[Statement] = {
+  def layout_place_it (s:Solitaire, c:Container, view:Name): Seq[Statement] = {
     // this can all be retrieved from the solitaire domain model by
     // checking if a tableau is present, then do the following, etc... for others
-    c.placements().asScala.flatMap {
+    // c.placements().asScala.flatMap {
+    s.placements(c).asScala.flatMap {
       r => Java(s"""
                    |$view[${r.idx}].setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
                    |addViewWidget($view[${r.idx}]);
@@ -457,10 +460,11 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
   }
 
   /** Used when you know in advance there is only one widget and you've chosen not to use array. */
-  def layout_place_one (c:Container, view:Name): Seq[Statement] = {
+  def layout_place_one (s:Solitaire, c:Container, view:Name): Seq[Statement] = {
     // this can all be retrieved from the solitaire domain model by
     // checking if a tableau is present, then do the following, etc... for others
-    c.placements().asScala.flatMap {
+    //c.placements().asScala.flatMap {
+    s.placements(c).asScala.flatMap {
       r => Java(s"""
                    |$view.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
                    |addViewWidget($view);
@@ -476,8 +480,9 @@ trait GameTemplate extends Base with Controller with SemanticTypes with WinningL
     * Feels like too many parameters...
     * @return
     */
-  def layout_place_it_expr (c: Container, view:Expression): Seq[Statement] = {
-    c.placements().asScala.flatMap {
+  def layout_place_it_expr (s:Solitaire, c: Container, view:Expression): Seq[Statement] = {
+   //c.placements().asScala.flatMap {
+    s.placements(c).asScala.flatMap {
       r => Java(s"""|$view.setBounds(${r.x}, ${r.y}, ${r.width}, ${r.height});
                     |addViewWidget($view);
             """.stripMargin).statements()

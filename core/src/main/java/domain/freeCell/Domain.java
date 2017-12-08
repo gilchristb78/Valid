@@ -34,21 +34,23 @@ public class Domain extends Solitaire {
 		super ("FreeCell");
 		ReserveFoundationTableauLayout lay = new ReserveFoundationTableauLayout();
 
-		Foundation found = new Foundation(lay.foundation());
+		Foundation found = new Foundation();
 		found.add (new HomePile());
 		found.add (new HomePile());
 		found.add (new HomePile());
 		found.add (new HomePile());
+		placeContainer(found, lay.foundation());
 		containers.put(SolitaireContainerTypes.Foundation, found);
 
-		Reserve reserve = new Reserve(lay.reserve());
+		Reserve reserve = new Reserve();
 		reserve.add (new FreePile());	
 		reserve.add (new FreePile());	
 		reserve.add (new FreePile());	
 		reserve.add (new FreePile());
+		placeContainer(reserve, lay.reserve());
 		containers.put(SolitaireContainerTypes.Reserve, reserve);
 
-		Tableau tableau = new Tableau(lay.tableau());
+		Tableau tableau = new Tableau();
 		tableau.add (new Column());
 		tableau.add (new Column());
 		tableau.add (new Column());
@@ -57,9 +59,10 @@ public class Domain extends Solitaire {
 		tableau.add (new Column());
 		tableau.add (new Column());
 		tableau.add (new Column());
+		placeContainer(tableau, lay.tableau());
 		containers.put(SolitaireContainerTypes.Tableau, tableau);
 
-		// defaults to 1 deck.
+		// defaults to 1 deck. Note this container is not placed and remains invisible
 		Stock stock = new Stock();
 		containers.put(SolitaireContainerTypes.Stock, stock);
 

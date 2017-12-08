@@ -85,10 +85,10 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
       val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
 
-      val sw:Python = layout_place_stock(stock)
+      val sw:Python = layout_place_stock(solitaire, stock)
 
       // when placing a single element in Layout, use this API
-      val cs:Python = layout_place_tableau(tableau)
+      val cs:Python = layout_place_tableau(solitaire, tableau)
 
       // Need way to simply concatenate Python blocks
       val comb = Python(sw.getCode.toString ++ cs.getCode.toString)

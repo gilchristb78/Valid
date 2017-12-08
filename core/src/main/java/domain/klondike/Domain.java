@@ -22,25 +22,29 @@ public class Domain extends Solitaire {
         PlacementGenerator places = new HorizontalPlacement(new Point(40, 200),
                 card_width, 13*card_height, card_gap);
 
-        Tableau tableau = new Tableau(places);
+        Tableau tableau = new Tableau();
         for (int i = 0; i < 7; i++) { tableau.add (new BuildablePile()); }
+        placeContainer(tableau, places);
         containers.put(SolitaireContainerTypes.Tableau, tableau);
 
         places = new HorizontalPlacement(new Point(15, 20),
                 card_width, card_height, card_gap);
-        Stock stock = new Stock(places);
+        Stock stock = new Stock();
+        placeContainer(stock, places);
         containers.put(SolitaireContainerTypes.Stock, stock);
 
         places = new HorizontalPlacement(new Point(293, 20),
                 card_width, card_height, card_gap);
-        Foundation found = new Foundation(places);
+        Foundation found = new Foundation();
         for (int i = 0; i < 4; i++) { found.add (new Pile()); }
+        placeContainer (found, places);
         containers.put(SolitaireContainerTypes.Foundation, found);
 
         places = new HorizontalPlacement(new Point(95, 20),
                 card_width, card_height, card_gap);
-        Waste waste = new Waste(places);
+        Waste waste = new Waste();
         waste.add (new WastePile());
+        placeContainer (waste, places);
         containers.put(SolitaireContainerTypes.Waste, waste);
 
         // Rules of Klondike defined below

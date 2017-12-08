@@ -6,6 +6,8 @@ import java.util.*;
 import domain.deal.Deal;
 import domain.deal.DealStep;
 import domain.deal.Step;
+import domain.ui.NonexistentPlaceement;
+import domain.ui.PlacementGenerator;
 import domain.win.ScoreAchieved;
 import domain.win.WinningLogic;
 
@@ -44,7 +46,7 @@ import domain.win.WinningLogic;
  */
 
 public abstract class Solitaire {
-
+    /** Every Solitaire game has its own name. */
     public final String name;
 
     public Solitaire (String name) {
@@ -53,6 +55,9 @@ public abstract class Solitaire {
 
     /** User-defined containers can be specified as needed in this map. */
     public final Map <ContainerType, Container> containers = new Hashtable<>();
+
+    /** Containers must be told where they are placed. */
+    public final Map <Container, PlacementGenerator> places = new Hashtable<>();
 
     /** Get the name for a given container type. */
     public Container getByName (String name) {
@@ -103,7 +108,7 @@ public abstract class Solitaire {
     public Dimension getMinimumSize() {
         Dimension min = new Dimension(0,0);
         for (Container c : containers.values()) {
-            Iterator<Widget> it = c.placements();
+            Iterator<Widget> it = placements(c);     // c.placements();
             while (it.hasNext()) {
                 Widget w = it.next();
                 if (w.y + w.height > min.height) {
@@ -116,5 +121,37 @@ public abstract class Solitaire {
         }
 
         return min;
+    }
+
+    /**
+     * Record the layout for the given container in this Solitaire variation.
+     *
+     * note we could have classes whose job is to call these low-level functions to properly
+     * layout the containers based no stylized variations.
+     */
+    public void placeContainer(Container c, PlacementGenerator generator) {
+        places.put(c, generator);
+    }
+
+    /** Some containers have no visible presence (as detected by no widgets in placements). */
+    public boolean isVisible(Container c) {
+        PlacementGenerator p = places.get(c);
+        if (p == null) { return false; } // not sure what to do, really
+
+        p.reset(c.size());
+        return p.hasNext();
+    }
+
+    /**
+     * Retrieve Iterator of Widgets reflecting the elements in the container.
+     *
+     * @return    Widget objects, each with their boundaries and index into the container.
+     */
+    public Iterator<Widget> placements(Container c) {
+        PlacementGenerator p = places.get(c);
+        if (p == null) { return new NonexistentPlaceement(); } // not sure what to do, really
+
+        p.reset(c.size());
+        return p;
     }
 }

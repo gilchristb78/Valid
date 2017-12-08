@@ -30,7 +30,8 @@ public class Domain extends Solitaire {
 			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
 		}
 		PlacementGenerator places = new CalculatedPlacement(anchors, card_width, card_height);
-		Foundation acesFoundation = new Foundation(places);
+		Foundation acesFoundation = new Foundation();
+		placeContainer (acesFoundation, places);
 		for (int i = 0; i < 4; i++) {
 			acesFoundation.add(new AcesUpPile());
 		}
@@ -44,7 +45,8 @@ public class Domain extends Solitaire {
 			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
 		}
 		places = new CalculatedPlacement(anchors, card_width, card_height);
-		Reserve reserve = new Reserve(places);
+		Reserve reserve = new Reserve();
+		placeContainer(reserve, places);
 		for (int i = 0; i < xs.length; i++) {
 			reserve.add(new Pile());
 		}
@@ -57,14 +59,16 @@ public class Domain extends Solitaire {
 			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
 		}
 		places = new CalculatedPlacement(anchors, card_width, card_height);
-		Container kingsFoundation = new Container(places);
+		Container kingsFoundation = new Container();
+		placeContainer(kingsFoundation, places);
 		for (int i = 0; i < 4; i++) {
 			kingsFoundation.add(new KingsDownPile());
 		}
 		containers.put(ArchwayContainerTypes.KingsDown, kingsFoundation);
 
 		places = new HorizontalPlacement(new Point (10*scale, 10*scale), card_width, 8*card_height, card_gap);
-		Tableau tableau = new Tableau(places);
+		Tableau tableau = new Tableau();
+		placeContainer(tableau, places);
 		for (int i = 0; i < 4; i++) {
 			tableau.add(new Column());
 		}

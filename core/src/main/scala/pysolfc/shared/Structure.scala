@@ -227,10 +227,11 @@ trait Structure extends PythonSemanticTypes {
   /**
     * Knows that suits are identified by suit=i for 0..3
     */
-  def layout_place_foundation(c: Container): Python = {
+  def layout_place_foundation(s:Solitaire, c: Container): Python = {
 
     var combined = ""
-    for (r <- c.placements().asScala) {
+    //for (r <- c.placements().asScala) {
+    for (r <- s.placements(c).asScala) {
       combined = combined +
         s"""
            |s.foundations.append(self.Foundation_Class(${r.x}, ${r.y}, self, suit=${r.idx}, max_move=0))
@@ -240,7 +241,7 @@ trait Structure extends PythonSemanticTypes {
   }
 
   // THESE ARE ROWS. How to show orientation
-  def layout_place_tableau(c:Container): Python = {
+  def layout_place_tableau(s:Solitaire, c:Container): Python = {
     var combined = ""
 
     // tableau typically can be oriented vertically or horizontally
@@ -253,7 +254,8 @@ trait Structure extends PythonSemanticTypes {
       "stack.CARD_XOFFSET, stack.CARD_YOFFSET = l.XOFFSET, 0"
     }
 
-    for (r <- c.placements().asScala) {
+    //for (r <- c.placements().asScala) {
+    for (r <- s.placements(c).asScala) {
       combined = combined +
         s"""
            |stack = self.RowStack_Class(${r.x}, ${r.y}, self)
@@ -265,9 +267,10 @@ trait Structure extends PythonSemanticTypes {
 
 
   // trying to constrct a talong doesn't easily work.
-  def layout_place_stock(c:Container): Python = {
+  def layout_place_stock(s:Solitaire, c:Container): Python = {
     var combined = ""
-    for (r <- c.placements().asScala) {
+    //for (r <- c.placements().asScala) {
+    for (r <- s.placements(c).asScala) {
       combined = combined + s"""
                                |s.talon = TalonStack(${r.x}, ${r.y}, self)
                                |""".stripMargin
@@ -276,17 +279,19 @@ trait Structure extends PythonSemanticTypes {
   }
 
   /** Waste takes its structure from existing classWasteStack. Need to deal with rounds/num deal at a time. */
-  def layout_place_stock_and_waste(stock:Container, waste:Container): Python = {
+  def layout_place_stock_and_waste(s:Solitaire, stock:Container, waste:Container): Python = {
     var combined = ""
 
-    for (r <- stock.placements().asScala) {
+    //for (r <- stock.placements().asScala) {
+    for (r <- s.placements(stock).asScala) {
       combined = combined +
         s"""
            |s.talon =  WasteTalonStack(${r.x}, ${r.y}, self, max_rounds=1, num_deal=1)
                   """.stripMargin
     }
 
-    for (r <- waste.placements().asScala) {
+    //for (r <- waste.placements().asScala) {
+    for (r <- s.placements(waste).asScala) {
       combined = combined +
         s"""
            |s.waste =  WasteStack(${r.x}, ${r.y}, self)

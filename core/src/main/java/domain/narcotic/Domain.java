@@ -30,15 +30,17 @@ public class Domain extends Solitaire {
 		super ("Narcotic");
 		StockTableauLayout lay = new StockTableauLayout();
 
-		Tableau tableau = new Tableau(lay.tableauAsPile());
+		Tableau tableau = new Tableau();
 		tableau.add (new Pile());
 		tableau.add (new Pile());
 		tableau.add (new Pile());
 		tableau.add (new Pile());
+		placeContainer(tableau, lay.tableauAsPile());
 		containers.put(SolitaireContainerTypes.Tableau, tableau);
 
 		// defaults to 1 deck.
-		Stock stock = new Stock(lay.stock());
+		Stock stock = new Stock();
+		placeContainer (stock, lay.stock());
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
 		IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
@@ -49,7 +51,6 @@ public class Domain extends Solitaire {
 		// going to a non-empty pile whose top card is the same rank
 		// as moving card, and which is to the left of the source.
 		ToLeftOf toLeftOf = new ToLeftOf(MoveComponents.Destination, MoveComponents.Source);
-		// new BooleanExpression("((org.combinators.solitaire.narcotic.Narcotic)game).toLeftOf(destination, source)");
 
 		SameRank sameRank = new SameRank(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination));
 

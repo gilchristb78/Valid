@@ -30,16 +30,17 @@ public class Domain extends Solitaire {
 		super ("Idiot");
 		StockTableauLayout lay = new StockTableauLayout();
 
-		Tableau tableau = new Tableau(lay.tableau());
+		Tableau tableau = new Tableau();
 		tableau.add (new Column());
 		tableau.add (new Column());
 		tableau.add (new Column());
 		tableau.add (new Column());
+		placeContainer(tableau, lay.tableau());
 		containers.put(SolitaireContainerTypes.Tableau, tableau);
 
 		// defaults to 1 deck.
-		Stock stock = new Stock(lay.stock());
-
+		Stock stock = new Stock();
+        placeContainer(stock, lay.stock());
 		containers.put(SolitaireContainerTypes.Stock, stock);
 
 		// When only aces are left, there are 48 points.

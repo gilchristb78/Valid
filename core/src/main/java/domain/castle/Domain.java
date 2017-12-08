@@ -33,11 +33,12 @@ public class Domain extends Solitaire {
 		PlacementGenerator places = new VerticalPlacement(new Point(400, 10),
 				card_width, card_height, card_gap);
 
-		Foundation found= new Foundation(places);
+		Foundation found= new Foundation();
 		found.add (new Pile());
 		found.add (new Pile());
 		found.add (new Pile());
 		found.add (new Pile());
+		placeContainer(found, places);
 		containers.put(SolitaireContainerTypes.Foundation, found);
 
 		Point[] anchors = new Point[8];
@@ -49,7 +50,7 @@ public class Domain extends Solitaire {
 		}
 		places = new CalculatedPlacement(anchors, 380, card_height); /* 380 = 73*5 + .. */
 
-		Tableau tableau = new Tableau(places);
+		Tableau tableau = new Tableau();
 		tableau.add (new Row());
 		tableau.add (new Row());
 		tableau.add (new Row());
@@ -58,6 +59,7 @@ public class Domain extends Solitaire {
 		tableau.add (new Row());
 		tableau.add (new Row());
 		tableau.add (new Row());
+		placeContainer(tableau, places);
 		containers.put(SolitaireContainerTypes.Tableau, tableau);
 
 		// defaults to 1 deck. And is not visible

@@ -52,11 +52,11 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
       val waste = solitaire.containers.get(SolitaireContainerTypes.Waste)
 
-      val sw:Python = layout_place_stock_and_waste(stock, waste)
+      val sw:Python = layout_place_stock_and_waste(solitaire, stock, waste)
 
       // when placing a single element in Layout, use this API
-      val fd:Python = layout_place_foundation(found)
-      val cs:Python = layout_place_tableau(tableau)
+      val fd:Python = layout_place_foundation(solitaire,found)
+      val cs:Python = layout_place_tableau(solitaire,tableau)
 
       // Need way to simply concatenate Python blocks
       val comb = Python(sw.getCode.toString ++ cs.getCode.toString ++ fd.getCode.toString)

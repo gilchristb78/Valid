@@ -89,18 +89,18 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
 
       // start by constructing the DeckView
       // If deck is invisible, then place invisibly
-      val dw:Python = if (stock.isInvisible) {
+      val dw:Python = if (!solitaire.isVisible(stock)) {    //         (stock.isInvisible) {
         Python(s"""|
                    |x, y = self.getInvisibleCoords()
                    |s.talon = InitialDealTalonStack(x, y, self)
                    |""".stripMargin)
       } else {
-        layout_place_stock(stock)
+        layout_place_stock(solitaire,stock)
       }
 
       // when placing a single element in Layout, use this API
-      val fd:Python = layout_place_foundation(found)
-      val cs:Python = layout_place_tableau(tableau)
+      val fd:Python = layout_place_foundation(solitaire,found)
+      val cs:Python = layout_place_tableau(solitaire, tableau)
 
       // Need way to simply concatenate Python blocks
       val comb = Python(dw.getCode.toString ++ cs.getCode.toString ++ fd.getCode.toString)

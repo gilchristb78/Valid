@@ -27,7 +27,7 @@ public class Domain extends Solitaire {
         PlacementGenerator places = new HorizontalPlacement(new Point(15, 200),
                 card_width, 13*card_height, card_gap);
 
-        Tableau tableau = new Tableau(places);
+        Tableau tableau = new Tableau();
         tableau.add (new Column());
         tableau.add (new Column());
         tableau.add (new Column());
@@ -38,17 +38,21 @@ public class Domain extends Solitaire {
         tableau.add (new Column());
         tableau.add (new Column());
         tableau.add (new Column());
+        placeContainer(tableau, places);
 
         containers.put(SolitaireContainerTypes.Tableau, tableau);
 
         places = new HorizontalPlacement(new Point(15, 20),
                 card_width, card_height, card_gap);
-        Stock stock = new Stock(places);
+        Stock stock = new Stock();
+        placeContainer(stock, places);
         containers.put(SolitaireContainerTypes.Stock, stock);
 
         places = new HorizontalPlacement(new Point(293, 20),
                 card_width, card_height, card_gap);
-        Foundation found = new Foundation(places);
+        Foundation found = new Foundation();
+        placeContainer(found, places);
+
         found.add (new Pile());
         found.add (new Pile());
         found.add (new Pile());
@@ -57,7 +61,8 @@ public class Domain extends Solitaire {
 
         places = new HorizontalPlacement(new Point(95, 20),
                 card_width, card_height, card_gap);
-        Waste waste = new Waste(places);
+        Waste waste = new Waste();
+        placeContainer(waste, places);
         waste.add (new WastePile());
         containers.put(SolitaireContainerTypes.Waste, waste);
 

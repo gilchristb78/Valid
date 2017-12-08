@@ -19,7 +19,7 @@ public class Container implements Iterable<Element> {
 	ArrayList<Element> elements = new ArrayList<>();
 
 	/** Iterator for placing widgets in container. */
-	final PlacementGenerator places;
+	//final PlacementGenerator places;
 
 	/**
 	 * Default constructor for subclasses (i.e., Stock) which may be present in the model
@@ -28,7 +28,7 @@ public class Container implements Iterable<Element> {
 	 * Use this only for non-visible Containers (again, only likely for Stock)
 	 */
 	public Container() {
-		places = new NonexistentPlaceement();
+
 	}
 
 	/**
@@ -38,25 +38,27 @@ public class Container implements Iterable<Element> {
 	 *
 	 * @param places   Iterator for placement of widgets
 	 */
-	public Container(PlacementGenerator places) {
-		this.places = places;
-	}
-
+//	@Deprecated
+//	private Container(PlacementGenerator places) {
+//		this.places = places;
+//	}
 
     /**
      * Retrieve Iterator of Widgets reflecting the elements in the container.
 	 *
      * @return    Widget objects, each with their boundaries and index into the container.
      */
-	public Iterator<Widget> placements() {
-		places.reset(size());
-		return places;
-	}
+//	@Deprecated
+//    private Iterator<Widget> placements() {
+//		places.reset(size());
+//		return places;
+//	}
 
 	/** Some containers have no visible presence (as detected by no widgets in placements). */
-	public boolean isInvisible() {
-		return !placements().hasNext();
-	}
+//    @Deprecated
+//    private boolean isInvisible() {
+//		return !placements().hasNext();
+//	}
 
 	/** Return the size of the container. */
 	public int size() {
