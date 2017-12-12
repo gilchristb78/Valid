@@ -9,6 +9,7 @@ import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Python
 import domain.deal.DealComponents
+import domain.deal.map.{MapByRank, MapBySuit, MapCard}
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 
 object constraintCodeGenerators  {
@@ -93,9 +94,10 @@ object constraintCodeGenerators  {
         Python(s"""${registry(isAce.element).get}.rank == 0""")
     },
 
+    // suits are 0..3
     CodeGeneratorRegistry[Python, IsSuit] {
       case (registry: CodeGeneratorRegistry[Python], isSuit: IsSuit) =>
-        Python(s"""${registry(isSuit.element).get}.suit == ${isSuit.suit.value}""")
+        Python(s"""${registry(isSuit.element).get}.suit == (${isSuit.suit.value}-1)""")
     },
 
     /** PySolFC has Ace as 0, and King as 12. */
@@ -195,6 +197,22 @@ object constraintCodeGenerators  {
       case (registry:CodeGeneratorRegistry[Python],not:NotConstraint) =>
         Python(s"""not (${registry(not.constraint).get})""")
     })
+
+
+  // used for map expressions
+  val mapGenerators:CodeGeneratorRegistry[Python] = CodeGeneratorRegistry.merge[Python](
+    CodeGeneratorRegistry[Python, MapByRank] {
+      case (_:CodeGeneratorRegistry[Python], _:MapByRank) =>
+        Python(s"""card.rank""")
+    },
+
+    CodeGeneratorRegistry[Python, MapBySuit] {
+      case (_:CodeGeneratorRegistry[Python], _:MapBySuit) =>
+        Python(s"""card.suit""")
+    },
+
+  )
+
 }
 
 // Before this was for a move() Java SemanticType. For now, placeholder with tpe
@@ -212,3 +230,18 @@ class ConstraintExpander(c:Constraint, tpe:Type) extends PythonSemanticTypes {
   var semanticType: Type = constraints(constraints.generator) =>: tpe
 }
 
+
+
+/** When used, it isn't important what semantic Type is, which is why we omit it. */
+class MapExpressionCombinator(m:MapCard) extends PythonSemanticTypes {
+
+  def apply(generators: CodeGeneratorRegistry[Python]): Python = {
+    val cc3: Option[Python] = generators(m)
+    if (cc3.isEmpty) {
+      constraintCodeGenerators.logger.error("MapExpressionCombinator: Unable to locate:" + m.toString)
+      Python("false")
+    } else {
+      cc3.get
+    }
+  }
+}

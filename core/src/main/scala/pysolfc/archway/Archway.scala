@@ -1,4 +1,4 @@
-package pysolfc.klondike
+package pysolfc.archway
 
 import _root_.java.nio.file.Path
 import javax.inject.Inject
@@ -7,17 +7,17 @@ import de.tu_dortmund.cs.ls14.Persistable
 import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
 import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.twirl.Python
-import domain.klondike.Domain
+import domain.archway.Domain
 import org.webjars.play.WebJarsUtil
 
-class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Archway @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
   val domainModel = new Domain()
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
-  lazy val repository = new KlondikeDomain(domainModel) with controllers {}
+  lazy val repository = new ArchwayDomain(domainModel) with controllers {}
   import repository._
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), domainModel)
 
@@ -36,4 +36,5 @@ class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   }
 
   lazy val results:Results = Results.addAll(jobs.run())
+
 }

@@ -12,7 +12,6 @@ import pysolfc.shared.GameTemplate
 // domain
 import domain._
 
-
 /**
   * @param solitaire    Application domain object with details about solitaire variation.
   */
@@ -44,6 +43,13 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     val semanticType: Type = constraints(constraints.generator)
   }
 
+  /**
+    * Deal may require additional generators.
+    */
+  @combinator object DefaultDealGenerator {
+    def apply: CodeGeneratorRegistry[Python] = constraintCodeGenerators.mapGenerators
+    val semanticType: Type = constraints(constraints.map)
+  }
 
   /**
     * Specialized methods to help out in processing constraints. Specifically,
@@ -80,35 +86,35 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
   }
 
 
-  @combinator object InitView {
-    def apply(): Python = {
-
-      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
-      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
-      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
-
-      // start by constructing the DeckView
-      // If deck is invisible, then place invisibly
-      val dw:Python = if (!solitaire.isVisible(stock)) {    //         (stock.isInvisible) {
-        Python(s"""|
-                   |x, y = self.getInvisibleCoords()
-                   |s.talon = InitialDealTalonStack(x, y, self)
-                   |""".stripMargin)
-      } else {
-        layout_place_stock(solitaire,stock)
-      }
-
-      // when placing a single element in Layout, use this API
-      val fd:Python = layout_place_foundation(solitaire,found)
-      val cs:Python = layout_place_tableau(solitaire, tableau)
-
-      // Need way to simply concatenate Python blocks
-      val comb = Python(dw.getCode.toString ++ cs.getCode.toString ++ fd.getCode.toString)
-      comb
-    }
-
-    val
-
-    semanticType: Type = game(game.view)
-  }
+//  @combinator object InitView {
+//    def apply(): Python = {
+//
+//      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+//      val found = solitaire.containers.get(SolitaireContainerTypes.Foundation)
+//      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
+//
+//      // start by constructing the DeckView
+//      // If deck is invisible, then place invisibly
+//      val dw:Python = if (!solitaire.isVisible(stock)) {    //         (stock.isInvisible) {
+//        Python(s"""|
+//                   |x, y = self.getInvisibleCoords()
+//                   |s.talon = InitialDealTalonStack(x, y, self)
+//                   |""".stripMargin)
+//      } else {
+//        layout_place_stock(solitaire,stock)
+//      }
+//
+//      // when placing a single element in Layout, use this API
+//      val fd:Python = layout_place_foundation(solitaire,found)
+//      val cs:Python = layout_place_tableau(solitaire, tableau)
+//
+//      // Need way to simply concatenate Python blocks
+//      val comb = Python(dw.getCode.toString ++ cs.getCode.toString ++ fd.getCode.toString)
+//      comb
+//    }
+//
+//    val
+//
+//    semanticType: Type = game(game.view)
+//  }
 }

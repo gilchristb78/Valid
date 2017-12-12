@@ -31,6 +31,9 @@ public class Domain extends Solitaire {
 	public Domain() {
 		super ("BeleagueredCastle");
 
+		// we intend to be solvable
+		setSolvable(true);
+
 		// register new elements for this domain
 		registerElement(new Row());
 
@@ -104,7 +107,7 @@ public class Domain extends Solitaire {
 		addDragMove(tableauToFoundation);
 
 		// Filter all aces out and add back on top
-		addDealStep(new FilterStep(new IsAce(DealComponents.Card)));
+		addDealStep(new FilterStep(new IsAce(DealComponents.Card), 4));
 
 		// deal aces first
 		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Foundation, found)));

@@ -1,8 +1,9 @@
-package pysolfc.klondike
+package pysolfc.archway
 
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Python
+import domain.castle.SufficientFree
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{PythonSemanticTypes, constraintCodeGenerators}
@@ -14,17 +15,12 @@ import domain._
 /**
   * @param solitaire    Application domain object with details about solitaire variation.
   */
-class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with PythonSemanticTypes {
+class ArchwayDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with PythonSemanticTypes {
 
   /**
     * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
-   */
-  @combinator object klondikeID extends IdForGame(pygames.klondike)
-
-  @combinator object OutputFile {
-    def apply: String = "klondike"
-    val semanticType:Type = game(pysol.fileName)
-  }
+    */
+  @combinator object castleID extends IdForGame(pygames.archway)
 
   /**
     * NO special constraints just yet
@@ -43,6 +39,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   }
 
 
+
   /**
     * Specialized methods to help out in processing constraints. Specifically,
     * these are meant to be generic, things like getTableua, getReserve()
@@ -50,7 +47,14 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   @combinator object HelperMethodsCastle {
     def apply: Python = Python("")
 
-    val semanticType: Type = constraints(constraints.methods)
+     val semanticType: Type = constraints(constraints.methods)
   }
+
+
+  @combinator object OutputFile {
+    def apply: String = "archway"
+    val semanticType:Type = game(pysol.fileName)
+  }
+
 
 }

@@ -22,6 +22,9 @@ public class Domain extends Solitaire {
 	public Domain() {
 		super ("Archway");
 
+		// we intend to be solvable
+		setSolvable(true);
+
 		// register new elements for this domain
 		registerElement(new AcesUpPile());
 		registerElement(new KingsDownPile());

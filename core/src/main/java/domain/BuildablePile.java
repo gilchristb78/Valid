@@ -7,4 +7,6 @@ public class BuildablePile extends Element {
 	public int getSize() {
 		return count;
 	}
+
+	public boolean viewOneAtATime() { return false; }
 }

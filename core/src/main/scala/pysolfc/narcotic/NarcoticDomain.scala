@@ -27,7 +27,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType:Type = game(pysol.fileName)
   }
 
-  object castleCodeGenerator {
+  object narcoticCodeGenerator {
     val generators:CodeGeneratorRegistry[Python] = CodeGeneratorRegistry.merge[Python](
 
       CodeGeneratorRegistry[Python, ToLeftOf] {
@@ -49,11 +49,19 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   /**
     * Castle requires specialized extensions for constraints to work.
     */
-  @combinator object CastleGenerator {
+  @combinator object NarcoticGenerator {
     def apply: CodeGeneratorRegistry[Python] = {
-      castleCodeGenerator.generators
+      narcoticCodeGenerator.generators
     }
     val semanticType: Type = constraints(constraints.generator)
+  }
+
+  /**
+    * Deal may require additional generators.
+    */
+  @combinator object DefaultDealGenerator {
+    def apply: CodeGeneratorRegistry[Python] = constraintCodeGenerators.mapGenerators
+    val semanticType: Type = constraints(constraints.map)
   }
 
   /**
@@ -78,25 +86,25 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
     val semanticType: Type = constraints(constraints.methods)
   }
-
-  @combinator object InitView {
-    def apply(): Python = {
-
-      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
-      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
-
-      val sw:Python = layout_place_stock(solitaire, stock)
-
-      // when placing a single element in Layout, use this API
-      val cs:Python = layout_place_tableau(solitaire, tableau)
-
-      // Need way to simply concatenate Python blocks
-      val comb = Python(sw.getCode.toString ++ cs.getCode.toString)
-      comb
-    }
-
-    val
-
-    semanticType: Type = game(game.view)
-  }
+//
+//  @combinator object InitView {
+//    def apply(): Python = {
+//
+//      val tableau = solitaire.containers.get(SolitaireContainerTypes.Tableau)
+//      val stock = solitaire.containers.get(SolitaireContainerTypes.Stock)
+//
+//      val sw:Python = layout_place_stock(solitaire, stock)
+//
+//      // when placing a single element in Layout, use this API
+//      val cs:Python = layout_place_tableau(solitaire, tableau)
+//
+//      // Need way to simply concatenate Python blocks
+//      val comb = Python(sw.getCode.toString ++ cs.getCode.toString)
+//      comb
+//    }
+//
+//    val
+//
+//    semanticType: Type = game(game.view)
+//  }
 }

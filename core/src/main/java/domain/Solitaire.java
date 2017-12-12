@@ -76,6 +76,11 @@ public abstract class Solitaire {
     public boolean hasAutoMoves() { return autoMovesAvailable; }
     public void setAutoMoves(boolean b) { autoMovesAvailable = b; }
 
+    /** Is this solvable. */
+    boolean solvable = false;
+    public boolean isSolvable() { return solvable; }
+    public void setSolvable(boolean b) { solvable = b;}
+
     /** Deal information. */
     Deal deal = new Deal();
     public Deal   getDeal() { return deal; }

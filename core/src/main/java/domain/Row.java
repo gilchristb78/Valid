@@ -6,4 +6,6 @@ public class Row extends Column {
     public Row() {
         setVerticalOrientation(false);
     }
+
+    public boolean viewOneAtATime() { return false; }
 }

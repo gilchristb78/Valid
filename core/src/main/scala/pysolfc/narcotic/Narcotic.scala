@@ -9,7 +9,6 @@ import de.tu_dortmund.cs.ls14.git.InhabitationController
 import de.tu_dortmund.cs.ls14.twirl.Python
 import domain.narcotic.Domain
 import org.webjars.play.WebJarsUtil
-import pysolfc.shared.GameTemplate
 
 class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
 
@@ -18,15 +17,13 @@ class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
-  lazy val repository = new NarcoticDomain(domainModel) with GameTemplate {}
+  lazy val repository = new NarcoticDomain(domainModel) with controllers {}
   import repository._
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), domainModel)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
     Gamma.InhabitationBatchJob[(Python, Path)](game(complete))
-        .addJob[(Python, Path)](game(pysol.initFile))
-
   /**
     * Tell the framework to store stuff of type (Python, Path) at the location specified in Path.
     * The Path is relative to the Git repository.

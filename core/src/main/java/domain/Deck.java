@@ -7,4 +7,6 @@ public class Deck extends Element {
 	public int getSize() {
 		return count;
 	}
+
+	public boolean viewOneAtATime() { return true; }
 }

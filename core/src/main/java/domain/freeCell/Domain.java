@@ -33,6 +33,8 @@ public class Domain extends Solitaire {
 	public Domain() {
 		super ("FreeCell");
 
+		// we intend to be solvable
+		setSolvable(true);
 
 		// register new elements for this domain
 		registerElement(new FreePile());

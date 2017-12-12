@@ -28,6 +28,10 @@ public class Domain extends Solitaire {
 
 	public Domain() {
 		super ("Idiot");
+
+		// we intend to be solvable
+		setSolvable(true);
+
 		StockTableauLayout lay = new StockTableauLayout();
 
 		Tableau tableau = new Tableau();

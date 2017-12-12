@@ -42,10 +42,21 @@ GET   /pyexample/raw_:number            example.PythonExample.raw(number: Long)
 GET   /pyexample/prepare                example.PythonExample.prepare(number: Long)
 GET   /pyexample/pyexample.git/*file    example.PythonExample.serveFile(file)
 
+GET   /pyarchway                        pysolfc.archway.Archway.overview()
+GET   /pyarchway/raw_:number             pysolfc.archway.Archway.raw(number: Long)
+GET   /pyarchway/prepare                 pysolfc.archway.Archway.prepare(number: Long)
+GET   /pyarchway/pyarchway.git/*file      pysolfc.archway.Archway.serveFile(file)
+
 GET   /pycastle                         pysolfc.castle.Castle.overview()
 GET   /pycastle/raw_:number             pysolfc.castle.Castle.raw(number: Long)
 GET   /pycastle/prepare                 pysolfc.castle.Castle.prepare(number: Long)
 GET   /pycastle/pycastle.git/*file      pysolfc.castle.Castle.serveFile(file)
+
+GET   /pyfreecell                         pysolfc.freecell.FreeCell.overview()
+GET   /pyfreecell/raw_:number             pysolfc.freecell.FreeCell.raw(number: Long)
+GET   /pyfreecell/prepare                 pysolfc.freecell.FreeCell.prepare(number: Long)
+GET   /pyfreecell/pyfreecell.git/*file      pysolfc.freecell.FreeCell.serveFile(file)
+
 
 GET   /pyklondike                         pysolfc.klondike.Klondike.overview()
 GET   /pyklondike/raw_:number             pysolfc.klondike.Klondike.raw(number: Long)

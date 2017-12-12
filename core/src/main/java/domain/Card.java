@@ -19,4 +19,6 @@ public class Card extends Element {
 	}
 
 	public Card () { }
+
+	public boolean viewOneAtATime() { return true; }
 }

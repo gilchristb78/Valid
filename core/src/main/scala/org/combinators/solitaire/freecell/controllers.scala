@@ -16,7 +16,6 @@ trait controllers extends shared.Controller with GameTemplate with shared.Moves 
     var updated = super.init(gamma, s)
     println (">>> FreeCell controllers dynamic combinators.")
 
-
     updated = createMoveClasses(updated, s)
 
     updated = createDragLogic(updated, s)

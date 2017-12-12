@@ -31,5 +31,7 @@ trait PythonSemanticTypes extends SemanticTypes {
     val castle:Int = 99000
     val klondike:Int = 99001
     val narcotic:Int = 99002
+    val archway:Int = 99003
+    val freecell:Int = 99004
   }
 }
