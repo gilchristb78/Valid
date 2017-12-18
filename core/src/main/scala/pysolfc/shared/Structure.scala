@@ -6,7 +6,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Python
 import domain.constraints.{Falsehood, OrConstraint}
 import domain._
-import domain.moves.{DeckDealMove, ResetDeckMove}
+import domain.moves.{DeckDealMove, RemoveMultipleCardsMove, RemoveSingleCardMove, ResetDeckMove}
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.PythonSemanticTypes
@@ -104,7 +104,7 @@ trait Structure extends PythonSemanticTypes {
 
     updated = updated
       .addCombinator(new PythonFieldConstruction(s, drag_handler_map))
-      .addCombinator(new PythonLocalClassConstruction(s, drag_handler_map))
+      .addCombinator(new PythonLocalClassConstruction(s, drag_handler_map, press_handler_map))
       .addCombinator(new PythonStockConstruction(s, press_handler_map))
 
     updated
@@ -170,10 +170,10 @@ trait Structure extends PythonSemanticTypes {
     * is useful, but this doesn't match all games, so we likely have to detach entirely and create our
     * own custom Talon class
     *
-    * @param s       solitaire domain
-    * @param map     dragMap
+    * @param s           solitaire domain
+    * @param dragMap     dragMap of events
     */
-  class PythonLocalClassConstruction(s:Solitaire, map:Map[Container, List[Move]]) {
+  class PythonLocalClassConstruction(s:Solitaire, dragMap:Map[Container, List[Move]], pressMap:Map[Container, List[Move]]) {
 
     def apply(generators: CodeGeneratorRegistry[Python]): Python = {
       var stmts:Seq[Python] = Seq.empty
@@ -181,8 +181,11 @@ trait Structure extends PythonSemanticTypes {
       // the DragMap container has as its key the container for which a drag is completing. This will
       // therefore miss those widgets which are press-only (or initiating of drags only).
       var processedContainers:Seq[Container] = Seq.empty
-      map.keys.foreach { container =>
-        val list: List[Move] = map(container)
+
+
+
+      dragMap.keys.foreach { container =>
+        val list: List[Move] = dragMap(container)
 
         // only grab the constraints (source or target) if the respective source or target is container
         var srcCons:Seq[Constraint] = Seq.empty
@@ -204,7 +207,7 @@ trait Structure extends PythonSemanticTypes {
         val srcOr: OrConstraint = new OrConstraint(srcCons: _*)
         val targetOr: OrConstraint = new OrConstraint(targetCons: _*)
 
-        val one:Python = oneClass(s, generators, container, srcOr, targetOr)
+        val one:Python = oneClass(s, generators, container, srcOr, targetOr, pressMap.get(container))
         processedContainers = processedContainers :+ container
 
         // what about containers which are never the start of a move
@@ -212,16 +215,17 @@ trait Structure extends PythonSemanticTypes {
       }
 
       // find those containers which had been involved, but only as recipient.
-      map.keys.foreach { container =>
-        val list: List[Move] = map(container)
+      dragMap.keys.foreach { container =>
+        val list: List[Move] = dragMap(container)
         val srcCons: List[Constraint] = list.map(x => x.getSourceConstraint)
 
         list.foreach { move =>
           val src: Container = move.getSourceContainer
           if (!processedContainers.contains(src)) {
             processedContainers = processedContainers :+ src
+
             val srcOr: OrConstraint = new OrConstraint(srcCons: _*)
-            val two: Python = oneClass(s, generators, src, srcOr, new OrConstraint(new Falsehood()))
+            val two: Python = oneClass(s, generators, src, srcOr, new OrConstraint(new Falsehood()), pressMap.get(container))
 
             stmts = stmts :+ two
           }
@@ -252,15 +256,84 @@ trait Structure extends PythonSemanticTypes {
     * Make sure not to construct the same class TWICE. This might happen, for example, when there
     * is an element to which you cannot Drag, but which can be the start of a drag.
     *
-    * Note each visible talon needs own class
+    * Note each visible talon needs own class.
+    *
+    * There MAY be optional press actions for these containers, which are passed in, and would be handled
+    * by raw clickHandler
     */
-  def oneClass(s:Solitaire, generators: CodeGeneratorRegistry[Python], container:Container, srcOr:OrConstraint, targetOr:OrConstraint): Python = {
-   // var name = "None"
-    //var base = "None"
+  def oneClass(s:Solitaire, generators: CodeGeneratorRegistry[Python], container:Container,
+               srcOr:OrConstraint, targetOr:OrConstraint, pressList:Option[List[Move]]): Python = {
 
-    // these are the or constraints for release
+    // these are the OR constraints for press/release drag moves
     val press: Python = generators(srcOr).get
     val release: Python = generators(targetOr).get
+
+    // these are the actions triggered just by a Press.
+    val justPressedHeaderStmts =
+      s"""
+         |# -1 means continue as drag; 1 means handled; 0 means ignore?
+         |def clickHandler(self, event):
+       """.stripMargin
+    var actions:String = ""
+    if (pressList.isDefined) {
+
+      for (m <- pressList.get) {
+        val cons: Python = generators(m.getSourceConstraint).get
+        val src = m.getSourceContainer
+
+        // hack to expand
+        val source = src match {
+          case _: Tableau => "tableau()"
+
+          case _: Waste => "waste()"
+
+        }
+
+        // here is where we deal with these ones...
+        m match {
+          case rm: RemoveMultipleCardsMove =>
+
+            actions = actions +
+              s"""
+                 |from_stack = self.cards
+                 |if $cons:
+                 |    numRemoved = 0
+                 |    for st in $source:
+                 |        if len(st.cards) > 0:
+                 |            numRemoved = numRemoved + 1
+                 |            st.moveMove(1, garbage())
+                 |    return numRemoved
+                 |else:
+                 |    return -1
+              """.stripMargin
+
+          case rs: RemoveSingleCardMove =>
+            actions = actions +
+              s"""
+                 |from_stack = self.cards
+                 |if $cons:
+                 |    if len(self.cards) > 0:
+                 |        numRemoved = numRemoved + 1
+                 |        self.moveMove(1, garbage())
+                 |        return 1
+                 |    else:
+                 |        return 0
+                 |else:
+                 |    return -1
+              """.stripMargin
+        }
+      }
+    }
+    val justPressedStmts = Python(actions)
+    val justPress:Python = if (actions == "") {
+      Python("")
+    } else {
+      Python(
+        s"""
+           |$justPressedHeaderStmts
+           |${justPressedStmts.indent}
+       """.stripMargin)
+    }
 
     // get the type of element contained within the container.
     val element:Element = container.iterator().next
@@ -269,7 +342,7 @@ trait Structure extends PythonSemanticTypes {
     var base = "None"
 
     // map Domain types into PySolFC types. This is in wrong place. Make Code Generator extension
-    // HACK
+    // HACK. TODO: FIX THIS
     element match {
       case c:Column =>
         base = "SequenceRowStack"
@@ -306,6 +379,8 @@ trait Structure extends PythonSemanticTypes {
                    |        if len(cards) == 0:
                    |            return False
                    |        return $press
+                   |
+                   |${justPress.indent.getCode}
                    |
                    |    def acceptsCards(self, from_stack, cards):
                    |        # protect against empty moves

@@ -121,6 +121,10 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
            |
            |${view.indent.getCode}
            |
+           |    # in case cards need to vanish
+           |    gx, gy = self.getInvisibleCoords()
+           |    self.garbage = WasteStack(gx, gy, self, max_accept=999999, max_cards=999999)
+           |
            |    # complete layout
            |    l.defaultAll()
            |${extra.indent.getCode}
@@ -191,6 +195,9 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
                    |
                    |# stored instance created, for use by helper methods
                    |solgame = [None]
+                   |
+                   |def garbage():
+                   |    return solgame[0].garbage
                    |
                    |# ************************************************************************
                    |# * $name
