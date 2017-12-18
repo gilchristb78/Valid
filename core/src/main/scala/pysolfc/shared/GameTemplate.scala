@@ -156,16 +156,24 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
 
       val defaultDeck = 1
       var numDecks = 0
+      // 0 = invisible; 1 = just deal once; -1 means infinite redeals
+      var deckArrangement = 1
       for (container <- sol.containers.values.asScala) {
         container match {
           case stock:Stock =>
             numDecks = stock.numDecks
+            if (!sol.isVisible(stock)) {
+              deckArrangement = 0
+            } else {
+              deckArrangement = -1   // HACK: Support unlimited redeals. need to place this info in Domain
+            }
 
           case _ =>
         }
       }
 
       if (numDecks == 0) { numDecks = defaultDeck }
+
       val code =
         Python(s"""|__all__ = []
                    |
@@ -201,7 +209,9 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
                    |${startGame.indent.getCode}
                    |
                    |# register the game (the fifth parameter records number of decks)
-                   |registerGame(GameInfo($id, $name, "My$name", GI.GT_1DECK_TYPE, $numDecks, 0, GI.SL_MOSTLY_SKILL))
+                   |# The sixth parameter is the number of redeals allowed. Make -1 to be maximally flexible and
+                   |# depend on logic to deny. If 0 then invisible deck.
+                   |registerGame(GameInfo($id, $name, "My$name", GI.GT_1DECK_TYPE, $numDecks, $deckArrangement, GI.SL_MOSTLY_SKILL))
                    |""".stripMargin)
       (code, Paths.get(fileName + ".py"))
     }

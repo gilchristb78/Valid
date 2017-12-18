@@ -38,6 +38,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
       },
 
+      // always going to be the tableau
       CodeGeneratorRegistry[Python, AllSameRank] {
         case (_:CodeGeneratorRegistry[Python], _:AllSameRank) =>
           Python(s"""allSameRank()""")
@@ -73,11 +74,23 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
       val helpers:Seq[Python] = Seq(generateHelper.tableau(),
 
         Python(s"""
-                  |def toLeftOf (destination, source):
+                  |def toLeftOf (targetCards, source):
+                  |    for t in tableau():
+                  |        if t == source:
+                  |            return False
+                  |        if t.cards == targetCards:
+                  |            return True
                   |    return False
                   |
                   |def allSameRank():
-                  |    return False
+                  |    top = tableau()[0].cards
+                  |    if len(top) == 0:
+                  |	    return False
+                  |    for t in tableau():
+                  |        next = t.cards[-1]
+                  |        if next.rank != top[-1].rank:
+                  |            return False
+                  |    return True
                   |""".stripMargin)
       )
 

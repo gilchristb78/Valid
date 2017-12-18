@@ -1,11 +1,12 @@
 package pysolfc.shared
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Python
 import domain.constraints.{Falsehood, OrConstraint}
 import domain._
+import domain.moves.{DeckDealMove, ResetDeckMove}
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.PythonSemanticTypes
@@ -80,38 +81,31 @@ trait Structure extends PythonSemanticTypes {
         drag_handler_map -= tgtBase
         drag_handler_map += (tgtBase -> newList)
       }
+    }
 
+    val press_rules_it = s.getRules.presses
+    while (press_rules_it.hasNext) {
+      val press_move = press_rules_it.next()
       // handle press events
-      val srcBase = inner_move.getSourceContainer
+      val srcBase = press_move.getSourceContainer
 
       if (!press_handler_map.contains(srcBase)) {
-        press_handler_map += (srcBase -> List(inner_move))
+        press_handler_map += (srcBase -> List(press_move))
       } else {
         val old: List[Move] = press_handler_map(srcBase)
-        val newList: List[Move] = old :+ inner_move
+        val newList: List[Move] = old :+ press_move
         press_handler_map -= srcBase
         press_handler_map += (srcBase -> newList)
       }
     }
 
-    //
-    //    drag_handler_map.keys.foreach { container =>
-    //      val list: List[Move] = drag_handler_map(container)
-    //
-    //      val srcCons: List[Constraint] = list.map(x => x.sourceConstraint)
-    //      val targetCons: List[Constraint] = list.map(x => x.targetConstraint)
-    //
-    //      val srcOr: OrConstraint = new OrConstraint(srcCons: _*)
-    //      val targetOr: OrConstraint = new OrConstraint(targetCons: _*)
-    //
-    //      updated = updated
-    //        .addCombinator(new PythonLocalClassConstruction(s, container, srcOr, targetOr))
-    //        .addCombinator(new PythonFieldConstruction(s, container))
-    //    }
+    // TODO: Press events that do not involve STOCK are to be handled by LocalClassConstruction;
+    // only
 
     updated = updated
       .addCombinator(new PythonFieldConstruction(s, drag_handler_map))
       .addCombinator(new PythonLocalClassConstruction(s, drag_handler_map))
+      .addCombinator(new PythonStockConstruction(s, press_handler_map))
 
     updated
   }
@@ -132,7 +126,49 @@ trait Structure extends PythonSemanticTypes {
 
 
   /**
+    * Handle press events...
+    *
+    *
+    * handle press actions. These currently fall into a number of cases:
+    * (a) DealDeckMove; (b) ResetDeck; (c) FlipCardMove; (d) RemoveSingleCardMove; (e) RemoveMultipleCardsMove
+    */
+  class PythonStockConstruction(s:Solitaire, map:Map[Container, List[Move]]) {
+
+    def apply(generators: CodeGeneratorRegistry[Python]): Python = {
+      var stmts:Seq[Python] = Seq.empty
+
+      // the pressMap container has as its key the container for which a press is initiated. For
+      // Deck Deal, the target receives the cards. For ResetDeck, the target represents the source
+      map.keys.foreach { container =>
+        val list: List[Move] = map(container)
+
+        container match {
+          case st: Stock =>
+
+            val one: Python = talonClass(s, generators, container, list)
+            stmts = stmts :+ one
+
+          case _ =>
+
+        }
+
+        // what about containers which are never the start of a move
+
+      }
+
+      // convert into one mega statement
+      Python(stmts.mkString("\n"))
+    }
+
+    val semanticType:Type = constraints(constraints.generator) =>: game(pysol.pressClasses)
+  }
+
+  /**
     * All widget elements with specialized logic need their own subclasses.
+    *
+    * Decks need to handled specially. In PySolFC, there is a fundamental TalonWaste combination, which
+    * is useful, but this doesn't match all games, so we likely have to detach entirely and create our
+    * own custom Talon class
     *
     * @param s       solitaire domain
     * @param map     dragMap
@@ -196,7 +232,16 @@ trait Structure extends PythonSemanticTypes {
       Python(stmts.mkString("\n"))
     }
 
-    val semanticType:Type = constraints(constraints.generator) =>: game(pysol.classes)
+    val semanticType:Type = constraints(constraints.generator) =>: game(pysol.dragClasses)
+  }
+
+  @combinator object CombinePressDrag {
+    def apply(head:Python, tail:Python):Python = {
+
+      Python(s"""|${head.getCode}
+                 |${tail.getCode}""".stripMargin)
+    }
+    val semanticType:Type = game(pysol.pressClasses) =>: game(pysol.dragClasses) =>: game(pysol.classes)
   }
 
 
@@ -206,6 +251,8 @@ trait Structure extends PythonSemanticTypes {
     *
     * Make sure not to construct the same class TWICE. This might happen, for example, when there
     * is an element to which you cannot Drag, but which can be the start of a drag.
+    *
+    * Note each visible talon needs own class
     */
   def oneClass(s:Solitaire, generators: CodeGeneratorRegistry[Python], container:Container, srcOr:OrConstraint, targetOr:OrConstraint): Python = {
    // var name = "None"
@@ -241,31 +288,16 @@ trait Structure extends PythonSemanticTypes {
       case f:Foundation =>
         base = "AbstractFoundationStack"   // but when within a Foundation, it becomes AbstractFoundationStack
 
+      case st:Stock =>
+        // have to extend Talon which has different kinds of extensions.
+        val talonStmts =
+          s"""
+             |
+           """.stripMargin
+        return Python(talonStmts)
+
       case _ => // ignore everything else.
     }
-
-    // Makes a quick mapping from container type into class names
-//    if (container == s.containers.get(SolitaireContainerTypes.Foundation)) {
-//      name = "MyFoundation"
-//      base = "AbstractFoundationStack"
-//    }
-//    if (container == s.containers.get(SolitaireContainerTypes.Tableau)) {
-//      name = "MyTableau"
-//      base = "SequenceRowStack"
-//    }
-//    if (container == s.containers.get(SolitaireContainerTypes.Stock)) {
-//      name = "MyTalon"
-//      base = "TalonStack"
-//    }
-//    if (container == s.containers.get(SolitaireContainerTypes.Reserve)) {
-//      name = "MyReerve"
-//      base = "ReserveStack"
-//    }
-//    // unlikely to have DRAG bring release to waste pile; here for press
-//    if (container == s.containers.get(SolitaireContainerTypes.Waste)) {
-//      name = "MyWaste"
-//      base = "SequenceRowStack"
-//    }
 
     val stmts = s"""
                    |class ${name}Stack($base):
@@ -285,6 +317,98 @@ trait Structure extends PythonSemanticTypes {
     Python(stmts)
   }
 
+  /**
+    * This becomes the 'de factor' controller for the Talon. Instead of using 'or' to allow conditions, we
+    * need to synthesize full groups
+    *
+    * SAMPLE:
+    *
+    * class MyTalonStack(TalonStack):
+    *
+    * def canDealCards(self):
+    *    return True
+		*
+	  * # can act on mouse press
+    * def dealCards(self, sound=False, shuffle=False):
+    *   if self.cards:
+    *       self.dealToStacks(tableau())
+    *    else:
+    *        # reset Deck
+    *        for st in tableau():
+    *            if len(st.cards) > 0:
+    *                for card in st.cards:
+    *                    card.showBack()
+    *                st.moveMove(len(st.cards), self)
+    *
+    * if CONDITION:
+    *    DOMOVE
+    * if CONDITION:
+    *    DOMOVE
+    */
+  def talonClass(s:Solitaire, generators: CodeGeneratorRegistry[Python], container:Container, list:List[Move]): Python = {
 
+    // For each of the cases, have to generate constraints
+    var actions:String = ""
+    for (m <- list) {
+      val cons:Python = generators(m.getSourceConstraint).get
+      val tgt = m.getTargetContainer.get
 
+      // hack to expand
+      val target = tgt match {
+        case _:Tableau => "tableau()"
+
+        case _:Waste => "waste()"
+
+      }
+
+      m match {
+        case dm: DeckDealMove =>
+            actions = actions +
+              s"""
+                 |from_stack = self.cards
+                 |if $cons:
+                 |    self.dealToStacks($target)
+                 |    return
+              """.stripMargin
+
+        case rd: ResetDeckMove =>
+            actions = actions +
+              s"""
+                 |from_stack = self.cards
+                 |if $cons:
+                 |    for st in $target:
+                 |        if len(st.cards) > 0:
+                 |            for card in st.cards:
+                 |                card.showBack()
+                 |            st.moveMove(len(st.cards), self)
+                 |    return
+                 |""".stripMargin
+      }
+    }
+
+    // Only interested in DeckMove and ResetDeckMove for now
+
+    // get the type of element contained within the container.
+    val element:Element = container.iterator().next
+    val tpe:String = container.types.next
+    val name:String = "My" + tpe
+    val dealAction:Python = Python(actions)
+
+    val stmts = s"""
+                   |class ${name}Stack(TalonStack):
+                   |
+                   |    def __init__(self, x, y, game, max_rounds=-1, num_deal=1):
+                   |        TalonStack.__init__(self, x, y, game, max_rounds=max_rounds, num_deal=num_deal)
+                   |
+                   |    def canDealCards(self):
+                   |        return True
+                   |
+                   |    # can act on mouse press
+                   |    def dealCards(self, sound=False, shuffle=False):
+                   |${dealAction.indent.indent.getCode}
+                   |
+                   |""".stripMargin
+
+    Python(stmts)
+  }
 }

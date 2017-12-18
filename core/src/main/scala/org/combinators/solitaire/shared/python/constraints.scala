@@ -28,6 +28,9 @@ object constraintCodeGenerators  {
         if (mc == MoveComponents.Source) {
           Python(s"""from_stack""")
         } else if (mc == MoveComponents.Destination) {
+          // If you make it 'self' it could work with with Narcotic 'toLeftOf' by using .x attributes
+          // and it would be consistent with 'from_stack' above. However, the IsEmpty(...) depends
+          // on having self.cards, so we have to make this self.cards
           Python(s"""self.cards""")
         } else if (mc == MoveComponents.MovingCard) {
           Python(s"""cards[0]""")
@@ -137,7 +140,6 @@ object constraintCodeGenerators  {
       case (registry: CodeGeneratorRegistry[Python], bottom:BottomCardOf) =>
         Python(s"""${registry(bottom.base).get}[0]""")
     },
-
 
     CodeGeneratorRegistry[Python, AlternatingColors] {
       case (registry: CodeGeneratorRegistry[Python], alternating: AlternatingColors) =>

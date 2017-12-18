@@ -1,6 +1,7 @@
 package domain.moves;
 
 import domain.*;
+import domain.constraints.Truth;
 
 /**
  * A number of cards are dealt from the Stock one at a time
@@ -11,8 +12,8 @@ public class DeckDealMove extends ActualMove {
     /**
      * Determine conditions for moving column of cards from src to target. 
      */
-    public DeckDealMove (String name, Container src, Constraint srcCons, Container target, Constraint tgtCons) {
-        super(name, src, srcCons, target, tgtCons);
+    public DeckDealMove (String name, Container src, Constraint srcCons, Container target) {
+        super(name, src, srcCons, target, new Truth());
     }
 
     /** By definition will allow multiple cards to be moved. Less relevant for deck, but at least consistent. */
@@ -29,7 +30,7 @@ public class DeckDealMove extends ActualMove {
      *
      * Even though no card is dragged, this is accurate.
      */
-    public Element   getMovableElement() {
+    public Element getMovableElement() {
         return new Card();
     }
 }

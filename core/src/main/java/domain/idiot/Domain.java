@@ -74,7 +74,7 @@ public class Domain extends Solitaire {
 
 		// deal four cards from Stock
 		NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
-		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau, new Truth());
+		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau);
 		addPressMove(deckDeal);
 
 		// deal four cards out, one to each of the tableau

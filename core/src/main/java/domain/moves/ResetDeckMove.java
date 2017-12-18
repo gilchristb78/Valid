@@ -1,6 +1,7 @@
 package domain.moves;
 
 import domain.*;
+import domain.constraints.Truth;
 
 /**
  * Deck is reconstituted from the target elements.
@@ -10,8 +11,8 @@ public class ResetDeckMove extends ActualMove {
     /**
      * Determine conditions for resetting deck. 
      */
-    public ResetDeckMove (String name, Container src, Constraint srcCons, Container target, Constraint tgtCons) {
-        super(name, src, srcCons, target, tgtCons);
+    public ResetDeckMove (String name, Container src, Constraint srcCons, Container target) {
+        super(name, src, srcCons, target, new Truth());
     }
 
     /** By definition will allow multiple cards to be moved. Less relevant for deck but at least consistent. */

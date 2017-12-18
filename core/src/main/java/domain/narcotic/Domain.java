@@ -71,11 +71,11 @@ public class Domain extends Solitaire {
 
 		// deal four cards from Stock
 		NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
-		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau, new Truth());
+		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau);
 		addPressMove(deckDeal);
 
 		// reset deck by pulling together all cards from the piles.
-		ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), tableau, new Truth());
+		ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), tableau);
 		addPressMove(deckReset);
 
 		// Each one gets a single faceup Card

@@ -117,12 +117,12 @@ public class Domain extends Solitaire {
 
         // Deal card from deck
         NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
-        DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, waste, new Truth());
+        DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, waste);
         addPressMove(deckDeal);
 
         // reset deck if empty. Move is triggered by press on stock.
         // this creates DeckToPile, as in the above DeckDealMove.
-        ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), waste, new Truth());
+        ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), waste);
         addPressMove(deckReset);
 
         // Deal Logic

@@ -22,6 +22,8 @@ trait PythonSemanticTypes extends SemanticTypes {
     val createGame:Type = 'CreateGame
     val startGame:Type = 'StartGame
     val classes:Type = 'ClassDefinitions
+    val dragClasses:Type = 'DragClassDefinitions
+    val pressClasses:Type = 'PressClassDefinitions
     val structure:Type = 'Structure
 
     val initFile:Type = 'InitFile
