@@ -58,7 +58,8 @@ trait Initialization extends PythonSemanticTypes{
       var suitCheck:String = ""
       var destination:String = ""
 
-      // These are the confirmed concepts that PySolFC uses.
+      // These are the confirmed concepts that PySolFC uses. Note Waste and Talon are singletons, while others are lists []
+      var singleton = false
       c match {
         case _:Foundation =>
           suitCheck = s", suit=${r.idx}"
@@ -69,9 +70,11 @@ trait Initialization extends PythonSemanticTypes{
 
         case _:Stock =>
           destination = "s.talon"
+          singleton = true
 
         case _:Waste =>
           destination = "s.waste"
+          singleton = true
 
         case _:Reserve =>
           destination = "s.reserves"
@@ -84,8 +87,17 @@ trait Initialization extends PythonSemanticTypes{
       combined = combined +
         s"""|$objName=My${name}Stack(${r.x}, ${r.y}, self $suitCheck, max_move=0)
             |$offsets
-            |$destination.append($objName)
             |""".stripMargin
+
+      if (singleton) {
+        combined = combined + s"""|
+                                   |$destination = $objName
+                                  |""".stripMargin
+      } else {
+        combined = combined + s"""|
+                                   |$destination.append($objName)
+                                  |""".stripMargin
+      }
     }
     Python(combined)
   }
@@ -156,25 +168,25 @@ trait Initialization extends PythonSemanticTypes{
     Python(combined)
   }
 
-  /** Waste takes its structure from existing classWasteStack. Need to deal with rounds/num deal at a time. */
-  def layout_place_stock_and_waste(s:Solitaire, stock:Container, waste:Container): Python = {
-    var combined = ""
-
-    for (r <- s.placements(stock).asScala) {
-      combined = combined +
-        s"""
-           |s.talon =  WasteTalonStack(${r.x}, ${r.y}, self, max_rounds=1, num_deal=1)
-                  """.stripMargin
-    }
-
-    for (r <- s.placements(waste).asScala) {
-      combined = combined +
-        s"""
-           |s.waste =  WasteStack(${r.x}, ${r.y}, self)
-            """.stripMargin
-    }
-    Python(combined)
-  }
+//  /** Waste takes its structure from existing classWasteStack. Need to deal with rounds/num deal at a time. */
+//  def layout_place_stock_and_waste(s:Solitaire, stock:Container, waste:Container): Python = {
+//    var combined = ""
+//
+//    for (r <- s.placements(stock).asScala) {
+//      combined = combined +
+//        s"""
+//           |s.talon =  WasteTalonStack(${r.x}, ${r.y}, self, max_rounds=1, num_deal=1)
+//                  """.stripMargin
+//    }
+//
+//    for (r <- s.placements(waste).asScala) {
+//      combined = combined +
+//        s"""
+//           |s.waste =  WasteStack(${r.x}, ${r.y}, self)
+//            """.stripMargin
+//    }
+//    Python(combined)
+//  }
 
 //  /** Some games use a stock only to store cards which are all dealt out. */
 //  def layout_invisible_stock(stock:Container): Python = {
@@ -200,8 +212,8 @@ trait Initialization extends PythonSemanticTypes{
     def apply(): Python = {
 
       var stmts: Python = Python("")
-      var stock:Option[Stock] = None
-      var waste:Option[Waste] = None
+//      var stock:Option[Stock] = None
+//      var waste:Option[Waste] = None
 
       for (containerType: ContainerType <- sol.containers.keySet.asScala) {
         val container = sol.containers.get(containerType)
@@ -221,8 +233,8 @@ trait Initialization extends PythonSemanticTypes{
 //            stmts = Python(stmts.getCode.toString ++ rp.getCode.toString)
 
             // If we see a Waste, there must be a Stock as well.
-          case w: Waste =>
-            waste = Some(w)
+//          case w: Waste =>
+//            waste = Some(w)
 
           case s: Stock =>
             if (!sol.isVisible(s)) { // If invisible, can't be part of stock/waste pairing

@@ -62,6 +62,17 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
                 |    return solgame[0].s.rows
          """.stripMargin)
     }
+
+    /**
+      * Helper method for the ConstraintHelper class. Note that waste is a singleton so this has to be returned as a list for
+      * being used with existing classes.
+      */
+    def waste() : Python = {
+      Python(s"""
+                |def waste():
+                |    return [solgame[0].s.waste]
+         """.stripMargin)
+    }
   }
 
 
@@ -198,6 +209,7 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
                    |
                    |def garbage():
                    |    return solgame[0].garbage
+                   |
                    |
                    |# ************************************************************************
                    |# * $name

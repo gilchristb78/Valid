@@ -6,7 +6,7 @@ import de.tu_dortmund.cs.ls14.cls.types.syntax._
 import de.tu_dortmund.cs.ls14.twirl.Python
 import domain.constraints.{Falsehood, OrConstraint}
 import domain._
-import domain.moves.{DeckDealMove, RemoveMultipleCardsMove, RemoveSingleCardMove, ResetDeckMove}
+import domain.moves._
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.PythonSemanticTypes
@@ -321,6 +321,20 @@ trait Structure extends PythonSemanticTypes {
                  |else:
                  |    return -1
               """.stripMargin
+
+          case flip: FlipCardMove =>
+            actions = actions +
+              s"""
+                 |from_stack = self.cards
+                 |if $cons:
+                 |    if len(self.cards) > 0:
+                 |        self.flipMove()
+                 |        return 1
+                 |    else:
+                 |        return 0
+                 |else:
+                 |    return -1
+              """.stripMargin
         }
       }
     }
@@ -428,7 +442,7 @@ trait Structure extends PythonSemanticTypes {
       val cons:Python = generators(m.getSourceConstraint).get
       val tgt = m.getTargetContainer.get
 
-      // hack to expand
+      // hack to expand. TODO: FIX THIS CENTRALLY
       val target = tgt match {
         case _:Tableau => "tableau()"
 

@@ -20,7 +20,7 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   /**
     * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
    */
-  @combinator object narcoticID extends IdForGame(pygames.klondike)
+  @combinator object narcoticID extends IdForGame(pygames.narcotic)
 
   @combinator object OutputFile {
     def apply: String = "narcotic"

@@ -1,8 +1,9 @@
-package pysolfc.klondike
+package pysolfc.freecell
 
 import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
 import de.tu_dortmund.cs.ls14.cls.types.Type
 import de.tu_dortmund.cs.ls14.twirl.Python
+import domain.freeCell.SufficientFree
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{PythonSemanticTypes, constraintCodeGenerators}
@@ -14,23 +15,39 @@ import domain._
 /**
   * @param solitaire    Application domain object with details about solitaire variation.
   */
-class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with PythonSemanticTypes {
+class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with PythonSemanticTypes {
 
   /**
     * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
    */
-  @combinator object klondikeID extends IdForGame(pygames.klondike)
+  @combinator object freeCellID extends IdForGame(pygames.freecell)
 
   @combinator object OutputFile {
-    def apply: String = "klondike"
+    def apply: String = "freecell"
     val semanticType:Type = game(pysol.fileName)
   }
 
+  object freeCellCodeGenerator {
+    val generators:CodeGeneratorRegistry[Python] = CodeGeneratorRegistry.merge[Python](
+
+      CodeGeneratorRegistry[Python, SufficientFree] {
+        case (registry:CodeGeneratorRegistry[Python], c:SufficientFree) =>
+          val destination = registry(c.destination).get
+          val src = registry(c.src).get
+          Python(s"""sufficientFree($destination, $src)""")
+
+      },
+
+    ).merge(constraintCodeGenerators.generators)
+  }
+
   /**
-    * NO special constraints just yet
+    * Castle requires specialized extensions for constraints to work.
     */
-  @combinator object DefaultGenerator {
-    def apply: CodeGeneratorRegistry[Python] = constraintCodeGenerators.generators
+  @combinator object FreeCellGenerator {
+    def apply: CodeGeneratorRegistry[Python] = {
+      freeCellCodeGenerator.generators
+    }
     val semanticType: Type = constraints(constraints.generator)
   }
 
@@ -42,16 +59,22 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = constraints(constraints.map)
   }
 
-
   /**
     * Specialized methods to help out in processing constraints. Specifically,
     * these are meant to be generic, things like getTableua, getReserve()
     */
   @combinator object HelperMethodsCastle {
     def apply: Python = {
-      val helpers:Seq[Python] = Seq(generateHelper.tableau(), generateHelper.waste())
+      val helpers:Seq[Python] = Seq(generateHelper.tableau(),
 
-        Python(helpers.mkString("\n"))
+        Python(s"""
+                  |def sufficientFree (destination, source):
+                  |    return True
+                  |
+                  |""".stripMargin)
+      )
+
+      Python(helpers.mkString("\n"))
     }
 
     val semanticType: Type = constraints(constraints.methods)

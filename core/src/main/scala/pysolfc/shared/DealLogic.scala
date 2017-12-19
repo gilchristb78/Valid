@@ -122,7 +122,7 @@ trait DealLogic extends PythonSemanticTypes {
                     stmts = stmts +
                       s"""
                          |for _ in range($numCards):
-                         |    self.s.talon.dealRow(rows=[self.s.waste[$idx]], flip=$flip, frames=0)
+                         |    self.s.talon.dealRow(rows=self.s.waste[$idx], flip=$flip, frames=0)
                         """.stripMargin
 
                 }
