@@ -320,7 +320,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
 
       shared.controller.java.Controller.render(
         RootPackage = rootPackage,
-        Designate = new SimpleName(elementType.toString()),   // was name.... TODO: HACK
+        Designate = Java(elementType.toString).simpleName(),   // was name.... TODO: HACK
         NameOfTheGame = nameOfTheGame,
         AutoMoves = autoMoves,
         MouseClicked = mouseClicked,
