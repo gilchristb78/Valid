@@ -1,6 +1,6 @@
 package example.timeGadget
 
-import de.tu_dortmund.cs.ls14.cls.types.{Kinding, Omega, Variable}
+import org.combinators.cls.types.{Kinding, Omega, Variable}
 import time.TemperatureUnit
 
 trait VariableDeclarations { self: SemanticTypes =>

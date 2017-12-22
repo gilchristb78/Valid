@@ -4,10 +4,10 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.BodyDeclaration
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.cls.types.{Omega, Type}
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types.{Omega, Type}
+import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Java
 import time.TemperatureUnit
 
 trait Concepts extends SemanticTypes with VariableDeclarations {

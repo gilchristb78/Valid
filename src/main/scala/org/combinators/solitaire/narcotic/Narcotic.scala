@@ -1,21 +1,19 @@
 package org.combinators.solitaire.narcotic
 
-import java.nio.file.Path
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.Persistable
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.git.InhabitationController
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.types.syntax._
+import org.combinators.cls.git.{EmptyResults, InhabitationController}
 import org.webjars.play.WebJarsUtil
-
-import de.tu_dortmund.cs.ls14.java.JavaPersistable._
+import org.combinators.templating.persistable.JavaPersistable._
+import play.api.inject.ApplicationLifecycle
 
 // domain
 import domain._
 
-class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars){
+class Narcotic @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle){
 
   val s:Solitaire = new domain.narcotic.Domain()
 
@@ -41,6 +39,6 @@ class Narcotic @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
       .addJob[CompilationUnit](move('MoveCard :&: move.potential, complete))
 
 
-   lazy val results = Results.addAll(jobs.run())
+   lazy val results = EmptyResults().addAll(jobs.run())
 
 }

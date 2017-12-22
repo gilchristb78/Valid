@@ -3,10 +3,10 @@ package example.expression.covariant
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
+import org.combinators.cls.types.Type
+import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Java
 import example.expression.j.MethodMapper
 import example.expression.{Base, ExpressionDomain}
 import expression.data.{Add, Eval, Lit}

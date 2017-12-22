@@ -3,29 +3,27 @@ package example.timeGadget
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.`type`.{Type => JType}
-import com.github.javaparser.ast.expr.Expression
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.git.InhabitationController
-import de.tu_dortmund.cs.ls14.java.JavaPersistable._
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.git.{EmptyResults, InhabitationController}
+import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
+import play.api.inject.ApplicationLifecycle
 import time.{TemperatureUnit, TimeGadget}
 
-class TimeGadgetController @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class TimeGadgetController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
   val gadget = new TimeGadget("Worcester", "01609", TemperatureUnit.Fahrenheit)
 
   lazy val repository = new Concepts {}
   import repository._
   lazy val Gamma =
-    ReflectedRepository(repository, kinding=kinding, classLoader = this.getClass.getClassLoader)
+    ReflectedRepository(repository, substitutionSpace=kinding, classLoader = this.getClass.getClassLoader)
         .addCombinator(new CurrentTemperature(gadget.zip))
   lazy val combinatorComponents = Gamma.combinatorComponents
 
   lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](artifact(artifact.mainProgram, feature(feature.temperature(gadget.temperatureUnit))))
 
-  lazy val results = Results.addAll(jobs.run())
+  lazy val results = EmptyResults().addAll(jobs.run())
 }
 
 // sample code showing how to directly invoke, without web service.

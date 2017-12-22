@@ -1,7 +1,7 @@
 package example.expression.visitor
 
-import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.types.{Constructor, Type}
+import org.combinators.cls.types.syntax._
 import example.expression.j.MethodMapper
 import expression.{Exp, Operation}
 

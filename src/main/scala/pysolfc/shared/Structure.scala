@@ -1,9 +1,9 @@
 package pysolfc.shared
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Python
+import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
+import org.combinators.cls.types.Type
+import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Python
 import domain.constraints.{Falsehood, OrConstraint}
 import domain._
 import domain.moves._

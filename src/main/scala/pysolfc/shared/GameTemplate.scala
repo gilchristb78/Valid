@@ -2,13 +2,14 @@ package pysolfc.shared
 
 import java.nio.file.{Path, Paths}
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Python
+import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
+import org.combinators.cls.types.Type
+import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Python
 import domain.{Stock, _}
 import org.combinators.solitaire.shared.python.PythonSemanticTypes
 import org.combinators.solitaire.shared.{Base, SolitaireDomain}
+import org.combinators.templating.persistable.PythonWithPath
 
 import scala.collection.JavaConverters._
 
@@ -148,7 +149,7 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
 
 
   @combinator object InitIndex {
-    def apply(name:String) : (Python, Path) = {
+    def apply(name:String) : PythonWithPath = {
       val code =
         Python(s"""
                   |#!/usr/bin/env python
@@ -156,7 +157,7 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
                   |##---------------------------------------------------------------------------##
                   |import $name
                   |""".stripMargin)
-      (code, Paths.get("__init__.py"))
+      PythonWithPath(code, Paths.get("__init__.py"))
     }
 
     val semanticType:Type = game(pysol.fileName) =>: game(pysol.initFile)
@@ -167,7 +168,7 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
     def apply(name:String, id: String, fileName:String,
               helperMethods:Python,
               classDefs:Python, structure:Python, createGame: Python,
-              startGame: Python): (Python, Path) = {
+              startGame: Python): PythonWithPath = {
 
       val defaultDeck = 1
       var numDecks = 0
@@ -232,7 +233,7 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
                    |# depend on logic to deny. If 0 then invisible deck.
                    |registerGame(GameInfo($id, $name, "My$name", GI.GT_1DECK_TYPE, $numDecks, $deckArrangement, GI.SL_MOSTLY_SKILL))
                    |""".stripMargin)
-      (code, Paths.get(fileName + ".py"))
+      PythonWithPath(code, Paths.get(fileName + ".py"))
     }
     val semanticType:Type = variationName =>: gameID =>: game(pysol.fileName) =>:
       constraints(constraints.methods) =>: game(pysol.classes) =>:

@@ -2,8 +2,8 @@ package org.combinators.solitaire
 
 
 import org.scalatest._
-import de.tu_dortmund.cs.ls14.cls.types._
-import de.tu_dortmund.cs.ls14.cls.interpreter._
+import org.combinators.cls.types._
+import org.combinators.cls.interpreter._
 import syntax._
 
 class DynamicCombinatorTest extends FunSpec {

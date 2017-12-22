@@ -1,6 +1,6 @@
 package org.combinators.solitaire.castle
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import org.combinators.cls.interpreter.ReflectedRepository
 import domain._
 import org.combinators.generic
 import org.combinators.solitaire.shared

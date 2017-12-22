@@ -6,18 +6,18 @@ import com.github.javaparser.ast.`type`.{Type => JType}
 
 import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Java
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types.Type
+import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Java
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.types.Constructor
 import com.github.javaparser.ast.body.BodyDeclaration
 import scala.collection.mutable.ListBuffer
 import org.combinators.generic
-import de.tu_dortmund.cs.ls14.cls.types.Kinding
-import de.tu_dortmund.cs.ls14.cls.types.Variable
-import de.tu_dortmund.cs.ls14.cls.types.{Taxonomy, Type}
+import org.combinators.cls.types.Kinding
+import org.combinators.cls.types.Variable
+import org.combinators.cls.types.{Taxonomy, Type}
 
 
 // just to show that traits can pull in other combinators by extension

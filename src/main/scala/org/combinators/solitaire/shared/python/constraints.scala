@@ -2,12 +2,12 @@ package org.combinators.solitaire.shared.python
 
 import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
-import de.tu_dortmund.cs.ls14.cls.types.Type
+import org.combinators.cls.types.Type
 import domain.{Constraint, SolitaireContainerTypes}
 import domain.constraints._
 import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Python
+import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Python
 import domain.deal.DealComponents
 import domain.deal.map.{MapByRank, MapBySuit, MapCard}
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry

@@ -1,7 +1,7 @@
 package example.timeGadget
 
-import de.tu_dortmund.cs.ls14.cls.types._
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.types._
+import org.combinators.cls.types.syntax._
 import time.TemperatureUnit
 
 

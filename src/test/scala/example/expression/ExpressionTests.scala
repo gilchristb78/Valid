@@ -1,7 +1,7 @@
 package example.expression
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import org.combinators.cls.interpreter.ReflectedRepository
 import example.expression.visitor.{ExpressionSynthesis, Structure}
 import expression.DomainModel
 import expression.data.{Add, Eval, Lit}

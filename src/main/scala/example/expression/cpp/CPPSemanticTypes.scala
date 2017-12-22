@@ -2,8 +2,8 @@ package example.expression.cpp
 
 import expression.types.{FrameworkTypes, GenericType, TypeInformation, Types}
 import expression.{Exp, Operation}
-import de.tu_dortmund.cs.ls14.cls.types._
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.types._
+import org.combinators.cls.types.syntax._
 import example.expression.covariant.SemanticTypes
 
 /**

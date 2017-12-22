@@ -1,7 +1,7 @@
 package pysolfc.shared
 
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.twirl.Python
+import org.combinators.cls.types.Type
+import org.combinators.templating.twirl.Python
 import domain._
 import org.combinators.solitaire.shared.python.PythonSemanticTypes
 

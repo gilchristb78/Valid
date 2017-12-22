@@ -1,14 +1,14 @@
 package org.combinators.solitaire.idiot
 
-import de.tu_dortmund.cs.ls14.cls.interpreter._
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.interpreter._
+import org.combinators.cls.types.syntax._
 import domain.{Move, Solitaire, SolitaireContainerTypes}
 import domain.idiot.Domain
 import org.scalatest.FunSpec
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.expr.Name
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
+import org.combinators.cls.types.Constructor
 import test.Helper
 
 import scala.collection.JavaConverters._

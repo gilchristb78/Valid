@@ -5,11 +5,11 @@ import domain.constraints.movetypes.MoveComponents
 import com.github.javaparser.ast.body.BodyDeclaration
 import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types.syntax._
+import org.combinators.cls.types.Type
+import org.combinators.cls.types.Constructor
+import org.combinators.templating.twirl.Java
 import org.combinators.solitaire.shared
 import domain._
 import domain.moves._

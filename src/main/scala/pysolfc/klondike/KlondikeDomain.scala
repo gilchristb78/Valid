@@ -1,8 +1,8 @@
 package pysolfc.klondike
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.twirl.Python
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types.Type
+import org.combinators.templating.twirl.Python
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{PythonSemanticTypes, constraintCodeGenerators}

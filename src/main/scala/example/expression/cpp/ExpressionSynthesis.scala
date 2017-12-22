@@ -1,8 +1,8 @@
 package example.expression.cpp
 
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.cls.types._
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types._
 
 import example.expression.ExpressionDomain
 import expression._

@@ -1,5 +1,5 @@
 
-->    /                              shared.Routes
+->    /                              org.combinators.cls.git.Routes
 
 GET   /archway                      org.combinators.solitaire.archway.Archway.overview()
 GET   /archway/raw_:number          org.combinators.solitaire.archway.Archway.raw(number: Long)

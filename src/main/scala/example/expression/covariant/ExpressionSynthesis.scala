@@ -1,9 +1,9 @@
 package example.expression.covariant
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.cls.types._
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types._
+import org.combinators.templating.twirl.Java
 import example.expression.ExpressionDomain
 import expression._
 

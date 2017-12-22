@@ -3,17 +3,18 @@ package example.expression.covariant
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.git.InhabitationController
-import de.tu_dortmund.cs.ls14.java.JavaPersistable._
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.git.{EmptyResults, InhabitationController}
+import org.combinators.templating.persistable.JavaPersistable._
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
 import expression.{DomainModel, Exp}
 import org.webjars.play.WebJarsUtil
+import play.api.inject.ApplicationLifecycle
 
 // https://bitbucket.org/yanlinwang/ep_trivially/src/7086d91a45c92c1522ec4d6f0618c574c2e2d562/JavaCode/EP/src/interfaceversion/InterfaceVersion.java?at=master&fileviewer=file-view-default
 
-class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Expression @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
   // Configure the desired (sub)types and operations
   val model:DomainModel = new DomainModel()
@@ -33,7 +34,7 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
   lazy val repository = new ExpressionSynthesis(model) with Structure {}
   import repository._
 
-  var Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), model)
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), model)
 
   /** This needs to be defined, and it is set from Gamma. */
   lazy val combinatorComponents = Gamma.combinatorComponents
@@ -90,6 +91,6 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
 
 
 
-  lazy val results = Results.addAll(jobs.run())
+  lazy val results = EmptyResults().addAll(jobs.run())
 
 }

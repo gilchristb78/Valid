@@ -1,7 +1,7 @@
 package org.combinators
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types._
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.types._
 
 import scala.reflect.runtime.universe.{Type => _, _}
 

@@ -1,6 +1,6 @@
 package example.expression
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import org.combinators.cls.interpreter.ReflectedRepository
 import expression.DomainModel
 
 trait Base {

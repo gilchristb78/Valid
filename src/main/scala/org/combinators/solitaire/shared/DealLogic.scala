@@ -2,13 +2,13 @@ package org.combinators.solitaire.shared
 
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.types.Type
+import org.combinators.templating.twirl.Java
 import domain.Solitaire
 import domain.deal._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, ExpressionCombinator, MapExpressionCombinator}
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.types.syntax._
 
 import scala.collection.JavaConverters._
 

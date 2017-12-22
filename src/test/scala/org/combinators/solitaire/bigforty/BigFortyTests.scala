@@ -2,9 +2,9 @@ package org.combinators.solitaire.bigforty
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter._
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.interpreter._
+import org.combinators.cls.types.Constructor
+import org.combinators.cls.types.syntax._
 import domain.bigforty.Domain
 import domain.{Move, Solitaire, SolitaireContainerTypes}
 import org.scalatest.FunSpec

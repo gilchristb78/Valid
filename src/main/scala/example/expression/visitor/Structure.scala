@@ -1,6 +1,6 @@
 package example.expression.visitor
 
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.templating.twirl.Java
 import expression.{Exp, Operation}
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}

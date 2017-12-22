@@ -1,6 +1,6 @@
 package org.combinators.solitaire.shared
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import org.combinators.cls.interpreter.ReflectedRepository
 import domain._
 
 // Base trait for any trait using dynamic combinators. Assumes availability

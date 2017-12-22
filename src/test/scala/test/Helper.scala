@@ -2,7 +2,7 @@ package test
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.{MethodDeclaration, TypeDeclaration}
-import de.tu_dortmund.cs.ls14.cls.interpreter.InhabitationResult
+import org.combinators.cls.interpreter.InhabitationResult
 import org.scalatest._
 
 

@@ -3,10 +3,10 @@ package example.temperature
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.`type`.{Type => JType}
 import com.github.javaparser.ast.expr.Expression
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Java
-import de.tu_dortmund.cs.ls14.cls.types.Type
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Java
+import org.combinators.cls.types.Type
 
 trait Concepts extends SemanticTypes {
 

@@ -3,16 +3,17 @@ package example.expression.cpp
 import java.nio.file.{Path, Paths}
 import javax.inject.Inject
 
-import de.tu_dortmund.cs.ls14.Persistable
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.git.InhabitationController
+import org.combinators.templating.persistable.Persistable
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.git.{EmptyResults, InhabitationController}
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
 import expression.operations.SimplifyAdd
 import expression.{DomainModel, Exp}
 import org.webjars.play.WebJarsUtil
+import play.api.inject.ApplicationLifecycle
 
-class Expression_CPP @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Expression_CPP @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
   // Configure the desired (sub)types and operations
   val model:DomainModel = new DomainModel()
@@ -38,12 +39,12 @@ class Expression_CPP @Inject()(webJars: WebJarsUtil) extends InhabitationControl
   lazy val combinatorComponents = Gamma.combinatorComponents
 
   /**
-    * Tell the framework to store stuff of type (Python, Path) at the location specified in Path.
+    * Tell the framework to store stuff of type PythonWithPath at the location specified in Path.
     * The Path is relative to the Git repository.
     */
-  implicit def PersistInt: Persistable.Aux[CPPFile] = new Persistable {
+  implicit def PersistCPPFile: Persistable.Aux[CPPFile] = new Persistable {
     override def path(elem: CPPFile): Path = Paths.get(elem.fileName + ".cpp")
-    override def rawText(elem: CPPFile): String = elem.toString
+    override def rawText(elem: CPPFile): Array[Byte] = elem.toString.getBytes
     override type T = CPPFile
   }
 
@@ -51,6 +52,6 @@ class Expression_CPP @Inject()(webJars: WebJarsUtil) extends InhabitationControl
   // may prove challenging to have independent extensions...
   var jobs = Gamma.InhabitationBatchJob[CPPFile](module(module.base))
 
-  lazy val results = Results.addAll(jobs.run())
+  lazy val results = EmptyResults().addAll(jobs.run())
 
 }

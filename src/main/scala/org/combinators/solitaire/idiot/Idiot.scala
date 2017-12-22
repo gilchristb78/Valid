@@ -1,21 +1,20 @@
 package org.combinators.solitaire.idiot
 
 import javax.inject.Inject
-import java.nio.file.Path
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.Persistable
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.git.InhabitationController
-import de.tu_dortmund.cs.ls14.java.JavaPersistable._
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.types.syntax._
+import org.combinators.cls.git.{EmptyResults, InhabitationController, Results}
+import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
+import play.api.inject.ApplicationLifecycle
 
 // domain
 import domain._
 
 
-class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Idiot @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
   val s:Solitaire = new domain.idiot.Domain()
 
@@ -23,7 +22,7 @@ class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJa
   // import them all for use.
   lazy val repository = new gameDomain(s) with controllers {}
   import repository._
-  var Gamma:ReflectedRepository[gameDomain] = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
@@ -38,6 +37,6 @@ class Idiot @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJa
       // only need potential moves for those that are DRAGGING...
       .addJob[CompilationUnit](move('MoveCard :&: move.potential, complete))
 
-  lazy val results:Results = Results.addAll(jobs.run())
+  lazy val results = EmptyResults().addAll(jobs.run())
 
 }

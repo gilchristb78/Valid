@@ -5,12 +5,12 @@ import akka.event.{Logging, LoggingAdapter}
 import com.github.javaparser.ast.expr._
 import com.github.javaparser.ast.stmt._
 import com.github.javaparser.ast.body._
-import de.tu_dortmund.cs.ls14.cls.types.Type
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.cls.types.Type
+import org.combinators.templating.twirl.Java
 import domain._
 import domain.constraints._
 import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.types.syntax._
 import domain.deal.DealComponents
 import domain.deal.map.{MapByRank, MapBySuit, MapCard}
 import domain.moves._

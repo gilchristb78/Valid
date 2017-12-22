@@ -1,9 +1,9 @@
 package org.combinators.solitaire.archway
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.cls.interpreter._
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.interpreter._
+import org.combinators.cls.types.Constructor
+import org.combinators.cls.types.syntax._
 import domain.{Move, Solitaire, SolitaireContainerTypes}
 import domain.archway.{ArchwayContainerTypes, Domain}
 import org.scalatest.FunSpec

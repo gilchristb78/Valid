@@ -1,6 +1,6 @@
 package pysolfc.castle
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
+import org.combinators.cls.interpreter.ReflectedRepository
 import domain.Solitaire
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.python.PythonSemanticTypes

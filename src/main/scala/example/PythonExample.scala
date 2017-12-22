@@ -3,13 +3,14 @@ package example
 import javax.inject.Inject
 import _root_.java.nio.file.Paths
 
-import de.tu_dortmund.cs.ls14.twirl.Python
-import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.git.InhabitationController
+import org.combinators.templating.twirl.Python
+import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
+import org.combinators.cls.types.syntax._
+import org.combinators.cls.git.{EmptyResults, InhabitationController, Results}
 import org.webjars.play.WebJarsUtil
+import play.api.inject.ApplicationLifecycle
 
-class PythonExample @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class PythonExample @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
   trait Repository {
 
@@ -61,13 +62,13 @@ class PythonExample @Inject()(webJars: WebJarsUtil) extends InhabitationControll
   lazy val sjobs =
     Gamma.InhabitationBatchJob[String]('PersistThis)
 
-  lazy val results:Results = Results.add(sjobs.run(), Paths.get("a","b","c","sample"))
+  lazy val results:Results = EmptyResults().add(sjobs.run(), Paths.get("a","b","c","sample"))
 
 //
 //  lazy val jobs =
 //    Gamma.InhabitationBatchJob[Python]('Program)
 //
-//  lazy val results:Results = Results.add(jobs.run(), Paths.get("a","b","c","test.py"))
+//  lazy val results:Results = EmptyResults().add(jobs.run(), Paths.get("a","b","c","test.py"))
 
 
 }

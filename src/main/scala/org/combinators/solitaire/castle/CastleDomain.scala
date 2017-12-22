@@ -4,10 +4,10 @@ import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.interpreter.combinator
-import de.tu_dortmund.cs.ls14.cls.types._
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types._
+import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Java
 import domain.castle.SufficientFree
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}

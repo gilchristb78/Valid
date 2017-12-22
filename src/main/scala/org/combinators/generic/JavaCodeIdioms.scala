@@ -5,9 +5,9 @@ import com.github.javaparser.ast.`type`.{Type => JType}
 import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.cls.types.syntax._
+import org.combinators.cls.types.{Constructor, Type}
+import org.combinators.templating.twirl.Java
 
 trait JavaCodeIdioms {
 

@@ -1,7 +1,7 @@
 package org.combinators.solitaire.freecell
 
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.types.syntax._
 import domain._
 import org.combinators.generic
 import org.combinators.solitaire.shared

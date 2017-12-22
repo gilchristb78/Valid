@@ -3,18 +3,19 @@ package example.expression.visitor
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.git.InhabitationController
-import de.tu_dortmund.cs.ls14.java.JavaPersistable._
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.git.{EmptyResults, InhabitationController}
+import org.combinators.templating.persistable.JavaPersistable._
 import expression.data.{Add, Eval, Lit}
 import expression.extensions.{Collect, Neg, PrettyP, Sub}
 import expression.operations.SimplifyAdd
 import expression.{DomainModel, Exp, Operation}
 import org.webjars.play.WebJarsUtil
+import play.api.inject.ApplicationLifecycle
 
 import scala.collection.JavaConverters._
 
-class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Expression @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
   // Configure the desired (sub)types and operations
   // no need to add 'Exp' to the model, since assumed always to be there
@@ -37,22 +38,18 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
   lazy val repository = new ExpressionSynthesis(model) with Structure {}
   import repository._
 
-  var Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
+  lazy val Gamma = {
+    val base = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader)
+    val withExpressions =
+      domain.data.asScala.foldLeft(base) {
+        case (repo, sub) => repo.addCombinator(new BaseClass(sub)).addCombinator(new ImplClass(sub))
+      }
+    val withOps =
+      domain.ops.asScala.foldLeft(withExpressions) {
+        case (repo, op) => repo.addCombinator(new OpImpl(op))
+      }
 
-  // Programmatically add combinators based on domain model.
-  domain.data.asScala.foreach {
-    sub:Exp => {
-      Gamma = Gamma
-        .addCombinator (new BaseClass(sub))
-        .addCombinator (new ImplClass(sub))
-    }
-  }
-
-  domain.ops.asScala.foreach {
-    op:Operation => {
-      Gamma = Gamma
-        .addCombinator (new OpImpl(op))
-    }
+    withOps
   }
 
   /** This needs to be defined, and it is set from Gamma. */
@@ -70,5 +67,5 @@ class Expression @Inject()(webJars: WebJarsUtil) extends InhabitationController(
       .addJob[CompilationUnit](ops(ops.visitor, new Collect))
       .addJob[CompilationUnit](ops(ops.visitor, new SimplifyAdd))
 
-  lazy val results = Results.addAll(jobs.run())
+  lazy val results = EmptyResults().addAll(jobs.run())
 }

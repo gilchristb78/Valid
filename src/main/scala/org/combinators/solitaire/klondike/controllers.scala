@@ -2,12 +2,12 @@ package org.combinators.solitaire.klondike
 
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.types.syntax._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
-import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
-import de.tu_dortmund.cs.ls14.cls.types.{Constructor, Type}
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
+import org.combinators.cls.types.{Constructor, Type}
+import org.combinators.templating.twirl.Java
 import org.combinators.generic
 import domain._
 

@@ -4,12 +4,12 @@ import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
-import de.tu_dortmund.cs.ls14.cls.interpreter.{ReflectedRepository, combinator}
-import de.tu_dortmund.cs.ls14.cls.types._
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
+import org.combinators.cls.types._
+import org.combinators.cls.types.syntax._
 import org.combinators.solitaire.shared
 import org.combinators
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.templating.twirl.Java
 
 
 // domain

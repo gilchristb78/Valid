@@ -4,15 +4,16 @@ import java.nio.file.{Path, Paths}
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.Persistable
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.git.InhabitationController
-import de.tu_dortmund.cs.ls14.java.JavaPersistable._
+import org.combinators.templating.persistable.Persistable
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.types.syntax._
+import org.combinators.cls.git.{EmptyResults, InhabitationController}
+import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
+import play.api.inject.ApplicationLifecycle
 
 
-class Example @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Example @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
   // Start by defining repository of combinators
   // class is used (essentially) as a placeholder for the solitaire val,
@@ -23,7 +24,7 @@ class Example @Inject()(webJars: WebJarsUtil) extends InhabitationController(web
 
   // not needed yet since we do not have dynamic combinators
   // kinding is just a field access.
-  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader, kinding=repository.kindingSpecial.merge(repository.kindingAnother), semanticTaxonomy=repository.taxonomySpecial.merge(repository.taxonomyAnother))
+  lazy val Gamma = ReflectedRepository(repository, classLoader = this.getClass.getClassLoader, substitutionSpace=repository.kindingSpecial.merge(repository.kindingAnother), semanticTaxonomy=repository.taxonomySpecial.merge(repository.taxonomyAnother))
 
   /** This needs to be defined, and it is set from Gamma. */
   lazy val combinatorComponents = Gamma.combinatorComponents
@@ -42,9 +43,9 @@ class Example @Inject()(webJars: WebJarsUtil) extends InhabitationController(web
    */
   implicit def PersistInt: Persistable.Aux[Int] = new Persistable {
     override def path(elem: Int): Path = Paths.get(s"TheNumber_${elem}.txt")
-    override def rawText(elem: Int): String = elem.toString
+    override def rawText(elem: Int): Array[Byte] = elem.toString.getBytes
     override type T = Int
   }
-  lazy val results = Results.addAll(jobs.run())
+  lazy val results = EmptyResults().addAll(jobs.run())
 
 }

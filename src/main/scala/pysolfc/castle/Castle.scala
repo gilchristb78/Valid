@@ -3,14 +3,15 @@ package pysolfc.castle
 import _root_.java.nio.file.Path
 import javax.inject.Inject
 
-import de.tu_dortmund.cs.ls14.Persistable
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.git.InhabitationController
-import de.tu_dortmund.cs.ls14.twirl.Python
+import org.combinators.templating.persistable.PythonWithPath
+import org.combinators.templating.persistable.PythonWithPathPersistable._
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.git.{EmptyResults, InhabitationController, Results}
 import domain.castle.Domain
 import org.webjars.play.WebJarsUtil
+import play.api.inject.ApplicationLifecycle
 
-class Castle @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Castle @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
   val domainModel = new Domain()
 
@@ -23,18 +24,8 @@ class Castle @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJ
 
   lazy val combinatorComponents = Gamma.combinatorComponents
   lazy val jobs =
-    Gamma.InhabitationBatchJob[(Python, Path)](game(complete))
+    Gamma.InhabitationBatchJob[PythonWithPath](game(complete))
 
-  /**
-    * Tell the framework to store stuff of type (Python, Path) at the location specified in Path.
-    * The Path is relative to the Git repository.
-    */
-  implicit def PersistInt: Persistable.Aux[(Python, Path)] = new Persistable {
-    override def path(elem: (Python, Path)): Path = elem._2
-    override def rawText(elem: (Python, Path)): String = elem._1.getCode
-    override type T = (Python, Path)
-  }
-
-  lazy val results:Results = Results.addAll(jobs.run())
+  lazy val results:Results = EmptyResults().addAll(jobs.run())
 
 }

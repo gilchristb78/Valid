@@ -2,9 +2,9 @@ package org.combinators.solitaire.narcotic
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.expr.{Name, SimpleName}
-import de.tu_dortmund.cs.ls14.cls.interpreter._
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.cls.types.Constructor
+import org.combinators.cls.interpreter._
+import org.combinators.cls.types.syntax._
+import org.combinators.cls.types.Constructor
 import domain.{Move, Solitaire, SolitaireContainerTypes}
 import domain.narcotic.Domain
 import org.scalatest.FunSpec

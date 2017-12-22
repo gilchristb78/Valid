@@ -1,7 +1,7 @@
 package org.combinators.solitaire.shared
 
-import de.tu_dortmund.cs.ls14.cls.types._
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
+import org.combinators.cls.types._
+import org.combinators.cls.types.syntax._
 
 /**
   * These codify the semantic types necessary to do with Java version of solitaire.

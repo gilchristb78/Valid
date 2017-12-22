@@ -2,7 +2,7 @@ package example.expression.j
 
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.stmt.Statement
-import de.tu_dortmund.cs.ls14.twirl.Java
+import org.combinators.templating.twirl.Java
 import expression.types.{FrameworkTypes, GenericType, TypeInformation, Types}
 import expression.{Exp, Operation}
 

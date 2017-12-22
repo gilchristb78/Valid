@@ -1,20 +1,19 @@
 package org.combinators.solitaire.klondike
 
-import java.nio.file.Path
 import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
-import de.tu_dortmund.cs.ls14.Persistable
-import de.tu_dortmund.cs.ls14.cls.interpreter.ReflectedRepository
-import de.tu_dortmund.cs.ls14.cls.types.syntax._
-import de.tu_dortmund.cs.ls14.git.InhabitationController
-import de.tu_dortmund.cs.ls14.java.JavaPersistable._
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.types.syntax._
+import org.combinators.cls.git.{EmptyResults, InhabitationController, Results}
+import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
+import play.api.inject.ApplicationLifecycle
 
 // domain
 import domain._
 
-class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(webJars) {
+class Klondike @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
   /** Defined in Game trait. */
 //  lazy val repositoryPre = new game {}
@@ -53,6 +52,6 @@ class Klondike @Inject()(webJars: WebJarsUtil) extends InhabitationController(we
 
   //      .addJob[CompilationUnit]('Controller('Column))
 
-  lazy val results:Results = Results.addAll(jobs.run())
+  lazy val results:Results = EmptyResults().addAll(jobs.run())
 
 }
