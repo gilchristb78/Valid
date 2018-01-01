@@ -15,10 +15,10 @@ import java.util.stream.Stream;
  */
 public class TestSynthesis {
 
-    public static final String resources = "core" + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "routes";
+    public static final String resources = "src" + File.separator + "main" + File.separator + "resources" + File.separator + "routes";
 
-    // new directory each time, in home directory
-    public static final String destination = System.getProperty("user.dir") + File.separator + "synthesis-" + System.currentTimeMillis();
+    // new directory each time, in demo directory
+    public static final String destination = "demo" + File.separator + "synthesis-" + System.currentTimeMillis();
 
     public static final String standAlone =  "demo" + File.separator + "standAlone.jar";
 
@@ -68,11 +68,12 @@ public class TestSynthesis {
         String fs = File.separator;
         String[] args = new String[] { "javac", "-cp",
                 "\"" + jarFile + File.pathSeparator + ".\"",
+                //"-Xlint:unchecked",
                 "org" + fs + "combinators" + fs + "solitaire" + fs + variation + fs + "*.java"};
 
         try {
             Process proc = Runtime.getRuntime().exec(args, new String[0], dir);
-            proc.waitFor();
+
             System.out.println ("  Errors (if any):"); System.out.flush();
             Stream<String> err = new BufferedReader(new InputStreamReader(proc.getErrorStream())).lines();
             err.forEach(System.err::println); System.err.flush();
@@ -80,7 +81,7 @@ public class TestSynthesis {
             Stream<String> out = new BufferedReader(new InputStreamReader(proc.getInputStream())).lines();
             out.forEach(System.out::println);
             System.out.println ("  ----"); System.out.flush();
-
+            proc.waitFor();
             return true;
         } catch (Exception e) {
             System.err.println ("  Unable to exec:" + Arrays.toString(args));
@@ -107,7 +108,7 @@ public class TestSynthesis {
                 System.out.println ("  Compiled files [" + endTime() + "]");
             }
         } catch (Exception e) {
-            System.err.println ("  unable to synthesize:" + variation);
+            System.err.println ("  unable to synthesize:" + variation + "(" + e.getMessage() + ")");
         }
     }
 

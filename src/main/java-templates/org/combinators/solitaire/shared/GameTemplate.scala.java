@@ -84,7 +84,7 @@ class Entry {
     public String toString() { return solitaire.getName(); }
 }
 
-    static DefaultListModel<Entry> register(Class variation) {
+    static DefaultListModel<Entry> register(Class<?> variation) {
         DefaultListModel<Entry> model = new DefaultListModel<>();
         java.io.File ksDir = new java.io.File(System.getProperty("user.home"), ".ks");
         java.io.File file = new java.io.File(ksDir, variation.getCanonicalName());
@@ -126,12 +126,12 @@ class Entry {
 
     // force to be able to launch directly.
     public static void main(String[] args) {
-        DefaultListModel model = register(@Java(nameParameter) .class);
+        DefaultListModel<Entry> model = register(@Java(nameParameter) .class);
         final JFrame jf = new JFrame();
         JPanel jp = new JPanel();
         jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
         JButton jb = new JButton("Start");
-        JList jl = new JList(model);
+        JList<Entry> jl = new JList<Entry>(model);
         jl.setSelectedIndex(0);
         jp.add(jb);
         jp.add(new JLabel("Available Variations"));

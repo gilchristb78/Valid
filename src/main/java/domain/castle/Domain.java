@@ -29,7 +29,7 @@ public class Domain extends Solitaire {
 	}
 
 	public Domain() {
-		super ("BeleagueredCastle");
+		super ("Castle");
 
 		// we intend to be solvable
 		setSolvable(true);

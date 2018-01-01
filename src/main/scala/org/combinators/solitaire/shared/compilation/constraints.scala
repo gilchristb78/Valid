@@ -170,8 +170,8 @@ object constraintCodeGenerators  {
                |}""".stripMargin).classBodyDeclarations().mkString("\n")
     },
 
-    CodeGeneratorRegistry[String, ColumnMove] {
-      case (_:CodeGeneratorRegistry[String], m:ColumnMove) =>
+    CodeGeneratorRegistry[String, RowMove] {
+      case (_:CodeGeneratorRegistry[String], m:RowMove) =>
       val name = new SimpleName(m.getName)
       Java(s"""|Column movingRow;
                |int numInColumn;   // conform to superclass usage.
