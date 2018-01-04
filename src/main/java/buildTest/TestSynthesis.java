@@ -18,7 +18,7 @@ public class TestSynthesis {
     public static final String resources = "src" + File.separator + "main" + File.separator + "resources" + File.separator + "routes";
 
     // new directory each time, in demo directory
-    public static final String destination = "demo" + File.separator + "synthesis-" + System.currentTimeMillis();
+    public static final String destination = "demo" + File.separator + "solitaire";
 
     public static final String standAlone =  "demo" + File.separator + "standAlone.jar";
 
@@ -48,13 +48,13 @@ public class TestSynthesis {
         }
     }
 
-    static boolean compile(String variation) {
+    static boolean compile(String pkg, String mainClass) {
         File here = new File (".");
         String jarFile = here.getAbsoluteFile() + File.separator + standAlone;
 
-        File dir = new File (destination, variation);
+        File dir = new File (destination, pkg);
         if (!dir.exists()) {
-            System.err.println ("  unable to locate destination directory:" + destination + File.separator + variation);
+            System.err.println ("  unable to locate destination directory:" + destination + File.separator + pkg);
             return false;
         }
         dir = new File (dir, "src");
@@ -66,10 +66,10 @@ public class TestSynthesis {
         //run-bigforty: bigforty
         //        java -cp standAlone.jar:./bigforty/src/main/java org/combinators/solitaire/bigforty/BigForty
         String fs = File.separator;
-        String[] args = new String[] { "javac", "-cp",
-                "\"" + jarFile + File.pathSeparator + ".\"",
+        String[] args = new String[] { "javac",  "-cp",
+                jarFile + File.pathSeparator + ".",
                 //"-Xlint:unchecked",
-                "org" + fs + "combinators" + fs + "solitaire" + fs + variation + fs + "*.java"};
+                "org" + fs + "combinators" + fs + "solitaire" + fs + pkg + fs + mainClass + ".java"};
 
         try {
             Process proc = Runtime.getRuntime().exec(args, new String[0], dir);
@@ -89,8 +89,11 @@ public class TestSynthesis {
         }
     }
 
-    static void synthesize (String variation) {
+    static void synthesize (String pkgPlusVar) {
         try {
+            int idx = pkgPlusVar.indexOf('.');
+            String variation = pkgPlusVar.substring(0, idx);
+            String mainClass = pkgPlusVar.substring(idx+1);
             System.out.print ("  Attempting to synthesize " + variation + " [");
             startTime();
             URL url = new URL("http://localhost:9000/" + variation + "/prepare?number=0");
@@ -104,11 +107,11 @@ public class TestSynthesis {
                 System.out.println ("  Computed and retrieved git files [" + endTime() + "]");
 
                 startTime();
-                compile(variation);
+                compile(variation, mainClass);
                 System.out.println ("  Compiled files [" + endTime() + "]");
             }
         } catch (Exception e) {
-            System.err.println ("  unable to synthesize:" + variation + "(" + e.getMessage() + ")");
+            System.err.println ("  unable to synthesize:" + pkgPlusVar + "(" + e.getMessage() + ")");
         }
     }
 
@@ -126,12 +129,16 @@ public class TestSynthesis {
         Scanner sc = new Scanner(f);
         while (sc.hasNextLine()) {
             String s = sc.nextLine();
-            Pattern regex = Pattern.compile("GET\\s+/(\\w+)/prepare\\s+org\\.combinators\\.solitaire\\.");
+
+            // GET   /freecell/prepare              org.combinators.solitaire.freecell.FreeCell.prepare(number: Long)
+
+            Pattern regex = Pattern.compile("GET\\s+/(\\w+)/prepare\\s+org\\.combinators\\.solitaire\\.(\\w+)\\.(\\w+)\\.prepare");
             Matcher match = regex.matcher(s);
             if (match.find()) {
                 String name = match.group(1);
+                String mainClassName = match.group(3);
                 System.out.println ("  found:" + name);
-                variations.add(name);
+                variations.add(name + "." + mainClassName);
             }
         }
 
