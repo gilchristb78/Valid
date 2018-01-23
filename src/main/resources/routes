@@ -32,16 +32,6 @@ GET   /castle/raw_:number          org.combinators.solitaire.castle.Castle.raw(n
 GET   /castle/prepare              org.combinators.solitaire.castle.Castle.prepare(number: Long)
 GET   /castle/castle.git/*file  	  org.combinators.solitaire.castle.Castle.serveFile(file)
 
-GET   /example                      example.Example.overview()
-GET   /example/raw_:number          example.Example.raw(number: Long)
-GET   /example/prepare              example.Example.prepare(number: Long)
-GET   /example/example.git/*file    example.Example.serveFile(file)
-
-GET   /pyexample                        example.PythonExample.overview()
-GET   /pyexample/raw_:number            example.PythonExample.raw(number: Long)
-GET   /pyexample/prepare                example.PythonExample.prepare(number: Long)
-GET   /pyexample/pyexample.git/*file    example.PythonExample.serveFile(file)
-
 GET   /pyarchway                        pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number             pysolfc.archway.Archway.raw(number: Long)
 GET   /pyarchway/prepare                 pysolfc.archway.Archway.prepare(number: Long)
@@ -56,7 +46,6 @@ GET   /pyfreecell                         pysolfc.freecell.FreeCell.overview()
 GET   /pyfreecell/raw_:number             pysolfc.freecell.FreeCell.raw(number: Long)
 GET   /pyfreecell/prepare                 pysolfc.freecell.FreeCell.prepare(number: Long)
 GET   /pyfreecell/pyfreecell.git/*file      pysolfc.freecell.FreeCell.serveFile(file)
-
 
 GET   /pyklondike                         pysolfc.klondike.Klondike.overview()
 GET   /pyklondike/raw_:number             pysolfc.klondike.Klondike.raw(number: Long)
@@ -73,16 +62,6 @@ GET   /bigforty/raw_:number          org.combinators.solitaire.bigforty.BigForty
 GET   /bigforty/prepare              org.combinators.solitaire.bigforty.BigForty.prepare(number: Long)
 GET   /bigforty/bigforty.git/*file   org.combinators.solitaire.bigforty.BigForty.serveFile(file)
 
-GET   /ep                      example.expression.covariant.Expression.overview()
-GET   /ep/raw_:number          example.expression.covariant.Expression.raw(number: Long)
-GET   /ep/prepare              example.expression.covariant.Expression.prepare(number: Long)
-GET   /ep/ep.git/*file         example.expression.covariant.Expression.serveFile(file)
-
-GET   /expression                      example.expression.visitor.Expression.overview()
-GET   /expression/raw_:number          example.expression.visitor.Expression.raw(number: Long)
-GET   /expression/prepare              example.expression.visitor.Expression.prepare(number: Long)
-GET   /expression/expression.git/*file         example.expression.visitor.Expression.serveFile(file)
-
 GET   /temperature                          example.temperature.Temperature.overview()
 GET   /temperature/raw_:number              example.temperature.Temperature.raw(number: Long)
 GET   /temperature/prepare                  example.temperature.Temperature.prepare(number: Long)
@@ -92,9 +71,3 @@ GET   /timeGadget                          example.timeGadget.TimeGadgetControll
 GET   /timeGadget/raw_:number              example.timeGadget.TimeGadgetController.raw(number: Long)
 GET   /timeGadget/prepare                  example.timeGadget.TimeGadgetController.prepare(number: Long)
 GET   /timeGadget/timeGadget.git/*file    example.timeGadget.TimeGadgetController.serveFile(file)
-
-GET   /cpp_ep                              example.expression.cpp.Expression_CPP.overview()
-GET   /cpp_ep/raw_:number                  example.expression.cpp.Expression_CPP.raw(number: Long)
-GET   /cpp_ep/prepare                      example.expression.cpp.Expression_CPP.prepare(number: Long)
-GET   /cpp_ep/cpp_ep.git/*file             example.expression.cpp.Expression_CPP.serveFile(file)
-

@@ -39,7 +39,7 @@ class CastleTests extends FunSpec  {
           it ("Check for base classes") {
             assert(helper.singleClass("ConstraintHelper",    Gamma.inhabit[CompilationUnit](constraints(complete))))
 
-            assert(helper.singleClass("BeleagueredCastle",   Gamma.inhabit[CompilationUnit](game(complete :&: game.solvable))))
+            assert(helper.singleClass("Castle",              Gamma.inhabit[CompilationUnit](game(complete :&: game.solvable))))
             assert(helper.singleClass("RowController",       Gamma.inhabit[CompilationUnit](controller(row, complete))))
             assert(helper.singleClass("PileController",      Gamma.inhabit[CompilationUnit](controller(pile, complete))))
 
