@@ -22,10 +22,10 @@ class IdiotTests extends FunSpec  {
     describe("(using the only possible domain model)") {
       describe("the domain model") {
         it ("should have a tableau of size 4") {
-          assert(domainModel.containers.get(SolitaireContainerTypes.Tableau).size == 4)
+          assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Tableau).next().size() == 4)
         }
         it ("should have a deck") {
-          assert(domainModel.containers.get(SolitaireContainerTypes.Stock).size == 1)
+          assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Stock).next().size() == 1)
         }
 
         describe("For synthesis") {

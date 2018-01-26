@@ -45,7 +45,7 @@ public class UserInterface {
         ArrayList<String> elements = new ArrayList<>();
 
         /** Get each of the containers registered for the solitaire game. */
-        for (Container c : solitaire.containers.values()) {
+        for (Container c : solitaire.structure.values()) {
             Iterator<String> type_it = c.types();
             while (type_it.hasNext()) {
                 String typ = type_it.next();

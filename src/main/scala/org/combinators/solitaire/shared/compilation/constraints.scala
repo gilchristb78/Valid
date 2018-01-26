@@ -84,6 +84,18 @@ object constraintCodeGenerators  {
                  |}""".stripMargin).statements()
     },
 
+    CodeGeneratorRegistry[Seq[Statement], DeckDealNCardsMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], move:DeckDealNCardsMove) =>
+        var stmts:String = ""
+        for (_ <- 1 to move.numToDeal) {
+          stmts = stmts + "s.add (source.get());\n"
+        }
+
+        Java(s"""|for (Stack s : destinations) {
+                 |  $stmts
+                 |}""".stripMargin).statements()
+    },
+
     CodeGeneratorRegistry[Seq[Statement], ColumnMove] {
       case (_:CodeGeneratorRegistry[Seq[Statement]], _:ColumnMove) =>
         Java(s"""destination.push(movingColumn);""").statements()
@@ -220,6 +232,19 @@ object constraintCodeGenerators  {
       case (_:CodeGeneratorRegistry[Seq[Statement]], _:DeckDealMove) =>
         Java(s"""|for (Stack s : destinations) {
                  |  source.add(s.get());
+                 |}
+                 |return true;""".stripMargin).statements()
+    },
+
+    CodeGeneratorRegistry[Seq[Statement], DeckDealNCardsMove] {
+      case (_:CodeGeneratorRegistry[Seq[Statement]], move:DeckDealNCardsMove) =>
+        var stmts:String = ""
+        for (_ <- 1 to move.numToDeal) {
+          stmts = stmts + "source.add (s.get());\n"
+        }
+
+        Java(s"""|for (Stack s : destinations) {
+                 |  $stmts
                  |}
                  |return true;""".stripMargin).statements()
     },
@@ -532,8 +557,8 @@ object generateHelper {
     */
   def helpers(sol:Solitaire) : Seq[MethodDeclaration] = {
     var methods:Seq[MethodDeclaration] = Seq.empty
-    for (containerType:ContainerType <- sol.containers.keySet.asScala) {
-      val container = sol.containers.get(containerType)
+    for (containerType:ContainerType <- sol.structure.keySet.asScala) {
+      val container = sol.structure.get(containerType)
       val name = containerType.getName
 
       container match {

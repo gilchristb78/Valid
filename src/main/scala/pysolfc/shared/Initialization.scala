@@ -215,8 +215,8 @@ trait Initialization extends PythonSemanticTypes{
 //      var stock:Option[Stock] = None
 //      var waste:Option[Waste] = None
 
-      for (containerType: ContainerType <- sol.containers.keySet.asScala) {
-        val container = sol.containers.get(containerType)
+      for (containerType: ContainerType <- sol.structure.keySet.asScala) {
+        val container = sol.structure.get(containerType)
         val name = containerType.getName
         container match {
 

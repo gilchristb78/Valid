@@ -6,7 +6,7 @@ import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types.Type
 import org.combinators.templating.twirl.Java
-import domain.{Container, ContainerType, Solitaire, Stock}
+import domain._
 import org.combinators.solitaire.shared
 import org.combinators.cls.types.syntax._
 
@@ -102,18 +102,33 @@ trait Initialization extends SemanticTypes {
     *
     * @param cont        Actual container holding these widgets
     * @param modelName   The name of the variable name holding the element
+    * @param actual      Actual iterator of Element objects from the domain model
     * @param typ         The name of the Element class
     */
-  def loopConstructGen(cont: Container, modelName: String, typ:String): Seq[Statement] = {
+  def loopConstructGen(cont: Container, modelName: String, actual:Iterator[Element], typ:String): Seq[Statement] = {
     val nc = cont.size()
     val viewName = modelName + "View"
+
+    // In nearly EVERY case, the constructor is clean, but it really is up to the individual element.
+    // We should actually unroll the loop and process the iterator fully. Leave for another time
+    val element:Element = actual.next()
+
+    // TOTAL HACK: TODO: FIX UP WITH CLEANER INSTANTIATION
+    val constructor:String = element match  {
+      case fp:FanPile => {
+        val num:Int = fp.numToShow
+        s"""new ${typ}View($num, $modelName[j])"""
+      }
+
+      case _ => s"""new ${typ}View($modelName[j])"""
+    }
 
     Java(
       s"""
          |for (int j = 0; j < $nc; j++) {
          |  $modelName[j] = new $typ(${modelName}Prefix + (j+1));
          |  addModelElement ($modelName[j]);
-         |  $viewName[j] = new ${typ}View($modelName[j]);
+         |  $viewName[j] = $constructor;
          |}""".stripMargin).statements()
   }
 
@@ -134,8 +149,8 @@ trait Initialization extends SemanticTypes {
                            |IntegerView numLeftView;
              """.stripMargin).fieldDeclarations()
 
-      for (containerType:ContainerType <- sol.containers.keySet.asScala) {
-        val container = sol.containers.get(containerType)
+      for (containerType:ContainerType <- sol.structure.keySet.asScala) {
+        val container = sol.structure.get(containerType)
         container match {
 
           case d: Stock =>
@@ -157,23 +172,44 @@ trait Initialization extends SemanticTypes {
   /** Process Solitaire domain model to construct game(game.control). */
   class ProcessControl (sol:Solitaire) {
     def apply: Seq[Statement] = {
-      var stmts: Seq[Statement] = Seq.empty
-      for (containerType:ContainerType <- sol.containers.keySet.asScala) {
-        val container = sol.containers.get(containerType)
-        container match {
+     // var stmts: Seq[Statement] = Seq.empty
 
-          case d: Stock =>
-            if (sol.isVisible(d)) {  //   (!d.isInvisible) {
-              stmts = stmts ++ controllerGen(s"${containerType.getName}View", "DeckController")
-            }
+      sol.containers.asScala.flatMap {
+        container => {
+          val containerType = container.`type`
+          val part: Seq[Statement] = container match {
+            case d: Stock =>
+              if (sol.isVisible(d)) {
+                controllerGen(s"${containerType.getName}View", "DeckController")
+              } else {
+                Seq.empty
+              }
 
-          case _ =>
-            val tpe: String = container.types().next
-            stmts = stmts ++ loopControllerGen(container, s"${containerType.getName}View", s"${tpe}Controller")
+            case _ =>
+              val tpe: String = container.types().next
+              loopControllerGen(container, s"${containerType.getName}View", s"${tpe}Controller")
+          }
+
+          part
         }
-      }
+      }.toSeq
 
-      stmts
+//      for (containerType:ContainerType <- sol.structure.keySet.asScala) {
+//        val container = sol.structure.get(containerType)
+//        container match {
+//
+//          case d: Stock =>
+//            if (sol.isVisible(d)) {  //   (!d.isInvisible) {
+//              stmts = stmts ++ controllerGen(s"${containerType.getName}View", "DeckController")
+//            }
+//
+//          case _ =>
+//            val tpe: String = container.types().next
+//            stmts = stmts ++ loopControllerGen(container, s"${containerType.getName}View", s"${tpe}Controller")
+//        }
+//      }
+//
+//      stmts
     }
 
     val semanticType: Type = game(game.control)
@@ -182,26 +218,28 @@ trait Initialization extends SemanticTypes {
   /** Process Solitaire domain model to construct game(game.view). */
   class ProcessView (sol:Solitaire) {
     def apply: Seq[Statement] = {
-      var stmts: Seq[Statement] = Seq.empty
-      for (containerType:ContainerType <- sol.containers.keySet.asScala) {
-        val container = sol.containers.get(containerType)
-        val name = containerType.getName
-        container match {
 
-          case d: Stock => {
-            // Need to keep these "redundant braces" to ensure we don't fall through to next case
-            if (sol.isVisible(d)) {
-              stmts = stmts ++ Java(s"""${name}View = new DeckView($name);""").statements()
-              stmts = stmts ++ layout_place_one(sol, d, Java(s"${name}View").name())
+      sol.containers.asScala.flatMap {
+        container => {
+          val name = container.`type`.getName
+          val part:Seq[Statement] = container match {
+            case d: Stock => {
+              // Need to keep these "redundant braces" to ensure we don't fall through to next case
+              if (sol.isVisible(d)) {
+                Java(s"""${name}View = new DeckView($name);""").statements() ++
+                  layout_place_one(sol, d, Java(s"${name}View").name())
+              } else {
+                Seq.empty
+              }
             }
+
+            case _ =>
+              layout_place_it(sol, container, Java(s"${name}View").name())
           }
 
-          case _ =>
-            stmts = stmts ++ layout_place_it(sol, container, Java(s"${name}View").name())
-        }
-      }
-
-      stmts
+          part
+          }
+      }.toSeq
     }
 
     val semanticType: Type = game(game.view)
@@ -236,8 +274,8 @@ trait Initialization extends SemanticTypes {
   class ProcessModel (sol:Solitaire) {
     def apply: Seq[Statement] = {
       var stmts: Seq[Statement] = Seq.empty
-      for (containerType:ContainerType <- sol.containers.keySet.asScala) {
-        val container = sol.containers.get(containerType)
+      for (containerType:ContainerType <- sol.structure.keySet.asScala) {
+        val container = sol.structure.get(containerType)
         val name = containerType.getName
 
         container match {
@@ -247,8 +285,7 @@ trait Initialization extends SemanticTypes {
 
           case _ =>
             val tpe: String = container.types().next
-
-            stmts = stmts ++ loopConstructGen(container, name, tpe)
+            stmts = stmts ++ loopConstructGen(container, name, container.iterator().asScala, tpe)
         }
       }
 

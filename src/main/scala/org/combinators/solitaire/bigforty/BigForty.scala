@@ -18,7 +18,7 @@ import domain._
 class BigForty @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle){
   val s:Solitaire = new domain.bigforty.Domain()
 
-  /** Domain for BigForty defined herein. Controllers are defined in Controllers area. */
+  /** KlondikeDomain for BigForty defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new gameDomain(s) with controllers {}
   import repository._
 

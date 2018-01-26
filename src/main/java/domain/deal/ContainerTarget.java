@@ -5,11 +5,11 @@ import domain.ContainerType;
 
 public class ContainerTarget extends Target {
     public final ContainerType targetType;
-    public final Container target;
+    //public final Container target;
 
-    public ContainerTarget(ContainerType type, Container target) {
+    public ContainerTarget(ContainerType type) { // }, Container target) {
         this.targetType = type;
-        this.target = target;
+       // this.target = target;
 
     }
 }

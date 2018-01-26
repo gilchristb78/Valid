@@ -5,8 +5,7 @@ import com.github.javaparser.ast.expr.{Name, SimpleName}
 import org.combinators.cls.interpreter._
 import org.combinators.cls.types.Constructor
 import org.combinators.cls.types.syntax._
-import domain.{Move, Solitaire, SolitaireContainerTypes}
-import domain.klondike.Domain
+import domain.{Move, Solitaire, SolitaireContainerTypes, klondike}
 import org.scalatest.FunSpec
 import test.Helper
 
@@ -15,20 +14,20 @@ import scala.collection.JavaConverters._
 class KlondikeTests extends FunSpec  {
 
   describe("The possible inhabited domain models") {
-    val domainModel:Solitaire = new Domain()
+    val domainModel:Solitaire = new klondike.KlondikeDomain()
     describe("(using the only possible domain model)") {
       describe("the domain model") {
         it("should have a tableau of size 7") {
-          assert(domainModel.containers.get(SolitaireContainerTypes.Tableau).size == 7)
+          assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Tableau).next().size() == 7)
         }
         it("should have a foundation of size 4") {
-          assert(domainModel.containers.get(SolitaireContainerTypes.Foundation).size == 4)
+          assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Foundation).next().size() == 4)
         }
         it("should have a waste pile") {
-          assert(domainModel.containers.get(SolitaireContainerTypes.Waste).size == 1)
+          assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Waste).next().size() == 1)
         }
         it("should have a deck") {
-          assert(domainModel.containers.get(SolitaireContainerTypes.Stock).size == 1)
+          assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Stock).next().size() == 1)
         }
 
         describe("For synthesis") {

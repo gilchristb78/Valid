@@ -31,6 +31,8 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new IgnorePressedHandler(pile))
       .addCombinator (new IgnoreClickedHandler('WastePile))
       .addCombinator (new IgnoreReleasedHandler('WastePile))
+      .addCombinator (new IgnoreClickedHandler(fanPile))     // Variation
+      .addCombinator (new IgnoreReleasedHandler(fanPile))    // Variation
 
     updated = updated
       .addCombinator (new IgnoreReleasedHandler(deck))
@@ -41,6 +43,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new deckPress.DealToTableauHandlerLocal())
       .addCombinator (new deckPress.ResetDeckLocal())
       .addCombinator (new SingleCardMoveHandler('WastePile))
+      .addCombinator (new SingleCardMoveHandler(fanPile))    // Variation
       .addCombinator (new buildablePilePress.CP2())
 
     updated = createWinLogic(updated, s)

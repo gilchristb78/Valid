@@ -15,14 +15,14 @@ public class Stock extends Container {
 
 	/** Default stock has single deck. */
 	public Stock () {
-		super();
+		super(SolitaireContainerTypes.Stock);
         this.numDecks = 1;
 		init();
 	}
 
     /** Default stock has single deck. */
     public Stock (int n) {
-        super();
+        super(SolitaireContainerTypes.Stock);
         this.numDecks = n;
         init();
     }

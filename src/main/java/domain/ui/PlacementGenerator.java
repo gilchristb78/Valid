@@ -10,7 +10,8 @@ import java.util.Iterator;
  *   b. start with a topleft and extend to the right with fixed gap
  *   c. place arbitrary widgets at arbitrary locations, based on (x,y) tuple
  *
- * To determine how many items to iterate over, the
+ * To determine how many items to iterate over, the 'max' field keeps track based
+ * on invocations to reset.
  */
 public abstract class PlacementGenerator implements Iterator<Widget> {
 
@@ -18,7 +19,7 @@ public abstract class PlacementGenerator implements Iterator<Widget> {
     protected int max;
     int idx = 0;
 
-    public void reset(int m) {
+    protected void reset(int m) {
         this.max = m;
         this.idx = 0;
     }

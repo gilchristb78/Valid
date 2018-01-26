@@ -3,49 +3,80 @@ package domain.idiot;
 import domain.*;
 import domain.constraints.*;
 import domain.constraints.movetypes.MoveComponents;
-import domain.deal.ContainerTarget;
-import domain.deal.DealStep;
-import domain.deal.Payload;
+import domain.deal.Deal;
+import domain.deal.steps.DealToTableau;
 import domain.moves.*;
-import domain.ui.StockTableauLayout;
+import domain.ui.Layout;
+import domain.ui.layouts.StockTableauLayout;
 import domain.win.BoardState;
-
-import java.util.Iterator;
 
 /**
  * Programmatically construct full domain model for Idiot.
  */
 public class Domain extends Solitaire {
 
-	public static void main (String[] args) {
-		Domain sfc = new Domain();
+	private Deal deal;
+	private Layout layout;
 
-		System.out.println("Available Moves:");
-		for (Iterator<Move> it = sfc.getRules().drags(); it.hasNext(); ) {
-			System.out.println("  " + it.next());
+    private Tableau tableau;
+    private Stock stock;
+
+    /**
+     * Default Klondike Tableau has seven buildable piles.
+     *
+     * @return
+     */
+    protected Container getTableau() {
+        if (tableau == null) {
+            tableau = new Tableau();
+            for (int i = 0; i < 4; i++) { tableau.add (new Column()); }
+        }
+        return tableau;
+    }
+
+    /**
+     * Default Klondike has a single Stock of a single deck of cards.
+     *
+     * @return
+     */
+    protected Container getStock() {
+        if (stock == null) { stock = new Stock(); }
+        return stock;
+    }
+
+
+    /** Override deal as needed. */
+	@Override
+	public Deal getDeal() {
+		if (deal == null) {
+			deal = new Deal()
+                    .append(new DealToTableau(1));
 		}
+
+		return deal;
 	}
 
-	public Domain() {
-		super ("Idiot");
+    /** Override layout as needed. */
+    @Override
+    public Layout getLayout() {
+        if (layout == null) {
+            layout = new StockTableauLayout();
+        }
 
+        return layout;
+    }
+
+	public Domain() {
+        super("Idiot");
+        init();
+    }
+
+    private void init() {
 		// we intend to be solvable
 		setSolvable(true);
 
-		StockTableauLayout lay = new StockTableauLayout();
-
-		Tableau tableau = new Tableau();
-		tableau.add (new Column());
-		tableau.add (new Column());
-		tableau.add (new Column());
-		tableau.add (new Column());
-		placeContainer(tableau, lay.tableau());
-		containers.put(SolitaireContainerTypes.Tableau, tableau);
-
-		// defaults to 1 deck.
-		Stock stock = new Stock();
-        placeContainer(stock, lay.stock());
-		containers.put(SolitaireContainerTypes.Stock, stock);
+        placeContainer(getTableau());
+        placeContainer(getStock());
 
 		// When only aces are left, there are 48 points.
         BoardState state = new BoardState();
@@ -77,7 +108,5 @@ public class Domain extends Solitaire {
 		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau);
 		addPressMove(deckDeal);
 
-		// deal four cards out, one to each of the tableau
-		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), new Payload()));
 	}
 }

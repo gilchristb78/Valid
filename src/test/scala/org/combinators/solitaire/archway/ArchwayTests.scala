@@ -15,18 +15,18 @@ class ArchwayTests extends FunSpec {
   describe("Inhabitation") {
     val domainModel:Solitaire = new Domain()
 
-    describe("Domain Model") {
+    describe("KlondikeDomain Model") {
       it("Tableau is size 4.") {
-        assert(domainModel.containers.get(SolitaireContainerTypes.Tableau).size == 4)
+        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Tableau).next().size() == 4)
       }
       it("Aces foundation is size 4.") {
-        assert(domainModel.containers.get(SolitaireContainerTypes.Foundation).size == 4)
+        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Foundation).next().size() == 4)
       }
       it("Kings foundation is size 4.") {
-        assert(domainModel.containers.get(ArchwayContainerTypes.KingsDown).size == 4)
+        assert(domainModel.containers.asScala.filter(x => x.`type` == ArchwayContainerTypes.KingsDown).next().size() == 4)
       }
       it("Reserve contains 13 piles.") {
-        assert(domainModel.containers.get(SolitaireContainerTypes.Reserve).size == 13)
+        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Reserve).next().size() == 13)
       }
 
       describe("For synthesis") {

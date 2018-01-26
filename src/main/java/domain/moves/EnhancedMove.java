@@ -14,7 +14,10 @@ import java.util.Optional;
  * and the orientation for the game is fixed.
  *
  * Note that the synthesized solution domain knows how to add the necessary statements for
- * doMove or undoMove
+ * doMove or undoMove.
+ *
+ * TODO: Not yet fully integrated. This is only subclass that directly extends Move; others
+ * TODO: extend ActualMove
  */
 public class EnhancedMove implements Move {
 

@@ -85,8 +85,8 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
 
       var localDefs = ""
       var extraDefs = ""
-      for (containerType: ContainerType <- solitaire.containers.keySet.asScala) {
-        val container = solitaire.containers.get(containerType)
+      for (containerType: ContainerType <- solitaire.structure.keySet.asScala) {
+        val container = solitaire.structure.get(containerType)
 
         val containerName = containerType.getName
 
@@ -174,14 +174,14 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
       var numDecks = 0
       // 0 = invisible; 1 = just deal once; -1 means infinite redeals
       var deckArrangement = 1
-      for (container <- sol.containers.values.asScala) {
+      for (container <- sol.structure.values.asScala) {
         container match {
           case stock:Stock =>
             numDecks = stock.numDecks
             if (!sol.isVisible(stock)) {
               deckArrangement = 0
             } else {
-              deckArrangement = -1   // HACK: Support unlimited redeals. need to place this info in Domain
+              deckArrangement = -1   // HACK: Support unlimited redeals. need to place this info in KlondikeDomain
             }
 
           case _ =>

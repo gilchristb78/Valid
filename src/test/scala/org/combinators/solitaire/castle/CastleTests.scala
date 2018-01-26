@@ -21,10 +21,10 @@ class CastleTests extends FunSpec  {
     describe("(using the only possible domain model)") {
       describe("the domain model") {
         it ("should have a tableau of size 8") {
-          assert(domainModel.containers.get(SolitaireContainerTypes.Tableau).size == 8)
+          assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Tableau).next().size() == 8)
         }
         it ("should have a foundation of size 4") {
-          assert(domainModel.containers.get(SolitaireContainerTypes.Foundation).size == 4)
+          assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Foundation).next().size() == 4)
         }
 
         describe("For synthesis") {

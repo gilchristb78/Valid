@@ -17,7 +17,7 @@ class Castle @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLi
 
   val s:Solitaire = new domain.castle.Domain()
 
-  /** Domain for Klondike defined herein. Controllers are defined in Controllers area. */
+  /** KlondikeDomain for Klondike defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new CastleDomain(s) with controllers {}
   import repository._
 

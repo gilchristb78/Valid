@@ -2,6 +2,7 @@ package org.combinators.solitaire.shared
 
 import org.combinators.cls.interpreter.ReflectedRepository
 import domain._
+import org.combinators.cls.git.Results
 
 // Base trait for any trait using dynamic combinators. Assumes availability
 // of solitaire domain object model passed in during init.
@@ -10,10 +11,7 @@ trait Base {
   /**
     * To be overridden by sub-typed traits that are part of the dynamic constructions process.
     */
-  def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = gamma
-
-  // Find way to maintain clean separation between Language (i.e., Java) and constraints (i.e., NextRank).
-
+  def init[G <: SolitaireDomain](gamma: ReflectedRepository[G], s: Solitaire): ReflectedRepository[G] = gamma
 }
 
 // This class exists so the 'def init' methods can be included in any trait that wishes
@@ -21,4 +19,3 @@ trait Base {
 class SolitaireDomain(val solitaire:Solitaire) {
   // assumed access to solitaire. Or at least, make it available
 }
-

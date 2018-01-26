@@ -61,7 +61,7 @@ public class TargetFile {
         addTarget("(constraints(complete))");
 
         // one for each controllers (from containers)
-        for (Container c: domain.containers.values()) {
+        for (Container c: domain.structure.values()) {
             if (domain.isVisible(c)) {
                 for (Iterator<String> it = c.types(); it.hasNext(); ) {
                     String element = map(it.next());

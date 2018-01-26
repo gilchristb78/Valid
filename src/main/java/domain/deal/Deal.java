@@ -33,15 +33,26 @@ public class Deal implements Iterable<Step> {
 
     }
 
+    /** Add all deal steps after our own. */
+    public Deal append(Deal other) {
+        this.steps.addAll(other.steps);
+        return this;
+    }
+
     /**
      * Have this method return 'this' to make it possible to easily chain together programming tasks.
      *
      * @param s
      * @return self to be able to chain together programmatically for convenience
      */
-    public Deal add(Step s) {
-        steps.add(s);
+    public Deal append(Step s) {
+        this.steps.add(s);
         return this;
+    }
+
+    /** Helper used within subclass to append deal steps after our own. */
+    protected void appendSteps(Deal other) {
+        this.steps.addAll(other.steps);
     }
 
     public Iterator<Step> iterator() {

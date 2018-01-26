@@ -355,7 +355,7 @@ trait Structure extends PythonSemanticTypes {
     val name:String = "My" + tpe
     var base = "None"
 
-    // map Domain types into PySolFC types. This is in wrong place. Make Code Generator extension
+    // map KlondikeDomain types into PySolFC types. This is in wrong place. Make Code Generator extension
     // HACK. TODO: FIX THIS
     element match {
       case c:Column =>

@@ -7,9 +7,13 @@ import domain.constraints.movetypes.TopCardOf;
 import domain.deal.*;
 import domain.deal.MapStep;
 import domain.deal.map.MapByRank;
+import domain.deal.steps.DealToFoundation;
+import domain.deal.steps.DealToTableau;
+import domain.deal.steps.FilterAces;
 import domain.moves.SingleCardMove;
 import domain.ui.CalculatedPlacement;
 import domain.ui.HorizontalPlacement;
+import domain.ui.Layout;
 import domain.ui.PlacementGenerator;
 import domain.win.BoardState;
 
@@ -19,9 +23,129 @@ import java.awt.Point;
  * Programmatically construct full domain model for Archway
  */
 public class Domain extends Solitaire {
+
+	private Deal deal;
+	private Layout layout;
+    private Foundation foundation;
+    private Reserve reserve;
+    private Container kingsFoundation;
+    private Tableau tableau;
+    private Stock stock;
+
+    public Foundation getFoundation() {
+        if (foundation == null) {
+            foundation = new Foundation();
+            for (int i = 0; i < 4; i++) {
+                foundation.add(new AcesUpPile());
+            }
+        }
+
+        return foundation;
+    }
+
+    public Reserve getReserve() {
+        if (reserve == null) {
+            reserve = new Reserve();
+            for (int i = 0; i < 13; i++) {
+                reserve.add(new Pile());
+            }
+        }
+
+        return reserve;
+    }
+
+    public Container getKingsFoundation() {
+        if (kingsFoundation == null) {
+            kingsFoundation = new Container(ArchwayContainerTypes.KingsDown);
+            for (int i = 0; i < 4; i++) {
+                kingsFoundation.add(new KingsDownPile());
+            }
+        }
+
+        return kingsFoundation;
+    }
+
+    public Tableau getTableau() {
+        if (tableau == null) {
+            tableau = new Tableau();
+            for (int i = 0; i < 4; i++) {
+                tableau.add(new Column());
+            }
+        }
+
+        return tableau;
+    }
+
+	/** Override deal as needed. */
+	@Override
+	public Deal getDeal() {
+        // Deal arrangement for Archway.
+
+        // Filter all aces out and add back on top
+
+        if (deal == null) {
+			deal = new Deal()
+            // 1. Place Aces in the Aces, and Kings in the Kings
+			    .append(new FilterStep(new AndConstraint(new IsAce(DealComponents.Card),
+					new IsSuit(DealComponents.Card, Card.Suits.Spades)), 1))
+                .append(new FilterStep(new AndConstraint(new IsAce(DealComponents.Card),
+					new IsSuit(DealComponents.Card, Card.Suits.Hearts)), 1))
+			    .append(new FilterStep(new AndConstraint(new IsAce(DealComponents.Card),
+					new IsSuit(DealComponents.Card, Card.Suits.Diamonds)), 1))
+                .append(new FilterStep(new AndConstraint(new IsAce(DealComponents.Card),
+					new IsSuit(DealComponents.Card, Card.Suits.Clubs)), 1))
+
+                .append(new DealToFoundation())
+
+			// 2. Deal kings to kings down
+                .append(new FilterStep(new AndConstraint(new IsKing(DealComponents.Card),
+					new IsSuit(DealComponents.Card, Card.Suits.Spades)), 1))
+                .append(new FilterStep(new AndConstraint(new IsKing(DealComponents.Card),
+					new IsSuit(DealComponents.Card, Card.Suits.Hearts)), 1))
+                .append(new FilterStep(new AndConstraint(new IsKing(DealComponents.Card),
+					new IsSuit(DealComponents.Card, Card.Suits.Diamonds)), 1))
+                .append(new FilterStep(new AndConstraint(new IsKing(DealComponents.Card),
+					new IsSuit(DealComponents.Card, Card.Suits.Clubs)), 1))
+
+			    .append(new DealStep(new ContainerTarget(ArchwayContainerTypes.KingsDown)))
+
+			// 3. Deal 12 cards to each of the four tableau
+			    .append(new DealToTableau(12))
+
+			// 4. Remaining cards are distributed to 11 reserves, based on the decision Rank-1
+			    .append (new MapStep(new ContainerTarget(SolitaireContainerTypes.Reserve),
+					new MapByRank(), new Payload(104-8-48, true)
+			));
+		}
+
+		return deal;
+	}
+
+    /** Override layout as needed. */
+	@Override
+	public Layout getLayout() {
+		if (layout == null) {
+			layout = new ArchwayLayout();  // TODO: FIX ME!
+		}
+
+		return layout;
+	}
+
+	public Stock getStock() {
+	    if (stock == null) {
+            // Archway has two decks.
+            stock = new Stock(2);
+        }
+
+        return stock;
+    }
+
 	public Domain() {
 		super ("Archway");
+		init();
+	}
 
+	private void init() {
 		// we intend to be solvable
 		setSolvable(true);
 
@@ -29,65 +153,44 @@ public class Domain extends Solitaire {
 		registerElement(new AcesUpPile());
 		registerElement(new KingsDownPile());
 
-		int scale = 27;
+        placeContainer(getFoundation());
+//		int xs[] = new int[] { 2,  5,  2,  5};
+//		int ys[] = new int[] {23, 23, 27, 27};
+//		Point[] anchors = new Point[xs.length];
+//		for (int i = 0; i < xs.length; i++) {
+//			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
+//		}
+//		PlacementGenerator places = new CalculatedPlacement(anchors, card_width, card_height);
+//		Foundation acesFoundation = new Foundation();
+//		placeContainer (acesFoundation, places);
+//		for (int i = 0; i < 4; i++) {
+//			acesFoundation.add(new AcesUpPile());
+//		}
+//		structure.put(SolitaireContainerTypes.Foundation, acesFoundation);
 
-		int xs[] = new int[] { 2,  5,  2,  5};
-		int ys[] = new int[] {23, 23, 27, 27};
-		Point[] anchors = new Point[xs.length];
-		for (int i = 0; i < xs.length; i++) {
-			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
-		}
-		PlacementGenerator places = new CalculatedPlacement(anchors, card_width, card_height);
-		Foundation acesFoundation = new Foundation();
-		placeContainer (acesFoundation, places);
-		for (int i = 0; i < 4; i++) {
-			acesFoundation.add(new AcesUpPile());
-		}
-		containers.put(SolitaireContainerTypes.Foundation, acesFoundation);
+        placeContainer(getReserve());
+//		xs = new int[] {2, 2,  2, 2, 4, 10, 14, 18, 24, 26, 26, 26, 26};
+//		ys = new int[] {19, 15, 11, 7, 3, 1,  1,  1,  3,  7, 11, 15, 19};
+//		anchors = new Point[xs.length];
+//		for (int i = 0; i < xs.length; i++) {
+//			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
+//		}
+//		places = new CalculatedPlacement(anchors, card_width, card_height);
+//		Reserve reserve = new Reserve();
+//		placeContainer(reserve, places);
+//		for (int i = 0; i < xs.length; i++) {
+//			reserve.add(new Pile());
+//		}
+//		structure.put(SolitaireContainerTypes.Reserve, reserve);
 
+        placeContainer(getKingsFoundation());
 
-		xs = new int[] {2, 2,  2, 2, 4, 10, 14, 18, 24, 26, 26, 26, 26};
-		ys = new int[] {19, 15, 11, 7, 3, 1,  1,  1,  3,  7, 11, 15, 19};
-		anchors = new Point[xs.length];
-		for (int i = 0; i < xs.length; i++) {
-			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
-		}
-		places = new CalculatedPlacement(anchors, card_width, card_height);
-		Reserve reserve = new Reserve();
-		placeContainer(reserve, places);
-		for (int i = 0; i < xs.length; i++) {
-			reserve.add(new Pile());
-		}
-		containers.put(SolitaireContainerTypes.Reserve, reserve);
-
-		xs = new int[] {23, 26, 23, 26};
-		ys = new int[] {23, 23, 27, 27};
-		anchors = new Point[xs.length];
-		for (int i = 0; i < xs.length; i++) {
-			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
-		}
-		places = new CalculatedPlacement(anchors, card_width, card_height);
-		Container kingsFoundation = new Container();
-		placeContainer(kingsFoundation, places);
-		for (int i = 0; i < 4; i++) {
-			kingsFoundation.add(new KingsDownPile());
-		}
-		containers.put(ArchwayContainerTypes.KingsDown, kingsFoundation);
-
-		places = new HorizontalPlacement(new Point (10*scale, 10*scale), card_width, 8*card_height, card_gap);
-		Tableau tableau = new Tableau();
-		placeContainer(tableau, places);
-		for (int i = 0; i < 4; i++) {
-			tableau.add(new Column());
-		}
-		containers.put(SolitaireContainerTypes.Tableau, tableau);
-
-		// Archway has two decks.
-		Stock stock = new Stock(2);
-		containers.put(SolitaireContainerTypes.Stock, stock);
+        placeContainer(getTableau());
 
 
-		// Get Domain objects from Solitaire Object.
+        placeContainer(getStock());
+
+		// Get KlondikeDomain objects from Solitaire Object.
 
       /* Contraint saying if the moving card has the same suit as the top-facing destination card. */
 		// Note that these are real fields.
@@ -112,13 +215,13 @@ public class Domain extends Solitaire {
 		// Note that the string argument becomes a real classname.
 		addDragMove(
 				new SingleCardMove("TableauToFoundation",
-						tableau, acesFoundation, moveToAcesCondition
+						tableau, foundation, moveToAcesCondition
 				)
 		);
 
 		addDragMove(
 				new SingleCardMove("ReserveToFoundation",
-						reserve, acesFoundation, moveToAcesCondition
+						reserve, foundation, moveToAcesCondition
 				)
 		);
 
@@ -144,51 +247,10 @@ public class Domain extends Solitaire {
 				new SingleCardMove("TableauToTableau", tableau, tableau, new Falsehood())
 		);
 
-
 		// When all cards are in the AcesUp and KingsDown
 		BoardState state = new BoardState();
 		state.add(ArchwayContainerTypes.KingsDown, 52);
 		state.add(SolitaireContainerTypes.Foundation, 52);
 		setLogic (state);
-
-		// Deal arrangement for Archway.
-		// 1. Place Aces in the Aces, and Kings in the Kings
-		// Filter all aces out and add back on top
-
-        // ideally want a way to pull out four aces (by suit) but this works.
-
-		// 1. Deal aces to aces up
-        addDealStep(new FilterStep(new AndConstraint(new IsAce(DealComponents.Card),
-                new IsSuit(DealComponents.Card, Card.Suits.Spades)), 1));
-        addDealStep(new FilterStep(new AndConstraint(new IsAce(DealComponents.Card),
-                new IsSuit(DealComponents.Card, Card.Suits.Hearts)), 1));
-        addDealStep(new FilterStep(new AndConstraint(new IsAce(DealComponents.Card),
-                new IsSuit(DealComponents.Card, Card.Suits.Diamonds)), 1));
-		addDealStep(new FilterStep(new AndConstraint(new IsAce(DealComponents.Card),
-                new IsSuit(DealComponents.Card, Card.Suits.Clubs)), 1));
-
-		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Foundation, acesFoundation)));
-
-        // 2. Deal kings to kings down
-        addDealStep(new FilterStep(new AndConstraint(new IsKing(DealComponents.Card),
-                new IsSuit(DealComponents.Card, Card.Suits.Spades)), 1));
-        addDealStep(new FilterStep(new AndConstraint(new IsKing(DealComponents.Card),
-                new IsSuit(DealComponents.Card, Card.Suits.Hearts)), 1));
-        addDealStep(new FilterStep(new AndConstraint(new IsKing(DealComponents.Card),
-                new IsSuit(DealComponents.Card, Card.Suits.Diamonds)), 1));
-        addDealStep(new FilterStep(new AndConstraint(new IsKing(DealComponents.Card),
-                new IsSuit(DealComponents.Card, Card.Suits.Clubs)), 1));
-
-        addDealStep(new DealStep(new ContainerTarget(ArchwayContainerTypes.KingsDown, kingsFoundation)));
-
-		// 3. Deal 12 cards to each of the four tableau
-		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau),
-				new Payload(12, true)));
-
-		// 4. Remaining cards are distributed to 11 reserves, based on the decision Rank-1
-		addDealStep (new MapStep(new ContainerTarget(SolitaireContainerTypes.Reserve, reserve),
-				new MapByRank(), new Payload(104-8-48, true)
-				));
-
 	}
 }

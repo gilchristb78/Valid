@@ -17,18 +17,18 @@ class BigFortyTests extends FunSpec {
   describe("Inhabitation") {
     val domainModel:Solitaire = new Domain()
 
-    describe("Domain Model") {
+    describe("KlondikeDomain Model") {
       it("Tableau is size 4.") {
-        assert(domainModel.containers.get(SolitaireContainerTypes.Tableau).size == 10)
+        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Tableau).next().size() == 10)
       }
       it("Foundation is size 4.") {
-        assert(domainModel.containers.get(SolitaireContainerTypes.Foundation).size == 4)
+        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Foundation).next().size() == 4)
       }
       it("Stock is size 1.") {
-        assert(domainModel.containers.get(SolitaireContainerTypes.Stock).size == 1)
+        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Stock).next().size() == 1)
       }
       it("Waste is size 1.") {
-        assert(domainModel.containers.get(SolitaireContainerTypes.Waste).size == 1)
+        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Waste).next().size() == 1)
       }
 
 

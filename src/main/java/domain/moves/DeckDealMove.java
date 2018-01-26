@@ -4,8 +4,7 @@ import domain.*;
 import domain.constraints.Truth;
 
 /**
- * A number of cards are dealt from the Stock one at a time
- * to multiple destinations.
+ * One card each is dealt from the Stock to multiple destinations.
  */
 public class DeckDealMove extends ActualMove {
 

@@ -1,6 +1,5 @@
 package domain;
 
-import domain.ui.*;
 import java.util.*;
 
 /**
@@ -21,14 +20,17 @@ public class Container implements Iterable<Element> {
 	/** Iterator for placing widgets in container. */
 	//final PlacementGenerator places;
 
+	/** Associated ContainerType for this Container. */
+	public final ContainerType type;
+
 	/**
 	 * Default constructor for subclasses (i.e., Stock) which may be present in the model
 	 * but are not visible.
 	 *
 	 * Use this only for non-visible Containers (again, only likely for Stock)
 	 */
-	public Container() {
-
+	public Container(ContainerType type) {
+		this.type = type;
 	}
 
 	/**

@@ -5,11 +5,12 @@ import domain.constraints.*;
 import domain.constraints.movetypes.MoveComponents;
 import domain.constraints.movetypes.TopCardOf;
 import domain.deal.*;
+import domain.deal.steps.DealToTableau;
 import domain.moves.*;
-import domain.ui.StockTableauLayout;
+import domain.ui.Layout;
+import domain.ui.layouts.StockTableauLayout;
+import domain.ui.layouts.StockTableauPilesLayout;
 import domain.win.BoardState;
-
-import java.util.Iterator;
 
 
 /**
@@ -17,35 +18,67 @@ import java.util.Iterator;
  */
 public class Domain extends Solitaire {
 
-	public static void main (String[] args) {
-		Domain sfc = new Domain();
+    private Deal deal;
+    private Layout layout;
 
-		System.out.println("Available Moves:");
-		for (Iterator<Move> it = sfc.getRules().drags(); it.hasNext(); ) {
-			System.out.println("  " + it.next());
-		}
-	}
+    private Tableau tableau;
+    private Stock stock;
+
+    /**
+     * Default Klondike Tableau has seven buildable piles.
+     *
+     * @return
+     */
+    protected Container getTableau() {
+        if (tableau == null) {
+            tableau = new Tableau();
+            for (int i = 0; i < 4; i++) { tableau.add (new Pile()); }
+        }
+        return tableau;
+    }
+
+    /**
+     * Default Klondike has a single Stock of a single deck of cards.
+     *
+     * @return
+     */
+    protected Container getStock() {
+        if (stock == null) { stock = new Stock(); }
+        return stock;
+    }
+
+
+    /** Override deal as needed. */
+    @Override
+    public Deal getDeal() {
+        if (deal == null) {
+            deal = new Deal()
+                    .append(new DealToTableau(1));
+        }
+
+        return deal;
+    }
+
+    /** Override layout as needed. */
+    @Override
+    public Layout getLayout() {
+        if (layout == null) {
+            layout = new StockTableauPilesLayout();
+        }
+
+        return layout;
+    }
 
 	public Domain() {
-		super ("Narcotic");
+        super("Narcotic");
+        init();
+    }
+
+    private void init() {
 		StockTableauLayout lay = new StockTableauLayout();
 
-		Tableau tableau = new Tableau();
-		tableau.add (new Pile());
-		tableau.add (new Pile());
-		tableau.add (new Pile());
-		tableau.add (new Pile());
-		placeContainer(tableau, lay.tableauAsPile());
-		containers.put(SolitaireContainerTypes.Tableau, tableau);
-
-		// defaults to 1 deck.
-		Stock stock = new Stock();
-		placeContainer (stock, lay.stock());
-		containers.put(SolitaireContainerTypes.Stock, stock);
-
-		IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
-
-		IfConstraint if_move = new IfConstraint(isEmpty);
+        placeContainer(getTableau());
+        placeContainer(getStock());
 
 		// Tableau to Tableau. Can move a card to the left if it is
 		// going to a non-empty pile whose top card is the same rank
@@ -77,10 +110,6 @@ public class Domain extends Solitaire {
 		// reset deck by pulling together all cards from the piles.
 		ResetDeckMove deckReset = new ResetDeckMove("ResetDeck", stock, new IsEmpty(MoveComponents.Source), tableau);
 		addPressMove(deckReset);
-
-		// Each one gets a single faceup Card
-		Payload payload = new Payload();
-		addDealStep(new DealStep(new ContainerTarget(SolitaireContainerTypes.Tableau, tableau), payload));
 
 		// wins once all cards are removed from tableau
 		BoardState state = new BoardState();
