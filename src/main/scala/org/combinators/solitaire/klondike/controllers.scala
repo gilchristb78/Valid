@@ -41,10 +41,15 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     // these clarify the allowed moves
     updated = updated
       .addCombinator (new deckPress.DealToTableauHandlerLocal())
-      .addCombinator (new deckPress.ResetDeckLocal())
       .addCombinator (new SingleCardMoveHandler('WastePile))
       .addCombinator (new SingleCardMoveHandler(fanPile))    // Variation
       .addCombinator (new buildablePilePress.CP2())
+
+    if (s.asInstanceOf[klondike.KlondikeDomain].canResetDeck) {
+      updated = updated.addCombinator (new deckPress.ResetDeckLocal())
+    } else {
+      updated = updated.addCombinator (new deckPress.SkipResetDeckLocal())
+    }
 
     updated = createWinLogic(updated, s)
 
@@ -120,6 +125,16 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
 
     val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck1, controller.pressed)
   }
+
+    /** When deck is empty but variation has decided not able to reset deck. */
+    // This should be generated from one of the rules.
+    class SkipResetDeckLocal() {
+      def apply():(SimpleName, SimpleName) => Seq[Statement] = (widget,ignore) =>{
+        Java(s"""|{/* No reset deck available */}""".stripMargin).statements()
+      }
+
+      val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck2, controller.pressed)
+    }
 
   /** When deck is empty and must be reset from waste pile. */
   // This should be generated from one of the rules.

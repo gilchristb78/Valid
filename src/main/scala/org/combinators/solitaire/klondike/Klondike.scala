@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
 import domain.klondike
-import domain.klondike.{DealByThreeKlondikeDomain, ThumbAndPouchKlondikeDomain}
+import domain.klondike.{DealByThreeKlondikeDomain, EastCliff, SmallHarp, ThumbAndPouchKlondikeDomain}
 import org.combinators.cls.interpreter.{DynamicCombinatorInfo, ReflectedRepository, StaticCombinatorInfo}
 import org.combinators.cls.types.syntax._
 import org.combinators.cls.git.{EmptyResults, InhabitationController, Results, html}
@@ -24,10 +24,13 @@ class Klondike @Inject()(webJars: WebJarsUtil, applicationLifecycle: Application
   // register each individual domain object here. Also be sure to add target definition at end of this file
   val Variations = Map(
     ""               -> new klondike.KlondikeDomain(),
-    "DealByThree"    -> new DealByThreeKlondikeDomain(),
-    "ThumbAndPouch"  -> new ThumbAndPouchKlondikeDomain())
+    "DealByThree"    -> new klondike.DealByThreeKlondikeDomain(),
+    "SmallHarp"      -> new klondike.SmallHarp(),
+    "EastCliff"      -> new klondike.EastCliff(),
+    "ThumbAndPouch"  -> new klondike.ThumbAndPouchKlondikeDomain()
+  )
 
-  // Selected variation
+  // Selected variation; all must be subclasses of KlondikeDomain!
   var variation:Solitaire = _
 
   /** Access parameters to specify variation (if needed) */
@@ -75,7 +78,9 @@ class Klondike @Inject()(webJars: WebJarsUtil, applicationLifecycle: Application
 
         // these only change because of the domain model
       case _:ThumbAndPouchKlondikeDomain => processDefaultVariation(s)
-      case _                              => processDefaultVariation(s)
+      case _:SmallHarp                   => processDefaultVariation(s)
+      case _:EastCliff                   => processEastCliffVariation(s)
+      case _                             => processDefaultVariation(s)
     }
   }
 
@@ -96,6 +101,32 @@ class Klondike @Inject()(webJars: WebJarsUtil, applicationLifecycle: Application
       .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
       .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
       .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
+      .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
+      .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
+      .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
+      .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
+
+      .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
+
+    EmptyResults().addAll(jobs.run())
+  }
+
+  // No ResetDeck...
+  def processEastCliffVariation(s:Solitaire): Results = {
+    import repository._
+
+    lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
+      .addJob[CompilationUnit](constraints(complete))
+      .addJob[CompilationUnit](controller(buildablePile, complete))
+      .addJob[CompilationUnit](controller(pile, complete))
+      .addJob[CompilationUnit](controller(deck, complete))
+      .addJob[CompilationUnit](controller('WastePile, complete))
+
+      .addJob[CompilationUnit]('WastePileClass)
+      .addJob[CompilationUnit]('WastePileViewClass)
+
+      .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
+      .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
       .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
       .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
       .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))

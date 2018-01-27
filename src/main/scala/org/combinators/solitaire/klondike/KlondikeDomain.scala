@@ -24,7 +24,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = constraints(constraints.generator)
   }
 
-  // needed for DealByThree variation
+  // needed for DealByThree variation. Would love to be able to separate these out better.
   @combinator object MakeFanPile extends ExtendModel("Column", "FanPile", 'FanPileClass)
 
   /**

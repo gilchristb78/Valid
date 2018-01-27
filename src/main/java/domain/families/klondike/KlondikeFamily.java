@@ -1,6 +1,5 @@
 package domain.families.klondike;
 
-import domain.families.Family;
 
 /**
  * Variations to be supported (taken from PySolFC variations)
@@ -109,6 +108,6 @@ import domain.families.Family;
                      self.s.talon.dealRow(rows=self.s.foundations
 
  */
-public class KlondikeFamily extends Family {
+public class KlondikeFamily  {
 
 }

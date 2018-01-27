@@ -23,6 +23,11 @@ public class KlondikeDomain extends Solitaire implements VariationPoints {
         return 1;
     }
 
+    @Override
+    public boolean canResetDeck() {
+        return true;
+    }
+
     /**
      * Determines what cards can be placed on tableau.
      *
