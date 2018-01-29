@@ -4,10 +4,12 @@ import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
 import domain.klondike
-import domain.klondike.{DealByThreeKlondikeDomain, EastCliff, SmallHarp, ThumbAndPouchKlondikeDomain}
+import domain.klondike._
 import org.combinators.cls.interpreter.{DynamicCombinatorInfo, ReflectedRepository, StaticCombinatorInfo}
 import org.combinators.cls.types.syntax._
 import org.combinators.cls.git.{EmptyResults, InhabitationController, Results, html}
+import org.combinators.cls.types.Constructor
+import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
@@ -27,7 +29,8 @@ class Klondike @Inject()(webJars: WebJarsUtil, applicationLifecycle: Application
     "DealByThree"    -> new klondike.DealByThreeKlondikeDomain(),
     "SmallHarp"      -> new klondike.SmallHarp(),
     "EastCliff"      -> new klondike.EastCliff(),
-    "ThumbAndPouch"  -> new klondike.ThumbAndPouchKlondikeDomain()
+    "ThumbAndPouch"  -> new klondike.ThumbAndPouchKlondikeDomain(),
+    "Whitehead"      -> new klondike.Whitehead()
   )
 
   // Selected variation; all must be subclasses of KlondikeDomain!
@@ -58,108 +61,117 @@ class Klondike @Inject()(webJars: WebJarsUtil, applicationLifecycle: Application
 
   /** KlondikeDomain for Klondike defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new KlondikeDomain(variation) with controllers {}
+
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), variation)
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  // invoke the proper one
   lazy val results:Results = processVariation(variation)
 
-  // each variation needs to specify its own targets.  A bit of a hack. Still need to find way to programmatically compose these
-  def processVariation(s:Solitaire): Results = {
-    // Only here for use by BuildSynthesis, which requests each one by number.
-    if (s == null) {
-      variation = new klondike.KlondikeDomain()
-      return processDefaultVariation(variation)
-    }
 
-    s match {
+    // each variation needs to specify its own targets.  A bit of a hack. Still need to find way to programmatically compose these
+    def processVariation(s:Solitaire): Results = {
+      // Only here for use by BuildSynthesis, which requests each one by number.
+      if (s == null) {
+        variation = new klondike.KlondikeDomain()
+        return processDefaultVariation(variation)
+      }
 
-      case _:DealByThreeKlondikeDomain   => processByThrees(s)
+      s match {
+
+        case _:DealByThreeKlondikeDomain   => processByThrees(s)
+
+          // only change is the lack of resetdeck.
+        case _:Whitehead                   => processNoResetDeck(s)
+        case _:EastCliff                   => processNoResetDeck(s)
 
         // these only change because of the domain model
-      case _:ThumbAndPouchKlondikeDomain => processDefaultVariation(s)
-      case _:SmallHarp                   => processDefaultVariation(s)
-      case _:EastCliff                   => processEastCliffVariation(s)
-      case _                             => processDefaultVariation(s)
+        case _:ThumbAndPouchKlondikeDomain => processDefaultVariation(s)
+
+        case _:SmallHarp                   => processDefaultVariation(s)
+        case _                             => processDefaultVariation(s)
+      }
     }
-  }
 
-  // Specialized target files for each variation...
-  def processDefaultVariation(s:Solitaire): Results = {
-    import repository._
 
-    lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
-      .addJob[CompilationUnit](constraints(complete))
-      .addJob[CompilationUnit](controller(buildablePile, complete))
-      .addJob[CompilationUnit](controller(pile, complete))
-      .addJob[CompilationUnit](controller(deck, complete))
-      .addJob[CompilationUnit](controller('WastePile, complete))
+    // Specialized target files for each variation...
+    def processDefaultVariation(s:Solitaire): Results = {
+      import repository._
 
-      .addJob[CompilationUnit]('WastePileClass)
-      .addJob[CompilationUnit]('WastePileViewClass)
+      lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
+        .addJob[CompilationUnit](constraints(complete))
+        .addJob[CompilationUnit](controller(buildablePile, complete))
+        .addJob[CompilationUnit](controller(pile, complete))
+        .addJob[CompilationUnit](controller(deck, complete))
+        .addJob[CompilationUnit](controller('WastePile, complete))
 
-      .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
-      .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
-      .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
-      .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
-      .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
-      .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
-      .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
+        .addJob[CompilationUnit]('WastePileClass)
+        .addJob[CompilationUnit]('WastePileViewClass)
 
-      .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
+        .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
+        .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
+        .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
+        .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
+        .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
+        .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
+        .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
 
-    EmptyResults().addAll(jobs.run())
-  }
+        .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
 
-  // No ResetDeck...
-  def processEastCliffVariation(s:Solitaire): Results = {
-    import repository._
+      EmptyResults().addAll(jobs.run())
+    }
 
-    lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
-      .addJob[CompilationUnit](constraints(complete))
-      .addJob[CompilationUnit](controller(buildablePile, complete))
-      .addJob[CompilationUnit](controller(pile, complete))
-      .addJob[CompilationUnit](controller(deck, complete))
-      .addJob[CompilationUnit](controller('WastePile, complete))
+    // No ResetDeck...
+    def processNoResetDeck(s:Solitaire): Results = {
+      import repository._
 
-      .addJob[CompilationUnit]('WastePileClass)
-      .addJob[CompilationUnit]('WastePileViewClass)
+      lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
+        .addJob[CompilationUnit](constraints(complete))
+        .addJob[CompilationUnit](controller(buildablePile, complete))
+        .addJob[CompilationUnit](controller(pile, complete))
+        .addJob[CompilationUnit](controller(deck, complete))
+        .addJob[CompilationUnit](controller('WastePile, complete))
 
-      .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
-      .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
-      .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
-      .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
-      .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
-      .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
+        .addJob[CompilationUnit]('WastePileClass)
+        //.addJob[CompilationUnit]('WastePileClass)   // by mistake: an error; need to prevent this by default
+        .addJob[CompilationUnit]('WastePileViewClass)
 
-      .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
+        .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
+        .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
+        .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
+        .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
+        .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
+        .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
 
-    EmptyResults().addAll(jobs.run())
-  }
+        .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
 
-  def processByThrees(s:Solitaire): Results = {
-    import repository._
 
-    lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
-      .addJob[CompilationUnit](constraints(complete))
-      .addJob[CompilationUnit](controller(buildablePile, complete))
-      .addJob[CompilationUnit](controller(pile, complete))
-      .addJob[CompilationUnit](controller(deck, complete))
-      .addJob[CompilationUnit]('FanPileClass)
+      EmptyResults().addAll(jobs.run())
+    }
 
-      .addJob[CompilationUnit](controller(fanPile, complete))
 
-      .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
-      .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
-      .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
-      .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
-      .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
-      .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
-      .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
+    def processByThrees(s:Solitaire): Results = {
+      import repository._
 
-      .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
+      lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
+        .addJob[CompilationUnit](constraints(complete))
+        .addJob[CompilationUnit](controller(buildablePile, complete))
+        .addJob[CompilationUnit](controller(pile, complete))
+        .addJob[CompilationUnit](controller(deck, complete))
+        .addJob[CompilationUnit]('FanPileClass)
 
-    EmptyResults().addAll(jobs.run())
-  }
+        .addJob[CompilationUnit](controller(fanPile, complete))
+
+        .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
+        .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
+        .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
+        .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
+        .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
+        .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
+        .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
+
+        .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
+
+      EmptyResults().addAll(jobs.run())
+    }
 
 }

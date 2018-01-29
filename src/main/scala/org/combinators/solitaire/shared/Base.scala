@@ -19,3 +19,5 @@ trait Base {
 class SolitaireDomain(val solitaire:Solitaire) {
   // assumed access to solitaire. Or at least, make it available
 }
+
+
