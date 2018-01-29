@@ -31,8 +31,5 @@ public class EastCliff extends KlondikeDomain {
 
     public EastCliff() {
         super("EastCliff");
-
-        // remove the redeal option
-        remove(getRules().presses(), "ResetDeck");
     }
 }

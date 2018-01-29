@@ -22,20 +22,10 @@ public class ThumbAndPouchKlondikeDomain extends KlondikeDomain {
     }
 
     /** As long as SUIT is different (and lower rank) then ok. */
+    @Override
     public Constraint buildOnTableau(MoveInformation bottom) {
         TopCardOf topDestination = new TopCardOf(MoveComponents.Destination);
         return new AndConstraint(new NextRank(topDestination, bottom), new NotConstraint(new SameSuit(bottom, topDestination)));
-    }
-
-    private Layout layout;
-
-    @Override
-    public Layout getLayout() {
-        if (layout == null) {
-            layout = new KlondikeLayout();
-        }
-
-        return layout;
     }
 
     public ThumbAndPouchKlondikeDomain() {

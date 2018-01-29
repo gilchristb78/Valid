@@ -209,7 +209,9 @@ public class KlondikeDomain extends Solitaire implements VariationPoints {
 
         // reset deck if empty. Move is triggered by press on stock.
         // this creates DeckToPile, as in the above DeckDealMove.
-        addPressMove (new ResetDeckMove("ResetDeck", getStock(), new IsEmpty(MoveComponents.Source), getWaste()));
+        if (canResetDeck()) {
+            addPressMove(new ResetDeckMove("ResetDeck", getStock(), new IsEmpty(MoveComponents.Source), getWaste()));
+        }
 
         // wins once all cards in foundation.
         BoardState state = new BoardState();

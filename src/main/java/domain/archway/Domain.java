@@ -154,40 +154,9 @@ public class Domain extends Solitaire {
 		registerElement(new KingsDownPile());
 
         placeContainer(getFoundation());
-//		int xs[] = new int[] { 2,  5,  2,  5};
-//		int ys[] = new int[] {23, 23, 27, 27};
-//		Point[] anchors = new Point[xs.length];
-//		for (int i = 0; i < xs.length; i++) {
-//			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
-//		}
-//		PlacementGenerator places = new CalculatedPlacement(anchors, card_width, card_height);
-//		Foundation acesFoundation = new Foundation();
-//		placeContainer (acesFoundation, places);
-//		for (int i = 0; i < 4; i++) {
-//			acesFoundation.add(new AcesUpPile());
-//		}
-//		structure.put(SolitaireContainerTypes.Foundation, acesFoundation);
-
         placeContainer(getReserve());
-//		xs = new int[] {2, 2,  2, 2, 4, 10, 14, 18, 24, 26, 26, 26, 26};
-//		ys = new int[] {19, 15, 11, 7, 3, 1,  1,  1,  3,  7, 11, 15, 19};
-//		anchors = new Point[xs.length];
-//		for (int i = 0; i < xs.length; i++) {
-//			anchors[i] = new Point(xs[i]*scale, ys[i]*scale);
-//		}
-//		places = new CalculatedPlacement(anchors, card_width, card_height);
-//		Reserve reserve = new Reserve();
-//		placeContainer(reserve, places);
-//		for (int i = 0; i < xs.length; i++) {
-//			reserve.add(new Pile());
-//		}
-//		structure.put(SolitaireContainerTypes.Reserve, reserve);
-
         placeContainer(getKingsFoundation());
-
         placeContainer(getTableau());
-
-
         placeContainer(getStock());
 
 		// Get KlondikeDomain objects from Solitaire Object.

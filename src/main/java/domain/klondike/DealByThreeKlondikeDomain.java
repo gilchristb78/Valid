@@ -50,12 +50,5 @@ public class DealByThreeKlondikeDomain extends KlondikeDomain {
         // register new elements for this domain
         registerElement(new FanPile(numToDeal()));
 
-        // remove old move and swap with new one.
-//
-//        Constraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
-//        Move replaceMove = new DeckDealNCardsMove(numToDeal(), "DealDeck", getStock(), deck_move, getWaste());
-//        if (remove(rules.presses(), "DealDeck")) {
-//            addPressMove(replaceMove);
-//        }
     }
 }

@@ -12,7 +12,8 @@ import play.api.inject.ApplicationLifecycle
 
 class Klondike @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
-  val domainModel = new klondike.KlondikeDomain()
+  //val domainModel = new klondike.KlondikeDomain()
+  val domainModel = new klondike.EastCliff()
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

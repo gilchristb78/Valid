@@ -29,7 +29,7 @@ class Idiot @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLif
   lazy val combinatorComponents = Gamma.combinatorComponents
 
   // DOESN'T WORK. SHOULD BE ABLE TO ? What is problem with implicit parameter?
-
+//
 //  // invoke the proper one
 //  lazy val targets:Seq[Constructor] = Synthesizer.allTargets(s)
 //

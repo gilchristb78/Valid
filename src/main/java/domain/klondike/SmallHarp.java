@@ -31,6 +31,7 @@ public class SmallHarp extends KlondikeDomain {
     }
 
     /** As long as SUIT is different (and lower rank) then ok. */
+    @Override
     public Constraint buildOnTableau(MoveInformation bottom) {
         return super.buildOnTableau(bottom);
     }
