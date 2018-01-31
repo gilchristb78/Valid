@@ -5,7 +5,7 @@ import javax.inject.Inject
 import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.syntax._
-import org.combinators.cls.git.{EmptyResults, InhabitationController, Results}
+import org.combinators.cls.git._
 import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
@@ -16,7 +16,8 @@ import play.api.inject.ApplicationLifecycle
 import domain._
 
 
-class Idiot @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
+class Idiot @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
   val s:Solitaire = new domain.idiot.Domain()
 
@@ -28,20 +29,15 @@ class Idiot @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLif
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  // DOESN'T WORK. SHOULD BE ABLE TO ? What is problem with implicit parameter?
-//
-//  // invoke the proper one
-//  lazy val targets:Seq[Constructor] = Synthesizer.allTargets(s)
-//
-//  // base: Always present, so can take it out
-//  lazy val base1 = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
-//
-//  // map each of the known targets to a specific inhabitation, and then chain together via adding
-//  lazy val jobs:Seq[Gamma.InhabitationBatchJob] = targets.map(x => Gamma.InhabitationBatchJob[CompilationUnit](x))
-//  lazy val results:Results = (EmptyResults().addAll(base1.run()) /: jobs)((head, next) => head.addAll(next.run()))
+  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(s)
 
-  lazy val base1 = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
-  lazy val results:Results = EmptyResults().addAll(base1.run())
+  lazy val results: Results =
+    EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
+
+  val controllerAddress: String = "idiot"
+
+//  lazy val base1 = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
+//  lazy val results:Results = EmptyResults().addAll(base1.run())
 
 //  lazy val jobs =
 //    Gamma.InhabitationBatchJob[CompilationUnit](game(complete :&: game.solvable))

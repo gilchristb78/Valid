@@ -5,59 +5,25 @@ import javax.inject.Inject
 import com.github.javaparser.ast.CompilationUnit
 import domain.klondike
 import domain.klondike._
-import org.combinators.cls.interpreter.{DynamicCombinatorInfo, ReflectedRepository, StaticCombinatorInfo}
+import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.syntax._
-import org.combinators.cls.git.{EmptyResults, InhabitationController, Results, html}
+import org.combinators.cls.git._
 import org.combinators.cls.types.Constructor
-import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
+import play.api.routing.SimpleRouter
 
 
 // domain
 import domain._
 
-class Klondike @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
+
+abstract class KlondikeVariationController(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
   // request a specific variation via "http://localhost:9000/klondike?variation=ThumbAndPouch
-  val Variation = "variation"
-
-  // register each individual domain object here. Also be sure to add target definition at end of this file
-  val Variations = Map(
-    ""               -> new klondike.KlondikeDomain(),
-    "DealByThree"    -> new klondike.DealByThreeKlondikeDomain(),
-    "SmallHarp"      -> new klondike.SmallHarp(),
-    "EastCliff"      -> new klondike.EastCliff(),
-    "ThumbAndPouch"  -> new klondike.ThumbAndPouchKlondikeDomain(),
-    "Whitehead"      -> new klondike.Whitehead()
-  )
-
-  // Selected variation; all must be subclasses of KlondikeDomain!
-  var variation:Solitaire = _
-
-  /** Access parameters to specify variation (if needed) */
-  override def overview() = Action { request =>
-    variation = Variations(request.getQueryString(Variation).getOrElse(""))
-
-    val combinators = combinatorComponents.mapValues {
-      case staticInfo: StaticCombinatorInfo =>
-        (ReflectedRepository.fullTypeOf(staticInfo),
-          s"${scala.reflect.runtime.universe.show(staticInfo.fullSignature)}")
-      case dynamicInfo: DynamicCombinatorInfo[_] =>
-        (ReflectedRepository.fullTypeOf(dynamicInfo),
-          dynamicInfo.position.mkString("\n"))
-    }
-    Ok(html.overview.render(
-      request.path,
-      webJars,
-      combinators,
-      results.targets,
-      results.raw,
-      collection.mutable.Set.empty[Long].toSet,  // ignore past ones
-      results.infinite,
-      results.incomplete))
-  }
+  val variation: klondike.KlondikeDomain
 
   /** KlondikeDomain for Klondike defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new KlondikeDomain(variation) with controllers {}
@@ -65,113 +31,81 @@ class Klondike @Inject()(webJars: WebJarsUtil, applicationLifecycle: Application
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), variation)
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  lazy val results:Results = processVariation(variation)
+  import repository._
+  lazy val commonTargets: Seq[Constructor] =
+    Seq(
+      game(complete),
+      constraints(complete),
+      controller(buildablePile, complete),
+      controller(pile, complete),
+      controller(deck, complete),
+      move('MoveColumn :&: move.generic, complete),
+      move('DealDeck :&: move.generic, complete),
+      move('FlipCard :&: move.generic, complete),
+      move('MoveCard :&: move.generic, complete),
+      move('BuildFoundation :&: move.generic, complete),
+      move('BuildFoundationFromWaste :&: move.generic, complete),
+      move('MoveColumn :&: move.potentialMultipleMove, complete)
+    )
+  lazy val wastePileTargets: Seq[Constructor] =
+    Seq(
+      controller('WastePile, complete),
+      'WastePileClass,
+      'WastePileViewClass
+    )
+  lazy val resetDeckTargets: Seq[Constructor] =
+    Seq(
+      move('ResetDeck :&: move.generic, complete)
+    )
+  lazy val byThreesTargets: Seq[Constructor] =
+    Seq(
+      'FanPileClass,
+      controller(fanPile, complete)
+    )
 
+  lazy val targets =
+    commonTargets ++
+      (variation match {
+        case _: klondike.Whitehead => wastePileTargets
+        case _: klondike.EastCliff => wastePileTargets
+        case _: klondike.DealByThreeKlondikeDomain => byThreesTargets ++ resetDeckTargets
+        case _ => wastePileTargets ++ resetDeckTargets
+      })
 
-    // each variation needs to specify its own targets.  A bit of a hack. Still need to find way to programmatically compose these
-    def processVariation(s:Solitaire): Results = {
-      // Only here for use by BuildSynthesis, which requests each one by number.
-      if (s == null) {
-        variation = new klondike.KlondikeDomain()
-        return processDefaultVariation(variation)
-      }
+  lazy val results:Results =
+    EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-      s match {
-
-        case _:DealByThreeKlondikeDomain   => processByThrees(s)
-
-          // only change is the lack of resetdeck.
-        case _:Whitehead                   => processNoResetDeck(s)
-        case _:EastCliff                   => processNoResetDeck(s)
-
-        // these only change because of the domain model
-        case _:ThumbAndPouchKlondikeDomain => processDefaultVariation(s)
-
-        case _:SmallHarp                   => processDefaultVariation(s)
-        case _                             => processDefaultVariation(s)
-      }
-    }
-
-
-    // Specialized target files for each variation...
-    def processDefaultVariation(s:Solitaire): Results = {
-      import repository._
-
-      lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
-        .addJob[CompilationUnit](constraints(complete))
-        .addJob[CompilationUnit](controller(buildablePile, complete))
-        .addJob[CompilationUnit](controller(pile, complete))
-        .addJob[CompilationUnit](controller(deck, complete))
-        .addJob[CompilationUnit](controller('WastePile, complete))
-
-        .addJob[CompilationUnit]('WastePileClass)
-        .addJob[CompilationUnit]('WastePileViewClass)
-
-        .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
-        .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
-        .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
-        .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
-        .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
-        .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
-        .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
-
-        .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
-
-      EmptyResults().addAll(jobs.run())
-    }
-
-    // No ResetDeck...
-    def processNoResetDeck(s:Solitaire): Results = {
-      import repository._
-
-      lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
-        .addJob[CompilationUnit](constraints(complete))
-        .addJob[CompilationUnit](controller(buildablePile, complete))
-        .addJob[CompilationUnit](controller(pile, complete))
-        .addJob[CompilationUnit](controller(deck, complete))
-        .addJob[CompilationUnit](controller('WastePile, complete))
-
-        .addJob[CompilationUnit]('WastePileClass)
-        //.addJob[CompilationUnit]('WastePileClass)   // by mistake: an error; need to prevent this by default
-        .addJob[CompilationUnit]('WastePileViewClass)
-
-        .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
-        .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
-        .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
-        .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
-        .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
-        .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
-
-        .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
-
-
-      EmptyResults().addAll(jobs.run())
-    }
-
-
-    def processByThrees(s:Solitaire): Results = {
-      import repository._
-
-      lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
-        .addJob[CompilationUnit](constraints(complete))
-        .addJob[CompilationUnit](controller(buildablePile, complete))
-        .addJob[CompilationUnit](controller(pile, complete))
-        .addJob[CompilationUnit](controller(deck, complete))
-        .addJob[CompilationUnit]('FanPileClass)
-
-        .addJob[CompilationUnit](controller(fanPile, complete))
-
-        .addJob[CompilationUnit](move('MoveColumn :&: move.generic, complete))
-        .addJob[CompilationUnit](move('DealDeck :&: move.generic, complete))
-        .addJob[CompilationUnit](move('ResetDeck :&: move.generic, complete))
-        .addJob[CompilationUnit](move('FlipCard :&: move.generic, complete))
-        .addJob[CompilationUnit](move('MoveCard :&: move.generic, complete))
-        .addJob[CompilationUnit](move('BuildFoundation :&: move.generic, complete))
-        .addJob[CompilationUnit](move('BuildFoundationFromWaste :&: move.generic, complete))
-
-        .addJob[CompilationUnit](move('MoveColumn :&: move.potentialMultipleMove, complete))
-
-      EmptyResults().addAll(jobs.run())
-    }
-
+  override val routingPrefix: Option[String] = Some("klondike")
+  lazy val controllerAddress: String = variation.name.toLowerCase
 }
+
+class KlondikeController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends KlondikeVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new klondike.KlondikeDomain()
+}
+
+class WhiteheadController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends KlondikeVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new klondike.Whitehead()
+}
+
+class EastcliffController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends KlondikeVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new klondike.EastCliff()
+}
+
+class SmallHarpController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends KlondikeVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new klondike.SmallHarp()
+}
+
+class ThumbAndPuchController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends KlondikeVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new klondike.ThumbAndPouchKlondikeDomain
+}
+
+class DealByThreeKlondikeDomain @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends KlondikeVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new klondike.DealByThreeKlondikeDomain()
+}
+

@@ -1,4 +1,3 @@
-
 ->    /                              org.combinators.cls.git.Routes
 
 GET   /archway                      org.combinators.solitaire.archway.Archway.overview()
@@ -17,15 +16,14 @@ GET   /freecell/raw_:number          org.combinators.solitaire.freecell.FreeCell
 GET   /freecell/prepare              org.combinators.solitaire.freecell.FreeCell.prepare(number: Long)
 GET   /freecell/freecell.git/*file   org.combinators.solitaire.freecell.FreeCell.serveFile(file)
 
-GET   /idiot                      org.combinators.solitaire.idiot.Idiot.overview()
-GET   /idiot/raw_:number          org.combinators.solitaire.idiot.Idiot.raw(number: Long)
-GET   /idiot/prepare              org.combinators.solitaire.idiot.Idiot.prepare(number: Long)
-GET   /idiot/idiot.git/*file  	  org.combinators.solitaire.idiot.Idiot.serveFile(file)
+->    /                            org.combinators.solitaire.idiot.Idiot
 
-GET   /klondike                      org.combinators.solitaire.klondike.Klondike.overview()
-GET   /klondike/raw_:number          org.combinators.solitaire.klondike.Klondike.raw(number: Long)
-GET   /klondike/prepare              org.combinators.solitaire.klondike.Klondike.prepare(number: Long)
-GET   /klondike/klondike.git/*file  	  org.combinators.solitaire.klondike.Klondike.serveFile(file)
+->    /                            org.combinators.solitaire.klondike.KlondikeController
+->    /                            org.combinators.solitaire.klondike.WhiteheadController
+->    /                            org.combinators.solitaire.klondike.EastcliffController
+->    /                            org.combinators.solitaire.klondike.SmallHarpController
+->    /                            org.combinators.solitaire.klondike.ThumbAndPuchController
+->    /                            org.combinators.solitaire.klondike.DealByThreeKlondikeDomain
 
 GET   /castle                      org.combinators.solitaire.castle.Castle.overview()
 GET   /castle/raw_:number          org.combinators.solitaire.castle.Castle.raw(number: Long)

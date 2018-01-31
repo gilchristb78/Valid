@@ -31,12 +31,10 @@ object Synthesizer extends JavaSemanticTypes {
     *
     * @return       Default Targets suitable for KombatSolitaire framework
     */
-  def standardTargets() :Seq[Constructor] = {
+  def standardTargets() :Seq[Constructor] =
+    Seq(game(complete),
+        constraints(complete))
 
-    val targets:Seq[Constructor] = Seq.empty
-
-    targets :+ constraints(complete)
-  }
 
   // awkward. Must map to SemanticTypes; annoying lower case, which could be fixed by just using the same
   // Capitalization in the JavaSemanticTypes
