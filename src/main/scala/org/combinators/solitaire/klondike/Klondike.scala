@@ -103,7 +103,7 @@ class SmallHarpController @Inject()(webJars: WebJarsUtil, applicationLifecycle: 
   lazy val variation = new klondike.SmallHarp()
 }
 
-class ThumbAndPuchController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+class ThumbAndPouchController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends KlondikeVariationController(webJars, applicationLifecycle) {
   lazy val variation = new klondike.ThumbAndPouchKlondikeDomain
 }

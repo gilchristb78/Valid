@@ -1,39 +1,30 @@
 ->    /                              org.combinators.cls.git.Routes
 
+# Each variation now only needs this one liner
 ->    /                              org.combinators.solitaire.freecell.FreeCell
 
 ->    /                              org.combinators.solitaire.archway.Archway
-GET   /archway/archway.git/*file     org.combinators.solitaire.archway.Archway.serveFile(file)
 
 ->    /                              org.combinators.solitaire.idiot.Idiot
-GET   /idiot/idiot.git/*file         org.combinators.solitaire.idiot.Idiot.serveFile(file)
 
 ->    /                              org.combinators.solitaire.bigforty.BigForty
-GET   /bigforty/bigforty.git/*file   org.combinators.solitaire.bigforty.BigForty.serveFile(file)
 
 ->    /                              org.combinators.solitaire.castle.Castle
-GET   /castle/castle.git/*file       org.combinators.solitaire.castle.Castle.serveFile(file)
 
 ->    /                              org.combinators.solitaire.narcotic.Narcotic
-GET   /narcotic/narcotic.git/*file   org.combinators.solitaire.narcotic.Narcotic.serveFile(file)
 
+# These are how sub-variations are specified
 ->    /                              org.combinators.solitaire.klondike.KlondikeController
-GET   /klondike/klondike.git/*file   org.combinators.solitaire.klondike.KlondikeController.serveFile(file)
 
 ->    /                              org.combinators.solitaire.klondike.WhiteheadController
-GET   /klondike/whitehead.git/*file  org.combinators.solitaire.klondike.WhiteheadController.serveFile(file)
 
 ->    /                              org.combinators.solitaire.klondike.EastcliffController
-GET   /klondike/eastcliff.git/*file  org.combinators.solitaire.klondike.EastcliffController.serveFile(file)
 
 ->    /                              org.combinators.solitaire.klondike.SmallHarpController
-GET   /klondike/smallharp.git/*file  org.combinators.solitaire.klondike.SmallHarpController.serveFile(file)
 
-->    /                                  org.combinators.solitaire.klondike.ThumbAndPuchController
-GET   /klondike/thumbandpouch.git/*file  org.combinators.solitaire.klondike.ThumbAndPuchController.serveFile(file)
+->    /                              org.combinators.solitaire.klondike.ThumbAndPouchController
 
-->    /                                org.combinators.solitaire.klondike.DealByThreeKlondikeDomain
-GET   /klondike/dealbythree.git/*file  org.combinators.solitaire.klondike.DealByThreeKlondikeDomain.serveFile(file)
+->    /                              org.combinators.solitaire.klondike.DealByThreeKlondikeDomain
 
 GET   /pyarchway                        pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number             pysolfc.archway.Archway.raw(number: Long)

@@ -68,13 +68,6 @@ public class TestSynthesis {
         String command = "git clone -b variation_0 " + url + "/" + variation + ".git";
         try {
             Process proc = Runtime.getRuntime().exec(command, new String[0], dir);
-//            System.out.println ("  GIT Errors (if any):"); System.out.flush();
-//            Stream<String> err = new BufferedReader(new InputStreamReader(proc.getErrorStream())).lines();
-//            err.forEach(System.err::println); System.err.flush();
-//            System.out.println ("  GIT Output (if any):"); System.out.flush();
-//            Stream<String> out = new BufferedReader(new InputStreamReader(proc.getInputStream())).lines();
-//            out.forEach(System.out::println);
-//            System.out.println ("  ----"); System.out.flush();
             proc.waitFor();
             return true;
         } catch (Exception e) {
@@ -189,7 +182,11 @@ public class TestSynthesis {
      * since the generated code is not part of the git repository.
      */
     public static void main (String args[]) {
-        for (String[] var : targets) {
+        List<String[]> list = Arrays.asList(targets);
+        Collections.shuffle(list);
+
+        // Perform each one in random order, so we can run multiple trials
+        for (String[] var : list) {
             System.out.println ("Variation:" + var[1]);
             synthesize(var[0], var[1], var[2]);
         }
