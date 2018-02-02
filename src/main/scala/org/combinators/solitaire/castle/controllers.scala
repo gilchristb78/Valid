@@ -6,6 +6,8 @@ import org.combinators.generic
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
 
+import scala.collection.JavaConverters._
+
 trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms  {
 
   // dynamic combinators added as needed
@@ -14,10 +16,9 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     println (">>> Castle Controller dynamic combinators.")
 
     updated = createMoveClasses(updated, s)
-
     updated = createDragLogic(updated, s)
-
     updated = generateMoveLogic(updated, s)
+    updated = generateExtendedClasses(updated, s)
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(row))
@@ -36,11 +37,8 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new ProcessControl(s))
       .addCombinator (new ProcessFields(s))
 
-
     updated
   }
-
-
 }
 
 

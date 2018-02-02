@@ -11,6 +11,8 @@ import org.combinators.templating.twirl.Java
 import org.combinators.generic
 import domain._
 
+import scala.collection.JavaConverters._
+
 trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms with SemanticTypes  {
 
   // dynamic combinators added as needed
@@ -19,24 +21,44 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     println (">>> Klondike Controller dynamic combinators.")
 
     updated = createMoveClasses(updated, s)
-
     updated = createDragLogic(updated, s)
-
     updated = generateMoveLogic(updated, s)
+    updated = generateExtendedClasses(updated, s)
 
-    // these all have to do with GUI commands being ignored
-    updated = updated
-      .addCombinator (new IgnoreClickedHandler(buildablePile))
-      .addCombinator (new IgnoreClickedHandler(pile))
-      .addCombinator (new IgnorePressedHandler(pile))
-      .addCombinator (new IgnoreClickedHandler('WastePile))
-      .addCombinator (new IgnoreReleasedHandler('WastePile))
-      .addCombinator (new IgnoreClickedHandler(fanPile))     // Variation
-      .addCombinator (new IgnoreReleasedHandler(fanPile))    // Variation
+    // these all have to do with GUI commands being ignored. Note we can envision an alternate
+    // set of default behaviors to try to generate all possible moves to the Foundation,
+    // should one exist.
+    for (cont:Container <- s.containers.asScala) {
+      for (elt <- cont.types.asScala) {
+        updated = updated.addCombinator(new IgnoreClickedHandler(Constructor(elt)))
+      }
+    }
 
-    updated = updated
-      .addCombinator (new IgnoreReleasedHandler(deck))
-      .addCombinator (new IgnoreClickedHandler(deck))
+    // In Klondike, it is never possible to release on the Deck or the wastepiles.
+    var waste:Container = s.getByType(SolitaireContainerTypes.Waste)
+    for (elt <- waste.types.asScala) {
+      updated = updated.addCombinator (new IgnoreReleasedHandler(Constructor(elt)))
+    }
+
+    // can't release on the Deck.
+    var stock:Container = s.getByType(SolitaireContainerTypes.Stock)
+    for (elt <- stock.types.asScala) {
+      updated = updated.addCombinator (new IgnoreReleasedHandler(Constructor(elt)))
+    }
+
+    // can't initiate from the Foundation. This could be generic code to add for many variations
+    var found:Container = s.getByType(SolitaireContainerTypes.Foundation)
+    for (elt <- found.types.asScala) {
+      updated = updated.addCombinator (new IgnorePressedHandler(Constructor(elt)))
+    }
+
+//    updated = updated
+//      .addCombinator (new IgnorePressedHandler(pile))
+//      .addCombinator (new IgnoreReleasedHandler('WastePile))
+//      .addCombinator (new IgnoreReleasedHandler(fanPile))    // Variation
+
+//    updated = updated
+//      .addCombinator (new IgnoreReleasedHandler(deck))
 
     // these clarify the allowed moves
     updated = updated
@@ -45,6 +67,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new SingleCardMoveHandler(fanPile))    // Variation
       .addCombinator (new buildablePilePress.CP2())
 
+    // Some variations allow you to reset deck, others don't
     if (s.asInstanceOf[klondike.KlondikeDomain].canResetDeck) {
       updated = updated.addCombinator (new deckPress.ResetDeckLocal())
     } else {
@@ -53,6 +76,11 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
 
     updated = createWinLogic(updated, s)
 
+    // needed for DealByThree variation. Would love to be able to separate these out better.
+
+    //    @combinator object MakeFanPile extends ExtendModel("Column", "FanPile", 'FanPileClass)
+    //    @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
+    //    @combinator object MakeWastePileView extends ExtendView("View", "WastePileView", "WastePile", 'WastePileViewClass)
 
     // move these to shared area
     updated = updated
@@ -162,6 +190,8 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
 
   @combinator object ChainTogether extends deckPress.ChainTogether
 
+//  @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
+//  @combinator object MakeWastePileView extends ExtendView("View", "WastePileView", "WastePile", 'WastePileViewClass)
 
 }
 

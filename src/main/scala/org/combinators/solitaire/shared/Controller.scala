@@ -112,6 +112,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
     updated
   }
 
+
   def generateMoveLogic[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = gamma
 

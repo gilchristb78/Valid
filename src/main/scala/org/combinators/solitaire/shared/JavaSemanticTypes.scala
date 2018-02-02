@@ -13,6 +13,11 @@ trait JavaSemanticTypes extends SemanticTypes {
   /** Placed here for ease of reference. */
   var constraintCodeGenerators = org.combinators.solitaire.shared.compilation.constraintCodeGenerators
 
+  /** Used when synthesizing special class to use for variation. */
+  object classes {
+     def apply(name:String) : Constructor = 'Classes (Constructor(name))
+  }
+
   /** only one part since synthesizing 'the' game. */
   object kombat {
     def apply (part:Type): Constructor = 'Game (part)

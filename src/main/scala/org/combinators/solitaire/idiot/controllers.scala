@@ -19,10 +19,10 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     println (">>> Idiot Controller dynamic combinators.")
 
     updated = createMoveClasses(updated, s)
-
     updated = createDragLogic(updated, s)
-
     updated = generateMoveLogic(updated, s)
+    updated = generateExtendedClasses(updated, s)
+
 
     // Each move has a source and a target. The SOURCE is the locus
     // for the PRESS while the TARGET is the locus for the RELEASE.

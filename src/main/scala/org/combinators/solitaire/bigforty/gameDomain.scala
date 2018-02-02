@@ -55,7 +55,7 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
 
   @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
 
-  @combinator object MakeWastePileView extends ExtendView("PileView", "WastePileView", "WastePile", 'WastePileViewClass)
+  @combinator object MakeWastePileView extends ExtendView("View", "WastePileView", "WastePile", 'WastePileViewClass)
 
   @combinator object ExtraImports {
     def apply(nameExpr: Name): Seq[ImportDeclaration] = {

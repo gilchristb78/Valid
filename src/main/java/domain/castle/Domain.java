@@ -111,7 +111,7 @@ public class Domain extends Solitaire {
 		// we intend to be solvable
 		setSolvable(true);
 
-		// register new elements for this domain
+		// register new elements for this domain (not view: that is already handled by RowView)
 		registerElement(new Row());
 
         placeContainer(getFoundation());

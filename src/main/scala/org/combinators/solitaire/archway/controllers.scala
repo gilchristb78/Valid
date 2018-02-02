@@ -2,10 +2,12 @@ package org.combinators.solitaire.archway
 
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.syntax._
-import domain._
 import org.combinators.generic
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
+
+import domain._
+import scala.collection.JavaConverters._
 
 /** Defines Archway's controllers and their behaviors.
   *
@@ -28,6 +30,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     updated = createMoveClasses(updated, s)
     updated = createDragLogic(updated, s)
     updated = generateMoveLogic(updated, s)
+    updated = generateExtendedClasses(updated, s)
 
     updated = updated
 

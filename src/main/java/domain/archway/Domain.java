@@ -11,10 +11,7 @@ import domain.deal.steps.DealToFoundation;
 import domain.deal.steps.DealToTableau;
 import domain.deal.steps.FilterAces;
 import domain.moves.SingleCardMove;
-import domain.ui.CalculatedPlacement;
-import domain.ui.HorizontalPlacement;
-import domain.ui.Layout;
-import domain.ui.PlacementGenerator;
+import domain.ui.*;
 import domain.win.BoardState;
 
 import java.awt.Point;
@@ -150,8 +147,8 @@ public class Domain extends Solitaire {
 		setSolvable(true);
 
 		// register new elements for this domain
-		registerElement(new AcesUpPile());
-		registerElement(new KingsDownPile());
+		registerElementAndView(new AcesUpPile(), new View("AcesUpPileView", "PileView", "AcesUpPile"));
+		registerElementAndView(new KingsDownPile(), new View("KingsDownPileView", "PileView", "KingsDownPile"));
 
         placeContainer(getFoundation());
         placeContainer(getReserve());

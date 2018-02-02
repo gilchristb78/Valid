@@ -24,9 +24,6 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = constraints(constraints.generator)
   }
 
-  // needed for DealByThree variation. Would love to be able to separate these out better.
-  @combinator object MakeFanPile extends ExtendModel("Column", "FanPile", 'FanPileClass)
-
   /**
     * Deal may require additional generators.
     */
@@ -34,10 +31,6 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.mapGenerators
     val semanticType: Type = constraints(constraints.map)
   }
-
-  @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
-  @combinator object MakeWastePileView extends ExtendView("PileView", "WastePileView", "WastePile", 'WastePileViewClass)
-
 
   // vagaries of java imports means these must be defined as well.
   @combinator object ExtraImports {

@@ -19,22 +19,22 @@ import domain._
 class Idiot @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val s:Solitaire = new domain.idiot.Domain()
+  val solitaire:Solitaire = new domain.idiot.Domain()
 
   // semantic types are embedded/defined within the repository, so we need to
   // import them all for use.
-  lazy val repository = new gameDomain(s) with controllers {}
-  import repository._
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), s)
+  lazy val repository = new gameDomain(solitaire) with controllers {}
+
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(s)
+  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(solitaire)
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-  val controllerAddress: String = "idiot"
+  lazy val controllerAddress: String = solitaire.name.toLowerCase
 
 //  lazy val base1 = Gamma.InhabitationBatchJob[CompilationUnit](game(complete))
 //  lazy val results:Results = EmptyResults().addAll(base1.run())

@@ -47,8 +47,8 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
    */
   @combinator object MakeAcesUpPile        extends ExtendModel("Pile",    "AcesUpPile",    'AcesUpPileClass)
   @combinator object MakeKingsDownPile     extends ExtendModel("Pile",    "KingsDownPile", 'KingsDownPileClass)
-  @combinator object MakeAcesUpPileView    extends ExtendView("PileView", "AcesUpPileView",    "AcesUpPile",    'AcesUpPileViewClass)
-  @combinator object MakeKingsDownPileView extends ExtendView("PileView", "KingsDownPileView", "KingsDownPile", 'KingsDownPileViewClass)
+  @combinator object MakeAcesUpPileView    extends ExtendView("View", "AcesUpPileView",    "AcesUpPile",    'AcesUpPileViewClass)
+  @combinator object MakeKingsDownPileView extends ExtendView("View", "KingsDownPileView", "KingsDownPile", 'KingsDownPileViewClass)
 
   /**
     * Generates import statements for the model and controller packages.

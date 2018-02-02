@@ -31,7 +31,7 @@ trait SemanticTypes {
     def apply (uniq:Symbol) : Constructor = 'Dynamic(uniq)
   }
 
-  // common structures
+  // common structures. These match (capitalization) with domain concepts.
   val deck: Constructor          = 'Deck
   val column: Constructor        = 'Column
   val buildablePile: Constructor = 'BuildablePile

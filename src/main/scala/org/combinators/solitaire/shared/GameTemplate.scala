@@ -16,6 +16,8 @@ import org.combinators.templating.twirl.Java
 import domain._
 import domain.ui._
 
+import scala.collection.JavaConverters._
+
 trait GameTemplate extends Base with Controller with Initialization with SemanticTypes with WinningLogic with DealLogic  {
 
   /**
@@ -59,6 +61,29 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
   }
 
 
+  // construct specialized classes based on registered domain elements
+  def generateExtendedClasses[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
+    var updated = gamma
+    // Model classes
+    for (e <- s.domainElements().asScala) {
+      val parent: String = e.getClass.getSuperclass.getSimpleName
+      val name: String = e.getClass.getSimpleName
+      updated = updated
+        .addCombinator(new ExtendModel(parent, name, classes(name)))
+    }
+
+    // View classes
+    for (v <- s.domainViews().asScala) {
+      val parent: String = v.parent
+      val name: String = v.name
+      val model:String = v.model
+      updated = updated
+        .addCombinator(new ExtendView(parent, name, model, classes(name)))
+    }
+
+    updated
+  }
+
   /**
     * Every solitaire variation belongs in its own package. Take name of game
     * and make it lowercase to conform to Java
@@ -87,7 +112,7 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
     val semanticType: Type = game(game.autoMoves)
   }
 
-  class ExtendModel(parent: String, subclass: String, typ:Symbol) {
+  class ExtendModel(parent: String, subclass: String, typ:Constructor) {
 
     def apply(rootPackage: Name): CompilationUnit = {
       val name = rootPackage.toString()
@@ -104,7 +129,7 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
     val semanticType : Type = packageName =>: typ
   }
 
-  class ExtendView(parent: String, subclass: String, model: String, typ:Symbol) {
+  class ExtendView(parent: String, subclass: String, model: String, typ:Constructor) {
 
     def apply(rootPackage: Name): CompilationUnit = {
       val name = rootPackage.toString()

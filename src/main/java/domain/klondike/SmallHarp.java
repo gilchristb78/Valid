@@ -23,18 +23,18 @@ public class SmallHarp extends KlondikeDomain {
     // Active SBT bug. Once you have an overridden method in a class, you can't remove it ... ever....
     // there should be way of clearing target/ files, but not going to try it...
     // https://github.com/sbt/zinc/issues/292
-
-    /** Note these are redundant, but they need to be left in because of the above error. */
-    @Override
-    public Constraint buildOnEmptyTableau(MoveInformation bottom) {
-        return super.buildOnEmptyTableau(bottom);
-    }
-
-    /** As long as SUIT is different (and lower rank) then ok. */
-    @Override
-    public Constraint buildOnTableau(MoveInformation bottom) {
-        return super.buildOnTableau(bottom);
-    }
+//
+//    /** Note these are redundant, but they need to be left in because of the above error. */
+//    @Override
+//    public Constraint buildOnEmptyTableau(MoveInformation bottom) {
+//        return super.buildOnEmptyTableau(bottom);
+//    }
+//
+//    /** As long as SUIT is different (and lower rank) then ok. */
+//    @Override
+//    public Constraint buildOnTableau(MoveInformation bottom) {
+//        return super.buildOnTableau(bottom);
+//    }
 
     @Override
     public Layout getLayout() {

@@ -11,6 +11,7 @@ import domain.deal.steps.DealToTableau;
 import domain.moves.*;
 import domain.ui.Layout;
 import domain.ui.ReserveFoundationTableauLayout;
+import domain.ui.View;
 import domain.win.BoardState;
 
 
@@ -112,8 +113,8 @@ public class Domain extends Solitaire {
 		setSolvable(true);
 
 		// register new elements for this domain
-		registerElement(new FreePile());
-		registerElement(new HomePile());
+		registerElementAndView(new FreePile(), new View("FreePileView", "PileView", "FreePile"));
+		registerElementAndView(new HomePile(), new View("HomePileView", "PileView", "HomePile"));
 
         placeContainer(getFoundation());
         placeContainer(getReserve());

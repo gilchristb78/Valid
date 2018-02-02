@@ -140,6 +140,8 @@ trait Initialization extends SemanticTypes {
             |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[FieldDeclaration])
   }
 
+
+
   /** Process Solitaire domain model to construct game(game.fields). */
   class ProcessFields (sol:Solitaire) {
     def apply: Seq[FieldDeclaration] = {

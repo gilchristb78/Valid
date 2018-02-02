@@ -7,6 +7,7 @@ import java.util.List;
 import domain.deal.Deal;
 import domain.ui.Layout;
 import domain.ui.PlacementGenerator;
+import domain.ui.View;
 import domain.win.ScoreAchieved;
 import domain.win.WinningLogic;
 
@@ -46,8 +47,15 @@ public abstract class Solitaire {
     /** Every Solitaire game has its own name. */
     public final String name;
 
+    /**
+     * Construct variation
+     *
+     * Also register all known special classes. Not sure this is in the right place...
+     * @param name
+     */
     public Solitaire (String name) {
         this.name = name;
+        registerElements();
     }
 
     /** User-defined containers can be specified as needed in this map. */
@@ -59,10 +67,10 @@ public abstract class Solitaire {
     public abstract Layout getLayout(); //  { return layout; }
 
     /** Get the name for a given container type. */
-    public Container getByName (String name) {
+    public Container getByType (ContainerType typ) {
         for (ContainerType ct : structure.keySet()) {
-            if (ct.getName().equals(name)) {
-                return structure.get(name);
+            if (ct == typ) {
+                return structure.get(ct);
             }
         }
 
@@ -108,8 +116,17 @@ public abstract class Solitaire {
 
     /** Occasionally a variation needs its own model elements, which are registered here. */
     protected List<Element> specializedElements = new ArrayList<>();
+    protected List<View> specializedViews = new ArrayList<>();
+    protected void registerElementAndView(Element e, View v) {
+        specializedElements.add(e);
+        specializedViews.add(v);   // e.getClass().getSimpleName() + "View");
+    }
     protected void registerElement(Element e) { specializedElements.add(e); }
+    protected void registerView(View v) { specializedViews.add(v); }
+
+
     public Iterator<Element> domainElements() { return specializedElements.iterator(); }
+    public Iterator<View> domainViews() { return specializedViews.iterator(); }
 
     /**
      * Compute minimum width and height required to realize this variation. Computes based on
@@ -197,4 +214,12 @@ public abstract class Solitaire {
 
         return false;
     }
+
+    /**
+     * Each solitaire game has the responsibility to register those elements (i.e., WastePile, FreePile) that
+     * are used by the variation.
+     *
+     * By default, no elements are required.
+     */
+    public void registerElements() { }
 }

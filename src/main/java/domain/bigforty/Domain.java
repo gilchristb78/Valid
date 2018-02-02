@@ -12,6 +12,7 @@ import domain.moves.*;
 import domain.ui.HorizontalPlacement;
 import domain.ui.Layout;
 import domain.ui.PlacementGenerator;
+import domain.ui.View;
 import domain.win.BoardState;
 
 import java.awt.*;
@@ -108,6 +109,12 @@ public class Domain extends Solitaire {
     public Domain() {
         super ("BigForty");
         init();
+    }
+
+    // register new elements for this domain
+    @Override
+    public void registerElements() {
+        registerElementAndView(new WastePile(), new View("WastePileView", "PileView", "WastePile"));
     }
 
     private void init() {

@@ -21,10 +21,9 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
     println(">>> Narcotic Controller dynamic combinators.")
 
     updated = createMoveClasses(updated, s)
-
     updated = createDragLogic(updated, s)
-
     updated = generateMoveLogic(updated, s)
+    updated = generateExtendedClasses(updated, s)
 
     // Must determine how to handle clicks
     updated = updated

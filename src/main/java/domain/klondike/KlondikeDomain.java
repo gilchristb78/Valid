@@ -11,6 +11,7 @@ import domain.deal.steps.DealToTableau;
 import domain.deal.steps.DealToWaste;
 import domain.moves.*;
 import domain.ui.Layout;
+import domain.ui.View;
 import domain.win.BoardState;
 
 
@@ -146,6 +147,13 @@ public class KlondikeDomain extends Solitaire implements VariationPoints {
     protected KlondikeDomain(String name) {
         super(name);
         init();
+    }
+
+
+    // register new elements for this domain
+    @Override
+    public void registerElements() {
+        registerElementAndView(new WastePile(), new View("WastePileView", "PileView", "WastePile"));
     }
 
     private void init() {

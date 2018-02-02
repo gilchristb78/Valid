@@ -1,34 +1,39 @@
 ->    /                              org.combinators.cls.git.Routes
 
-GET   /archway                      org.combinators.solitaire.archway.Archway.overview()
-GET   /archway/raw_:number          org.combinators.solitaire.archway.Archway.raw(number: Long)
-GET   /archway/prepare              org.combinators.solitaire.archway.Archway.prepare(number: Long)
-GET   /archway/archway.git/*file   org.combinators.solitaire.archway.Archway.serveFile(file)
+->    /                              org.combinators.solitaire.freecell.FreeCell
 
+->    /                              org.combinators.solitaire.archway.Archway
+GET   /archway/archway.git/*file     org.combinators.solitaire.archway.Archway.serveFile(file)
 
-GET   /narcotic                      org.combinators.solitaire.narcotic.Narcotic.overview()
-GET   /narcotic/raw_:number          org.combinators.solitaire.narcotic.Narcotic.raw(number: Long)
-GET   /narcotic/prepare              org.combinators.solitaire.narcotic.Narcotic.prepare(number: Long)
+->    /                              org.combinators.solitaire.idiot.Idiot
+GET   /idiot/idiot.git/*file         org.combinators.solitaire.idiot.Idiot.serveFile(file)
+
+->    /                              org.combinators.solitaire.bigforty.BigForty
+GET   /bigforty/bigforty.git/*file   org.combinators.solitaire.bigforty.BigForty.serveFile(file)
+
+->    /                              org.combinators.solitaire.castle.Castle
+GET   /castle/castle.git/*file       org.combinators.solitaire.castle.Castle.serveFile(file)
+
+->    /                              org.combinators.solitaire.narcotic.Narcotic
 GET   /narcotic/narcotic.git/*file   org.combinators.solitaire.narcotic.Narcotic.serveFile(file)
 
-GET   /freecell                      org.combinators.solitaire.freecell.FreeCell.overview()
-GET   /freecell/raw_:number          org.combinators.solitaire.freecell.FreeCell.raw(number: Long)
-GET   /freecell/prepare              org.combinators.solitaire.freecell.FreeCell.prepare(number: Long)
-GET   /freecell/freecell.git/*file   org.combinators.solitaire.freecell.FreeCell.serveFile(file)
+->    /                              org.combinators.solitaire.klondike.KlondikeController
+GET   /klondike/klondike.git/*file   org.combinators.solitaire.klondike.KlondikeController.serveFile(file)
 
-->    /                            org.combinators.solitaire.idiot.Idiot
+->    /                              org.combinators.solitaire.klondike.WhiteheadController
+GET   /klondike/whitehead.git/*file  org.combinators.solitaire.klondike.WhiteheadController.serveFile(file)
 
-->    /                            org.combinators.solitaire.klondike.KlondikeController
-->    /                            org.combinators.solitaire.klondike.WhiteheadController
-->    /                            org.combinators.solitaire.klondike.EastcliffController
-->    /                            org.combinators.solitaire.klondike.SmallHarpController
-->    /                            org.combinators.solitaire.klondike.ThumbAndPuchController
-->    /                            org.combinators.solitaire.klondike.DealByThreeKlondikeDomain
+->    /                              org.combinators.solitaire.klondike.EastcliffController
+GET   /klondike/eastcliff.git/*file  org.combinators.solitaire.klondike.EastcliffController.serveFile(file)
 
-GET   /castle                      org.combinators.solitaire.castle.Castle.overview()
-GET   /castle/raw_:number          org.combinators.solitaire.castle.Castle.raw(number: Long)
-GET   /castle/prepare              org.combinators.solitaire.castle.Castle.prepare(number: Long)
-GET   /castle/castle.git/*file  	  org.combinators.solitaire.castle.Castle.serveFile(file)
+->    /                              org.combinators.solitaire.klondike.SmallHarpController
+GET   /klondike/smallharp.git/*file  org.combinators.solitaire.klondike.SmallHarpController.serveFile(file)
+
+->    /                                  org.combinators.solitaire.klondike.ThumbAndPuchController
+GET   /klondike/thumbandpouch.git/*file  org.combinators.solitaire.klondike.ThumbAndPuchController.serveFile(file)
+
+->    /                                org.combinators.solitaire.klondike.DealByThreeKlondikeDomain
+GET   /klondike/dealbythree.git/*file  org.combinators.solitaire.klondike.DealByThreeKlondikeDomain.serveFile(file)
 
 GET   /pyarchway                        pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number             pysolfc.archway.Archway.raw(number: Long)
@@ -54,11 +59,6 @@ GET   /pynarcotic                         pysolfc.narcotic.Narcotic.overview()
 GET   /pynarcotic/raw_:number             pysolfc.narcotic.Narcotic.raw(number: Long)
 GET   /pynarcotic/prepare                 pysolfc.narcotic.Narcotic.prepare(number: Long)
 GET   /pynarcotic/pynarcotic.git/*file    pysolfc.narcotic.Narcotic.serveFile(file)
-
-GET   /bigforty                      org.combinators.solitaire.bigforty.BigForty.overview()
-GET   /bigforty/raw_:number          org.combinators.solitaire.bigforty.BigForty.raw(number: Long)
-GET   /bigforty/prepare              org.combinators.solitaire.bigforty.BigForty.prepare(number: Long)
-GET   /bigforty/bigforty.git/*file   org.combinators.solitaire.bigforty.BigForty.serveFile(file)
 
 GET   /temperature                          example.temperature.Temperature.overview()
 GET   /temperature/raw_:number              example.temperature.Temperature.raw(number: Long)

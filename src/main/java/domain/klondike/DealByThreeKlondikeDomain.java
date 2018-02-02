@@ -42,13 +42,13 @@ public class DealByThreeKlondikeDomain extends KlondikeDomain {
 
     public DealByThreeKlondikeDomain() {
         super("DealByThree");
-        init();
     }
 
-    private void init() {
 
-        // register new elements for this domain
+    // register new elements for this domain
+    @Override
+    public void registerElements() {
         registerElement(new FanPile(numToDeal()));
-
     }
+
 }

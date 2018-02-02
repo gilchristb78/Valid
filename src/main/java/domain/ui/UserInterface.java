@@ -38,7 +38,8 @@ public class UserInterface {
 
     /**
      * Resports the names of Elements for which controllers need to
-     * be constructed.
+     * be constructed. Only Visible elements need to be constructed.
+     *
      */
     public Iterator<String> controllers() {
         System.out.println (">> compute controllers");
@@ -46,6 +47,8 @@ public class UserInterface {
 
         /** Get each of the containers registered for the solitaire game. */
         for (Container c : solitaire.structure.values()) {
+            if (!solitaire.isVisible(c)) { continue; }
+
             Iterator<String> type_it = c.types();
             while (type_it.hasNext()) {
                 String typ = type_it.next();

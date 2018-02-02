@@ -40,13 +40,13 @@ object Synthesizer extends JavaSemanticTypes {
   // Capitalization in the JavaSemanticTypes
   // TODO: Fix this
   def map(element: String): Type = {
-    if (element == "BuildablePile") return new Constructor("buildablePile")
-    if (element == "Card") return  new Constructor("card")
-    if (element == "Column") return  new Constructor("column")
-    if (element == "Deck") return  new Constructor("deck")
-    if (element == "Pile") return  new Constructor("pile")
+    if (element == "BuildablePile") return Constructor("buildablePile")
+    if (element == "Card") return  Constructor("card")
+    if (element == "Column") return  Constructor("column")
+    if (element == "Deck") return  Constructor("deck")
+    if (element == "Pile") return  Constructor("pile")
 
-    new Constructor(element)
+    Constructor(element)
   }
 
   /**
@@ -65,8 +65,8 @@ object Synthesizer extends JavaSemanticTypes {
     for (c <- model.containers().asScala) {
       if (model.isVisible(c)) {
         for (t <- c.types.asScala) {
-          val element = map(t)
-          targets = targets :+ controller(element, complete)
+          //val element = map(t)
+          targets = targets :+ controller(Constructor(t), complete)
         }
       }
     }
@@ -85,8 +85,8 @@ object Synthesizer extends JavaSemanticTypes {
     var targets :Seq[Constructor] = Seq.empty
 
     for (e <- model.domainElements().asScala) {
-      targets = targets :+ Constructor(e.getClass.getSimpleName + "Class)")
-      targets = targets :+ Constructor(e.getClass.getSimpleName + "ViewClass)")
+      targets = targets :+ classes (e.getClass.getSimpleName)
+      targets = targets :+ classes (e.getClass.getSimpleName + "View")
     }
 
     targets

@@ -3,25 +3,45 @@ package buildTest;
 import java.util.*;
 import java.net.*;
 import java.io.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * Provides a rudimentary way to automatically synthesize all known solitaire variations (on a PC), compile the code, and
- * ultimately validate that the synthesized Java code compils cleanly.
+ * With new dynamic routes, we lose the information in the file.
  *
- * Note: this will be more challenging to do with generated Python code.
+ * Register here individually.
  */
 public class TestSynthesis {
 
-    public static final String resources = "src" + File.separator + "main" + File.separator + "resources" + File.separator + "routes";
+    /**
+     * Each entry has three fields
+     *
+     * [0] Base URL for invoking the synthesis algorithm. This is matched in 'routes' file
+     * [1] The name of the variation (all lowercase)
+     * [2] The name of the top-level Java class which is main Variation.
+     */
+    public static final String[][] targets = new String[][] {
+            {"http://localhost:9000/archway", "archway", "Archway"},
+            {"http://localhost:9000/bigforty", "bigforty", "BigForty"},
+            {"http://localhost:9000/castle", "castle", "Castle"},
+            {"http://localhost:9000/freecell", "freecell", "FreeCell"},
+            {"http://localhost:9000/idiot", "idiot", "Idiot"},
+            {"http://localhost:9000/narcotic", "narcotic", "Narcotic"},
 
-    // new directory each time, in demo directory
+            {"http://localhost:9000/klondike/dealbythree",   "dealbythree",     "DealByThree"},
+            {"http://localhost:9000/klondike/eastcliff",     "eastcliff",       "EastCliff"},
+            {"http://localhost:9000/klondike/klondike",      "klondike",        "Klondike"},
+            {"http://localhost:9000/klondike/smallharp",     "smallharp",       "SmallHarp"},
+            {"http://localhost:9000/klondike/thumbandpouch", "thumbandpouch",   "ThumbAndPouch"},
+            {"http://localhost:9000/klondike/whitehead",      "whitehead",      "WhiteHead"},
+    };
+
+    /** All synthesized files are stored in demo/solitaire folder. */
     public static final String destination = "demo" + File.separator + "solitaire";
 
+    /** KombatSolitaire stand alone JAR file, needed for compilation and execution. */
     public static final String standAlone =  "demo" + File.separator + "standAlone.jar";
 
+    /** Timing helpers. */
     static long start_timeStamp;
     static void startTime() {
         start_timeStamp = System.currentTimeMillis();
@@ -30,16 +50,31 @@ public class TestSynthesis {
         float seconds = (1.0f*(System.currentTimeMillis() - start_timeStamp) / 1000);
         return seconds;
     }
-    static boolean gitRetrieve(String variation) {
+
+    /**
+     * Use git clone to retrieve the source files.
+     *
+     * @param url           original target URL
+     * @param variation     variation name -- package.
+     * @return true on success. false otherwise
+     */
+    static boolean gitRetrieve(String url, String variation) {
         File dir = new File (destination);
         if (!dir.exists() && !dir.mkdir()) {
             System.err.println ("  unable to make directory:" + destination);
             return false;
         }
 
-        String command = "git clone -b variation_0 http://localhost:9000/" + variation + "/" + variation + ".git";
+        String command = "git clone -b variation_0 " + url + "/" + variation + ".git";
         try {
             Process proc = Runtime.getRuntime().exec(command, new String[0], dir);
+//            System.out.println ("  GIT Errors (if any):"); System.out.flush();
+//            Stream<String> err = new BufferedReader(new InputStreamReader(proc.getErrorStream())).lines();
+//            err.forEach(System.err::println); System.err.flush();
+//            System.out.println ("  GIT Output (if any):"); System.out.flush();
+//            Stream<String> out = new BufferedReader(new InputStreamReader(proc.getInputStream())).lines();
+//            out.forEach(System.out::println);
+//            System.out.println ("  ----"); System.out.flush();
             proc.waitFor();
             return true;
         } catch (Exception e) {
@@ -48,6 +83,14 @@ public class TestSynthesis {
         }
     }
 
+    /**
+     * Compile the classes as found in the given pkg by compiling the main class.
+     *
+     * @param pkg         variation name -- package.
+     * @param mainClass   Main class name
+     *
+     * @return true on success; false otherwise
+     */
     static boolean compile(String pkg, String mainClass) {
         File here = new File (".");
         String jarFile = here.getAbsoluteFile() + File.separator + standAlone;
@@ -89,21 +132,45 @@ public class TestSynthesis {
         }
     }
 
-    static void synthesize (String pkgPlusVar) {
+    /**
+     * The git files are only produced after invoking 'prepare'.
+     *
+     * @param urls        base URL for variation
+     * @param variation   variation name -- package.
+     */
+    static void prepare (String urls, String variation) {
         try {
-            int idx = pkgPlusVar.indexOf('.');
-            String variation = pkgPlusVar.substring(0, idx);
-            String mainClass = pkgPlusVar.substring(idx+1);
+            System.out.print ("  Attempting to prepare " + variation + " [");
+            startTime();
+            URL url = new URL(urls + "/prepare?number=0");
+            BufferedReader br = new BufferedReader (new InputStreamReader (url.openStream()));
+            Stream<String> input =  br.lines();
+            br.close();
+            System.out.println (endTime() + " secs]");
+        } catch (Exception e) {
+            System.err.println ("  unable to prepare:" + variation + "(" + e.getMessage() + ")");
+        }
+    }
+
+    /**
+     * @param urls         variation URL
+     * @param variation    variation name -- package.
+     * @param mainClass    Main class name
+     */
+    static void synthesize (String urls, String variation, String mainClass) {
+        try {
             System.out.print ("  Attempting to synthesize " + variation + " [");
             startTime();
-            URL url = new URL("http://localhost:9000/" + variation + "/prepare?number=0");
+            URL url = new URL(urls);
             BufferedReader br = new BufferedReader (new InputStreamReader (url.openStream()));
             Stream<String> input =  br.lines();
             System.out.println (endTime() + " secs]");
 
             if (input.count() > 0) {
+                prepare(urls, variation);
+
                 startTime();
-                gitRetrieve(variation);
+                gitRetrieve(urls, variation);
                 System.out.println ("  Computed and retrieved git files [" + endTime() + "]");
 
                 startTime();
@@ -111,40 +178,20 @@ public class TestSynthesis {
                 System.out.println ("  Compiled files [" + endTime() + "]");
             }
         } catch (Exception e) {
-            System.err.println ("  unable to synthesize:" + pkgPlusVar + "(" + e.getMessage() + ")");
+            System.err.println ("  unable to synthesize:" + variation + "(" + e.getMessage() + ")");
         }
     }
 
-    public static void main (String args[]) throws Exception {
-        File f = new File(resources);
-        if (!f.exists()) {
-            System.err.println ("  Cannot find routes file:" + resources);
-            System.exit(-1);
-        }
-
-        System.out.println ("Extracting all solitaire variations to:" + destination);
-
-        // Grab all Kombat-Solitaire based variations.
-        ArrayList<String> variations = new ArrayList<>();
-        Scanner sc = new Scanner(f);
-        while (sc.hasNextLine()) {
-            String s = sc.nextLine();
-
-            // GET   /freecell/prepare              org.combinators.solitaire.freecell.FreeCell.prepare(number: Long)
-
-            Pattern regex = Pattern.compile("GET\\s+/(\\w+)/prepare\\s+org\\.combinators\\.solitaire\\.(\\w+)\\.(\\w+)\\.prepare");
-            Matcher match = regex.matcher(s);
-            if (match.find()) {
-                String name = match.group(1);
-                String mainClassName = match.group(3);
-                System.out.println ("  found:" + name);
-                variations.add(name + "." + mainClassName);
-            }
-        }
-
-        for (String var : variations) {
-            System.out.println ("Variation:" + var);
-            synthesize(var);
+    /**
+     * Launch everything!
+     *
+     * All code is stored in nextgen-solitaire/demo/solitaire and can be deleted at any time
+     * since the generated code is not part of the git repository.
+     */
+    public static void main (String args[]) {
+        for (String[] var : targets) {
+            System.out.println ("Variation:" + var[1]);
+            synthesize(var[0], var[1], var[2]);
         }
     }
 }
