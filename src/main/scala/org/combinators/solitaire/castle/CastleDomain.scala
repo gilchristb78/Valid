@@ -1,7 +1,7 @@
 package org.combinators.solitaire.castle
 
 import com.github.javaparser.ast.ImportDeclaration
-import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.combinator
@@ -37,6 +37,20 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     ).merge(constraintCodeGenerators.generators)
   }
 
+  /** Each Solitaire variation must provide default do generation. */
+  @combinator object DefaultDoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.doGenerators
+
+    val semanticType: Type = constraints(constraints.do_generator)
+  }
+
+  /** Each Solitaire variation must provide default conversion for moves. */
+  @combinator object DefaultUndoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.undoGenerators
+
+    val semanticType: Type = constraints(constraints.undo_generator)
+  }
+
   /**
     * Castle requires specialized extensions for constraints to work.
     */
@@ -58,7 +72,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     * these are meant to be generic, things like getTableua, getReserve()
     */
   @combinator object  HelperMethodsCastle {
-    def apply(): Seq[MethodDeclaration] = {
+    def apply(): Seq[BodyDeclaration[_]] = {
       val methods = generateHelper.helpers(solitaire)
 
       methods ++ Java(

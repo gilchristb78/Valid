@@ -1,8 +1,10 @@
 package org.combinators.solitaire.bigforty
 
+import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter._
 import domain.bigforty.Domain
 import domain.{Solitaire, SolitaireContainerTypes}
+import org.combinators.TypeNameStatistics
 import org.combinators.solitaire.shared.SolitaireDomainTest
 import org.scalatest.FunSpec
 
@@ -33,6 +35,11 @@ class BigFortyTests extends FunSpec {
 
         val reflected = ReflectedRepository(controllerRepository, classLoader = controllerRepository.getClass.getClassLoader)
         val Gamma = controllerRepository.init(reflected, domainModel)
+
+        lazy val statistics = new TypeNameStatistics(Gamma)
+        println(statistics.overview)
+        println(statistics.warnings)
+
         // Handles all of the default structural elements from the domain model
         it ("Check Standard Domain Model") {
           new SolitaireDomainTest().validateDomain(Gamma, domainModel)

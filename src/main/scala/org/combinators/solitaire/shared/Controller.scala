@@ -278,21 +278,21 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
   /** When given a Move (SingleCardMove or ColumnMove) ascribes proper Undo. */
   /** Same code, just by coincidence. */
   class UndoGenerator(m:Move, moveSymbol:Type) {
-    def apply(): Seq[Statement] = {
-      new SeqStatementCombinator(m).apply(constraintCodeGenerators.undoGenerators)
+    def apply(generators: CodeGeneratorRegistry[Seq[Statement]]): Seq[Statement] =  {
+      new SeqStatementCombinator(m).apply(generators)
 
     }
-    val semanticType: Type = move(moveSymbol, move.undoStatements)
+    val semanticType: Type = constraints(constraints.undo_generator) =>: move(moveSymbol, move.undoStatements)
   }
 
   /** When given a Move (SingleCardMove or ColumnMove) ascribes proper Do. */
   /** Same code, just by coincidence. */
   class DoGenerator(m:Move, moveSymbol:Type) {
-    def apply(): Seq[Statement] =  {
-      new SeqStatementCombinator(m).apply(constraintCodeGenerators.doGenerators)
+    def apply(generators: CodeGeneratorRegistry[Seq[Statement]]): Seq[Statement] =  {
+      new SeqStatementCombinator(m).apply(generators)
 
     }
-    val semanticType: Type = move(moveSymbol, move.doStatements)
+    val semanticType: Type = constraints(constraints.do_generator) =>: move(moveSymbol, move.doStatements)
   }
 
   /** Every move class needs a constructor with helper fields. */

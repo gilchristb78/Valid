@@ -79,7 +79,7 @@ class KlondikeTests extends FunSpec {
       describe("the domain model") {
 
         // notable variation changes. Can't reset deck in EastCliff
-        assert(!domainModel.asInstanceOf[klondike.KlondikeDomain].canResetDeck())
+        assert(domainModel.asInstanceOf[klondike.KlondikeDomain].numRedeals == 0)
 
         it("should have a tableau of size 7") {
           assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Tableau).next().size() == 7)

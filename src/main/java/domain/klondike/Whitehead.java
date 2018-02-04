@@ -18,9 +18,10 @@ public class Whitehead extends KlondikeDomain {
 
     private Deal deal;
 
+    /** Never allow redeals. */
     @Override
-    public boolean canResetDeck() {
-        return false;
+    public int numRedeals() {
+        return NEVER_REDEAL;
     }
 
     /** Allow any card to be placed on empty tableau. */
@@ -30,6 +31,7 @@ public class Whitehead extends KlondikeDomain {
     }
 
     /** As long as SUIT is same (and lower rank) then ok. */
+    @Override
     public Constraint buildOnTableau(MoveInformation bottom) {
         TopCardOf topDestination = new TopCardOf(MoveComponents.Destination);
         return new AndConstraint(new NextRank(topDestination, bottom), new SameSuit(bottom, topDestination));

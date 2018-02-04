@@ -85,8 +85,11 @@ object Synthesizer extends JavaSemanticTypes {
     var targets :Seq[Constructor] = Seq.empty
 
     for (e <- model.domainElements().asScala) {
-      targets = targets :+ classes (e.getClass.getSimpleName)
-      targets = targets :+ classes (e.getClass.getSimpleName + "View")
+      targets = targets :+ classes(e.getClass.getSimpleName)
+    }
+
+    for (e <- model.domainViews().asScala) {
+      targets = targets :+ classes (e.name)
     }
 
     targets

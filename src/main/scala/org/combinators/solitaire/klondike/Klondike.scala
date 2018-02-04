@@ -113,3 +113,7 @@ class DealByThreeKlondikeDomain @Inject()(webJars: WebJarsUtil, applicationLifec
   lazy val variation = new klondike.DealByThreeKlondikeDomain()
 }
 
+class EastHavenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends KlondikeVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new klondike.EastHaven()
+}

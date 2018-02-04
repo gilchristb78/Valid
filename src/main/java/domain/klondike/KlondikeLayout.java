@@ -11,8 +11,6 @@ import java.awt.*;
  * Layout of Klondike assumes the existence of a number of container types.
  *
  *
- *
- *
  * TODO: This could be more compositional.
  */
 public class KlondikeLayout extends Layout {

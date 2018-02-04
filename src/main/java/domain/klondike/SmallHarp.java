@@ -1,11 +1,7 @@
 package domain.klondike;
 
-import domain.Constraint;
 import domain.Solitaire;
 import domain.SolitaireContainerTypes;
-import domain.constraints.*;
-import domain.constraints.movetypes.MoveComponents;
-import domain.constraints.movetypes.TopCardOf;
 import domain.ui.CalculatedPlacement;
 import domain.ui.HorizontalPlacement;
 import domain.ui.Layout;
@@ -19,22 +15,6 @@ import java.awt.*;
 public class SmallHarp extends KlondikeDomain {
 
     private Layout layout;
-
-    // Active SBT bug. Once you have an overridden method in a class, you can't remove it ... ever....
-    // there should be way of clearing target/ files, but not going to try it...
-    // https://github.com/sbt/zinc/issues/292
-//
-//    /** Note these are redundant, but they need to be left in because of the above error. */
-//    @Override
-//    public Constraint buildOnEmptyTableau(MoveInformation bottom) {
-//        return super.buildOnEmptyTableau(bottom);
-//    }
-//
-//    /** As long as SUIT is different (and lower rank) then ok. */
-//    @Override
-//    public Constraint buildOnTableau(MoveInformation bottom) {
-//        return super.buildOnTableau(bottom);
-//    }
 
     @Override
     public Layout getLayout() {

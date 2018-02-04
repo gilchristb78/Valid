@@ -20,19 +20,20 @@ public class TestSynthesis {
      * [2] The name of the top-level Java class which is main Variation.
      */
     public static final String[][] targets = new String[][] {
-            {"http://localhost:9000/archway", "archway", "Archway"},
-            {"http://localhost:9000/bigforty", "bigforty", "BigForty"},
-            {"http://localhost:9000/castle", "castle", "Castle"},
-            {"http://localhost:9000/freecell", "freecell", "FreeCell"},
-            {"http://localhost:9000/idiot", "idiot", "Idiot"},
-            {"http://localhost:9000/narcotic", "narcotic", "Narcotic"},
+            {"http://localhost:9000/archway",    "archway",     "Archway"},
+            {"http://localhost:9000/bigforty",   "bigforty",    "BigForty"},
+            {"http://localhost:9000/castle",     "castle",      "Castle"},
+            {"http://localhost:9000/freecell",   "freecell",    "FreeCell"},
+            {"http://localhost:9000/idiot",      "idiot",       "Idiot"},
+            {"http://localhost:9000/narcotic",   "narcotic",    "Narcotic"},
 
-            {"http://localhost:9000/klondike/dealbythree",   "dealbythree",     "DealByThree"},
-            {"http://localhost:9000/klondike/eastcliff",     "eastcliff",       "EastCliff"},
-            {"http://localhost:9000/klondike/klondike",      "klondike",        "Klondike"},
-            {"http://localhost:9000/klondike/smallharp",     "smallharp",       "SmallHarp"},
-            {"http://localhost:9000/klondike/thumbandpouch", "thumbandpouch",   "ThumbAndPouch"},
-            {"http://localhost:9000/klondike/whitehead",      "whitehead",      "WhiteHead"},
+            {"http://localhost:9000/klondike/dealbythree",    "dealbythree",     "DealByThree"},
+            {"http://localhost:9000/klondike/eastcliff",      "eastcliff",       "EastCliff"},
+            {"http://localhost:9000/klondike/klondike",       "klondike",        "Klondike"},
+            {"http://localhost:9000/klondike/smallharp",      "smallharp",       "SmallHarp"},
+            {"http://localhost:9000/klondike/thumbandpouch",  "thumbandpouch",   "ThumbAndPouch"},
+            {"http://localhost:9000/klondike/whitehead",      "whitehead",       "WhiteHead"},
+            {"http://localhost:9000/klondike/easthaven",      "easthaven",       "EastHaven"},
     };
 
     /** All synthesized files are stored in demo/solitaire folder. */

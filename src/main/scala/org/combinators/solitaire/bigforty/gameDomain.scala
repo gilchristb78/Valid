@@ -1,8 +1,9 @@
 package org.combinators.solitaire.bigforty
 import domain._
 import com.github.javaparser.ast.ImportDeclaration
-import com.github.javaparser.ast.body. MethodDeclaration
+import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
+import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
@@ -32,6 +33,20 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
     val semanticType: Type = constraints(constraints.generator)
   }
 
+  /** Each Solitaire variation must provide default do generation. */
+  @combinator object DefaultDoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.doGenerators
+
+    val semanticType: Type = constraints(constraints.do_generator)
+  }
+
+  /** Each Solitaire variation must provide default conversion for moves. */
+  @combinator object DefaultUndoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.undoGenerators
+
+    val semanticType: Type = constraints(constraints.undo_generator)
+  }
+
   /**
     * Deal may require additional generators.
     */
@@ -41,7 +56,7 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
   }
 
   @combinator object HelperMethodsFreeCell {
-    def apply(): Seq[MethodDeclaration] = {
+    def apply(): Seq[BodyDeclaration[_]] = {
       val methods = generateHelper.helpers(solitaire)
 
       methods ++ Java(s"""

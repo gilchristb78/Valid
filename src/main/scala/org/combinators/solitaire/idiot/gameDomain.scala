@@ -1,7 +1,7 @@
 package org.combinators.solitaire.idiot
 
 import com.github.javaparser.ast.ImportDeclaration
-import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.combinator
@@ -36,6 +36,20 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   @combinator object IdiotGenerator {
     def apply: CodeGeneratorRegistry[Expression] = idiotCodeGenerator.generators
     val semanticType: Type = constraints(constraints.generator)
+  }
+
+  /** Each Solitaire variation must provide default do generation. */
+  @combinator object DefaultDoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.doGenerators
+
+    val semanticType: Type = constraints(constraints.do_generator)
+  }
+
+  /** Each Solitaire variation must provide default conversion for moves. */
+  @combinator object DefaultUndoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.undoGenerators
+
+    val semanticType: Type = constraints(constraints.undo_generator)
   }
 
   /**
@@ -119,7 +133,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
   /** Idiot has logic to determine if any existing card on the tableau is higher in same suit. */
   @combinator object HelperMethodsIdiot {
-    def apply(): Seq[MethodDeclaration] = {
+    def apply(): Seq[BodyDeclaration[_]] = {
       val methods = generateHelper.helpers(solitaire)
 
       methods ++ Java(s"""

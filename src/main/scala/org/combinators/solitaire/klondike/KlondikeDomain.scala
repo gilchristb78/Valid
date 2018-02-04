@@ -1,8 +1,11 @@
 package org.combinators.solitaire.klondike
 
 import com.github.javaparser.ast.ImportDeclaration
-import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
+import com.github.javaparser.ast.stmt.Statement
+import domain.klondike.RedealsAllowed
+import domain.moves.ResetDeckMove
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
@@ -19,9 +22,59 @@ import domain._
 class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with SemanticTypes
   with GameTemplate with Controller {
 
-  @combinator object DefaultGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
+  /**
+    * Klondike needs ability to have constraint for move.
+    *
+    * This method appears in the extra methods [[HelperMethodsKlondike]] below.
+    */
+  object klondikeCodeGenerators {
+    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
+
+      CodeGeneratorRegistry[Expression, RedealsAllowed] {
+        case (registry:CodeGeneratorRegistry[Expression], ra:RedealsAllowed) =>
+         Java(s"""ConstraintHelper.redealsAllowed()""").expression()
+      },
+
+    ).merge(constraintCodeGenerators.generators)
+  }
+
+  /**
+    * Combinator to identify the constraint generator to use when generating moves for Klondike.
+    */
+  @combinator object KlondikeGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = klondikeCodeGenerators.generators
+
     val semanticType: Type = constraints(constraints.generator)
+  }
+
+  /** Each Solitaire variation must provide default conversion for moves. */
+  object limitedDealResets {
+    val generators: CodeGeneratorRegistry[Seq[Statement]] = CodeGeneratorRegistry.merge[Seq[Statement]](
+
+      CodeGeneratorRegistry[Seq[Statement], ResetDeckMove] {
+
+        // retrieve old statements, and just add one more
+        case (registry: CodeGeneratorRegistry[Seq[Statement]], r: ResetDeckMove) =>
+          val old:Seq[Statement] = constraintCodeGenerators.doGenerators(r).get
+
+          old ++ Java(s"""ConstraintHelper.takeRedeal();""").statements()
+      },
+
+    ).merge(constraintCodeGenerators.doGenerators)
+  }
+
+  /** In Klondike, we need to merge in code to handle the counting of decks being reset. */
+  @combinator object KlondikeDoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = limitedDealResets.generators
+
+    val semanticType: Type = constraints(constraints.do_generator)
+  }
+
+  /** Each Solitaire variation must provide default conversion for moves. */
+  @combinator object defaultUndoMoves {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.undoGenerators
+
+    val semanticType: Type = constraints(constraints.undo_generator)
   }
 
   /**
@@ -53,10 +106,22 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     val semanticType: Type = game(game.methods)
   }
 
-
-  /** No helper methods for Klondike. */
+  /**
+    * Provide ConstraintHelper.takeRedeal() as method to invoke once deal happens.
+    *   Have this be invoked from the doGenerator extension (which is yet to be written).
+    *
+    * Provide ConstraintHelper.redealsAllowed() to check if more redeals are allowed.
+    */
   @combinator object HelperMethodsKlondike {
-    def apply(): Seq[MethodDeclaration] = generateHelper.helpers(solitaire)
+    def apply(): Seq[BodyDeclaration[_]] = {
+      val max = solitaire.asInstanceOf[klondike.KlondikeDomain].numRedeals()
+
+      generateHelper.helpers(solitaire) ++
+        Java(s"""static int numDeals = $max;
+                |public static void takeRedeal() { numDeals--; }
+                |// if undo were allowed, we could have undoRedeal() method...
+                |public static boolean redealsAllowed() { return (numDeals != 0); }""".stripMargin).classBodyDeclarations()
+    }
 
     val semanticType: Type = constraints(constraints.methods)
   }

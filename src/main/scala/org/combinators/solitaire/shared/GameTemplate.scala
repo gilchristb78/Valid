@@ -1,6 +1,6 @@
 package org.combinators.solitaire.shared
 
-import com.github.javaparser.ast.body.{FieldDeclaration, MethodDeclaration}
+import com.github.javaparser.ast.body.{BodyDeclaration, FieldDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
@@ -271,7 +271,7 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
     * Helper code for various needs are placed in here as static methods.
     */
   @combinator object CreateHelper {
-    def apply(pkgName: Name, name: SimpleName, methods:Seq[MethodDeclaration]): CompilationUnit= {
+    def apply(pkgName: Name, name: SimpleName, methods:Seq[BodyDeclaration[_]]): CompilationUnit= {
 
       combinators.java.ConstraintHelper.render(pkgName, name, methods).compilationUnit()
     }

@@ -24,7 +24,7 @@ class BigForty @Inject()(webJars: WebJarsUtil, applicationLifecycle: Application
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(solitaire)
+  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(solitaire) :+ Constructor("NoSolution")
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()

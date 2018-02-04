@@ -1,8 +1,9 @@
 package org.combinators.solitaire.freecell
 
-import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.ImportDeclaration
+import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
@@ -42,6 +43,20 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = constraints(constraints.generator)
   }
 
+  /** Each Solitaire variation must provide default do generation. */
+  @combinator object DefaultDoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.doGenerators
+
+    val semanticType: Type = constraints(constraints.do_generator)
+  }
+
+  /** Each Solitaire variation must provide default conversion for moves. */
+  @combinator object DefaultUndoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.undoGenerators
+
+    val semanticType: Type = constraints(constraints.undo_generator)
+  }
+
   /**
     * Deal may require additional generators.
     */
@@ -67,7 +82,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     * these are meant to be generic, things like getTableua, getReserve()
     */
   @combinator object HelperMethodsFreeCell {
-    def apply(): Seq[MethodDeclaration] = {
+    def apply(): Seq[BodyDeclaration[_]] = {
       generateHelper.helpers(solitaire) ++
         Java(
           s"""
@@ -83,7 +98,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
              |	}
              |
            |	return column.count() <= 1 + numEmpty;
-             |}""".stripMargin).methodDeclarations()
+             |}""".stripMargin).classBodyDeclarations()
     }
 
     val semanticType: Type = constraints(constraints.methods)

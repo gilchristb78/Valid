@@ -120,8 +120,8 @@ object constraintCodeGenerators  {
     //    },
   )
 
-  // I really want these to be [Seq[BodyDeclaration[_]] but I get some kind of strange Scala error, so this
-  // is just String untl I figure out more
+  // TODO: I really want these to be [Seq[BodyDeclaration[_]] but I get some kind of strange Scala error, so this
+  // TODO: is just String until I figure out more
   val helperGenerators:CodeGeneratorRegistry[String] = CodeGeneratorRegistry.merge[String](
     CodeGeneratorRegistry[String, FlipCardMove] {
       case (_ : CodeGeneratorRegistry[String], m:FlipCardMove) =>
@@ -167,7 +167,9 @@ object constraintCodeGenerators  {
     },
 
     CodeGeneratorRegistry[String, ResetDeckMove] {
-      case (_:CodeGeneratorRegistry[String], _:ResetDeckMove) => ""
+      case (_:CodeGeneratorRegistry[String], _:ResetDeckMove) =>
+        val max = 1
+        Java(s"static int numReset = $max;").classBodyDeclarations().mkString("\n")
     },
 
     CodeGeneratorRegistry[String, ColumnMove] {
@@ -288,6 +290,47 @@ object constraintCodeGenerators  {
 
   )
 
+  /**
+    * Fundamental generators used for expressions derived by constraints. These appear in the
+    * move subclasses.
+    *
+    * Every variation must define a combinator like the following if they *DO NOT* add additional
+    * constraints:
+    *
+    * {{{
+    * @combinator object defaultGenerator {
+    *    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
+    *
+    *    val semanticType: Type = constraints(constraints.generator)
+    * }
+    * }}}
+    *
+    * And if a variation chooses to extend the constraint generation, then do so like so. Create
+    * a local object which merges with the default expression generator
+    *
+    * {{{
+    * object freecellCodeGenerator {
+    *   val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
+    *
+    *   CodeGeneratorRegistry[Expression, SufficientFree] {
+    *    case (registry:CodeGeneratorRegistry[Expression], c:SufficientFree) =>
+    *      val destination = registry(c.destination).get
+    *      val src = registry(c.src).get
+    *      val column = registry(c.column).get
+    *      val reserve = registry(c.reserve).get
+    *      val tableau = registry(c.tableau).get
+    *      Java(s"""ConstraintHelper.sufficientFree($column, $src, $destination, $reserve, $tableau)""").expression()
+    *   },
+    *
+    *   ).merge(constraintCodeGenerators.generators)
+    * }
+    *
+    * @combinator object FreeCellGenerator {
+    *   def apply: CodeGeneratorRegistry[Expression] = freecellCodeGenerator.generators
+    *   val semanticType: Type = constraints(constraints.generator)
+    * }
+    * }}}
+    */
   val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
     CodeGeneratorRegistry[Expression, MoveComponents] {
@@ -555,7 +598,7 @@ object generateHelper {
     *
     * @param sol   Solitaire variation
     */
-  def helpers(sol:Solitaire) : Seq[MethodDeclaration] = {
+  def helpers(sol:Solitaire) : Seq[BodyDeclaration[_]] = {
     var methods:Seq[MethodDeclaration] = Seq.empty
     for (containerType:ContainerType <- sol.structure.keySet.asScala) {
       val container = sol.structure.get(containerType)

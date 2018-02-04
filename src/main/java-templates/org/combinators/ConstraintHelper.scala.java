@@ -1,4 +1,4 @@
-@(rootPackage:Name, nameParameter:SimpleName, extraMethods:Seq[MethodDeclaration])
+@(rootPackage:Name, nameParameter:SimpleName, extraFieldsOrMethods:Seq[BodyDeclaration[_]])
 
 package @{Java(rootPackage)}.model;
 
@@ -20,7 +20,7 @@ public class ConstraintHelper {
     }
 
     /** Extra solitaire-manipulating methods are inserted here. */
-    @Java(extraMethods)
+    @Java(extraFieldsOrMethods)
 
     /** Helper to be able to retrieve variation specific solitaire without external cast. */
     public static @Java(rootPackage).@Java(nameParameter) getVariation(Solitaire game) {

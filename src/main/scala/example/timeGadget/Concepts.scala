@@ -14,7 +14,7 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
 
   class CurrentTemperature(zipCode: String) {
     def apply(conversion: Expression => Expression): Seq[BodyDeclaration[_]] =
-      Java(s"""|private float lastTemperature = 0;
+      Java(s"""|private float lastTemp = 0;
                |private java.time.LocalDateTime lastChecked = null;
                |
                |public float getTemperature(java.time.LocalDateTime currentTime) {
@@ -22,14 +22,14 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
                |    try {
                |	    java.net.URL url = new java.net.URL("http://api.weatherunlocked.com/api/forecast/us.$zipCode?app_id={APPID}&app_key={APPKEY}");
                |      java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader (url.openStream()));
-               |      StringBuffer sb = new StringBuffer(br.readLine());
+               |      StringBuffer sb = new StringBuffer(br.readLine()); br.close();
                |      int c = sb.indexOf("temp_c");
                |      float celsiusTemperature = Float.valueOf(sb.substring(c+9, sb.indexOf(",", c)));
-               |      lastTemperature = ${conversion(Java("celsiusTemperature").expression[Expression]())};
+               |      lastTemp = ${conversion(Java("celsiusTemperature").expression[Expression]())};
                |    } catch (Exception e) { return Float.NaN; }
                |    lastChecked = currentTime;
                |  }
-               |  return lastTemperature;
+               |  return lastTemp;
                |}""".stripMargin).classBodyDeclarations()
 
     val semanticType:Type =
@@ -41,21 +41,14 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
     def apply: Expression => Expression = { celsius => Java(s"((9/5.0f)*$celsius + 32)").expression[Expression]() }
     val semanticType: Type = converter(feature.temperature(TemperatureUnit.Celsius), feature.temperature(TemperatureUnit.Fahrenheit))
   }
-  @combinator object KelvinConverter {
-    def apply: Expression => Expression = { celsius => Java(s"($celsius + 273.15f)").expression[Expression]() }
-    val semanticType: Type = converter(feature.temperature(TemperatureUnit.Celsius), feature.temperature(TemperatureUnit.Kelvin))
-  }
-  @combinator object CelsiusConverter {
-    def apply: Expression => Expression = { celsius => celsius }
-    val semanticType: Type = converter(feature.temperature(TemperatureUnit.Celsius), feature.temperature(TemperatureUnit.Celsius))
-  }
+//  @combinator object CelsiusConverter {
+//    def apply: Expression => Expression = { celsius => celsius }
+//    val semanticType: Type = converter(feature.temperature(TemperatureUnit.Celsius), feature.temperature(TemperatureUnit.Celsius))
+//  }
 
   @combinator object ShowTemperature {
     def apply: Expression => Seq[Statement] = theCurrentTime =>
-      Java(
-        s"""
-           |System.out.println("The temperature is: " + getTemperature($theCurrentTime));
-         """.stripMargin).statements()
+      Java(s"""System.out.println("The temperature is: " + getTemperature($theCurrentTime));""").statements()
     val semanticType: Type = artifact(artifact.loopCode, feature(temperatureUnit))
   }
 
@@ -70,33 +63,22 @@ trait Concepts extends SemanticTypes with VariableDeclarations {
   }
 
   @combinator object MainCode {
-    def apply(
-      extraDeclarations: Seq[BodyDeclaration[_]],
-      extraLoopCode: Expression => Seq[Statement]): CompilationUnit =
-      Java(
-        s"""public class TimeGadget {
-           |  ${extraDeclarations.mkString("\n")}
-           |
+    def apply(extraDecl: Seq[BodyDeclaration[_]], extraCode: Expression => Seq[Statement]):
+       CompilationUnit = Java(s"""public class TimeGadget {
+           |  ${extraDecl.mkString("\n")}
            |  public void loop() {
            |    try { Thread.sleep(1000); } catch (Exception ex) {}
            |    java.time.LocalDateTime now = java.time.LocalDateTime.now();
-           |
-           |    ${extraLoopCode(Java("now").expression()).mkString("\n")}
+           |    ${extraCode(Java("now").expression()).mkString("\n")}
            |    System.out.println(now);
            |  }
-           |
            |  public static void main(String[] args) {
-           |    TimeGadget timeGadget = new TimeGadget();
-           |    while (true) {
-           |      timeGadget.loop();
-           |    }
+           |    TimeGadget gadget = new TimeGadget();
+           |    while (true) { gadget.loop(); }
            |  }
-           |}
-         """.stripMargin
-      ).compilationUnit()
+           |}""".stripMargin).compilationUnit()
 
-    val semanticType: Type =
-      artifact(artifact.extraCode, featureType) =>:
+    val semanticType: Type = artifact(artifact.extraCode, featureType) =>:
         artifact(artifact.loopCode, featureType) =>:
         artifact(artifact.mainProgram, featureType :&: feature(feature.time))
   }

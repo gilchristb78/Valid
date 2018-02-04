@@ -5,6 +5,15 @@ import org.combinators.cls.types._
 
 import scala.reflect.runtime.universe.{Type => _, _}
 
+/**
+  * Helper class for debugging combinators.
+  *
+  * Use this class to generate statistics on the usage of combinators, plus the arity of the individual
+  * tuples used in the intersection types.
+  *
+  * @param repository   Complete Reflected Repository used for synthesis
+  * @tparam A           Type of synthesized elements (i.e., CompilationUnit)
+  */
 class TypeNameStatistics[A](repository: ReflectedRepository[A]) {
   case class TypeUsage(asParameter: Int = 0,
     asResult: Int = 0,

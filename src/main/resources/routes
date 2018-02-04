@@ -26,6 +26,8 @@
 
 ->    /                              org.combinators.solitaire.klondike.DealByThreeKlondikeDomain
 
+->    /                              org.combinators.solitaire.klondike.EastHavenController
+
 GET   /pyarchway                        pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number             pysolfc.archway.Archway.raw(number: Long)
 GET   /pyarchway/prepare                 pysolfc.archway.Archway.prepare(number: Long)
@@ -56,7 +58,9 @@ GET   /temperature/raw_:number              example.temperature.Temperature.raw(
 GET   /temperature/prepare                  example.temperature.Temperature.prepare(number: Long)
 GET   /temperature/temperature.git/*file    example.temperature.Temperature.serveFile(file)
 
-GET   /timeGadget                          example.timeGadget.TimeGadgetController.overview()
-GET   /timeGadget/raw_:number              example.timeGadget.TimeGadgetController.raw(number: Long)
-GET   /timeGadget/prepare                  example.timeGadget.TimeGadgetController.prepare(number: Long)
-GET   /timeGadget/timeGadget.git/*file    example.timeGadget.TimeGadgetController.serveFile(file)
+#GET   /timeGadget                          example.timeGadget.TimeGadgetController.overview()
+#GET   /timeGadget/raw_:number              example.timeGadget.TimeGadgetController.raw(number: Long)
+#GET   /timeGadget/prepare                  example.timeGadget.TimeGadgetController.prepare(number: Long)
+#GET   /timeGadget/timeGadget.git/*file    example.timeGadget.TimeGadgetController.serveFile(file)
+
+->    /                                   example.timeGadget.TimeGadgetController

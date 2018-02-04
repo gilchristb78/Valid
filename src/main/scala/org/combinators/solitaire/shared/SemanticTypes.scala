@@ -38,6 +38,7 @@ trait SemanticTypes {
   val pile: Constructor          = 'Pile
   val row: Constructor           = 'Row
   val fanPile: Constructor       = 'FanPile
+  val wastePile: Constructor     = 'WastePile
 
   /** only one part since synthesizing 'the' game. */
   object game {
@@ -83,7 +84,6 @@ trait SemanticTypes {
     val dragStart:Type = 'DragStart     // Press events that will ultimately become drag events.
     val clicked:Type = 'Clicked
     val released:Type = 'Released
-
   }
 
   /**
@@ -93,7 +93,9 @@ trait SemanticTypes {
     def apply(part: Type): Constructor = 'Constraints (part)
 
     val methods:Type = 'Methods
-    val generator:Type = 'ConstraintGen
+    val generator:Type = 'ConstraintGen     // for Expressions
+    val do_generator:Type = 'DoGen          // generate statements within the excecute method of moves
+    val undo_generator:Type = 'UndoGen      // generate statements within the excecute method of moves
     val map:Type = 'Map
   }
 

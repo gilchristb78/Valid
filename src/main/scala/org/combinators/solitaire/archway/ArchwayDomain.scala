@@ -1,8 +1,9 @@
 package org.combinators.solitaire.archway
 
-import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.ImportDeclaration
+import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
@@ -26,8 +27,23 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
     val semanticType: Type = constraints(constraints.generator)
   }
 
+
+  /** Each Solitaire variation must provide default do generation. */
+  @combinator object DefaultDoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.doGenerators
+
+    val semanticType: Type = constraints(constraints.do_generator)
+  }
+
+  /** Each Solitaire variation must provide default conversion for moves. */
+  @combinator object DefaultUndoGenerator {
+    def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.undoGenerators
+
+    val semanticType: Type = constraints(constraints.undo_generator)
+  }
+
   @combinator object HelperMethodsArchway {
-    def apply(): Seq[MethodDeclaration] = generateHelper.helpers(solitaire)
+    def apply(): Seq[BodyDeclaration[_]] = generateHelper.helpers(solitaire)
 
     val semanticType: Type = constraints(constraints.methods)
   }

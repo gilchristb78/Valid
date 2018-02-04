@@ -12,12 +12,18 @@ trait SemanticTypes {
 
   object feature {
     def apply(featureType: Type): Type = 'Feature(featureType)
+
     object temperature {
       def apply(in: TemperatureUnit): Type = 'TemperatureIn(Constructor(in.toString))
     }
     val time: Type = 'Time
   }
 
+  /**
+    * There are a number of coding artifacts needed:
+    *
+    * 1. extraCode
+    */
   object artifact {
     def apply(part:Type, forFeature: Type):Type = 'Artifact(part, forFeature)
 

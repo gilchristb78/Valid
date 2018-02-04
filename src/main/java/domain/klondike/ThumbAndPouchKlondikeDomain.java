@@ -1,11 +1,9 @@
 package domain.klondike;
 
-import domain.Container;
 import domain.*;
 import domain.constraints.*;
 import domain.constraints.movetypes.MoveComponents;
 import domain.constraints.movetypes.TopCardOf;
-import domain.ui.Layout;
 
 /**
  * differing primarily in that tableau building does not require building in alternate colors,

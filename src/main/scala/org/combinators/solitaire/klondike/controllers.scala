@@ -63,15 +63,16 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     // these clarify the allowed moves
     updated = updated
       .addCombinator (new deckPress.DealToTableauHandlerLocal())
-      .addCombinator (new SingleCardMoveHandler('WastePile))
+      .addCombinator (new SingleCardMoveHandler(wastePile))
       .addCombinator (new SingleCardMoveHandler(fanPile))    // Variation
       .addCombinator (new buildablePilePress.CP2())
 
-    // Some variations allow you to reset deck, others don't
-    if (s.asInstanceOf[klondike.KlondikeDomain].canResetDeck) {
-      updated = updated.addCombinator (new deckPress.ResetDeckLocal())
-    } else {
+    // Some variations allow you to reset deck, others don't; note if numRedeals is a positive number, then
+    // we can deal with that dynamically via state.
+    if (s.asInstanceOf[klondike.KlondikeDomain].numRedeals() == klondike.VariationPoints.NEVER_REDEAL) {
       updated = updated.addCombinator (new deckPress.SkipResetDeckLocal())
+    } else {
+      updated = updated.addCombinator (new deckPress.ResetDeckLocal())
     }
 
     updated = createWinLogic(updated, s)

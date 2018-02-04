@@ -24,9 +24,10 @@ public class KlondikeDomain extends Solitaire implements VariationPoints {
         return 1;
     }
 
+    /** Any number of redeals possible. */
     @Override
-    public boolean canResetDeck() {
-        return true;
+    public int numRedeals() {
+        return INFINITE_REDEAL;
     }
 
     /**
@@ -169,15 +170,15 @@ public class KlondikeDomain extends Solitaire implements VariationPoints {
         TopCardOf topDestination = new TopCardOf(MoveComponents.Destination);
         TopCardOf topSource = new TopCardOf(MoveComponents.Source);
 
-        Constraint placeColumn = new AndConstraint(new NextRank(topDestination, bottomMoving),
-                new OppositeColor(bottomMoving, topDestination));
+        //Constraint placeColumn = new AndConstraint(new NextRank(topDestination, bottomMoving),
+        //        new OppositeColor(bottomMoving, topDestination));
 
-        Constraint placeCard = new AndConstraint(new NextRank(topDestination, MoveComponents.MovingCard),
-                new OppositeColor(MoveComponents.MovingCard, topDestination));
+        //Constraint placeCard = new AndConstraint(new NextRank(topDestination, MoveComponents.MovingCard),
+        //        new OppositeColor(MoveComponents.MovingCard, topDestination));
 
         // Tableau to tableau (includes to empty card)
-        Constraint moveCol = new IfConstraint(isEmpty, new IsKing(bottomMoving), placeColumn);
-        Constraint moveCard = new IfConstraint(isEmpty, new IsKing(MoveComponents.MovingCard), placeCard);
+        // Constraint moveCol = new IfConstraint(isEmpty, new IsKing(bottomMoving), placeColumn);
+        //Constraint moveCard = new IfConstraint(isEmpty, new IsKing(MoveComponents.MovingCard), placeCard);
 
         Constraint buildCol = new IfConstraint(isEmpty, buildOnEmptyTableau(bottomMoving), buildOnTableau(bottomMoving));
         Constraint buildCard = new IfConstraint(isEmpty, buildOnEmptyTableau(MoveComponents.MovingCard), buildOnTableau(MoveComponents.MovingCard));
@@ -216,9 +217,11 @@ public class KlondikeDomain extends Solitaire implements VariationPoints {
         addPressMove(new DeckDealNCardsMove(numToDeal(),"DealDeck", getStock(), deck_move, getWaste()));
 
         // reset deck if empty. Move is triggered by press on stock.
-        // this creates DeckToPile, as in the above DeckDealMove.
-        if (canResetDeck()) {
-            addPressMove(new ResetDeckMove("ResetDeck", getStock(), new IsEmpty(MoveComponents.Source), getWaste()));
+        // this creates DeckToPile, as in the above DeckDealMove. Only allow if redeals allowed; this also
+        // takes care of limited redeals, thanks to the synthesized code.
+        if (numRedeals() != 0) {
+            addPressMove(new ResetDeckMove("ResetDeck", getStock(),
+                    new AndConstraint(new RedealsAllowed(), new IsEmpty(MoveComponents.Source)), getWaste()));
         }
 
         // wins once all cards in foundation.

@@ -13,8 +13,8 @@ public class EastCliff extends KlondikeDomain {
     private Deal deal;
 
     @Override
-    public boolean canResetDeck() {
-        return false;
+    public int numRedeals() {
+        return NEVER_REDEAL;
     }
 
     /** Override deal as needed. */
@@ -31,5 +31,10 @@ public class EastCliff extends KlondikeDomain {
 
     public EastCliff() {
         super("EastCliff");
+    }
+
+    // for sub-variations
+    public EastCliff(String name) {
+        super(name);
     }
 }
