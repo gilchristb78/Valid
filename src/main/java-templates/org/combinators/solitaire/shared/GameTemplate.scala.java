@@ -1,8 +1,5 @@
 @(rootPackage:Name,
-    extraImports:Seq[ImportDeclaration],
     nameParameter:SimpleName,
-    extraFields:Seq[FieldDeclaration],
-    extraMethods:Seq[MethodDeclaration],
     winParameter:Seq[Statement],
     initializeSteps:Seq[Statement])
 
@@ -21,8 +18,6 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.Dimension;
 
-@Java(extraImports)
-
 /**
  * The Game plugin is the constant upon which all other plugins are refined.
  * __p__
@@ -32,12 +27,6 @@ import java.awt.Dimension;
  * __author: George T. Heineman (heineman__cs.wpi.edu)
  */
 public class @Java(nameParameter) extends Solitaire {
-
-    // extra class attributes go here
-    @Java(extraFields)
-
-    // extra methods here
-    @Java(extraMethods)
 
     /** Enable refinements to determine whether game has been won. */
     public boolean hasWon() {

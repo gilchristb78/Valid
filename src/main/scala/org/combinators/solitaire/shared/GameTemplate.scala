@@ -1,6 +1,6 @@
 package org.combinators.solitaire.shared
 
-import com.github.javaparser.ast.body.{BodyDeclaration, FieldDeclaration, MethodDeclaration}
+import com.github.javaparser.ast.body.{BodyDeclaration, FieldDeclaration, MethodDeclaration, TypeDeclaration}
 import com.github.javaparser.ast.expr.{Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
@@ -170,15 +170,35 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
               initializeSteps: Seq[Statement],
               winParameter: Seq[Statement]): CompilationUnit = {
 
-      shared.java.GameTemplate
+
+      val comp = shared.java.GameTemplate
         .render(rootPackage = rootPackage,
-          extraImports = extraImports,
           nameParameter = nameParameter,
-          extraFields = extraFields,
-          extraMethods = extraMethods,
           winParameter = winParameter,
           initializeSteps = initializeSteps)
         .compilationUnit()
+
+      // add extra imports, fields and methods
+      val clazz:TypeDeclaration[_] = comp.getTypes.get(0)
+
+      extraImports.foreach { i => comp.addImport(i) }
+      extraMethods.foreach { m => clazz.addMember(m) }
+      extraFields.foreach { f => clazz.addMember(f) }
+
+      // Standard size of GUI is Dimension(769, 635). If bigger, add a method
+      val dimen = sol.getMinimumSize
+      if (dimen.width > 769 || dimen.height > 635) {
+        Java(
+          s"""
+             |@Override
+             |public Dimension getPreferredSize() {
+             |	// default starting dimensions...
+             |  return new Dimension(${dimen.width}, ${dimen.height});
+             |}""".stripMargin).methodDeclarations()
+          .foreach { m => clazz.addMember(m) }
+      }
+
+      comp
     }
 
     val semanticType: Type =
@@ -208,13 +228,30 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
       val comp = shared.java.GameTemplate
         .render(
           rootPackage = rootPackage,
-          extraImports = extraImports,
           nameParameter = nameParameter,
-          extraFields = extraFields,
-          extraMethods = extraMethods,
           winParameter = winParameter,
           initializeSteps = initializeSteps)
         .compilationUnit()
+
+      // add extra imports, fields and methods
+      val clazz:TypeDeclaration[_] = comp.getTypes.get(0)
+
+      extraImports.foreach { i => comp.addImport(i) }
+      extraMethods.foreach { m => clazz.addMember(m) }
+      extraFields.foreach { f => clazz.addMember(f) }
+
+      // Standard size of GUI is Dimension(769, 635). If bigger, add a method
+      val dimen = sol.getMinimumSize
+      if (dimen.width > 769 || dimen.height > 635) {
+        Java(
+          s"""
+             |@Override
+             |public Dimension getPreferredSize() {
+             |	// default starting dimensions...
+             |  return new Dimension(${dimen.width}, ${dimen.height});
+             |}""".stripMargin).methodDeclarations()
+          .foreach { m => clazz.addMember(m) }
+      }
 
       // introspect from solitaire domain model
       if (sol.isSolvable) {

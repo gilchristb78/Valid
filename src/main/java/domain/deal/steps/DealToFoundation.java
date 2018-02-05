@@ -11,7 +11,6 @@ public class DealToFoundation extends Deal {
     /** Deal 1 face-up card to each of the Foundation elements. */
     public DealToFoundation() {
 
-        // deal aces first
         append(new DealStep(new ContainerTarget(SolitaireContainerTypes.Foundation)));
 
     }

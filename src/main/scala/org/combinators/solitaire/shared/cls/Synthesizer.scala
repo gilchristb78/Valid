@@ -12,7 +12,7 @@ object Synthesizer extends JavaSemanticTypes {
   /**
     * Compute all targets to be synthesized.
     *
-    * @param model      Domain Model which contains the information about the solitaire variation
+    * @param model      FreeCellDomain Model which contains the information about the solitaire variation
     * @return
     */
   def allTargets(model:Solitaire): Seq[Constructor] = {
@@ -55,7 +55,7 @@ object Synthesizer extends JavaSemanticTypes {
     *
     * TODO: Possible we can eliminate this by changing JavaSemanticTypes to use actual class name?
     *
-    * @param model    Domain Model which contains the information about the solitaire variation
+    * @param model    FreeCellDomain Model which contains the information about the solitaire variation
     * @return
     */
   def computeControllersFromDomain(model:Solitaire) : Seq[Constructor] = {
@@ -77,7 +77,7 @@ object Synthesizer extends JavaSemanticTypes {
   /**
     * Specialized classes get their own targets.
     *
-    * @param model   Domain Model which contains the information about the solitaire variation
+    * @param model   FreeCellDomain Model which contains the information about the solitaire variation
     * @return
     */
   def computeSpecialClasses(model:Solitaire) : Seq[Constructor] = {
@@ -99,7 +99,7 @@ object Synthesizer extends JavaSemanticTypes {
   /**
     * Given the domain object, compute the targets for the required moves.
     *
-    * @param model  Solitaire Domain Model
+    * @param model  Solitaire FreeCellDomain Model
     * @return       Targets suitable for KombatSolitaire framework
     */
   def computeMovesFromDomain(model:Solitaire) :Seq[Constructor] = {

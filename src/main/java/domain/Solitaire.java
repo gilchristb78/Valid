@@ -6,6 +6,7 @@ import java.util.List;
 
 import domain.deal.Deal;
 import domain.ui.Layout;
+import domain.ui.NonexistentPlaceement;
 import domain.ui.PlacementGenerator;
 import domain.ui.View;
 import domain.win.ScoreAchieved;
@@ -130,19 +131,22 @@ public abstract class Solitaire {
 
     /**
      * Compute minimum width and height required to realize this variation. Computes based on
-     * the associated placement of layouts
+     * the associated placement of layouts.
+     *
+     * Make sure to add 20 pixels on the right for a buffer.
      */
     public Dimension getMinimumSize() {
         Dimension min = new Dimension(0,0);
         for (ContainerType ct : structure.keySet()) {
-            Iterator<Widget> it = getLayout().get(ct).orElse(null);
+            PlacementGenerator it = getLayout().get(ct).orElse(new NonexistentPlaceement());
+            it.reset(structure.get(ct).size());
             while (it.hasNext()) {
                 Widget w = it.next();
                 if (w.y + w.height > min.height) {
                     min.height = w.y + w.height;
                 }
-                if (w.x + w.width > min.width) {
-                    min.width = w.x + w.width;
+                if (w.x + w.width + 20 > min.width) {
+                    min.width = w.x + w.width + 20;
                 }
             }
         }

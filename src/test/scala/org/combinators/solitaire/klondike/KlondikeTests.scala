@@ -33,7 +33,7 @@ class KlondikeTests extends FunSpec {
           val Gamma = controllerRepository.init(reflected, domainModel)
 
           // Handles all of the default structural elements from the domain model
-          it ("Check Standard Domain Model") {
+          it ("Check Standard FreeCellDomain Model") {
             new SolitaireDomainTest().validateDomain(Gamma, domainModel)
           }
         }
@@ -65,7 +65,7 @@ class KlondikeTests extends FunSpec {
           val Gamma = controllerRepository.init(reflected, domainModel)
 
           // Handles all of the default structural elements from the domain model
-          it("Check Standard Domain Model") {
+          it("Check Standard FreeCellDomain Model") {
             new SolitaireDomainTest().validateDomain(Gamma, domainModel)
           }
         }
@@ -101,7 +101,7 @@ class KlondikeTests extends FunSpec {
           val Gamma = controllerRepository.init(reflected, domainModel)
 
           // Handles all of the default structural elements from the domain model
-          it ("Check Standard Domain Model") {
+          it ("Check Standard FreeCellDomain Model") {
             new SolitaireDomainTest().validateDomain(Gamma, domainModel)
           }
         }

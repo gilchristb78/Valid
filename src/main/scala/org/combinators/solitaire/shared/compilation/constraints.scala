@@ -466,6 +466,11 @@ object constraintCodeGenerators  {
         Java(s"""${registry(nextRank.higher).get}.getRank() == ${registry(nextRank.lower).get}.getRank() + 1""").expression()
     },
 
+    CodeGeneratorRegistry[Expression, NextRankWrapAround] {
+      case (registry: CodeGeneratorRegistry[Expression], nextRank:NextRankWrapAround) =>
+        Java(s"""${registry(nextRank.higher).get}.getRank() == (${registry(nextRank.lower).get}.getRank() % 13) + 1""").expression()
+    },
+
     CodeGeneratorRegistry[Expression, HigherRank] {
       case (registry: CodeGeneratorRegistry[Expression], higherRank:HigherRank) =>
         Java(s"""${registry(higherRank.higher).get}.getRank() > ${registry(higherRank.lower).get}.getRank()""").expression()

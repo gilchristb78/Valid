@@ -84,10 +84,6 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
 
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {Java(s"""
-              |public Dimension getPreferredSize() {
-              |  return new Dimension (940, 600);
-              |}
-              |
               |public boolean validColumn(Column column) {
               |		return column.descending();
               |}

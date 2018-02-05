@@ -1,7 +1,8 @@
 package domain;
 
 /** declared in this fashion so sameColor is simply check modulo 2. */
-public enum Suit {
+@Deprecated
+enum Suit {
     CLUBS(0),
     DIAMONDS(1),
     SPADES(2),

@@ -140,8 +140,7 @@ public class KlondikeDomain extends Solitaire implements VariationPoints {
     }
 
     public KlondikeDomain() {
-        super("Klondike");
-        init();
+        this("Klondike");
     }
 
     /** Only here for pass-through to subclasses. */
@@ -149,7 +148,6 @@ public class KlondikeDomain extends Solitaire implements VariationPoints {
         super(name);
         init();
     }
-
 
     // register new elements for this domain
     @Override

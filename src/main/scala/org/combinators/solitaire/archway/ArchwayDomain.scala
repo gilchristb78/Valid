@@ -80,13 +80,11 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
   }
 
   /**
-    * Generate extra methods. Here we only need the preferred window size of the game.
+    * Generate extra methods.
     */
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] =
-      Java(s"""|public Dimension getPreferredSize() {
-               |  return new Dimension (1280, 1280);
-               |}""".stripMargin).methodDeclarations() ++
+
       Java(s"""
          |public java.util.Enumeration<Move> availableMoves() {
          |        java.util.Vector<Move> v = new java.util.Vector<Move>();

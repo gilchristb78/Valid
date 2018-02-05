@@ -11,6 +11,12 @@ import scala.reflect.runtime.universe.{Type => _, _}
   * Use this class to generate statistics on the usage of combinators, plus the arity of the individual
   * tuples used in the intersection types.
   *
+  * {{{
+  *   lazy val statistics = new TypeNameStatistics(Gamma)
+  *   println(statistics.overview)
+  *   println(statistics.warnings)
+  * }}}
+  *
   * @param repository   Complete Reflected Repository used for synthesis
   * @tparam A           Type of synthesized elements (i.e., CompilationUnit)
   */

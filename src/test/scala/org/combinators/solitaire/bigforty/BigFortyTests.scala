@@ -36,16 +36,10 @@ class BigFortyTests extends FunSpec {
         val reflected = ReflectedRepository(controllerRepository, classLoader = controllerRepository.getClass.getClassLoader)
         val Gamma = controllerRepository.init(reflected, domainModel)
 
-        lazy val statistics = new TypeNameStatistics(Gamma)
-        println(statistics.overview)
-        println(statistics.warnings)
-
         // Handles all of the default structural elements from the domain model
-        it ("Check Standard Domain Model") {
+        it ("Check Standard FreeCellDomain Model") {
           new SolitaireDomainTest().validateDomain(Gamma, domainModel)
         }
-
-
       }
     }
   }

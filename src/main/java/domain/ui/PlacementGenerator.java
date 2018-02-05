@@ -19,7 +19,7 @@ public abstract class PlacementGenerator implements Iterator<Widget> {
     protected int max;
     int idx = 0;
 
-    protected void reset(int m) {
+    public void reset(int m) {
         this.max = m;
         this.idx = 0;
     }

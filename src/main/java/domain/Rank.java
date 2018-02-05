@@ -1,6 +1,7 @@
 package domain;
 
-public enum Rank {
+@Deprecated
+enum Rank {
     ACE(1),
 	TWO(2),
 	THREE(3),

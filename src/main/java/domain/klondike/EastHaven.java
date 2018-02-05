@@ -39,4 +39,9 @@ public class EastHaven extends EastCliff {
     public EastHaven() {
         super("EastHaven");
     }
+
+    // for sub-variations
+    public EastHaven(String name) {
+        super(name);
+    }
 }

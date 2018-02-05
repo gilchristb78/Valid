@@ -17,8 +17,11 @@ import domain.win.BoardState;
 
 /**
  * Programmatically construct full domain model for FreeCell.
+ *
+ * DoubleFreeCell (and TripleFreeCell) all require wrap-around for NextRank. So even for the
+ * regular FreeCell, we replace NextRank with NextRankWrapAround, but only on BUILD moves
  */
-public class Domain extends Solitaire {
+public class FreeCellDomain extends Solitaire implements VariationPoints {
 
 	private Deal deal;
 	private Layout layout;
@@ -26,6 +29,13 @@ public class Domain extends Solitaire {
 	private Reserve reserve;
 	private Tableau tableau;
 	private Stock stock;
+
+
+    /** Determines the logic of moving given entity to an empty Tableau. Always allow in standard FreeCell. */
+    @Override
+    public Constraint buildOnEmptyTableau(MoveInformation bottom) {
+        return new Truth();
+    }
 
 	/** Override deal as needed. */
 	@Override
@@ -47,7 +57,7 @@ public class Domain extends Solitaire {
 	@Override
 	public Layout getLayout() {
 		if (layout == null) {
-			layout = new ReserveFoundationTableauLayout();  // TODO: FIX ME!
+			layout = new ReserveFoundationTableauLayout(getReserve(), getFoundation(), getTableau());
         }
 
 		return layout;
@@ -102,10 +112,15 @@ public class Domain extends Solitaire {
         return stock;
     }
 
-	public Domain() {
-		super ("FreeCell");
-		init();
+	public FreeCellDomain() {
+		this ("FreeCell");
 	}
+
+
+    protected FreeCellDomain(String name) {
+        super(name);
+        init();
+    }
 
     private void init() {
 
@@ -138,7 +153,7 @@ public class Domain extends Solitaire {
 		IfConstraint if2 = new IfConstraint(isEmpty,
             new IsAce(new TopCardOf(MoveComponents.MovingColumn)),
             new AndConstraint(
-                  new NextRank(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination)),
+                  new NextRankWrapAround(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination)),
                   new SameSuit(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination))));
 
 		ColumnMove columnToHomePile = new ColumnMove("BuildColumn",
@@ -151,7 +166,7 @@ public class Domain extends Solitaire {
 		NotConstraint nonEmpty = new NotConstraint(new IsEmpty(MoveComponents.Destination));
 		IfConstraint if3 = new IfConstraint(isEmpty,
                 new IsAce(MoveComponents.MovingCard),
-                new AndConstraint (new NextRank(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
+                new AndConstraint (new NextRankWrapAround(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
                                    new SameSuit(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination))));
 
 		SingleCardMove freePileToHomePile = new SingleCardMove("BuildFreePileCard", getReserve(), getFoundation(), if3);
@@ -161,7 +176,7 @@ public class Domain extends Solitaire {
         AndConstraint if5_inner = new AndConstraint(new OppositeColor(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
                                                    new NextRank(new TopCardOf(MoveComponents.Destination), MoveComponents.MovingCard));
 
-		IfConstraint if5 = new IfConstraint(isEmpty, new Truth(), if5_inner);
+		IfConstraint if5 = new IfConstraint(isEmpty, buildOnEmptyTableau(MoveComponents.MovingCard), if5_inner);
 		SingleCardMove freePileToColumnPile = new SingleCardMove("PlaceFreePileCard", getReserve(), getTableau(), if5);
 		addDragMove(freePileToColumnPile);
 
@@ -182,17 +197,16 @@ public class Domain extends Solitaire {
                 new NextRank(new TopCardOf(MoveComponents.Destination), new BottomCardOf(MoveComponents.MovingColumn)),
                 sufficientFree);
 
-		IfConstraint if4 = new IfConstraint(isEmpty, sufficientFree, if4_inner);
+		IfConstraint if4 = new IfConstraint(isEmpty, new AndConstraint(buildOnEmptyTableau(new BottomCardOf(MoveComponents.MovingColumn)), sufficientFree), if4_inner);
 
 		ColumnMove columnToColumn = new ColumnMove("MoveColumn",
                 getTableau(),    new AndConstraint(descend, alternating),
                 getTableau(),    if4);
 		addDragMove(columnToColumn);
 
-		// When foundation is full, we are done.
+		// When foundation is full, we are done. Be aware there may be multi-deck games.
 		BoardState state = new BoardState();
-		state.add(SolitaireContainerTypes.Foundation, 52);
+		state.add(SolitaireContainerTypes.Foundation, getStock().numDecks*52);
 		setLogic (state);
-
 	}
 }

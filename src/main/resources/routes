@@ -1,36 +1,35 @@
 ->    /                              org.combinators.cls.git.Routes
 
-# Each variation now only needs this one liner
-->    /                              org.combinators.solitaire.freecell.FreeCell
-
+# To automatically synthesize all solitaire variants using [[buildTest.TestSynthesis]], make
+# sure that all solitaire class names start with org.combinators.solitaire.*
+#
+# All stand-alone names are simply package.MainClass
 ->    /                              org.combinators.solitaire.archway.Archway
-
 ->    /                              org.combinators.solitaire.idiot.Idiot
-
 ->    /                              org.combinators.solitaire.bigforty.BigForty
-
 ->    /                              org.combinators.solitaire.castle.Castle
-
 ->    /                              org.combinators.solitaire.narcotic.Narcotic
 
-# These are how sub-variations are specified
+# All variants have names that end in "Controller", and then can extract package.MainClass easily
+->    /                              org.combinators.solitaire.freecell.FreeCellController
+->    /                              org.combinators.solitaire.freecell.ChallengeFreeCellController
+->    /                              org.combinators.solitaire.freecell.SuperChallengeFreeCellController
+->    /                              org.combinators.solitaire.freecell.ForeCellController
+->    /                              org.combinators.solitaire.freecell.DoubleFreeCellController
+
 ->    /                              org.combinators.solitaire.klondike.KlondikeController
-
 ->    /                              org.combinators.solitaire.klondike.WhiteheadController
-
 ->    /                              org.combinators.solitaire.klondike.EastcliffController
-
 ->    /                              org.combinators.solitaire.klondike.SmallHarpController
-
 ->    /                              org.combinators.solitaire.klondike.ThumbAndPouchController
-
-->    /                              org.combinators.solitaire.klondike.DealByThreeKlondikeDomain
-
+->    /                              org.combinators.solitaire.klondike.DealByThreeController
 ->    /                              org.combinators.solitaire.klondike.EastHavenController
+->    /                              org.combinators.solitaire.klondike.DoubleEastHavenController
+->    /                              org.combinators.solitaire.klondike.TripleEastHavenController
 
-GET   /pyarchway                        pysolfc.archway.Archway.overview()
-GET   /pyarchway/raw_:number             pysolfc.archway.Archway.raw(number: Long)
-GET   /pyarchway/prepare                 pysolfc.archway.Archway.prepare(number: Long)
+GET   /pyarchway                          pysolfc.archway.Archway.overview()
+GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)
+GET   /pyarchway/prepare                  pysolfc.archway.Archway.prepare(number: Long)
 GET   /pyarchway/pyarchway.git/*file      pysolfc.archway.Archway.serveFile(file)
 
 GET   /pycastle                         pysolfc.castle.Castle.overview()

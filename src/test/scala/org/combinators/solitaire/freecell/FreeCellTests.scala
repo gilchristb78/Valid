@@ -1,8 +1,8 @@
 package org.combinators.solitaire.freecell
 
+import domain.freeCell.FreeCellDomain
 import org.combinators.cls.interpreter._
 import domain.{Solitaire, SolitaireContainerTypes}
-import domain.freeCell.Domain
 import org.combinators.solitaire.shared.SolitaireDomainTest
 import org.scalatest.FunSpec
 
@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 class FreeCellTests extends FunSpec {
 
   describe("The possible inhabited domain models") {
-    val domainModel: Solitaire = new Domain()
+    val domainModel: Solitaire = new FreeCellDomain()
 
     describe("(using the only possible domain model)") {
       describe("the domain model") {
@@ -29,7 +29,7 @@ class FreeCellTests extends FunSpec {
           val Gamma = controllerRepository.init(reflected, domainModel)
 
           // Handles all of the default structural elements from the domain model
-          it ("Check Standard Domain Model") {
+          it ("Check Standard FreeCellDomain Model") {
             new SolitaireDomainTest().validateDomain(Gamma, domainModel)
           }
 
