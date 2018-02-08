@@ -37,6 +37,13 @@ public class FreeCellDomain extends Solitaire implements VariationPoints {
         return new Truth();
     }
 
+    @Override
+	public Constraint buildOnFoundation(MoveInformation bottom) {
+		return new AndConstraint(
+				new NextRankWrapAround(bottom, new TopCardOf(MoveComponents.Destination)),
+				new SameSuit(bottom, new TopCardOf(MoveComponents.Destination)));
+	}
+
 	/** Override deal as needed. */
 	@Override
 	public Deal getDeal() {
@@ -149,12 +156,9 @@ public class FreeCellDomain extends Solitaire implements VariationPoints {
 		addDragMove(columnToFreePileMove);
 
 		// Column To Home Pile logic. Just grab first column
-		Element aCol = getTableau().iterator().next();
 		IfConstraint if2 = new IfConstraint(isEmpty,
             new IsAce(new TopCardOf(MoveComponents.MovingColumn)),
-            new AndConstraint(
-                  new NextRankWrapAround(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination)),
-                  new SameSuit(new BottomCardOf(MoveComponents.MovingColumn), new TopCardOf(MoveComponents.Destination))));
+            buildOnFoundation(new BottomCardOf(MoveComponents.MovingColumn)));
 
 		ColumnMove columnToHomePile = new ColumnMove("BuildColumn",
                 getTableau(),       new IsSingle(MoveComponents.MovingColumn),
@@ -166,8 +170,9 @@ public class FreeCellDomain extends Solitaire implements VariationPoints {
 		NotConstraint nonEmpty = new NotConstraint(new IsEmpty(MoveComponents.Destination));
 		IfConstraint if3 = new IfConstraint(isEmpty,
                 new IsAce(MoveComponents.MovingCard),
-                new AndConstraint (new NextRankWrapAround(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
-                                   new SameSuit(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination))));
+                buildOnFoundation(MoveComponents.MovingCard));
+//                new AndConstraint (new NextRankWrapAround(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination)),
+//                                   new SameSuit(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination))));
 
 		SingleCardMove freePileToHomePile = new SingleCardMove("BuildFreePileCard", getReserve(), getFoundation(), if3);
 		addDragMove(freePileToHomePile);

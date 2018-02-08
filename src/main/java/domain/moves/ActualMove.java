@@ -5,6 +5,7 @@ import domain.Container;
 import domain.Element;
 import domain.Move;
 import domain.constraints.AndConstraint;
+import domain.constraints.Falsehood;
 import domain.constraints.Truth;
 
 import java.util.Iterator;
@@ -55,10 +56,10 @@ public abstract class ActualMove implements Move {
    final Container targetContainer;
 
    /** There may be a valid constraint at the source of a move. */
-   final Constraint sourceConstraint;
+   Constraint sourceConstraint;
 
    /** There may be a valid constraint at the target of a move. */
-   final Constraint targetConstraint;
+   Constraint targetConstraint;
 
 
    /**
@@ -155,6 +156,16 @@ public abstract class ActualMove implements Move {
       }
       return Optional.of(targetContainer);
    }
+
+   /**
+    * Deny move from being feasible.
+    */
+   public void prevent() {
+      this.sourceConstraint = new Falsehood();
+      this.targetConstraint = new Falsehood();
+   }
+
+
 //
 //   /**
 //    * Two ActualMove objects are the same if they have the same name.

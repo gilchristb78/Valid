@@ -12,7 +12,7 @@ Tasks to complete
    How does code evolve. In PROGRAMMING-2018 the notion of code evolution should
    be present.
 
-    CODE -> TEMPLATE + COMNINATOR
+    CODE -> TEMPLATE + COMBINATOR
 
     COMBINATOR -> CLASS is the lifting of concepts
     CLASS + CLASS -> CLASS is identifying commonalities and merging as needed
@@ -53,7 +53,7 @@ Tasks to complete
    How to plan combinators with a team. Take inspiration from @Annotations in Java
 
    define new semantic type (inter. type) then each team member is working on
-   an instance of a combinator that produces that type. Parralelize the refactoring
+   an instance of a combinator that produces that type. Parallelize the refactoring
    once the abstraction has been lifted.
 
    Continuous Synthesize - handled by the back end upon git checkin.
@@ -68,4 +68,4 @@ Tasks to complete
    Could use Cucumber/Gherkin for this purpose. which could be converted into back-end
    test case synthesis.
 
-   Can envision any number of tests cases to run on the synthezied code.
+   Can envision any number of tests cases to run on the synthesized code.

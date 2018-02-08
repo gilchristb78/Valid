@@ -2,20 +2,70 @@ package example.timeGadget
 
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
-import time.TemperatureUnit
+import time.{Feature, FrequencyUnit, TemperatureUnit}
 
 
 trait SemanticTypes {
-  object converter {
-    def apply(from: Type, to: Type):Type = 'Converter(from, to)
+
+  val temperatureUnit = Variable("TemperatureUnit")
+  val frequencyUnit = Variable("FrequencyUnit")
+  val featureType = Variable("FeatureType")
+
+  val temperatureUnits: Kinding =
+    TemperatureUnit.values().foldLeft(Kinding(temperatureUnit)) {
+      case (k, unit) => k.addOption(feature.temperature(unit))
+    }
+
+  val frequencyUnits: Kinding =
+    FrequencyUnit.values().foldLeft(Kinding(frequencyUnit)) {
+      case (k, unit) => k.addOption(feature.extrema(unit))
+    }
+
+  val featureTypes: Kinding =
+    TemperatureUnit.values().foldLeft(Kinding(featureType)) {
+      case (k, unit) => k.addOption(feature.temperature(unit))
+    }.addOption(Omega)
+
+  val kinding:Kinding =
+    temperatureUnits
+      .merge(frequencyUnits)
+      .merge(featureTypes)
+
+  /** Convert each frequency into corresponding seconds. */
+  def frequencyToSecond(f:FrequencyUnit): Long = f match {
+    case FrequencyUnit.Second => 1
+    case FrequencyUnit.Minute => 60
+    case FrequencyUnit.Hour => 60*60
+    case FrequencyUnit.Day => 24*60*60
+    case FrequencyUnit.Week => 7*24*60*60
+    case FrequencyUnit.Month => 30*24*60*60
+    case FrequencyUnit.Year => 365*24*60*60
   }
 
+  // known capabilities of the gadget. Each new feature is encapsulated here
   object feature {
-    def apply(featureType: Type): Type = 'Feature(featureType)
+    def apply(ft: Feature): Type = 'Feature(Constructor(ft.getClass().getSimpleName))
 
+    // Temperature Feature identified.
     object temperature {
       def apply(in: TemperatureUnit): Type = 'TemperatureIn(Constructor(in.toString))
+
+      object converter {
+        def apply(from: TemperatureUnit, forUnit: Type):Type =
+          'Converter(Constructor(from.toString()), forUnit)
+      }
     }
+
+    // Record extreme ranges of temperature
+    object extrema {
+      def apply(in: FrequencyUnit): Type = 'Extrema(Constructor(in.toString))
+
+      object converter {
+        def apply(from: Type, to: Type):Type = 'Converter(from, to)
+      }
+    }
+
+    // default feature always present
     val time: Type = 'Time
   }
 

@@ -62,3 +62,8 @@ class DoubleFreeCellController @Inject()(webJars: WebJarsUtil, applicationLifecy
   extends FreeCellVariationController(webJars, applicationLifecycle) {
   lazy val variation = new freeCell.DoubleFreeCell
 }
+
+class StalactitesController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends FreeCellVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new freeCell.Stalactites
+}

@@ -54,4 +54,6 @@ public class EnhancedMove implements Move {
 
     public Constraint getSourceConstraint() { return base.getSourceConstraint(); }
     public Constraint getTargetConstraint() { return base.getTargetConstraint(); }
+
+    public void prevent() { base.prevent(); }
 }

@@ -56,4 +56,13 @@ public interface Move {
 
     /** Returns the individual constraint associated with whether the move can be completed at the target. */
     Constraint getTargetConstraint();
+
+    /**
+     * Deny this move from happening by setting src/tgt constraints to Falsehood. This is the
+     * only consistent way to remove a move.
+     *
+     * TODO: Add methods to replaceSourceConstraint(cons) and replaceTargetConstraint(cons)
+     */
+    void prevent();
+
 }

@@ -8,7 +8,7 @@ import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
 import org.combinators.templating.twirl.Java
-import domain.freeCell.SufficientFree
+import domain.freeCell.{Full, SufficientFree}
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
@@ -31,6 +31,13 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
           val tableau = registry(c.tableau).get
           Java(s"""ConstraintHelper.sufficientFree($column, $src, $destination, $reserve, $tableau)""").expression()
       },
+
+      CodeGeneratorRegistry[Expression, Full] {
+        case (registry:CodeGeneratorRegistry[Expression], f:Full) =>
+          val src = registry(f.src).get
+          Java(s"""ConstraintHelper.isFull($src)""").expression()
+      },
+
 
     ).merge(constraintCodeGenerators.generators)
   }
@@ -86,13 +93,18 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       generateHelper.helpers(solitaire) ++
         Java(
           s"""
+             |/** A Foundation stack is full at 13 cards. */
+             |public static boolean isFull(Stack src) {
+             |  return (src.count() == 13);
+             |}
+             |
              |public static boolean sufficientFree (Column column, Stack src, Stack destination, Stack[] reserve, Stack[] tableau) {
              |	int numEmpty = 0;
              |	for (Stack s : tableau) {
              |		if (s.empty() && s != destination) numEmpty++;
              |	}
              |
-           | 	// now count columns
+             | 	// now count columns
              |	for (Stack r : reserve) {
              |		if (r.empty() && r != destination) numEmpty++;
              |	}

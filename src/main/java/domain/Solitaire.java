@@ -220,6 +220,25 @@ public abstract class Solitaire {
     }
 
     /**
+     * Disable a move by turning its source and target constraint into Falsehood.
+     *
+     * @param moves
+     * @param name
+     * @return
+     */
+    protected boolean prevent(Iterator<Move> moves, String name) {
+        while (moves.hasNext()) {
+            Move exist = moves.next();
+            if (exist.getName().equals(name)) {
+                exist.prevent();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Each solitaire game has the responsibility to register those elements (i.e., WastePile, FreePile) that
      * are used by the variation.
      *
