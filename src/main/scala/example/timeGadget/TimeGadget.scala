@@ -31,7 +31,7 @@ class TimeGadget @Inject()(webJars: WebJarsUtil, applicationLifecycle: Applicati
 
   lazy val Gamma = ReflectedRepository(repository, substitutionSpace=kinding, classLoader = this.getClass.getClassLoader)
         .addCombinator(new Combined_Temp_Extrema())    // should be inferred from the domain...
-        .addCombinator(new Combined_Temp_Extrema_Code())
+        .addCombinator(new Combined_Temp_Extrema_Code(weatherFeature.temperatureUnit))
         .addCombinator(new CurrentTemperature(weatherFeature))
         .addCombinator(new MainCode())
 
