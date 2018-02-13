@@ -1,8 +1,10 @@
 package time;
 
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Device has built in capability to execute arbitrary operations at a given
@@ -30,6 +32,17 @@ public class Gadget implements Iterable<Feature> {
     public Gadget add (Feature f) {
         features.add(f);
         return this;
+    }
+
+    /** Return desired feature by Unit, if it exists. */
+    public Optional<Feature> getFeature(FeatureUnit unit) {
+        for (Feature f: features) {
+            if (f.getUnit() == unit) {
+                return Optional.of(f);
+            }
+        }
+
+        return Optional.empty();
     }
 
     /** Return all known features. */

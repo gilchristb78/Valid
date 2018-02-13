@@ -22,4 +22,6 @@ public class WeatherFeature extends FrequencyFeature {
     }
 
 
+    @Override
+    public FeatureUnit getUnit() { return FeatureUnit.Weather; }
 }

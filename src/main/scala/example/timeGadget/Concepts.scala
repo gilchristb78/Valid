@@ -10,15 +10,8 @@ import org.combinators.cls.types.syntax._
 import org.combinators.templating.twirl.Java
 import time._
 
-import scala.collection.JavaConverters._
 
 class Concepts(val gadget:Gadget) extends SemanticTypes {
-
-  // just grab the frequency feature, which must exist in every gadget.
-  val freqFeature:FrequencyFeature = gadget.iterator.asScala.filter{
-    case ff:FrequencyFeature => true
-    case _ => false
-  }.toSeq.head.asInstanceOf[FrequencyFeature]
 
   class ExtremeRange(ef:ExtremaFeature, wf:WeatherFeature) {
     def apply() : Seq[BodyDeclaration[_]] = {
@@ -53,7 +46,7 @@ class Concepts(val gadget:Gadget) extends SemanticTypes {
            |}""".stripMargin).classBodyDeclarations()
     }
 
-    val semanticType:Type = artifact(artifact.extraCode, feature(ef))
+    val semanticType:Type = artifact(artifact.extraCode, feature(FeatureUnit.Extrema))
   }
 
   class CurrentTemperature(wf: WeatherFeature) {
@@ -83,7 +76,7 @@ class Concepts(val gadget:Gadget) extends SemanticTypes {
 
     val semanticType:Type =
       feature.temperature.converter(TemperatureUnit.Celsius, temperatureUnit) =>:
-        artifact(artifact.extraCode, temperatureUnit :&: feature(wf))
+        artifact(artifact.extraCode, temperatureUnit :&: feature(FeatureUnit.Weather))
   }
 
   @combinator object FahrenheitConverter {
@@ -92,19 +85,27 @@ class Concepts(val gadget:Gadget) extends SemanticTypes {
       temperatureUnit :&: feature.temperature(TemperatureUnit.Fahrenheit))
   }
 
-  @combinator object EmptyFeatureDeclarations {
-    def apply: Seq[BodyDeclaration[_]] = Seq.empty
-    val semanticType: Type = artifact(artifact.extraCode, Omega)
+  @combinator object CelsiusStraight {
+    def apply: Expression => Expression = { celsius => Java(s"$celsius").expression[Expression]() }
+    val semanticType: Type = feature.temperature.converter(TemperatureUnit.Celsius,
+      temperatureUnit :&: feature.temperature(TemperatureUnit.Celsius))
   }
-
-  @combinator object EmptyFeatureLoopCode {
-    def apply: Seq[BodyDeclaration[_]] = Seq.empty
-    val semanticType: Type = artifact(artifact.loopCode, Omega)
-  }
+//
+//  @combinator object EmptyFeatureDeclarations {
+//    def apply: Seq[BodyDeclaration[_]] = Seq.empty
+//    val semanticType: Type = artifact(artifact.extraCode, Omega)
+//  }
+//
+//  @combinator object EmptyFeatureLoopCode {
+//    def apply: Seq[BodyDeclaration[_]] = Seq.empty
+//    val semanticType: Type = artifact(artifact.loopCode, Omega)
+//  }
 
   class MainCode {
     def apply(extraDecl: Seq[BodyDeclaration[_]], extraCode: Expression => Seq[Statement]):
        CompilationUnit = {
+
+      val freqFeature = gadget.getFeature(FeatureUnit.Frequency).get.asInstanceOf[FrequencyFeature]
 
       val totalSec:Long = freqFeature.count * frequencyToSecond(freqFeature.unit) * 1000
       Java(
@@ -123,20 +124,57 @@ class Concepts(val gadget:Gadget) extends SemanticTypes {
            |}""".stripMargin).compilationUnit()
     }
 
-    val semanticType: Type = artifact(artifact.extraCode, featureType) =>:
+    val semanticType: Type = artifact(artifact.combinedCode, featureType) =>:
         artifact(artifact.loopCode, featureType) =>:
-        artifact(artifact.mainProgram, featureType :&: feature(freqFeature))
+        artifact(artifact.mainProgram, featureType :&: feature(FeatureUnit.Frequency))
   }
 
-  // artifact(artifact.mainProgram, feature(freqFeature))
 
-  // possible inter
-  @combinator object ShowTemperature {
+  // Show temperature only
+  class ShowTemperature {
     def apply: Expression => Seq[Statement] = theCurrentTime =>
-      Java(s"""System.out.println("The temperature is: " + getTemperature($theCurrentTime));""").statements()
-    val semanticType: Type = artifact(artifact.loopCode, feature(freqFeature))
+      Java(
+        s"""
+           |float temperature = getTemperature($theCurrentTime);
+           |System.out.println($theCurrentTime + ": The temperature is: " + temperature);""".stripMargin).statements()
+    val semanticType: Type = artifact(artifact.loopCode, feature(FeatureUnit.Weather))
   }
 
+  // process temperature in given expression to compute extrema
+  class ProcessExtrema {
+    def apply: Expression => Seq[Statement] = temperature =>
+            Java(s"""
+                 |int[] extreme = getExtremes($temperature);
+                 |System.out.printf("The Temperature is in range[%d,%d]%n", extreme[0], extreme[1]);
+                 |
+                 """.stripMargin).statements()
+
+    val semanticType: Type = artifact(artifact.loopCode, feature(FeatureUnit.Extrema))
+  }
+
+  // Combined. This seems like this could be done a better way...
+  class Combined_Temp_Extrema {
+    def apply () : Expression => Seq[Statement] = theCurrentTime => {
+
+        new ShowTemperature().apply(theCurrentTime) ++
+        new ProcessExtrema().apply(Java("temperature").expression())
+    }
+    val semanticType: Type = artifact(artifact.loopCode, feature(FeatureUnit.Weather) :&: feature(FeatureUnit.Extrema))
+  }
+
+  // Combined. This seems like it could be done a better way..
+  class Combined_Temp_Extrema_Code {
+    def apply (temp:Seq[BodyDeclaration[_]]) : Seq[BodyDeclaration[_]] = {
+
+      val wf = gadget.getFeature(FeatureUnit.Weather).get.asInstanceOf[WeatherFeature]
+      val ef = gadget.getFeature(FeatureUnit.Extrema).get.asInstanceOf[ExtremaFeature]
+
+      temp ++ new ExtremeRange(ef, wf).apply()
+    }
+
+    val semanticType: Type = artifact(artifact.extraCode, temperatureUnit :&: feature(FeatureUnit.Weather)) =>:
+      artifact(artifact.combinedCode, feature(FeatureUnit.Weather) :&: feature(FeatureUnit.Extrema))
+  }
 }
 
 

@@ -2,7 +2,7 @@ package example.timeGadget
 
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
-import time.{Feature, FrequencyUnit, TemperatureUnit}
+import time.{FeatureUnit, FrequencyUnit, TemperatureUnit}
 
 
 trait SemanticTypes {
@@ -22,8 +22,8 @@ trait SemanticTypes {
     }
 
   val featureTypes: Kinding =
-    TemperatureUnit.values().foldLeft(Kinding(featureType)) {
-      case (k, unit) => k.addOption(feature.temperature(unit))
+    FeatureUnit.values().foldLeft(Kinding(featureType)) {
+      case (k, unit) => k.addOption(feature(unit))
     }.addOption(Omega)
 
   val kinding:Kinding =
@@ -44,7 +44,7 @@ trait SemanticTypes {
 
   // known capabilities of the gadget. Each new feature is encapsulated here
   object feature {
-    def apply(ft: Feature): Type = 'Feature(Constructor(ft.getClass().getSimpleName))
+    def apply(ft: FeatureUnit): Type = 'Feature(Constructor(ft.toString))
 
     // Temperature Feature identified.
     object temperature {
@@ -77,9 +77,10 @@ trait SemanticTypes {
   object artifact {
     def apply(part:Type, forFeature: Type):Type = 'Artifact(part, forFeature)
 
-    val extraCode: Type   = 'ImplementationOf
-    val loopCode: Type    = 'LoopCodeFor
-    val mainProgram: Type = 'ProgramWith
+    val extraCode: Type      = 'ImplementationOf
+    val combinedCode: Type   = 'Combined
+    val loopCode: Type       = 'LoopCodeFor
+    val mainProgram: Type    = 'ProgramWith
   }
 }
 

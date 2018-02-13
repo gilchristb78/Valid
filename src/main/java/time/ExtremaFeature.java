@@ -13,4 +13,8 @@ public class ExtremaFeature extends FrequencyFeature {
     public ExtremaFeature(int count, FrequencyUnit unit) {
        super (count, unit);
     }
+
+    @Override
+    public FeatureUnit getUnit() { return FeatureUnit.Extrema; }
+
 }
