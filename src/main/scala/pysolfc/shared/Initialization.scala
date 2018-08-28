@@ -102,61 +102,6 @@ trait Initialization extends PythonSemanticTypes{
     Python(combined)
   }
 
-//  /**
-//    * Knows that suits are identified by suit=i for 0..3
-//    */
-//  def layout_place_foundation(s:Solitaire, c: Container): Python = {
-//
-//    var combined = ""
-//    //for (r <- c.placements().asScala) {
-//    for (r <- s.placements(c).asScala) {
-//      combined = combined +
-//        s"""
-//           |s.foundations.append(self.Foundation_Class(${r.x}, ${r.y}, self, suit=${r.idx}, max_move=0))
-//           |""".stripMargin
-//    }
-//    Python(combined)
-//  }
-//
-//  def layout_place_pile(s:Solitaire, c: Container): Python = {
-//
-//    var combined = ""
-//    for (r <- s.placements(c).asScala) {
-//      combined = combined +
-//        s"""
-//           |s.foundations.append(ReserveStack(${r.x}, ${r.y}, self, max_move=0))
-//           |""".stripMargin
-//    }
-//    Python(combined)
-//  }
-
-
-//  // THESE ARE ROWS. How to show orientation
-//  def layout_place_column(s:Solitaire, c:Container): Python = {
-//    var combined = ""
-//
-//    // tableau typically can be oriented vertically or horizontally
-//    /** Orientation. By default, vertical downwards. */
-//    val element:Element = c.iterator().next()
-//
-//    val offsets = if (element.getVerticalOrientation) {
-//      "stack.CARD_XOFFSET, stack.CARD_YOFFSET = 0, l.YOFFSET"
-//    } else {
-//      "stack.CARD_XOFFSET, stack.CARD_YOFFSET = l.XOFFSET, 0"
-//    }
-//
-//    //for (r <- c.placements().asScala) {
-//    for (r <- s.placements(c).asScala) {
-//      combined = combined +
-//        s"""
-//           |stack = self.RowStack_Class(${r.x}, ${r.y}, self)
-//           |$offsets
-//           |s.rows.append(stack)""".stripMargin
-//    }
-//    Python(combined)
-//  }
-
-
   // Note: Decks are synthesized with MyDeckStack
   def layout_place_stock(s:Solitaire, c:Container): Python = {
     var combined = ""
@@ -168,39 +113,6 @@ trait Initialization extends PythonSemanticTypes{
     Python(combined)
   }
 
-//  /** Waste takes its structure from existing classWasteStack. Need to deal with rounds/num deal at a time. */
-//  def layout_place_stock_and_waste(s:Solitaire, stock:Container, waste:Container): Python = {
-//    var combined = ""
-//
-//    for (r <- s.placements(stock).asScala) {
-//      combined = combined +
-//        s"""
-//           |s.talon =  WasteTalonStack(${r.x}, ${r.y}, self, max_rounds=1, num_deal=1)
-//                  """.stripMargin
-//    }
-//
-//    for (r <- s.placements(waste).asScala) {
-//      combined = combined +
-//        s"""
-//           |s.waste =  WasteStack(${r.x}, ${r.y}, self)
-//            """.stripMargin
-//    }
-//    Python(combined)
-//  }
-
-//  /** Some games use a stock only to store cards which are all dealt out. */
-//  def layout_invisible_stock(stock:Container): Python = {
-//    Python(s"""
-//              |x, y = self.getInvisibleCoords()
-//              |s.talon = TalonStack(x, y, self)
-//              |""".stripMargin)
-//  }  /** Some games use a stock only to store cards which are all dealt out. */
-  //  def layout_invisible_stock(stock:Container): Python = {
-  //    Python(s"""
-  //              |x, y = self.getInvisibleCoords()
-  //              |s.talon = TalonStack(x, y, self)
-  //              |""".stripMargin)
-  //  }
 
   /**
     * In PySolFC, there is a special situation when there is both a Stock and a WastePile, so this

@@ -219,30 +219,21 @@ trait Initialization extends SemanticTypes {
 
   /** Process Solitaire domain model to construct game(game.view). */
   class ProcessView (sol:Solitaire) {
-    def apply: Seq[Statement] = {
-
+    def apply: Seq[Statement] =
       sol.containers.asScala.flatMap {
         container => {
-          val name = container.`type`.getName
-          val part:Seq[Statement] = container match {
-            case d: Stock => {
-              // Need to keep these "redundant braces" to ensure we don't fall through to next case
+         val name = container.`type`.getName
+         container match {
+            case d: Stock =>
               if (sol.isVisible(d)) {
                 Java(s"""${name}View = new DeckView($name);""").statements() ++
                   layout_place_one(sol, d, Java(s"${name}View").name())
-              } else {
-                Seq.empty
-              }
-            }
-
+              } else Seq.empty
             case _ =>
               layout_place_it(sol, container, Java(s"${name}View").name())
           }
-
-          part
-          }
+        }
       }.toSeq
-    }
 
     val semanticType: Type = game(game.view)
   }

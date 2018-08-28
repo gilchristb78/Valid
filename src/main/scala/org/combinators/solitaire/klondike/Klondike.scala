@@ -4,26 +4,18 @@ import javax.inject.Inject
 
 import com.github.javaparser.ast.CompilationUnit
 import domain.klondike
-import domain.klondike._
 import org.combinators.cls.interpreter.ReflectedRepository
-import org.combinators.cls.types.syntax._
 import org.combinators.cls.git._
-import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
-import play.api.routing.SimpleRouter
 
 
-// domain
-import domain._
+abstract class KlondikeVariationController(web: WebJarsUtil, app: ApplicationLifecycle)
+  extends InhabitationController(web, app) with RoutingEntries {
 
-
-abstract class KlondikeVariationController(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
-
-  // request a specific variation via "http://localhost:9000/klondike/
+  // request a specific variation via "http://localhost:9000/klondike/SUBVAR-NAME
   val variation: klondike.KlondikeDomain
 
   /** KlondikeDomain for Klondike defined herein. Controllers are defined in Controllers area. */
@@ -32,32 +24,32 @@ abstract class KlondikeVariationController(webJars: WebJarsUtil, applicationLife
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), variation)
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-
+  val targets = Synthesizer.allTargets(variation)
   lazy val results:Results =
-    EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](Synthesizer.allTargets(variation)).compute()
+    EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-  override val routingPrefix: Option[String] = Some("klondike")
-  lazy val controllerAddress: String = variation.name.toLowerCase
+  override val routingPrefix = Some("klondike")
+  val controllerAddress: String = variation.name.toLowerCase
 }
 
 class KlondikeController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends KlondikeVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new klondike.KlondikeDomain()
+  lazy val variation = new klondike.KlondikeDomain
 }
 
 class WhiteheadController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends KlondikeVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new klondike.Whitehead()
+  lazy val variation = new klondike.Whitehead
 }
 
 class EastcliffController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends KlondikeVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new klondike.EastCliff()
+  lazy val variation = new klondike.EastCliff
 }
 
 class SmallHarpController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends KlondikeVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new klondike.SmallHarp()
+  lazy val variation = new klondike.SmallHarp
 }
 
 class ThumbAndPouchController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -67,20 +59,20 @@ class ThumbAndPouchController @Inject()(webJars: WebJarsUtil, applicationLifecyc
 
 class DealByThreeController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends KlondikeVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new klondike.DealByThreeKlondikeDomain()
+  lazy val variation = new klondike.DealByThreeKlondikeDomain
 }
 
 class EastHavenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends KlondikeVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new klondike.EastHaven()
+  lazy val variation = new klondike.EastHaven
 }
 
 class DoubleEastHavenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends KlondikeVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new klondike.DoubleEastHaven()
+  lazy val variation = new klondike.DoubleEastHaven
 }
 
 class TripleEastHavenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends KlondikeVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new klondike.TripleEastHaven()
+  lazy val variation = new klondike.TripleEastHaven
 }

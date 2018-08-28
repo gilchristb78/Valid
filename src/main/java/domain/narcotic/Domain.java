@@ -83,12 +83,12 @@ public class Domain extends Solitaire {
 		// Tableau to Tableau. Can move a card to the left if it is
 		// going to a non-empty pile whose top card is the same rank
 		// as moving card, and which is to the left of the source.
-		ToLeftOf toLeftOf = new ToLeftOf(MoveComponents.Destination, MoveComponents.Source);
+		//ToLeftOf toLeftOf = new ToLeftOf(MoveComponents.Destination, MoveComponents.Source);
 
 		SameRank sameRank = new SameRank(MoveComponents.MovingCard, new TopCardOf(MoveComponents.Destination));
 
 		AndConstraint tt_move = new AndConstraint(new NotConstraint(new IsEmpty(MoveComponents.Destination)),
-				toLeftOf, sameRank);
+				sameRank);
 
 		SingleCardMove tableauToTableau = new SingleCardMove("MoveCard", tableau, tableau, tt_move);
 		addDragMove(tableauToTableau);

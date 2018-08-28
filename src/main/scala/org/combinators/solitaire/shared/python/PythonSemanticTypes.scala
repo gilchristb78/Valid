@@ -35,5 +35,6 @@ trait PythonSemanticTypes extends SemanticTypes {
     val narcotic:Int = 99002
     val archway:Int = 99003
     val freecell:Int = 99004
+    val minimal:Int = 99999
   }
 }

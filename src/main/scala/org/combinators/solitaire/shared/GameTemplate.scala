@@ -255,9 +255,12 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
 
       // introspect from solitaire domain model
       if (sol.isSolvable) {
-        val clazz = comp.getClassByName(nameParameter.toString).get
-        val solvable = Java("SolvableSolitaire").tpe.asClassOrInterfaceType()
-        clazz.getImplementedTypes.add(solvable)
+//        val main = comp.getClassByName(nameParameter.toString).get
+//        val solvable = Java("SolvableSolitaire").tpe.asClassOrInterfaceType()
+//        main.getImplementedTypes.add(solvable)
+        comp.getClassByName(nameParameter.toString).get
+          .getImplementedTypes
+          .add(Java("SolvableSolitaire").tpe.asClassOrInterfaceType)
       }
 
       comp

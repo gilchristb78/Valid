@@ -28,14 +28,12 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     * This method appears in the extra methods [[HelperMethodsKlondike]] below.
     */
   object klondikeCodeGenerators {
-    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
-
-      CodeGeneratorRegistry[Expression, RedealsAllowed] {
-        case (registry:CodeGeneratorRegistry[Expression], ra:RedealsAllowed) =>
-         Java(s"""ConstraintHelper.redealsAllowed()""").expression()
-      },
-
-    ).merge(constraintCodeGenerators.generators)
+    val generators:CodeGeneratorRegistry[Expression] =
+      constraintCodeGenerators.generators.addGenerator (
+         (registry:CodeGeneratorRegistry[Expression], ra:RedealsAllowed) =>
+          Java(s"""ConstraintHelper.redealsAllowed()""")
+            .expression[Expression]()
+      )
   }
 
   /**

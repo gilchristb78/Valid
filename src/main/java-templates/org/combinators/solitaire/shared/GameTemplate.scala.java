@@ -41,8 +41,8 @@ public class @Java(nameParameter) extends Solitaire {
         @Java(initializeSteps)
 
         // Cover the Container for any events not handled by a widget:
-        getContainer().setMouseMotionAdapter(new ks.common.controller.SolitaireMouseMotionAdapter(this));
-        getContainer().setMouseAdapter(new ks.common.controller.SolitaireReleasedAdapter(this));
+        getContainer().setMouseMotionAdapter(new SolitaireMouseMotionAdapter(this));
+        getContainer().setMouseAdapter(new SolitaireReleasedAdapter(this));
         getContainer().setUndoAdapter(new SolitaireUndoAdapter(this));
     }
 

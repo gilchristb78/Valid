@@ -125,6 +125,7 @@ public class TestSynthesis {
             System.out.print ("  Attempting to prepare " + variation + " [");
             startTime();
             URL url = new URL(urls + "/prepare?number=0");
+            System.out.println ("    Attempting URL " + url);
             BufferedReader br = new BufferedReader (new InputStreamReader (url.openStream()));
             Stream<String> input =  br.lines();
             br.close();
@@ -153,6 +154,7 @@ public class TestSynthesis {
                 urlString = "http://localhost:9000/" + originalClass.toLowerCase();
             }
 
+            System.out.println ("  Accessing url " + urlString );
            BufferedReader br = new BufferedReader (new InputStreamReader (new URL(urlString).openStream()));
             Stream<String> input =  br.lines();
             System.out.println (endTime() + " secs]");

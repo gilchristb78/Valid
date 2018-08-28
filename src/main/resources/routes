@@ -9,6 +9,7 @@
 ->    /                              org.combinators.solitaire.bigforty.BigForty
 ->    /                              org.combinators.solitaire.castle.Castle
 ->    /                              org.combinators.solitaire.narcotic.Narcotic
+->    /                              org.combinators.solitaire.minimal.Minimal
 
 # All variants have names that end in "Controller", and then can extract package.MainClass easily
 ->    /                              org.combinators.solitaire.freecell.FreeCellController
@@ -32,6 +33,11 @@ GET   /pyarchway                          pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)
 GET   /pyarchway/prepare                  pysolfc.archway.Archway.prepare(number: Long)
 GET   /pyarchway/pyarchway.git/*file      pysolfc.archway.Archway.serveFile(file)
+
+GET   /pyminimal                          pysolfc.minimal.Minimal.overview()
+GET   /pyminimal/raw_:number              pysolfc.minimal.Minimal.raw(number: Long)
+GET   /pyminimal/prepare                  pysolfc.minimal.Minimal.prepare(number: Long)
+GET   /pyminimal/pyminimal.git/*file      pysolfc.minimal.Minimal.serveFile(file)
 
 GET   /pycastle                         pysolfc.castle.Castle.overview()
 GET   /pycastle/raw_:number             pysolfc.castle.Castle.raw(number: Long)
