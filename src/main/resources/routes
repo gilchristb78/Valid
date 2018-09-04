@@ -29,6 +29,8 @@
 ->    /                              org.combinators.solitaire.klondike.DoubleEastHavenController
 ->    /                              org.combinators.solitaire.klondike.TripleEastHavenController
 
+->    /                              org.combinators.solitaire.alpha.Alpha
+
 GET   /pyarchway                          pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)
 GET   /pyarchway/prepare                  pysolfc.archway.Archway.prepare(number: Long)

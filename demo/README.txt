@@ -22,6 +22,10 @@ from within IntelliJ.
    if you don't link to the 'standAlone.jar' file that is in this demo/ folder. Once you have properly
    configured your Eclipse project, the code will compile cleanly and then you can execute it.
 
+   Note: be sure to link to the proper subdirectory in the git folder, which will be:
+
+     git\VARIATION-NAME\src\main\java
+
 8. A window will appear which contains the list of previously generated solitaire variations (including the
    one that was just generated). Select the desired variation and execute it.
 
