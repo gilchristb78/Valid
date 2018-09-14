@@ -62,10 +62,10 @@ public class Domain extends Solitaire {
 	public Layout getLayout() {
 		if (layout == null) {
 			layout = new Layout()
-					.add(SolitaireContainerTypes.Stock, new VerticalPlacement(new Point(10, 10),
+					.add(SolitaireContainerTypes.Stock, new HorizontalPlacement(new Point(10, 10),
 							card_width, card_height, card_gap))
-					.add(SolitaireContainerTypes.Tableau, new HorizontalPlacement(new Point(10, 150),
-							card_width, card_height, card_gap))
+					.add(SolitaireContainerTypes.Tableau, new HorizontalPlacement(new Point(50, 150),
+							card_width, card_height*10, card_gap))
 					.add(SolitaireContainerTypes.Foundation, new HorizontalPlacement(new Point(210, 10),
 							card_width, card_height, card_gap));
 		}
