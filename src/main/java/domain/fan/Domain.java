@@ -100,10 +100,9 @@ public class Domain extends Solitaire {
 	/**
 	 * Determines what cards can be placed on tableau.
 	 *
-	 * Parameter is either a single card, or something like BottomOf().
+	 * Parameter is either a single card
 	 *
 	 * @param bottom
-	 * @param bottomd
 	 * @return
 	 */
 	public Constraint buildOnTableau(MoveInformation bottom) {
@@ -112,12 +111,35 @@ public class Domain extends Solitaire {
 	}
 
 	/**
+	 * Determines what cards can be placed on tableau.
+	 *
+	 * Parameter is either a single card, or something like BottomOf().
+	 *
+	 * @param bottom
+	 * @return
+	 */
+	public Constraint buildOnFoundation(MoveInformation bottom) {
+		TopCardOf topDestination = new TopCardOf(MoveComponents.Destination);
+		return new AndConstraint(new NextRank(bottom, topDestination), new SameSuit(bottom, topDestination));
+	}
+
+
+	/**
 	 * By default, only Kings can be placed in empty tableau.
 	 * @param bottom
 	 * @return
 	 */
 	public Constraint buildOnEmptyTableau(MoveInformation bottom) {
 		return new IsKing(bottom);
+	}
+
+	/**
+	 * By default, only Aces can be placed in empty Foundation
+	 * @param bottom
+	 * @return
+	 */
+	public Constraint buildOnEmptyFoundation(MoveInformation bottom) {
+		return new IsAce(bottom);
 	}
 
 	private void init() {
@@ -137,6 +159,8 @@ public class Domain extends Solitaire {
 
 		addDragMove(new SingleCardMove("MoveCard",getTableau(),getTableau(), tableauConst));
 
+		Constraint toFoundation = new IfConstraint(new IsEmpty(MoveComponents.Destination), buildOnEmptyFoundation(MoveComponents.MovingCard), buildOnFoundation(MoveComponents.MovingCard));
+		addDragMove(new SingleCardMove("MoveCardFoundation", getTableau(), getFoundation(), toFoundation));
 
 		// When all cards are in the AcesUp and KingsDown
 		BoardState state = new BoardState();
