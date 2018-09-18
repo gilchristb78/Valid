@@ -19,6 +19,8 @@
 ->    /                              org.combinators.solitaire.freecell.DoubleFreeCellController
 ->    /                              org.combinators.solitaire.freecell.StalactitesController
 
+->    /                              org.combinators.solitaire.fan.Fan
+
 ->    /                              org.combinators.solitaire.klondike.KlondikeController
 ->    /                              org.combinators.solitaire.klondike.WhiteheadController
 ->    /                              org.combinators.solitaire.klondike.EastcliffController
