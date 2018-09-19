@@ -74,8 +74,6 @@ public class Domain extends Solitaire {
 		}
 		if (layout == null) {
 			layout = new Layout()
-					.add(SolitaireContainerTypes.Stock, new HorizontalPlacement(new Point(10, 10),
-							card_width, card_height, card_gap))
 					.add(SolitaireContainerTypes.Tableau, new CalculatedPlacement(anchors,
 							card_width, card_height*2))
 					.add(SolitaireContainerTypes.Foundation, new HorizontalPlacement(new Point( 200, 10),
@@ -161,7 +159,7 @@ public class Domain extends Solitaire {
 
 		Constraint toFoundation = new IfConstraint(new IsEmpty(MoveComponents.Destination), buildOnEmptyFoundation(MoveComponents.MovingCard), buildOnFoundation(MoveComponents.MovingCard));
 		addDragMove(new SingleCardMove("MoveCardFoundation", getTableau(), getFoundation(), toFoundation));
-
+		//addClickMove(new SingleCardMove("ClickMoveCardFoundation", getTableau(), getFoundation(), toFoundation));
 		// When all cards are in the AcesUp and KingsDown
 		BoardState state = new BoardState();
 		state.add(SolitaireContainerTypes.Foundation, 52);
