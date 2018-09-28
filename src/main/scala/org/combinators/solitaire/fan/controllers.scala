@@ -43,6 +43,12 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new IgnorePressedHandler(pile))
       .addCombinator (new IgnoreClickedHandler(pile))
 
+    if (s.asInstanceOf[fan.Domain].hasReserve) {
+      updated = updated.addCombinator(new IgnoreClickedHandler('FreePile))
+      updated = updated.addCombinator(new SingleCardMoveHandler('FreePile))
+    }
+
+
     updated = updated
       .addCombinator (new IgnoreClickedHandler(deck))
       .addCombinator (new IgnoreReleasedHandler(deck))
@@ -60,6 +66,8 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new ProcessView(s))
       .addCombinator (new ProcessControl(s))
       .addCombinator (new ProcessFields(s))
+
+
 
     updated
   }

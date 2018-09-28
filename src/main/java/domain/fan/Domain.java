@@ -18,13 +18,17 @@ import java.awt.*;
 /**
  * Programmatically construct full domain model for "Hello-World"  Fan variation
  */
-public class Domain extends Solitaire {
+public class Domain extends Solitaire implements VariationPoints {
 
-	private Deal deal;
-	private Layout layout;
-	private Tableau tableau;
-	private Stock stock;
-	private Foundation foundation;
+	protected Deal deal;
+	protected Layout layout;
+	protected Tableau tableau;
+	protected Stock stock;
+	protected Foundation foundation;
+
+	public boolean hasReserve(){
+		return false;
+	}
 
 	public Tableau getTableau() {
 		if (tableau == null) {
@@ -70,7 +74,7 @@ public class Domain extends Solitaire {
 			if (i%6 == 0){
 				j++;
 			}
-				anchors[i] = new Point(100+(i%6)*(card_gap*2 + card_width), 10+(200*j));
+				anchors[i] = new Point(100+(i%6)*(card_gap*2 + card_width), 200*j);
 		}
 		if (layout == null) {
 			layout = new Layout()
@@ -93,6 +97,10 @@ public class Domain extends Solitaire {
 	public Domain() {
 		super ("Fan");
 		init();
+	}
+
+	public Domain(String s) {
+		super (s);
 	}
 
 	/**
@@ -147,7 +155,6 @@ public class Domain extends Solitaire {
 		placeContainer(getTableau());
 		placeContainer(getStock());
 		placeContainer(getFoundation());
-
 		// deal card from stock
 		NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
 		DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau);

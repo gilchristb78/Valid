@@ -77,15 +77,27 @@ class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solit
 
       Java(s"""
               |public java.util.Enumeration<Move> availableMoves() {
-              |    java.util.Vector<Move> v = new java.util.Vector<Move>();
+              |  java.util.Vector<Move> v = new java.util.Vector<Move>();
+              |        for (Column c : tableau) {
+              |            for (Pile p : foundation) {
+              |                PotentialMoveCardFoundation pfm = new PotentialMoveCardFoundation(c, p);
+              |                if (pfm.valid(this)) {
+              |                    v.add(pfm);
+              |                }
+              |            }
+              |        }
+              |        if (v.isEmpty()) {
+              |            for (Column c : tableau) {
               |
-         |	  if (!this.deck.empty()) {
-              |	    DealDeck dd = new DealDeck(deck, tableau);
-              |		  if (dd.valid(this)) {
-              |			  v.add(dd);
-              |		  }
-              |		}
-              |    return v.elements();
+              |            for (Column c2 : tableau) {
+              |                PotentialMoveCard pm = new PotentialMoveCard(c, c2);
+              |                if (pm.valid(this)) {
+              |                    v.add(pm);
+              |                }
+              |            }
+              |           }
+              |        }
+              |        return v.elements();
               |}
        """.stripMargin).methodDeclarations()
 
