@@ -145,16 +145,18 @@ public class Domain extends Solitaire {
 		// Can move a column if each card in it is the same suit and descending order
 
 		// Can move a card to an empty space or onto a card that has a higher number
-		Constraint moveDest = new OrConstraint(isEmpty, new IfConstraint (new NextRank(topDestination, MoveComponents.MovingCard)));
-				//new IfConstraint (new NextRank(MoveComponents.MovingCard, topDestination)));
+		//Constraint moveDest = new OrConstraint(isEmpty, new IfConstraint (new NextRank(topDestination, bottomMoving)));
+        Constraint moveDest = new IfConstraint (new NextRank(topDestination, bottomMoving));
+
+        //new IfConstraint (new NextRank(MoveComponents.MovingCard, topDestination)));
 
 		//column to column <- from freecell
-		//Descending descend = new Descending(MoveComponents.MovingColumn);
-		//AlternatingColors alternating = new AlternatingColors(MoveComponents.MovingColumn);
+		Descending descend = new Descending(MoveComponents.MovingColumn);
+		AlternatingColors alternating = new AlternatingColors(MoveComponents.MovingColumn);
 
 		//ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
 		//SingleCardMove tableauToTableau = new SingleCardMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
-		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), new Truth());
+		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
 		addDragMove(tableauToTableau);
 		//addDragMove(tableauToTableau2);
 
