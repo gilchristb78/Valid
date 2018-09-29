@@ -2,12 +2,14 @@ package domain.spider;
 
 import domain.*;
 import domain.constraints.*;
+import domain.constraints.movetypes.BottomCardOf;
 import domain.constraints.movetypes.MoveComponents;
+import domain.constraints.movetypes.TopCardOf;
 import domain.deal.*;
 import domain.deal.steps.DealToTableau;
+import domain.moves.ColumnMove;
 import domain.moves.DeckDealMove;
-import domain.moves.ResetDeckMove;
-import domain.moves.SingleCardMove;
+import domain.moves.*;
 import domain.ui.*;
 /*
 import domain.ui.Layout;
@@ -22,6 +24,30 @@ import java.awt.*;
  * Programmatically construct full domain model for "Hello-World"  Spider variation
  */
 public class Domain extends Solitaire {
+
+	/**
+	 * Determines what cards can be placed on tableau.
+	 *
+	 * Parameter is either a single card, or something like BottomOf().
+	 *
+	 * @param bottom
+	 * @return
+	 */
+	//CHANGE IT SO THAT YOU CAN PLACE ON ANY ASCENDING # BUT CAN ONLY MOVE IF SAME SUIT
+	public Constraint buildOnTableau(MoveInformation bottom) {
+		TopCardOf topDestination = new TopCardOf(MoveComponents.Destination);
+		return new AndConstraint(new NextRank(topDestination, bottom), new OppositeColor(bottom, topDestination));
+	}
+
+	/**
+	 * Anything can be placed on an empty tableau.
+	 * @param bottom
+	 * @return
+	 */
+	public Constraint buildOnEmptyTableau(MoveInformation bottom) {
+		return new Truth();
+	}
+
 
 	private Deal deal;
 	private Layout layout;
@@ -43,7 +69,7 @@ public class Domain extends Solitaire {
     public Tableau getTableau() {
         if (tableau == null) {
             tableau = new Tableau();
-            for (int i = 0; i < 10; i++) { tableau.add (new Column()); }
+            for (int i = 0; i < 10; i++) { tableau.add (new Column()); }//BuildablePile()); }
         }
         return tableau;
     }
@@ -53,7 +79,20 @@ public class Domain extends Solitaire {
 	public Deal getDeal() {
         if (deal == null) {
 			deal = new Deal();
+
+			// Deal 5 face-down cards to the first four piles, 5 to the rest
+			// don't forget zero-based indexing.
+			for (int colNum = 0; colNum < 4; colNum++) {
+				deal.append(new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, colNum), new Payload(5, false)));
+			}
+			for (int colNum = 4; colNum < 10; colNum++) {
+				deal.append(new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, colNum), new Payload(4, false)));
+			}
+
+			// Finally, each pile gets one face-up card
+			deal.append(new DealToTableau());
 		}
+
 		return deal;
 	}
 
@@ -87,32 +126,44 @@ public class Domain extends Solitaire {
 
 	private void init() {
 		// we intend to be solvable
-		setSolvable(true);
+		setSolvable(true); //what does this truly mean?
 
 		placeContainer(getFoundation());
         placeContainer(getTableau());
         placeContainer(getStock());
 
-        // add some test moves, no conditions yet
-		/*
-		addDragMove(
-				new SingleCardMove("TableauToFoundation",
-						tableau, foundation, new Truth()
-				)
-		);*/
-		/*
-		addDragMove(
-				new SingleCardMove("TableauToTableau",
-						tableau, tableau, new Truth()
-				)
-		);*/
+		// Rules of Spider defined below
+		IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
+		BottomCardOf bottomMoving = new BottomCardOf(MoveComponents.MovingColumn);
+		TopCardOf topDestination = new TopCardOf(MoveComponents.Destination);
+		TopCardOf topSource = new TopCardOf(MoveComponents.Source);
+
+		// Flip a face-down card on Tableau.
+		//Constraint faceDown = new NotConstraint(new IsFaceUp(topSource));
+		//addPressMove(new FlipCardMove("FlipCard", getTableau(), faceDown));
+
+		// Can move a column if each card in it is the same suit and descending order
+
+		// Can move a card to an empty space or onto a card that has a higher number
+		Constraint moveDest = new OrConstraint(isEmpty, new IfConstraint (new NextRank(topDestination, MoveComponents.MovingCard)));
+				//new IfConstraint (new NextRank(MoveComponents.MovingCard, topDestination)));
+
+		//column to column <- from freecell
+		//Descending descend = new Descending(MoveComponents.MovingColumn);
+		//AlternatingColors alternating = new AlternatingColors(MoveComponents.MovingColumn);
+
+		//ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
+		//SingleCardMove tableauToTableau = new SingleCardMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
+		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), new Truth());
+		addDragMove(tableauToTableau);
+		//addDragMove(tableauToTableau2);
 
         // deal card from stock
         NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
         DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau);
         addPressMove(deckDeal);
 
-        // When all cards are in the AcesUp and KingsDown
+        // When all cards are in tableau TO BE CHANGED
 		BoardState state = new BoardState();
 		state.add(SolitaireContainerTypes.Tableau, 52);
 		setLogic (state);

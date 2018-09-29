@@ -32,6 +32,9 @@
 ->    /                              org.combinators.solitaire.alpha.Alpha
 ->    /                              org.combinators.solitaire.beta.Beta
 
+->    /                              org.combinators.solitaire.spider.Spider
+
+
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)

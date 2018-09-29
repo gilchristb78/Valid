@@ -1,4 +1,4 @@
-package org.combinators.solitaire.beta
+package org.combinators.solitaire.spider
 
 import com.github.javaparser.ast.CompilationUnit
 import javax.inject.Inject
@@ -10,15 +10,15 @@ import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
 
-/** Loads and runs the combinators to generate the Beta variation.
+/** Loads and runs the combinators to generate the Spider variation.
   *
   * @param webJars
   */
-class Beta @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
+class Spider @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val solitaire = new domain.beta.Domain()
+  val solitaire = new domain.spider.Domain()
 
-  lazy val repository = new BetaDomain(solitaire) with controllers {}
+  lazy val repository = new SpiderDomain(solitaire) with controllers {}
 
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 

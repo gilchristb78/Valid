@@ -1,17 +1,19 @@
-package org.combinators.solitaire.beta
+package org.combinators.solitaire.spider
 
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
-import domain._
-import org.combinators.cls.interpreter.ReflectedRepository
-import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
-import org.combinators.generic
-import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
+import org.combinators.solitaire.shared
+import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
+import org.combinators.cls.types.{Constructor, Type}
 import org.combinators.templating.twirl.Java
+import org.combinators.generic
+import domain._
 
-/** Defines Beta's controllers and their behaviors.
+import scala.collection.JavaConverters._
+
+/** Defines Spider's controllers and their behaviors.
   *
   * Every controller requires definitions for three actions:
   *   - Click (no dragging, like clicking on a deck to deal more cards)
@@ -19,15 +21,14 @@ import org.combinators.templating.twirl.Java
   *   - Release (release after press)
   *
   * Either a rule must be associated with an action, or the action must be
-  * explicity ignored. See BetaRules in game.scala.
+  * explicity ignored. See SpiderRules in game.scala.
   */
-trait controllers extends shared.Controller with shared.Moves with GameTemplate with generic.JavaCodeIdioms  {
-
+trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms with SemanticTypes {
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
   ReflectedRepository[G] = {
     var updated = super.init(gamma, s)
-    println (">>> Beta Controller dynamic combinators.")
+    println (">>> Spider Controller dynamic combinators.")
 
     updated = createMoveClasses(updated, s)
     updated = createDragLogic(updated, s)
@@ -40,9 +41,10 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new IgnoreReleasedHandler(pile))
 
     updated = updated
-      .addCombinator (new IgnorePressedHandler(column))
       .addCombinator (new IgnoreClickedHandler(column))
-      .addCombinator (new IgnoreReleasedHandler(column))
+      //.addCombinator (new IgnoreReleasedHandler(column))
+      //.addCombinator (new SingleCardMoveHandler(column))
+      //.addCombinator (new ColumnMoveHandler(column))
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(deck))
@@ -65,25 +67,25 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     updated
   }
 
-    /**
-      * When dealing card(s) from the stock to all elements in Tableau
-      * If deck is empty, then reset.
-      * NOTE: How to make this more compositional?
-      */
-    class DealToTableauHandlerLocal() {
-      def apply(): (SimpleName, SimpleName) => Seq[Statement] = (widget, ignore) => {
-        Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.tableau);
-                 |if (m.doMove(theGame)) {
-                 |   theGame.pushMove(m);
-                 |   // have solitaire game refresh widgets that were affected
-                 |   theGame.refreshWidgets();
-                 |   return;
-                 |}}""".stripMargin
-        ).statements()
-      }
-
-      val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed)
+  /**
+    * When dealing card(s) from the stock to all elements in Tableau
+    * If deck is empty, then reset.
+    * NOTE: How to make this more compositional?
+    */
+  class DealToTableauHandlerLocal() {
+    def apply(): (SimpleName, SimpleName) => Seq[Statement] = (widget, ignore) => {
+      Java(s"""|{Move m = new DealDeck(theGame.deck, theGame.tableau);
+               |if (m.doMove(theGame)) {
+               |   theGame.pushMove(m);
+               |   // have solitaire game refresh widgets that were affected
+               |   theGame.refreshWidgets();
+               |   return;
+               |}}""".stripMargin
+      ).statements()
     }
+
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed)
+  }
 
 }
 
