@@ -135,7 +135,8 @@ public class Domain extends Solitaire {
 		// Rules of Spider defined below
 		IsEmpty isEmpty = new IsEmpty(MoveComponents.Destination);
 		BottomCardOf bottomMoving = new BottomCardOf(MoveComponents.MovingColumn);
-		TopCardOf topDestination = new TopCardOf(MoveComponents.Destination);
+        TopCardOf topMoving = new TopCardOf(MoveComponents.MovingColumn);
+        TopCardOf topDestination = new TopCardOf(MoveComponents.Destination);
 		TopCardOf topSource = new TopCardOf(MoveComponents.Source);
 
 		// Flip a face-down card on Tableau.
@@ -153,13 +154,16 @@ public class Domain extends Solitaire {
 		//column to column <- from freecell
         //AllSameSuit sameSuit = new AllSameSuit(MoveComponents.MovingColumn);
         Descending descend = new Descending(MoveComponents.MovingColumn);
-        AndConstraint and_2= new AndConstraint(descend,new AllSameSuit(MoveComponents.MovingColumn));
+        //AndConstraint and_2= new AndConstraint(descend, new AllSameSuit(MoveComponents.MovingColumn));
+        AndConstraint pileFinish = new AndConstraint(descend, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving)));
 
         //ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
 		//SingleCardMove tableauToTableau = new SingleCardMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
 		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), descend, getTableau(), moveDest);
 		addDragMove(tableauToTableau);
-		//addDragMove(tableauToTableau2);
+        ColumnMove tableauToFoundation = new ColumnMove("TableauToFoundation", getTableau(), pileFinish, getFoundation(), isEmpty);
+        addDragMove(tableauToFoundation);
+        //addDragMove(tableauToTableau2);
 
         // deal card from stock
         NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));

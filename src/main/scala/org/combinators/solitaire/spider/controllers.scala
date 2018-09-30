@@ -38,7 +38,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     updated = updated
       .addCombinator (new IgnorePressedHandler(pile))
       .addCombinator (new IgnoreClickedHandler(pile))
-      .addCombinator (new IgnoreReleasedHandler(pile))
+      //.addCombinator (new IgnoreReleasedHandler(pile))
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(column))
