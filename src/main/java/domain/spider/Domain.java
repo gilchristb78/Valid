@@ -151,12 +151,13 @@ public class Domain extends Solitaire {
         //new IfConstraint (new NextRank(MoveComponents.MovingCard, topDestination)));
 
 		//column to column <- from freecell
-		Descending descend = new Descending(MoveComponents.MovingColumn);
-		AlternatingColors alternating = new AlternatingColors(MoveComponents.MovingColumn);
+        //AllSameSuit sameSuit = new AllSameSuit(MoveComponents.MovingColumn);
+        Descending descend = new Descending(MoveComponents.MovingColumn);
+        AndConstraint and_2= new AndConstraint(descend,new AllSameSuit(MoveComponents.MovingColumn));
 
-		//ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
+        //ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
 		//SingleCardMove tableauToTableau = new SingleCardMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
-		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
+		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), descend, getTableau(), moveDest);
 		addDragMove(tableauToTableau);
 		//addDragMove(tableauToTableau2);
 
