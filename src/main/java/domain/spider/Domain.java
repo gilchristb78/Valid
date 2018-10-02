@@ -148,15 +148,15 @@ public class Domain extends Solitaire {
 		// Can move a card to an empty space or onto a card that has a higher number
 		//Constraint moveDest = new OrConstraint(isEmpty, new IfConstraint (new NextRank(topDestination, bottomMoving)));
         Constraint moveDest = new IfConstraint (new NextRank(topDestination, bottomMoving));
-        
+
         AllSameSuit sameSuit = new AllSameSuit(MoveComponents.MovingColumn);
         Descending descend = new Descending(MoveComponents.MovingColumn);
         AndConstraint descendSuit = new AndConstraint(descend, sameSuit);
-        AndConstraint pileFinish = new AndConstraint(descend, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving))); //replace descend with finished one when it works...
+        AndConstraint pileFinish = new AndConstraint(descendSuit, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving))); //replace descend with finished one when it works...
 
         //ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
 		//SingleCardMove tableauToTableau = new SingleCardMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
-		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), descend, getTableau(), moveDest);
+		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), descendSuit, getTableau(), moveDest);
 		addDragMove(tableauToTableau);
         ColumnMove tableauToFoundation = new ColumnMove("TableauToFoundation", getTableau(), pileFinish, getFoundation(), isEmpty);
         addDragMove(tableauToFoundation);

@@ -66,7 +66,17 @@ class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(so
 
       methods ++ Java(s"""
                          |public static boolean allSameSuit (Column column) {
-                         |  return true;
+                         |  if (column.empty() || (column.count() == 1) { return true; }
+                         |  else{
+                         |    Card c1, c2;
+                         |    int size = column.count();
+                         |    for(int i = 1; i < size; i++){
+                         |      c1 = column.peek(i - 1);
+                         |      c2 = column.peek(i);
+                         |      if(c1.getSuit() != c2.getSuit()){ return false; }
+                         |    }
+                         |    return true;
+                         |  }
                          |}""".stripMargin).methodDeclarations()
     }
 
