@@ -41,3 +41,8 @@ class FanFreePileController @Inject()(webJars: WebJarsUtil, applicationLifecycle
   extends FanVariationController(webJars, applicationLifecycle) {
   lazy val variation = new fan.FanFreePile
 }
+
+class ScotchPatienceController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends FanVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new fan.ScotchPatience
+}

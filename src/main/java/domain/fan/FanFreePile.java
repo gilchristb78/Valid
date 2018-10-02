@@ -61,35 +61,17 @@ public class FanFreePile extends Domain {
         return layout;
     }
 
-    private void init() {
-        // we intend to be solvable
-        setSolvable(true);
+    public void init() {
         registerElementAndView(new FreePile(), new View("FreePileView", "PileView", "FreePile"));
-        placeContainer(getTableau());
-        placeContainer(getStock());
-        placeContainer(getFoundation());
+
         placeContainer(getReserve());
-        // deal card from stock
-        NotConstraint deck_move = new NotConstraint(new IsEmpty(MoveComponents.Source));
-        DeckDealMove deckDeal = new DeckDealMove("DealDeck", stock, deck_move, tableau);
-        addPressMove(deckDeal);
 
         Constraint tableauConst = new IfConstraint(new IsEmpty(MoveComponents.Destination), buildOnEmptyTableau(MoveComponents.MovingCard), buildOnTableau(MoveComponents.MovingCard));
-
-        addDragMove(new SingleCardMove("MoveCard",getTableau(),getTableau(), tableauConst));
-
-        Constraint toFoundation = new IfConstraint(new IsEmpty(MoveComponents.Destination), buildOnEmptyFoundation(MoveComponents.MovingCard), buildOnFoundation(MoveComponents.MovingCard));
-        addDragMove(new SingleCardMove("MoveCardFoundation", getTableau(), getFoundation(), toFoundation));
-        //addClickMove(new SingleCardMove("ClickMoveCardFoundation", getTableau(), getFoundation(), toFoundation));
 
         addDragMove(new SingleCardMove("MoveToFreePile", getTableau(), getReserve(), new IsEmpty(MoveComponents.Destination)));
         addDragMove(new SingleCardMove("MoveFromFreePile", getReserve(), getTableau(), tableauConst));
 
-        // When all cards are in the AcesUp and KingsDown
-        BoardState state = new BoardState();
-        state.add(SolitaireContainerTypes.Foundation, 52);
-        setLogic (state);
-
-
+        super.init();
+        setSolvable(false);
     }
 }

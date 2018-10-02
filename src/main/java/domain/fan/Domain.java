@@ -148,7 +148,7 @@ public class Domain extends Solitaire implements VariationPoints {
 		return new IsAce(bottom);
 	}
 
-	private void init() {
+	public void init() {
 		// we intend to be solvable
 		setSolvable(true);
 
