@@ -83,7 +83,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
            |		if (s.empty() && s != destination && s != src) numEmpty++;
            |	}
            |
-                |	return column.count() <= 1 + numEmpty;
+           |	return column.count() <= 1 + numEmpty;
            |}""".stripMargin).methodDeclarations()
     }
 
@@ -133,7 +133,50 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
       Java (s"""public java.util.Enumeration<Move> availableMoves() {
                |		java.util.Vector<Move> v = new java.util.Vector<Move>();
                |
-               |    // FILL IN...
+               |
+               |        for (Row row : tableau) {
+               |        	for (Pile foundationPile : foundation) {
+               |        		PotentialBuildRow move = new PotentialBuildRow(row, foundationPile, 1);
+               |        		if (move.valid(this)) {
+               |        			v.add(move);
+               |        		}
+               |        	}
+               |        }
+               |
+               |        for (Row row : tableau) {
+               |        	if (row.empty()) { continue; }
+               |        	for (Row second : tableau) {
+               |
+               |        		if (second != row) {
+               |        			PotentialMoveRow move = new PotentialMoveRow(row, second);
+               |
+               |        			// Disallow moving a single card from a row of one card to an empty pile.
+               |        			if (row.count() == 1 && second.empty()) { continue; }
+               |
+               |        			if (move.valid(this)) {
+               |
+               |        				// Be careful about like-to-like moves. That is, if there is a 6 Hearts/5 Clubs
+               |            			// and you move the 5 to another 6. This is only meaningful if the 6 Hearts can
+               |            			// be placed on the foundation directly.
+               |            			if (row.count() > 1 && second.count() >= 1) {
+               |            				Card peekedCard = row.peek(row.count() - 2);
+               |            				if (peekedCard.getRank() == second.rank()) {
+               |            					boolean canPlace = false;
+               |            					for (Pile foundationPile : foundation) {
+               |            						if ((foundationPile.suit() == peekedCard.getSuit()) && (foundationPile.rank() + 1 == peekedCard.getRank())) {
+               |            							canPlace = true;
+               |            						}
+               |            					}
+               |
+               |            					if (!canPlace) { continue; }
+               |            				}
+               |            			}
+               |
+               |        				v.add(move);
+               |        			}
+               |        		}
+               |        	}
+               |        }
                |
                |    return v.elements();
                |}""".stripMargin).methodDeclarations()

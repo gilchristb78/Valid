@@ -10,6 +10,7 @@
 ->    /                              org.combinators.solitaire.castle.Castle
 ->    /                              org.combinators.solitaire.narcotic.Narcotic
 ->    /                              org.combinators.solitaire.minimal.Minimal
+->    /                              org.combinators.solitaire.napoleon.Napoleon
 
 # All variants have names that end in "Controller", and then can extract package.MainClass easily
 ->    /                              org.combinators.solitaire.freecell.FreeCellController
