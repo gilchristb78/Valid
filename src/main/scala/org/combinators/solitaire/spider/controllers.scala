@@ -42,7 +42,8 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(buildablePile))
-      //.addCombinator (new IgnoreReleasedHandler(column))
+      .addCombinator (new buildablePilePress.CP2())
+    //.addCombinator (new IgnoreReleasedHandler(column))
       //.addCombinator (new SingleCardMoveHandler(column))
       //.addCombinator (new ColumnMoveHandler(column))
 
@@ -66,6 +67,45 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
 
     updated
   }
+
+  /**
+    * Same as Klondike, Spider has two kinds of press moves (ones that act, and ones that lead to drags).
+    * While the automatic one is handled properly, it produces terminals that will be 'dragStart'. We need
+    * to chain together to form complete set.
+    */
+  object buildablePilePress {
+    val buildablePile1:Constructor = 'BuildablePile1
+
+    class CP2() {
+      def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
+        (widget, ignore) =>
+
+          Java(s"""|BuildablePile srcPile = (BuildablePile) src.getModelElement();
+                   |
+                 |// Only apply if not empty AND if top card is face down
+                   |if (srcPile.count() != 0) {
+                   |  if (!srcPile.peek().isFaceUp()) {
+                   |    Move fm = new FlipCard(srcPile, srcPile);
+                   |    if (fm.doMove(theGame)) {
+                   |      theGame.pushMove(fm);
+                   |      c.repaint();
+                   |      return;
+                   |    }
+                   |  }
+                   |}""".stripMargin).statements()
+      }
+
+      val semanticType: Type =
+        drag(drag.variable, drag.ignore) =>: controller (buildablePile1, controller.pressed)
+    }
+
+    class ChainBuildablePileTogether extends ParameterizedStatementCombiner[SimpleName, SimpleName](
+      drag(drag.variable, drag.ignore) =>: controller(buildablePile1, controller.pressed),
+      drag(drag.variable, drag.ignore) =>: controller(buildablePile, controller.dragStart),
+      drag(drag.variable, drag.ignore) =>: controller(buildablePile, controller.pressed))
+  }
+
+  @combinator object ChainBuildablePileTogether extends buildablePilePress.ChainBuildablePileTogether
 
   /**
     * When dealing card(s) from the stock to all elements in Tableau

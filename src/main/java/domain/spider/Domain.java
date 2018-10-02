@@ -140,21 +140,18 @@ public class Domain extends Solitaire {
 		TopCardOf topSource = new TopCardOf(MoveComponents.Source);
 
 		// Flip a face-down card on Tableau.
-		//Constraint faceDown = new NotConstraint(new IsFaceUp(topSource));
-		//addPressMove(new FlipCardMove("FlipCard", getTableau(), faceDown));
+		Constraint faceDown = new NotConstraint(new IsFaceUp(topSource));
+		addPressMove(new FlipCardMove("FlipCard", getTableau(), faceDown));
 
 		// Can move a column if each card in it is the same suit and descending order
 
 		// Can move a card to an empty space or onto a card that has a higher number
 		//Constraint moveDest = new OrConstraint(isEmpty, new IfConstraint (new NextRank(topDestination, bottomMoving)));
         Constraint moveDest = new IfConstraint (new NextRank(topDestination, bottomMoving));
-
-        //new IfConstraint (new NextRank(MoveComponents.MovingCard, topDestination)));
-
-		//column to column <- from freecell
-        //AllSameSuit sameSuit = new AllSameSuit(MoveComponents.MovingColumn);
-        Descending descend = new Descending(MoveComponents.MovingColumn); //add samesuit to this
-        //AndConstraint and_2= new AndConstraint(descend, new AllSameSuit(MoveComponents.MovingColumn));
+        
+        AllSameSuit sameSuit = new AllSameSuit(MoveComponents.MovingColumn);
+        Descending descend = new Descending(MoveComponents.MovingColumn);
+        AndConstraint descendSuit = new AndConstraint(descend, sameSuit);
         AndConstraint pileFinish = new AndConstraint(descend, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving))); //replace descend with finished one when it works...
 
         //ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
