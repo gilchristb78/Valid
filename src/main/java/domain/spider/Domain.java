@@ -69,7 +69,7 @@ public class Domain extends Solitaire {
     public Tableau getTableau() {
         if (tableau == null) {
             tableau = new Tableau();
-            for (int i = 0; i < 10; i++) { tableau.add (new Column()); }//BuildablePile()); }
+            for (int i = 0; i < 10; i++) { tableau.add (new BuildablePile()); }//Column()); }
         }
         return tableau;
     }
@@ -126,7 +126,7 @@ public class Domain extends Solitaire {
 
 	private void init() {
 		// we intend to be solvable
-		setSolvable(true); //what does this truly mean?
+		//setSolvable(true); //TODO
 
 		placeContainer(getFoundation());
         placeContainer(getTableau());
@@ -153,9 +153,9 @@ public class Domain extends Solitaire {
 
 		//column to column <- from freecell
         //AllSameSuit sameSuit = new AllSameSuit(MoveComponents.MovingColumn);
-        Descending descend = new Descending(MoveComponents.MovingColumn);
+        Descending descend = new Descending(MoveComponents.MovingColumn); //add samesuit to this
         //AndConstraint and_2= new AndConstraint(descend, new AllSameSuit(MoveComponents.MovingColumn));
-        AndConstraint pileFinish = new AndConstraint(descend, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving)));
+        AndConstraint pileFinish = new AndConstraint(descend, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving))); //replace descend with finished one when it works...
 
         //ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
 		//SingleCardMove tableauToTableau = new SingleCardMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
@@ -172,7 +172,7 @@ public class Domain extends Solitaire {
 
         // When all cards are in tableau TO BE CHANGED
 		BoardState state = new BoardState();
-		state.add(SolitaireContainerTypes.Tableau, 52);
+		state.add(SolitaireContainerTypes.Foundation, 104);
 		setLogic (state);
 	}
 }
