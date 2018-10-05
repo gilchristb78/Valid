@@ -2,15 +2,12 @@ package pysolfc.narcotic
 
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types.Type
+import org.combinators.solitaire.domain.{Constraint, MoveInformation, Solitaire}
 import org.combinators.templating.twirl.Python
-import domain.narcotic.{AllSameRank, ToLeftOf}
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{PythonSemanticTypes, constraintCodeGenerators}
 import pysolfc.shared.GameTemplate
-
-// domain
-import domain._
 
 /**
   * @param solitaire    Application domain object with details about solitaire variation.
@@ -21,6 +18,9 @@ class NarcoticDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     * Convert ID into string. Each different variation adds a unique ID to the pygames grouping
    */
   @combinator object narcoticID extends IdForGame(pygames.narcotic)
+
+  case class ToLeftOf(destination: MoveInformation, src:MoveInformation) extends Constraint
+  case class AllSameRank(src:MoveInformation) extends Constraint
 
   @combinator object OutputFile {
     def apply: String = "narcotic"

@@ -1,22 +1,19 @@
 package org.combinators.solitaire.narcotic
 
 import javax.inject.Inject
-
 import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, InhabitationController, Results, RoutingEntries}
 import org.combinators.cls.types.Constructor
+import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.webjars.play.WebJarsUtil
 import org.combinators.templating.persistable.JavaPersistable._
 import play.api.inject.ApplicationLifecycle
 
-// domain
-import domain._
-
 class Narcotic @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val solitaire:Solitaire = new domain.narcotic.Domain()
+  val solitaire:Solitaire = narcotic
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

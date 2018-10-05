@@ -1,6 +1,6 @@
 package pysolfc.minimal
 
-import domain.Solitaire
+import org.combinators.solitaire.domain._
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.python.PythonSemanticTypes

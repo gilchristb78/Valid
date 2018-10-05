@@ -8,12 +8,9 @@ import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
 import org.combinators.templating.twirl.Java
-import domain.castle.SufficientFree
+import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
-
-// domain
-import domain._
 
 /**
   *
@@ -21,6 +18,10 @@ import domain._
   */
 class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire)
   with GameTemplate with Controller with SemanticTypes {
+
+  // TODO:
+  case class SufficientFree(src:MoveInformation, destination:MoveInformation, column:MoveInformation, tableau:MoveInformation) extends Constraint
+
 
   object castleCodeGenerator {
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](

@@ -2,7 +2,7 @@ package org.combinators.solitaire.alpha
 
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
-import domain._
+import org.combinators.solitaire.domain._
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._

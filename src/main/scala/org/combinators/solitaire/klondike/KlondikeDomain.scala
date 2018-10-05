@@ -9,12 +9,10 @@ import domain.moves.ResetDeckMove
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
+import org.combinators.solitaire.domain.Solitaire
 import org.combinators.templating.twirl.Java
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
-
-// domain
-import domain._
 
 /**
   * @param solitaire    Application domain object with details about solitaire variation.
@@ -112,7 +110,7 @@ class KlondikeDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
     */
   @combinator object HelperMethodsKlondike {
     def apply(): Seq[BodyDeclaration[_]] = {
-      val max = solitaire.asInstanceOf[klondike.KlondikeDomain].numRedeals()
+      val max = 1 // TODO: FIXME solitaire.asInstanceOf[klondike.KlondikeDomain].numRedeals()
 
       generateHelper.helpers(solitaire) ++
         Java(s"""static int numDeals = $max;

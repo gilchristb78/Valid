@@ -4,16 +4,13 @@ import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.stmt.Statement
-import domain.constraints.{AndConstraint, IsAce, IsEmpty}
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
+import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 import org.combinators.templating.twirl.Java
-
-// domain
-import domain._
 
 /**
   * @param solitaire    Application domain object with details about solitaire variation.
@@ -25,11 +22,11 @@ class MinimalDomain(override val solitaire:Solitaire) extends SolitaireDomain(so
     .addGenerator[AndConstraint] (
     (registry:CodeGeneratorRegistry[Expression],
      and: AndConstraint) =>
-      if (and.constraints.isEmpty) {
+      if (and.args.isEmpty) {
         Java("true").expression()
       } else {
-        and.constraints.tail.foldLeft(
-          registry(and.constraints.head).get) {
+        and.args.tail.foldLeft(
+          registry(and.args.head).get) {
           case (s, c) =>
             val inner = registry(c)
             if (inner.isEmpty) {
@@ -42,12 +39,12 @@ class MinimalDomain(override val solitaire:Solitaire) extends SolitaireDomain(so
     ).addGenerator[IsAce] (
       (registry: CodeGeneratorRegistry[Expression],
        isAce: IsAce) => {
-        val e = registry(isAce.element).get
+        val e = registry(isAce.on).get
         Java(s"$e.getRank() == Card.ACE").expression() }
     ).addGenerator[IsEmpty] (
       (registry: CodeGeneratorRegistry[Expression],
        isEmpty:IsEmpty) => {
-        val e = registry(isEmpty.element).get
+        val e = registry(isEmpty.on).get
         Java(s"$e.empty()").expression() }
     )
 

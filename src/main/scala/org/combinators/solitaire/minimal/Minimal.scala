@@ -16,7 +16,7 @@ import play.api.inject.ApplicationLifecycle
 // domain
 class Minimal @Inject()(web: WebJarsUtil, app: ApplicationLifecycle) extends InhabitationController(web, app) with RoutingEntries {
 
-  val sol = new domain.minimal.Domain()
+  val sol = minimal
 
   val repository = new gameDomain(sol) with controllers {}
 

@@ -16,7 +16,7 @@ import play.api.inject.ApplicationLifecycle
   */
 class Beta @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val solitaire = new domain.beta.Domain()
+  val solitaire = beta// new domain.beta.Domain()
 
   lazy val repository = new BetaDomain(solitaire) with controllers {}
 

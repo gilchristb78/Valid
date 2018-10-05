@@ -9,9 +9,8 @@ import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
 import org.combinators.cls.types.{Constructor, Type}
 import org.combinators.templating.twirl.Java
 import org.combinators.generic
-import domain._
-
-import scala.collection.JavaConverters._
+import org.combinators.solitaire.domain._
+import org.combinators.solitaire.domain.WinningLogic
 
 trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms with SemanticTypes  {
 
@@ -28,37 +27,19 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     // these all have to do with GUI commands being ignored. Note we can envision an alternate
     // set of default behaviors to try to generate all possible moves to the Foundation,
     // should one exist.
-    for (cont:Container <- s.containers.asScala) {
-      for (elt <- cont.types.asScala) {
-        updated = updated.addCombinator(new IgnoreClickedHandler(Constructor(elt)))
+    s.structure.foreach(ctPair => {
+      updated = updated.addCombinator(new IgnoreClickedHandler(Constructor(ctPair._2.head.name)))
+
+      // In Klondike, it is never possible to release on the Deck or the wastepiles.
+      // can't release on the Deck.
+      // can't initiate from the Foundation. This could be generic code to add for many variations
+      ctPair._1 match {
+        case Waste => updated = updated.addCombinator(new IgnoreClickedHandler(Constructor(ctPair._2.head.name)))
+        case StockContainer => updated = updated.addCombinator(new IgnoreReleasedHandler(Constructor(ctPair._2.head.name)))
+        case Foundation => updated = updated.addCombinator(new IgnorePressedHandler(Constructor(ctPair._2.head.name)))
+        case _ =>
       }
-    }
-
-    // In Klondike, it is never possible to release on the Deck or the wastepiles.
-    var waste:Container = s.getByType(SolitaireContainerTypes.Waste)
-    for (elt <- waste.types.asScala) {
-      updated = updated.addCombinator (new IgnoreReleasedHandler(Constructor(elt)))
-    }
-
-    // can't release on the Deck.
-    var stock:Container = s.getByType(SolitaireContainerTypes.Stock)
-    for (elt <- stock.types.asScala) {
-      updated = updated.addCombinator (new IgnoreReleasedHandler(Constructor(elt)))
-    }
-
-    // can't initiate from the Foundation. This could be generic code to add for many variations
-    var found:Container = s.getByType(SolitaireContainerTypes.Foundation)
-    for (elt <- found.types.asScala) {
-      updated = updated.addCombinator (new IgnorePressedHandler(Constructor(elt)))
-    }
-
-//    updated = updated
-//      .addCombinator (new IgnorePressedHandler(pile))
-//      .addCombinator (new IgnoreReleasedHandler('WastePile))
-//      .addCombinator (new IgnoreReleasedHandler(fanPile))    // Variation
-
-//    updated = updated
-//      .addCombinator (new IgnoreReleasedHandler(deck))
+    })
 
     // these clarify the allowed moves
     updated = updated
@@ -67,13 +48,14 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new SingleCardMoveHandler(fanPile))    // Variation
       .addCombinator (new buildablePilePress.CP2())
 
+    // TODO: FIX WITH PROPER MODELING
     // Some variations allow you to reset deck, others don't; note if numRedeals is a positive number, then
     // we can deal with that dynamically via state.
-    if (s.asInstanceOf[klondike.KlondikeDomain].numRedeals() == klondike.VariationPoints.NEVER_REDEAL) {
-      updated = updated.addCombinator (new deckPress.SkipResetDeckLocal())
-    } else {
+//    if (s.asInstanceOf[klondike.KlondikeDomain].numRedeals() == klondike.VariationPoints.NEVER_REDEAL) {
+//      updated = updated.addCombinator (new deckPress.SkipResetDeckLocal())
+//    } else {
       updated = updated.addCombinator (new deckPress.ResetDeckLocal())
-    }
+//    }
 
     updated = createWinLogic(updated, s)
 

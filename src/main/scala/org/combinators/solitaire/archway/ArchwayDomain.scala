@@ -8,7 +8,7 @@ import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
 import org.combinators.templating.twirl.Java
-import domain._
+import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 

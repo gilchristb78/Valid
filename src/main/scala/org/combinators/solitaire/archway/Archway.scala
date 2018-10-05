@@ -18,7 +18,7 @@ import play.api.inject.ApplicationLifecycle
   */
 class Archway @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val solitaire = new domain.archway.Domain()
+  val solitaire = archway //  new domain.archway.Domain()
 
   lazy val repository = new ArchwayDomain(solitaire) with controllers {}
 

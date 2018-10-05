@@ -19,7 +19,7 @@ import domain._
 class Idiot @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val solitaire:Solitaire = new domain.idiot.Domain()
+  val solitaire = idiot
 
   // semantic types are embedded/defined within the repository, so we need to
   // import them all for use.

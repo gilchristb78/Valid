@@ -9,11 +9,9 @@ import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
 import org.combinators.templating.twirl.Java
 import domain.freeCell.{Full, SufficientFree}
+import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
-
-// domain
-import domain._
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
