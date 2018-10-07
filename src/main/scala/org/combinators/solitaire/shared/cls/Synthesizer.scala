@@ -1,6 +1,6 @@
 package org.combinators.solitaire.shared.cls
 
-import org.combinators.cls.types.{Constructor, Type}
+import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.shared.JavaSemanticTypes
 import org.combinators.cls.types.syntax._
 import org.combinators.solitaire.domain.{StockContainer, _}
@@ -33,19 +33,19 @@ object Synthesizer extends JavaSemanticTypes {
     Seq(game(complete),
         constraints(complete))
 
-
-  // awkward. Must map to SemanticTypes; annoying lower case, which could be fixed by just using the same
-  // Capitalization in the JavaSemanticTypes
-  // TODO: Fix this
-  def map(element: String): Type = {
-    if (element == "BuildablePile") return Constructor("buildablePile")
-    if (element == "Card") return  Constructor("card")
-    if (element == "Column") return  Constructor("column")
-    if (element == "Deck") return  Constructor("deck")
-    if (element == "Pile") return  Constructor("pile")
-
-    Constructor(element)
-  }
+//
+//  // awkward. Must map to SemanticTypes; annoying lower case, which could be fixed by just using the same
+//  // Capitalization in the JavaSemanticTypes
+//  // TODO: Fix this
+//  def map(element: String): Type = {
+//    if (element == "BuildablePile") return Constructor("buildablePile")
+//    if (element == "Card") return  Constructor("card")
+//    if (element == "Column") return  Constructor("column")
+//    if (element == "Deck") return  Constructor("deck")
+//    if (element == "Pile") return  Constructor("pile")
+//
+//    Constructor(element)
+//  }
 
   /**
     * Determine controllers from the containers. Unfortunately, need to map the names

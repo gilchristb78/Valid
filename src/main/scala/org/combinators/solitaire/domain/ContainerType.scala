@@ -3,8 +3,11 @@ package org.combinators.solitaire.domain
 /**
   * unsealed trait since variation-specific
   * extensions are possible.
+  *
+  * Important for ContainerType to extend MoveInformation, since there are constraints placed onto
+  * moves as such
   */
-trait ContainerType {
+trait ContainerType extends MoveInformation {
   // case objects may have $ in their name
   val name:String = getClass.getSimpleName.replace("$","").toLowerCase()
 

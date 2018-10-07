@@ -46,7 +46,7 @@ package object idiot {
 
       structure = map,
 
-      layout=stockTableauLayout(numTableau),
+      layout=stockTableauColumnLayout(numTableau),
 
       deal = Seq(DealStep(ContainerTarget(Tableau))),
 
@@ -57,7 +57,7 @@ package object idiot {
       moves = Seq(tableauToTableauMove,removeCardFromTableau, deckDeal),
 
       // fix winning logic
-      logic = BoardState(Map(StockContainer -> 0, Tableau -> 4))
+      logic = BoardState(Map(Tableau -> 0))
 
     )
   }

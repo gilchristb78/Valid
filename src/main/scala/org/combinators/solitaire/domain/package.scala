@@ -21,11 +21,25 @@ package object domain {
       source=source, target=target, isSingleDestination = false)
   }
 
+  def ResetDeckMove(name:String,
+                   source:(ContainerType,Constraint),
+                   target:Option[(ContainerType,Constraint)]):Move = {
+    Move(name, ResetDeck, Press, movableElement=Card,
+      source=source, target=target, isSingleDestination = false)
+  }
+
   def RemoveSingleCardMove(name:String, gesture:GestureType,
                      source:(ContainerType,Constraint),
                      target:Option[(ContainerType,Constraint)]):Move = {
     Move(name, RemoveSingleCard, gesture, movableElement=Card,
       source=source, target=target)
+  }
+
+  def RemoveMultipleCardsMove(name:String, gesture:GestureType,
+                           source:(ContainerType,Constraint),
+                           target:Option[(ContainerType,Constraint)]):Move = {
+    Move(name, RemoveMultipleCards, gesture, movableElement=Card,
+      source=source, target=target, isSingleDestination = false)
   }
 
   val card_width:Int = 73
@@ -42,10 +56,17 @@ package object domain {
   }
 
   // places:Map[ContainerType, Seq[Widget]]) {
-  def stockTableauLayout(numTableau:Int):Layout = {
+  def stockTableauColumnLayout(numTableau:Int):Layout = {
     Layout(Map(
       StockContainer -> horizontalPlacement(15, 20, 1, card_height),
       Tableau -> horizontalPlacement(120, 20, numTableau, 13*card_height))
+    )
+  }
+
+  def stockTableauPileLayout(numTableau:Int):Layout = {
+    Layout(Map(
+      StockContainer -> horizontalPlacement(15, 20, 1, card_height),
+      Tableau -> horizontalPlacement(120, 20, numTableau, card_height))
     )
   }
 }

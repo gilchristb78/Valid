@@ -194,12 +194,13 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
       // Standard size of GUI is Dimension(769, 635). If bigger, add a method
       val (width, height) = sol.layout.minimumSize
       if (width > 769 || height > 635) {
+        def max(x:Int, y:Int) = { if (x > y) x else y }
         Java(
           s"""
              |@Override
              |public Dimension getPreferredSize() {
              |	// default starting dimensions...
-             |  return new Dimension($width, $height);
+             |  return new Dimension(${max(769, width)}, ${max(635, height)});
              |}""".stripMargin).methodDeclarations()
           .foreach { m => clazz.addMember(m) }
       }
@@ -249,12 +250,13 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
       // Standard size of GUI is Dimension(769, 635). If bigger, add a method
       val (width, height) = sol.layout.minimumSize
       if (width > 769 || height > 635) {
+        def max(x:Int, y:Int) = { if (x > y) x else y }
         Java(
           s"""
              |@Override
              |public Dimension getPreferredSize() {
              |	// default starting dimensions...
-             |  return new Dimension($width, $height);
+             |  return new Dimension(${max(769, width)}, ${max(635, height)});
              |}""".stripMargin).methodDeclarations()
           .foreach { m => clazz.addMember(m) }
       }

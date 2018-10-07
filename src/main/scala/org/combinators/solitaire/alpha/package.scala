@@ -10,7 +10,7 @@ package object alpha {
 
       structure = Map(),
 
-      layout=stockTableauLayout(2),  // HACK
+      layout=stockTableauColumnLayout(2),  // HACK
 
       deal = Seq(DealStep(ContainerTarget(Tableau))),
 

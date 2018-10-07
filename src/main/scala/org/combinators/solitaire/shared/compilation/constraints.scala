@@ -48,7 +48,7 @@ object constraintCodeGenerators  {
           case SingleCard =>
               Java(s"destination.add(movingCard);").statements()
           case RemoveMultipleCards =>
-              Java(s"""|for (Stack s : destination) {
+              Java(s"""|for (Stack s : destinations) {
                        |  removedCards.add(s.get());
                        |}""".stripMargin).statements()
         case RemoveSingleCard =>
@@ -56,9 +56,9 @@ object constraintCodeGenerators  {
         case ResetDeck =>
               Java(s"""|// Note destinations contain the stacks that are to
                        |// be reformed into a single deck.
-                       |for (Stack s : destination) {
+                       |for (Stack s : destinations) {
                        |  while (!s.empty()) {
-                       |	source.add(s.get());
+                       |	   source.add(s.get());
                        |  }
                        |}""".stripMargin).statements()
         case DealDeck(numCards) =>
@@ -231,6 +231,12 @@ object constraintCodeGenerators  {
     },
     CodeGeneratorRegistry[Expression, Destination.type] {
       case (_:CodeGeneratorRegistry[Expression], Destination) => Java(s"destination").expression()
+    },
+    CodeGeneratorRegistry[Expression, MovingCard.type] {
+      case (_:CodeGeneratorRegistry[Expression], MovingCard) => Java(s"movingCard").expression()
+    },
+    CodeGeneratorRegistry[Expression, MovingCards.type] {
+      case (_:CodeGeneratorRegistry[Expression], MovingCards) => Java(s"movingCards").expression()
     },
 
     CodeGeneratorRegistry[Expression, DealComponents.type] {
