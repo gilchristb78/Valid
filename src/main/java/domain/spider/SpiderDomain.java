@@ -23,7 +23,7 @@ import java.awt.*;
 /**
  * Programmatically construct full domain model for "Hello-World"  Spider variation
  */
-public class Domain extends Solitaire implements VariationPoints{
+public class SpiderDomain extends Solitaire implements VariationPoints{
 
 
 	/** Override deal, depends on variation. */
@@ -90,11 +90,17 @@ public class Domain extends Solitaire implements VariationPoints{
 	}
 
 
-	private Deal deal;
+//	private Deal deal;
+	protected Deal deal;
+
 	private Layout layout;
 	private Foundation foundation;
-    private Tableau tableau;
-    private Stock stock;
+
+	//private Tableau tableau;
+	protected Tableau tableau;
+
+	//private Stock stock;
+	protected Stock stock;
 
     public Foundation getFoundation() {
     	if (foundation == null ) {
@@ -122,8 +128,11 @@ public class Domain extends Solitaire implements VariationPoints{
 		return layout;
 	}
 
-	public Domain() {
-		super ("Spider");
+	public SpiderDomain(){ this("Spider");}
+
+	/** Only here for pass-through to subclasses. */
+	protected SpiderDomain(String name) {
+		super (name);
 		init();
 	}
 

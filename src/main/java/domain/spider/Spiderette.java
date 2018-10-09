@@ -21,9 +21,9 @@ import domain.win.BoardState;
 import java.awt.*;
 
 /**
- * Programmatically construct full domain model for "Hello-World"  Spider variation
+ * Spiderette is simply Spider with a single deck and a Klondike deal/tableau
  */
-public class SpideretteDomain extends Solitaire extends Domain{
+public class Spiderette extends SpiderDomain{
 
 	private Deal deal;
 	private Stock stock;
@@ -65,4 +65,7 @@ public class SpideretteDomain extends Solitaire extends Domain{
 		}
 		return tableau;
 	}
+
+	public Spiderette(){ super("Spiderette"); }
+
 }
