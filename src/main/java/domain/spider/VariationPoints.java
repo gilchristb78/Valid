@@ -14,6 +14,9 @@ public interface VariationPoints {
     /** Different variations of spider can use different numbers of decks */
     Stock getStock();
 
-    /** Determine the logic of moving columns from the tableau. Changes depending on suit #, for example */
-    Constraint moveColumn(MoveInformation column);
+    /** Determines the logic of moving columns from the tableau. Changes depending on suit #, for example */
+    Constraint moveColumn();
+
+    /** Determines the number of buildable piles */
+    Tableau getTableau();
 }

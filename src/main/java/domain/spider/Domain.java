@@ -23,20 +23,61 @@ import java.awt.*;
 /**
  * Programmatically construct full domain model for "Hello-World"  Spider variation
  */
-public class Domain extends Solitaire {
+public class Domain extends Solitaire implements VariationPoints{
+
+
+	/** Override deal, depends on variation. */
+	@Override
+	public Deal getDeal() {
+		if (deal == null) {
+			deal = new Deal();
+
+			// Deal 5 face-down cards to the first four piles, 5 to the rest
+			// don't forget zero-based indexing
+			for (int colNum = 0; colNum < 4; colNum++) {
+				deal.append(new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, colNum), new Payload(5, false)));
+			}
+			for (int colNum = 4; colNum < 10; colNum++) {
+				deal.append(new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, colNum), new Payload(4, false)));
+			}
+
+			// Finally, each pile gets one face-up card
+			deal.append(new DealToTableau());
+		}
+
+		return deal;
+	}
+
+	/** Override Stock, may change with variation */
+	@Override
+	public Stock getStock() {
+		if (stock == null) {
+			// Spider has two decks
+			stock = new Stock(2);
+		}
+		return stock;
+	}
+
+	/** Override Tableau, may change with variation */
+	@Override
+	public Tableau getTableau() {
+		if (tableau == null) {
+			tableau = new Tableau();
+			for (int i = 0; i < 10; i++) { tableau.add (new BuildablePile()); }//Column()); }
+		}
+		return tableau;
+	}
 
 	/**
-	 * Determines what cards can be placed on tableau.
+	 * Determine requirements for moving a column of cards
 	 *
-	 * Parameter is either a single card, or something like BottomOf().
-	 *
-	 * @param bottom
 	 * @return
 	 */
-	//CHANGE IT SO THAT YOU CAN PLACE ON ANY ASCENDING # BUT CAN ONLY MOVE IF SAME SUIT
-	public Constraint buildOnTableau(MoveInformation bottom) {
-		TopCardOf topDestination = new TopCardOf(MoveComponents.Destination);
-		return new AndConstraint(new NextRank(topDestination, bottom), new OppositeColor(bottom, topDestination));
+	@Override
+	public Constraint moveColumn(){
+		AllSameSuit sameSuit = new AllSameSuit(MoveComponents.MovingColumn);
+		Descending descend = new Descending(MoveComponents.MovingColumn);
+		return new AndConstraint(descend, sameSuit);
 	}
 
 	/**
@@ -66,36 +107,6 @@ public class Domain extends Solitaire {
 		return foundation;
 	}
 
-    public Tableau getTableau() {
-        if (tableau == null) {
-            tableau = new Tableau();
-            for (int i = 0; i < 10; i++) { tableau.add (new BuildablePile()); }//Column()); }
-        }
-        return tableau;
-    }
-
-	/** Override deal as needed. Nothing dealt. */
-	@Override
-	public Deal getDeal() {
-        if (deal == null) {
-			deal = new Deal();
-
-			// Deal 5 face-down cards to the first four piles, 5 to the rest
-			// don't forget zero-based indexing
-			for (int colNum = 0; colNum < 4; colNum++) {
-				deal.append(new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, colNum), new Payload(5, false)));
-			}
-			for (int colNum = 4; colNum < 10; colNum++) {
-				deal.append(new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, colNum), new Payload(4, false)));
-			}
-
-			// Finally, each pile gets one face-up card
-			deal.append(new DealToTableau());
-		}
-
-		return deal;
-	}
-
     /** Override layout as needed. */
 	@Override
 	public Layout getLayout() {
@@ -110,14 +121,6 @@ public class Domain extends Solitaire {
 		}
 		return layout;
 	}
-
-	public Stock getStock() {
-	    if (stock == null) {
-            // Spider has two decks
-            stock = new Stock(2);
-        }
-        return stock;
-    }
 
 	public Domain() {
 		super ("Spider");
@@ -149,15 +152,13 @@ public class Domain extends Solitaire {
 		//Constraint moveDest = new OrConstraint(isEmpty, new IfConstraint (new NextRank(topDestination, bottomMoving)));
         Constraint moveDest = new IfConstraint (new NextRank(topDestination, bottomMoving));
 
-        AllSameSuit sameSuit = new AllSameSuit(MoveComponents.MovingColumn);
-        Descending descend = new Descending(MoveComponents.MovingColumn);
         //AndConstraint moveColumn = new AndConstraint(descend, sameSuit);
-		Constraint moveColumn = new AndConstraint(descend, sameSuit);
-		AndConstraint pileFinish = new AndConstraint(moveColumn, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving))); //replace descend with finished one when it works...
+		Constraint MC = moveColumn();
+		AndConstraint pileFinish = new AndConstraint(MC, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving))); //replace descend with finished one when it works...
 
         //ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
 		//SingleCardMove tableauToTableau = new SingleCardMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
-		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), moveColumn, getTableau(), moveDest);
+		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), MC, getTableau(), moveDest);
 		addDragMove(tableauToTableau);
         ColumnMove tableauToFoundation = new ColumnMove("TableauToFoundation", getTableau(), pileFinish, getFoundation(), isEmpty);
         addDragMove(tableauToFoundation);
