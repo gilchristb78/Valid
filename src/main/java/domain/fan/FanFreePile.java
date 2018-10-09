@@ -61,6 +61,10 @@ public class FanFreePile extends Domain {
         return layout;
     }
 
+    /**
+     * Override the init function
+     */
+    @Override
     public void init() {
         registerElementAndView(new FreePile(), new View("FreePileView", "PileView", "FreePile"));
 

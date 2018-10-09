@@ -5,6 +5,7 @@ import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.stmt.Statement
 import domain._
+import domain.constraints.MaxSizeConstraint
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
@@ -19,14 +20,24 @@ import org.combinators.templating.twirl.Java
   */
 class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 
-  /**
-    * Freecell requires specialized extensions for constraints to work.
-    */
-  @combinator object DefaultGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
-    val semanticType: Type = constraints(constraints.generator)
+  object fanCodeGenerator {
+    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
+
+      CodeGeneratorRegistry[Expression, MaxSizeConstraint] {
+        case (registry:CodeGeneratorRegistry[Expression], c:MaxSizeConstraint) =>
+          val destination = registry(c.destination).get
+          val moving = registry(c.movingCards).get
+          val num = c.maxSize
+          Java(s"""ConstraintHelper.maxSizeExceeded($moving, $destination, $num)""").expression()
+      },
+
+    ).merge(constraintCodeGenerators.generators)
   }
 
+  @combinator object FanGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = fanCodeGenerator.generators
+    val semanticType: Type = constraints(constraints.generator)
+  }
 
   /** Each Solitaire variation must provide default do generation. */
   @combinator object DefaultDoGenerator {
@@ -42,11 +53,19 @@ class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = constraints(constraints.undo_generator)
   }
 
-  @combinator object HelperMethodsArchway {
-    def apply(): Seq[BodyDeclaration[_]] = generateHelper.helpers(solitaire)
+  @combinator object HelperMethodsFan {
+    def apply(): Seq[BodyDeclaration[_]] = {
+      val methods = generateHelper.helpers(solitaire)
+
+      methods ++ Java(s"""
+                         |public static boolean maxSizeExceeded(Card moving, Stack destination, int max) {
+                         |    	return false;
+                         |}""".stripMargin).methodDeclarations()
+    }
 
     val semanticType: Type = constraints(constraints.methods)
   }
+
 
   /**
     * Deal may require additional generators.
@@ -75,8 +94,7 @@ class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solit
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] =
 
-      Java(s"""
-              |public java.util.Enumeration<Move> availableMoves() {
+      Java(s"""public java.util.Enumeration<Move> availableMoves() {
               |  java.util.Vector<Move> v = new java.util.Vector<Move>();
               |        for (Column c : tableau) {
               |            for (Pile p : foundation) {

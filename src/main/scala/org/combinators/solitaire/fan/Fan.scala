@@ -10,6 +10,7 @@ import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
 import domain.fan
+import domain.fan.Shamrocks
 
 
 abstract class FanVariationController(web: WebJarsUtil, app: ApplicationLifecycle) extends InhabitationController(web, app) with RoutingEntries {
@@ -45,4 +46,9 @@ class FanFreePileController @Inject()(webJars: WebJarsUtil, applicationLifecycle
 class ScotchPatienceController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
   lazy val variation = new fan.ScotchPatience
+}
+
+class ShamrocksController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends FanVariationController(webJars, applicationLifecycle) {
+  lazy val variation = new fan.Shamrocks
 }
