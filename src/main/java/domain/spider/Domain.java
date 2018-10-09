@@ -81,7 +81,7 @@ public class Domain extends Solitaire {
 			deal = new Deal();
 
 			// Deal 5 face-down cards to the first four piles, 5 to the rest
-			// don't forget zero-based indexing.
+			// don't forget zero-based indexing
 			for (int colNum = 0; colNum < 4; colNum++) {
 				deal.append(new DealStep(new ElementTarget(SolitaireContainerTypes.Tableau, colNum), new Payload(5, false)));
 			}
@@ -151,12 +151,13 @@ public class Domain extends Solitaire {
 
         AllSameSuit sameSuit = new AllSameSuit(MoveComponents.MovingColumn);
         Descending descend = new Descending(MoveComponents.MovingColumn);
-        AndConstraint descendSuit = new AndConstraint(descend, sameSuit);
-        AndConstraint pileFinish = new AndConstraint(descendSuit, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving))); //replace descend with finished one when it works...
+        //AndConstraint moveColumn = new AndConstraint(descend, sameSuit);
+		Constraint moveColumn = new AndConstraint(descend, sameSuit);
+		AndConstraint pileFinish = new AndConstraint(moveColumn, new AndConstraint(new IsAce(topMoving), new IsKing(bottomMoving))); //replace descend with finished one when it works...
 
         //ColumnMove tableauToTableau2 = new ColumnMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
 		//SingleCardMove tableauToTableau = new SingleCardMove("TableauToTableau", getTableau(), new Truth(), getTableau(), moveDest);
-		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), descendSuit, getTableau(), moveDest);
+		ColumnMove tableauToTableau = new ColumnMove("TableauToTableau", getTableau(), moveColumn, getTableau(), moveDest);
 		addDragMove(tableauToTableau);
         ColumnMove tableauToFoundation = new ColumnMove("TableauToFoundation", getTableau(), pileFinish, getFoundation(), isEmpty);
         addDragMove(tableauToFoundation);

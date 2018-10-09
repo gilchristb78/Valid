@@ -60,27 +60,25 @@ class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(so
   }
 
   @combinator object HelperMethodsSpider {
-    def apply(): Seq[BodyDeclaration[_]] =
-    {
+    def apply(): Seq[BodyDeclaration[_]] = {
       val methods = generateHelper.helpers(solitaire)
-
       methods ++ Java(s"""
-                         |public static boolean allSameSuit (Column column) {
-                         |  if (column.empty() || (column.count() == 1) { return true; }
-                         |  else{
-                         |    Card c1, c2;
-                         |    int size = column.count();
-                         |    for(int i = 1; i < size; i++){
-                         |      c1 = column.peek(i - 1);
-                         |      c2 = column.peek(i);
-                         |      if(c1.getSuit() != c2.getSuit()){ return false; }
-                         |    }
-                         |    return true;
-                         |  }
-                         |}""".stripMargin).methodDeclarations()
+           |public static boolean allSameSuit (Column column) {
+           | if(column.empty() || (column.count() == 1)) { return true; }
+           | else{
+           |  Card c1, c2;
+           |  int size = column.count();
+           |  for(int i = 1; i < size; i++){
+           |   c1 = column.peek(i - 1);
+           |   c2 = column.peek(i);
+           |   if(c1.getSuit() != c2.getSuit()) { return false; }
+           |  }
+           |  return true;
+           | }
+           |}""".stripMargin).methodDeclarations()
     }
 
-    val semanticType: Type = constraints(constraints.methods)
+      val semanticType: Type = constraints(constraints.methods)
   }
 
   /**
