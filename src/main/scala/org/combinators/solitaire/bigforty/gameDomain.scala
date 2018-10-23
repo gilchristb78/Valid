@@ -16,6 +16,21 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
 
   case class AllSameSuit(on: MoveInformation) extends Constraint
 
+  // TODO: Should be able to derive this from the modeling
+  override def baseModelNameFromElement (e:Element): String = {
+    e match {
+      case WastePile => "Pile"
+      case _ => super.baseModelNameFromElement(e)
+    }
+  }
+
+  override def baseViewNameFromElement (e:Element): String = {
+    e match {
+      case WastePile => "PileView"
+      case _ => super.baseViewNameFromElement(e)
+    }
+  }
+
   object bigFortyCodeGenerator {
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
@@ -69,9 +84,9 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
     val semanticType: Type = constraints(constraints.methods)
   }
 
-  @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
-
-  @combinator object MakeWastePileView extends ExtendView("View", "WastePileView", "WastePile", 'WastePileViewClass)
+//  @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
+//
+//  @combinator object MakeWastePileView extends ExtendView("View", "WastePileView", "WastePile", 'WastePileViewClass)
 
   @combinator object ExtraImports {
     def apply(nameExpr: Name): Seq[ImportDeclaration] = {

@@ -137,13 +137,13 @@ trait Structure extends PythonSemanticTypes {
 
       // the pressMap container has as its key the container for which a press is initiated. For
       // Deck Deal, the target receives the cards. For ResetDeck, the target represents the source
-      map.keys.foreach { container =>
-        val list: List[Move] = map(container)
+      map.keys.foreach { ct =>
+        val list: List[Move] = map(ct)
 
-        container match {
-          case st: Stock =>
+        ct match {
+          case StockContainer =>
 
-            val one: Python = talonClass(s, generators, container, list)
+            val one: Python = talonClass(s, generators, StockContainer, list)
             stmts = stmts :+ one
 
           case _ =>

@@ -8,10 +8,14 @@ sealed trait Suit {
   val color:Color
 }
 
-case object Clubs extends Suit { val color = Black }
-case object Diamonds extends Suit { val color = Red }
-case object Hearts extends Suit { val color = Red }
-case object Spades extends Suit { val color = Black }
+case object Clubs extends Suit { val color:Color = Black }
+case object Diamonds extends Suit { val color:Color  = Red }
+case object Hearts extends Suit { val color:Color  = Red }
+case object Spades extends Suit { val color:Color  = Black }
+
+object suits {
+  def all: Seq[Suit] = Seq(Clubs, Diamonds, Hearts, Spades)
+}
 
 sealed trait Rank {
   val num:Int

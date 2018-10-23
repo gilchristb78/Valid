@@ -134,10 +134,13 @@ object Synthesizer extends JavaSemanticTypes {
       targets = targets :+ move(sym :&: move.generic, complete)
 
       // based on domain model, we know whether potential move is a single-card move or a multiple-card move
-      if (m.isSingleCard) {
-        targets = targets :+ move(sym :&: move.potential, complete)
-      } else {
-        targets = targets :+ move(sym :&: move.potentialMultipleMove, complete)
+      // only do if chosen to be solvable
+      if (model.solvable) {
+        if (m.isSingleCard) {
+          targets = targets :+ move(sym :&: move.potential, complete)
+        } else {
+          targets = targets :+ move(sym :&: move.potentialMultipleMove, complete)
+        }
       }
     }
 

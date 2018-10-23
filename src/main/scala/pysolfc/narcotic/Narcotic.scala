@@ -11,7 +11,7 @@ import play.api.inject.ApplicationLifecycle
 
 class Narcotic @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
-  val domainModel:Solitaire = narcotic
+  val domainModel:Solitaire = org.combinators.solitaire.narcotic.narcotic
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

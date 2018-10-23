@@ -31,6 +31,24 @@ object constraintCodeGenerators  {
     }
   }
 
+  def ordinal(r:Rank):Int = {
+    r match {
+      case Ace   => 1
+      case Two   => 2
+      case Three => 3
+      case Four  => 4
+      case Five  => 5
+      case Six   => 6
+      case Seven => 7
+      case Eight => 8
+      case Nine  => 9
+      case Ten   => 10
+      case Jack  => 11
+      case Queen => 12
+      case King  => 13
+    }
+  }
+
   // log everything as needed.
   val logger:LoggingAdapter = Logging.getLogger(ActorSystem("ConstraintCodeGenerators"), constraintCodeGenerators.getClass)
   logger.info("Constraint Generation logging active...")
@@ -163,7 +181,7 @@ object constraintCodeGenerators  {
               Java("return false;").statements()
 
           case MultipleCards =>
-              Java(s"""|destination.select(numInColumn);
+              Java(s"""|destination.select(numCards);
                        |source.push(destination.getSelected());
                        |return true;""".stripMargin).statements()
         }
@@ -303,7 +321,7 @@ object constraintCodeGenerators  {
     // In Kombat solitaire, Ranks are: Aces1, Two=2, ... Queen=12, King = 13. */
     CodeGeneratorRegistry[Expression, IsRank] {
       case (registry: CodeGeneratorRegistry[Expression], IsRank(on,rank)) =>
-        Java(s"${registry(on).get}.getRank() == $rank").expression()
+        Java(s"${registry(on).get}.getRank() == ${ordinal(rank)}").expression()
     },
 
     CodeGeneratorRegistry[Expression, IsKing] {

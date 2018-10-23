@@ -21,7 +21,7 @@ case object Column extends Element(false)
 case object Pile extends Element (true)
 case object Row extends Element(false, true)
 case object BuildablePile extends Element (false)
-case class Stock(numDecks:Int) extends Element(true)
+case class Stock(numDecks:Int = 1) extends Element(true)
 
 /**
   * A FanPile is like the wastepile in Klondike when you deal three cards at a time.

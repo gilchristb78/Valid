@@ -104,8 +104,9 @@ trait Initialization extends PythonSemanticTypes{
   def layout_place_stock(s:Solitaire, ct:ContainerType): Python = {
     var combined = ""
     for (r <- s.layout.places(ct)) {
+      // was renamed from MyDeckStack to MyStockStack during Scala remodeling
       combined = combined + s"""
-                               |s.talon = MyDeckStack(${r.x}, ${r.y}, self)
+                               |s.talon = MyStockStack(${r.x}, ${r.y}, self)
                                |""".stripMargin
     }
     Python(combined)

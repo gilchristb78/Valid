@@ -32,7 +32,8 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
 
     //val combined = s.getRules.drags.asScala ++ s.getRules.presses.asScala ++ s.getRules.clicks.asScala
 
-    for (m <- s.moves) {
+    // If same move appears multiple times, bad things happen. Perhaps filter out to be safe?
+    for (m <- s.moves.distinct) {
       val moveSymbol = Symbol(m.name)
 
       logger.debug ("    -- " + moveSymbol + " defined")
@@ -172,7 +173,10 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
         val cons: List[Constraint] = list.map(x => x.source._2)
         val or: OrConstraint = OrConstraint(cons: _*)
 
-        s.structure.values.flatten.map(e => e.name).foreach (typeName => {
+        // every element inside has same TYPE so just take head
+        //s.structure.values.head.map(e => e.name).foreach (typeName => {
+        s.structure.flatMap(c => c._2.distinct).toSeq.distinct.foreach { e =>
+          val typeName = e.name
           val tpe = Constructor(typeName)
 
           // if there are any lingering press events (i.e., not all drag) then we need to somehow
@@ -186,15 +190,15 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
 
           // Only RowView objects create RowView movables; all others create ColumnView... This is
           // a bit of hack from framework. TODO: FIX
-          logger.debug ("TypeName:" + typeName)
-          val dragType:SimpleName = if (typeName == "Row") {
+          logger.debug("TypeName:" + typeName)
+          val dragType: SimpleName = if (typeName == "Row") {
             Java("RowView").simpleName()
           } else /* if (typeName == "Column") */ {
             Java("ColumnView").simpleName()
           }
           updated = updated
             .addCombinator(new ColumnMoveHandler(tpe, Java(typeName).simpleName(), or, terminal, dragType))
-        })
+        }
       }
     }
 

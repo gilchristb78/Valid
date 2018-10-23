@@ -249,19 +249,24 @@ trait Initialization extends SemanticTypes {
     */
   def deckGen (modelName:String, stock:Seq[Element]):Seq[Statement] = {
 
-    val decks =
-      if (stock.size > 1) {
-        Java(
-          s"""|// Multi-decks are constructed from stock size.
-              |$modelName = new MultiDeck ("$modelName", ${stock.size});
-              |""".stripMargin).statements()
+    // will be a single deck in the stock
+    val decks = stock.head match {
+      case Stock(n) =>
+        if (n > 1) {
+          Java(
+            s"""|// Multi-decks are constructed from stock size.
+                |$modelName = new MultiDeck ("$modelName", $n);
+                |""".stripMargin).statements
 
-      } else {
-        Java(
-          s"""|// Single deck instantiated as is
-              |$modelName = new Deck ("$modelName");
-              |""".stripMargin).statements()
-      }
+        } else {
+          Java(
+            s"""|// Single deck instantiated as is
+                |$modelName = new Deck ("$modelName");
+                |""".stripMargin).statements
+        }
+
+      case _ => Seq.empty
+    }
 
     decks ++ Java(s"""|// Basic start of pretty much any solitaire game that requires a deck.
                       |int seed = getSeed();

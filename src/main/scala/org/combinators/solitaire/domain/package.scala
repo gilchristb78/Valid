@@ -12,6 +12,13 @@ package object domain {
       source=source, target=target)
   }
 
+  def MultipleCardsMove(name:String, gesture:GestureType,
+                     source:(ContainerType,Constraint),
+                     target:Option[(ContainerType,Constraint)]):Move = {
+    Move(name, MultipleCards, gesture, movableElement=Column,
+      source=source, target=target)
+  }
+
   // by default, deal to multiple destinations.
   def DealDeckMove(name:String,
                    numToDeal:Int,
@@ -53,6 +60,10 @@ package object domain {
 
   def horizontalPlacement(topLeftX:Int, topLeftY:Int, num:Int, height:Int) : Seq[Widget] = {
     (0 until num).map(idx => Widget(topLeftX + idx*(card_gap+card_width), topLeftY, card_width, height))
+  }
+
+  def calculatedPlacement(pts:Seq[(Int,Int)], width:Int = card_width, height:Int = card_height) : Seq[Widget] = {
+    pts.map(p => Widget(p._1, p._2, width, height))
   }
 
   // places:Map[ContainerType, Seq[Widget]]) {

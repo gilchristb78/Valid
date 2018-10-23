@@ -11,7 +11,6 @@ import org.combinators.solitaire.shared.python.PythonSemanticTypes
 import org.combinators.solitaire.shared._
 import org.combinators.templating.persistable.PythonWithPath
 
-
 trait GameTemplate extends Base with Initialization with Structure with DealLogic with PythonSemanticTypes {
 
   /**
@@ -159,14 +158,18 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
       sol.structure.filter(pair => pair._1 == StockContainer).foreach(pair =>
         if (sol.layout.isVisible(pair._1)) {
           pair._2.head match {
-            case Stock(nd) => {
+            case Stock(nd) =>
               numDecks = nd
               if (!sol.layout.isVisible(pair._1)) {
                 deckArrangement = 0
               } else {
                 deckArrangement = -1   // HACK: Support unlimited redeals. need to place this info in KlondikeDomain
-              }
             }
+          }
+        } else {
+          pair._2.head match {     // even if not visible, must update numDecks
+            case Stock (nd) =>
+              numDecks = nd
           }
         }
       )
