@@ -59,7 +59,7 @@ class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solit
 
       methods ++ Java(s"""
                          |public static boolean maxSizeExceeded(Card moving, Stack destination, int max) {
-                         |    	return false;
+                         | return destination.count() < max;
                          |}""".stripMargin).methodDeclarations()
     }
 
