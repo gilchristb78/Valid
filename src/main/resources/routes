@@ -10,6 +10,7 @@
 ->    /                              org.combinators.solitaire.castle.Castle
 ->    /                              org.combinators.solitaire.narcotic.Narcotic
 ->    /                              org.combinators.solitaire.minimal.Minimal
+->    /                              org.combinators.solitaire.napoleon.Napoleon
 
 # All variants have names that end in "Controller", and then can extract package.MainClass easily
 ->    /                              org.combinators.solitaire.freecell.FreeCellController
@@ -35,6 +36,8 @@
 ->    /                              org.combinators.solitaire.klondike.TripleEastHavenController
 
 ->    /                              org.combinators.solitaire.alpha.Alpha
+->    /                              org.combinators.solitaire.beta.Beta
+
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)
