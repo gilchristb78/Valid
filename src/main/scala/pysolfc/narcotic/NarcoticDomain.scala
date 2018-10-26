@@ -2,15 +2,13 @@ package pysolfc.narcotic
 
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types.Type
+import org.combinators.solitaire.domain._
+import org.combinators.solitaire.narcotic.{AllSameRank, ToLeftOf}
 import org.combinators.templating.twirl.Python
-import domain.narcotic.{AllSameRank, ToLeftOf}
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{PythonSemanticTypes, constraintCodeGenerators}
 import pysolfc.shared.GameTemplate
-
-// domain
-import domain._
 
 /**
   * @param solitaire    Application domain object with details about solitaire variation.

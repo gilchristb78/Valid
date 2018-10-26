@@ -5,12 +5,10 @@ import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Type
 import org.combinators.templating.twirl.Java
-import domain.Solitaire
-import domain.deal._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, ExpressionCombinator, MapExpressionCombinator}
 import org.combinators.cls.types.syntax._
+import org.combinators.solitaire.domain._
 
-import scala.collection.JavaConverters._
 
 /** Everything having to do with dealing logic. */
 trait DealLogic extends SemanticTypes with Base {
@@ -30,17 +28,17 @@ trait DealLogic extends SemanticTypes with Base {
     def apply(mapGenerators: CodeGeneratorRegistry[Expression],
               generators: CodeGeneratorRegistry[Expression]): Seq[Statement] = {
       var stmts = ""
-      for (step <- s.getDeal.asScala) {
+      for (step <- s.deal) {
         step match {
-          case f: FilterStep =>
-            val app = new ExpressionCombinator(f.constraint)
+          case FilterStep(constraint,limit) =>
+            val app = new ExpressionCombinator(constraint)
             val filterexp = app.apply(generators)
 
             // filter removes cards, but up to a certain limit only
             stmts = stmts + s"""{
                  |java.util.ArrayList<Card> tmp = new java.util.ArrayList<Card>();
                  |Stack keep = new Stack();
-                 |int _limit = ${f.limit};
+                 |int _limit = $limit;
                  |while (!deck.empty()) {
                  |    Card card = deck.get();
                  |    if ($filterexp) {
@@ -63,14 +61,12 @@ trait DealLogic extends SemanticTypes with Base {
 
           // Map step is like a DealStep, without the inner issue of going to a single target.
               // TODO: Make 'card' a parameter to the map expression
-          case m: MapStep =>
-            println("Map step:" + m)
-            val payload = m.payload
+          case MapStep(target, payload, mapping) =>
             val flipWithSemi:String = if (payload.faceUp) { "" } else { "c.setFaceUp (false);" }
             val numCards = payload.numCards
-            val app = new MapExpressionCombinator(m.map)
+            val app = new MapExpressionCombinator(mapping)
             val mapExpression = app.apply(mapGenerators)
-            val name = m.target.targetType.getName
+            val name = target.name
             stmts = stmts + s"""for (int i = 0; i < $numCards; i++) {
                                |    Card card = deck.get();
                                |    int _idx = $mapExpression;
@@ -80,14 +76,23 @@ trait DealLogic extends SemanticTypes with Base {
 
 
           // frames=0 means do no animation during the deal.
-          case d: DealStep =>
-            println("Deal step:" + d)
-            val payload = d.payload
+          case DealStep(target, payload) =>
             val flipWithSemi:String = if (payload.faceUp) { "" } else { "c.setFaceUp (false);" }
             val numCards = payload.numCards
-            d.target match {
-              case ct:ContainerTarget =>
-                val name = ct.targetType.getName
+            target match {
+              // just reach out to one in particular
+              case ElementTarget(container,idx) =>
+                val name = container.name
+
+                stmts = stmts + s"""
+                                   |for (int i = 0; i < $numCards; i++) {
+                                   |     Card c = deck.get();
+                                   |     $flipWithSemi
+                                   |     ConstraintHelper.$name(this)[$idx].add(c);
+                                   |}""".stripMargin
+
+              case ContainerTarget(container) =>
+                val name = container.name
                 stmts = stmts + s"""
                                  |for (int i = 0; i < $numCards; i++) {
                                  |    for (Stack st : ConstraintHelper.$name(this)) {
@@ -96,22 +101,7 @@ trait DealLogic extends SemanticTypes with Base {
                                  |         st.add(c);
                                  |    }
                                  |}""".stripMargin
-
-
-              // just reach out to one in particular
-              case et:ElementTarget =>
-                val idx = et.idx
-                val name = et.targetType.getName
-
-                stmts = stmts + s"""
-                         |for (int i = 0; i < $numCards; i++) {
-                         |     Card c = deck.get();
-                         |     $flipWithSemi
-                         |     ConstraintHelper.$name(this)[$idx].add(c);
-                         |}""".stripMargin
-
             }
-
         }
       }
 

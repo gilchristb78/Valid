@@ -3,11 +3,8 @@ package org.combinators.solitaire.shared
 import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Type
+import org.combinators.solitaire.domain._
 import org.combinators.templating.twirl.Java
-import domain.{Solitaire, SolitaireContainerTypes}
-import domain.win.{BoardState, BoardStatePair, ScoreAchieved}
-
-import scala.collection.JavaConverters._
 
 /**
   * Records the ways in which a game can be marked as won.
@@ -17,57 +14,57 @@ trait WinningLogic extends SemanticTypes {
   def createWinLogic[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = gamma
 
-    val logic = s.getLogic
+    val logic = s.logic
 
     logic match {
-      case sa:ScoreAchieved =>
-        updated = updated.addCombinator (new ScoreBased(sa))
+      case ScoreAchieved(score) =>
+        updated = updated.addCombinator (new ScoreBased(score))
 
-      case bs: BoardState =>
-        updated = updated.addCombinator (new EvaluateBoardState(s, bs))
+      case BoardState(states) =>
+        updated = updated.addCombinator (new EvaluateBoardState(s, states))
     }
 
     updated
   }
 
-  class EvaluateBoardState (sol:Solitaire, bs:BoardState) {
+  class EvaluateBoardState (sol:Solitaire, states:Map[ContainerType,Int]) {
     def apply(): Seq[Statement] = {
-      var stmts:Seq[Statement] = Java ("boolean hasWon = true;").statements()
+      val init = Java ("boolean hasWon = true;").statements()
 
-      for (pair:BoardStatePair <- bs.elements.asScala) {
+      val middle = states.flatMap {
+        case (ct, num) =>
+          ct match {
+            case StockContainer =>
+              Java(
+                s"""|if (deck.count() != $num) {
+                    |   return false;
+                    |}""".stripMargin).statements()
 
-        pair.tpe match {
-          case SolitaireContainerTypes.Stock => stmts = stmts ++
-            Java(
-              s"""|if (deck.count() != ${pair.total}) {
-                  |   return false;
-                  |}""".stripMargin).statements()
+            case _ =>
+              val name = ct.name
 
-          case _ =>
-            val name = pair.tpe.getName
-
-            stmts = stmts ++
-            Java(s"""|{
-                |  int _ct = 0;
-                |  for (Stack st : $name) {
-                |     _ct += st.count();
-                |  }
-                |  if (_ct != ${pair.total}) {
-                |     return false;
-                |  }
-                |}""".stripMargin).statements()
+              Java(
+                  s"""|{
+                      |  int _ct = 0;
+                      |  for (Stack st : $name) {
+                      |     _ct += st.count();
+                      |  }
+                      |  if (_ct != $num) {
+                      |     return false;
+                      |  }
+                      |}""".stripMargin).statements()
+          }
         }
-      }
 
-      stmts ++ Java (s"if (hasWon) { return true; }").statements()
+      init ++ middle ++ Java (s"if (hasWon) { return true; }").statements()
     }
 
     val semanticType: Type = game(game.winCondition)
   }
 
-  class ScoreBased (sc:ScoreAchieved) {
+  class ScoreBased (score:Int) {
     def apply(): Seq[Statement] = {
-      Java(s"""|if (getScoreValue() == ${sc.score}) {
+      Java(s"""|if (getScoreValue() == $score) {
                |  return true;
                |}""".stripMargin).statements()
     }

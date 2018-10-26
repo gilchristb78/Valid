@@ -9,10 +9,9 @@ import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types.syntax._
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.Constructor
+import org.combinators.solitaire.domain.{Constraint, Move, MultipleCards, SingleCard}
 import org.combinators.templating.twirl.Java
 import org.combinators.solitaire.shared
-import domain._
-import domain.moves._
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 
 /**
@@ -180,9 +179,10 @@ trait Moves extends Base with JavaSemanticTypes {
     */
   class PotentialDraggingVariableGenerator(m:Move, constructor:Constructor) {
     def apply(): SimpleName = {
-      m match {
-        case _ : SingleCardMove => Java(s"""movingCard""").simpleName()
-        case _ : ColumnMove     => Java(s"""movingColumn""").simpleName()
+      m.moveType match {
+        case MultipleCards  => Java(s"""movingColumn""").simpleName()
+        case SingleCard => Java(s"""movingCard""").simpleName()
+        case _ => throw new RuntimeException("Invalid drag:" + m.moveType)
       }
     }
     val semanticType: Type = constructor

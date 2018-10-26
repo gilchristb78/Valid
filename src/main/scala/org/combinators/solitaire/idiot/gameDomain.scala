@@ -7,17 +7,18 @@ import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
+import org.combinators.solitaire.domain.{Element, Solitaire}
+import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
+import org.combinators.solitaire.shared.{Controller, GameTemplate, SolitaireDomain}
 import org.combinators.templating.twirl.Java
-import domain.idiot.HigherRankSameSuit
-import org.combinators.solitaire.shared._
-import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
-
-// domain
-import domain._
+import org.combinators.solitaire.shared.compilation.generateHelper
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
 // to get the code to compile 
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
+
+  // override as needed in your own own specialized trait. I.e. "AcesUpPile" -> "PileView"
+  override def baseViewNameFromElement(e: Element): String = super.baseViewNameFromElement(e)
 
   /**
     * Register the higher method which determines whether any other column in tableau has higher card, same suite
@@ -26,8 +27,12 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, HigherRankSameSuit] {
-        case (registry:CodeGeneratorRegistry[Expression], c:HigherRankSameSuit) =>
-          val src = registry(c.card).get
+        case (registry:CodeGeneratorRegistry[Expression], HigherRankSameSuit(c)) =>
+
+          // trust that the registry already has cases for
+          // MoveInformation (i.e., Source, Destination) that before
+          // had been ${mc.name} but are now typed (i.e., Source => "source")
+          val src = registry(c).get
           Java(s"""ConstraintHelper.higher(game, $src)""").expression()
 
       }).merge(constraintCodeGenerators.generators)

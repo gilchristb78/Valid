@@ -6,13 +6,12 @@ import org.combinators.templating.persistable.PythonWithPath
 import org.combinators.templating.persistable.PythonWithPathPersistable._
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.git.{EmptyResults, InhabitationController, Results}
-import domain.archway.Domain
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
 
 class Archway @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
-  val domainModel = new Domain()
+  val domainModel = org.combinators.solitaire.archway.archway
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

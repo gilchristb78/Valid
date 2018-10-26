@@ -5,6 +5,7 @@ import javax.inject.Inject
 import org.combinators.cls.git._
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Constructor
+import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
@@ -16,7 +17,7 @@ import play.api.inject.ApplicationLifecycle
   */
 class Napoleon @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val solitaire = new domain.napoleon.Domain()
+  val solitaire:Solitaire = napoleon
 
   lazy val repository = new NapoleonDomain(solitaire) with controllers {}
 

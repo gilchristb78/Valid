@@ -9,10 +9,7 @@ import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
 import org.combinators.cls.types.Type
 import org.combinators.templating.twirl.Java
 import org.combinators.generic
-
-import domain._
-
-import scala.collection.JavaConverters._
+import org.combinators.solitaire.domain.Solitaire
 
 trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms {
   override def init[G <: SolitaireDomain](gamma: ReflectedRepository[G], s: Solitaire): ReflectedRepository[G] = {

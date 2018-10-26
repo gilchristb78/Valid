@@ -5,7 +5,7 @@ import ks.common.model.*;
 import ks.common.games.Solitaire;
 
 /**
- * Potential Move when multiple cards in play; note that 'numInColumn' is inherited, and is
+ * Potential Move when multiple cards in play; note that 'numCards' is inherited, and is
  * drawn from the MoveHelper combinators that created the parent Move classes in the first place.
  *
  * Parameters:

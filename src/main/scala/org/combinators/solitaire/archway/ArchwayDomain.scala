@@ -8,7 +8,7 @@ import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
 import org.combinators.templating.twirl.Java
-import domain._
+import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
@@ -18,6 +18,23 @@ import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, gene
   * and includes extra fields and methods.
   */
 class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
+
+  // TODO: Should be able to derive this from the modeling
+  override def baseModelNameFromElement (e:Element): String = {
+    e match {
+      case AcesUpPile => "Pile"
+      case KingsDownPile => "Pile"
+      case _ => super.baseModelNameFromElement(e)
+    }
+  }
+
+  override def baseViewNameFromElement (e:Element): String = {
+    e match {
+      case AcesUpPile => "PileView"
+      case KingsDownPile => "PileView"
+      case _ => super.baseViewNameFromElement(e)
+    }
+  }
 
   /**
     * Freecell requires specialized extensions for constraints to work.
@@ -61,10 +78,10 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
   /*
    * Because Aces and Kings have differing behavior in the Foundation, I have to make them as subclasses.
    */
-  @combinator object MakeAcesUpPile        extends ExtendModel("Pile",    "AcesUpPile",    'AcesUpPileClass)
-  @combinator object MakeKingsDownPile     extends ExtendModel("Pile",    "KingsDownPile", 'KingsDownPileClass)
-  @combinator object MakeAcesUpPileView    extends ExtendView("View", "AcesUpPileView",    "AcesUpPile",    'AcesUpPileViewClass)
-  @combinator object MakeKingsDownPileView extends ExtendView("View", "KingsDownPileView", "KingsDownPile", 'KingsDownPileViewClass)
+//  @combinator object MakeAcesUpPile        extends ExtendModel("Pile",    "AcesUpPile",    'AcesUpPileClass)
+//  @combinator object MakeKingsDownPile     extends ExtendModel("Pile",    "KingsDownPile", 'KingsDownPileClass)
+//  @combinator object MakeAcesUpPileView    extends ExtendView("View", "AcesUpPileView",    "AcesUpPile",    'AcesUpPileViewClass)
+//  @combinator object MakeKingsDownPileView extends ExtendView("View", "KingsDownPileView", "KingsDownPile", 'KingsDownPileViewClass)
 
   /**
     * Generates import statements for the model and controller packages.
@@ -96,7 +113,7 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
          |                    v.add(rtf);
          |                }
          |            }
-         |            for (KingsDownPile k : kings) {
+         |            for (KingsDownPile k : kingsdownfoundation) {
          |                ReserveToKingsFoundation rkf = new PotentialReserveToKingsFoundation(r, k);
          |                if (rkf.valid(this)) {
          |                    v.add(rkf);
@@ -118,7 +135,7 @@ class ArchwayDomain(override val solitaire: Solitaire) extends SolitaireDomain(s
          |                }
          |            }
          |            // TODO: The 3H is duplicated when returned to the Tableau.
-         |            for (KingsDownPile k : kings) {
+         |            for (KingsDownPile k : kingsdownfoundation) {
          |                TableauToKingsFoundation tk = new PotentialTableauToKingsFoundation(t, k);
          |                if (tk.valid(this)) {
          |                    v.add(tk);

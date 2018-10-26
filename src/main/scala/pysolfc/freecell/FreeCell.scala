@@ -11,7 +11,7 @@ import play.api.inject.ApplicationLifecycle
 
 class FreeCell @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
-  val domainModel = new domain.freeCell.FreeCellDomain()
+  val domainModel = org.combinators.solitaire.freecell.freecell     //   new domain.freeCell.FreeCellDomain()
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

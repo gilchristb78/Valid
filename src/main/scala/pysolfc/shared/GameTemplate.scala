@@ -5,17 +5,13 @@ import java.nio.file.{Path, Paths}
 import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
+import org.combinators.solitaire.domain.{Stock, StockContainer, _}
 import org.combinators.templating.twirl.Python
-import domain.{Stock, _}
 import org.combinators.solitaire.shared.python.PythonSemanticTypes
-import org.combinators.solitaire.shared.{Base, SolitaireDomain}
+import org.combinators.solitaire.shared._
 import org.combinators.templating.persistable.PythonWithPath
 
-import scala.collection.JavaConverters._
-
-
 trait GameTemplate extends Base with Initialization with Structure with DealLogic with PythonSemanticTypes {
-
 
   /**
     * Opportunity to customize based on solitaire domain object.
@@ -79,43 +75,27 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
 
   class CreateGameMethod(solitaire:Solitaire) {
     def apply(view:Python) :Python = {
-      val min = solitaire.getMinimumSize
-      val width = min.width
-      val height = min.height
+      val (width, height) = solitaire.layout.minimumSize
 
       var localDefs = ""
       var extraDefs = ""
-      for (containerType: ContainerType <- solitaire.structure.keySet.asScala) {
-        val container = solitaire.structure.get(containerType)
-
-        val containerName = containerType.getName
-
-        // these are the pre-defined types known by PySolFC; they don't need to be added.
-        container match {
-          case _: Foundation =>
-          // nothing
-          case _: Tableau =>
-          // nothing
-
-          case _: Stock =>
-          // nothing
-
-          case _: Waste =>
-          // nothing
-
-          case _: Reserve =>
-          // nothing
-
-          // any user-defined containers are relegated to the self.* fields
+      for ((ct,elements) <- solitaire.structure) {
+        ct match {
+          case Foundation =>
+          case Tableau =>
+          case StockContainer =>
+          case Waste =>
+          case Reserve =>
           case _ =>
-            localDefs = localDefs + s"self.$containerName = []"
+            localDefs = localDefs + s"self.${ct.name} = []"
             extraDefs = extraDefs + s"""
-                 |self.sg.dropstacks = self.sg.dropstacks + self.$containerName
-                 |self.sg.openstacks = self.sg.openstacks + self.$containerName
-               """.stripMargin
-
+                                       |self.sg.dropstacks = self.sg.dropstacks + self.${ct.name}
+                                       |self.sg.openstacks = self.sg.openstacks + self.${ct.name}
+                                     """.stripMargin
         }
       }
+
+
       val locals = Python(localDefs)
       val extra = Python(extraDefs)
 
@@ -174,19 +154,25 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
       var numDecks = 0
       // 0 = invisible; 1 = just deal once; -1 means infinite redeals
       var deckArrangement = 1
-      for (container <- sol.structure.values.asScala) {
-        container match {
-          case stock:Stock =>
-            numDecks = stock.numDecks
-            if (!sol.isVisible(stock)) {
-              deckArrangement = 0
-            } else {
-              deckArrangement = -1   // HACK: Support unlimited redeals. need to place this info in KlondikeDomain
-            }
 
-          case _ =>
+      sol.structure.filter(pair => pair._1 == StockContainer).foreach(pair =>
+        if (sol.layout.isVisible(pair._1)) {
+          pair._2.head match {
+            case Stock(nd) =>
+              numDecks = nd
+              if (!sol.layout.isVisible(pair._1)) {
+                deckArrangement = 0
+              } else {
+                deckArrangement = -1   // HACK: Support unlimited redeals. need to place this info in KlondikeDomain
+            }
+          }
+        } else {
+          pair._2.head match {     // even if not visible, must update numDecks
+            case Stock (nd) =>
+              numDecks = nd
+          }
         }
-      }
+      )
 
       if (numDecks == 0) { numDecks = defaultDeck }
 

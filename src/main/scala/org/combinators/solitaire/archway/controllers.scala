@@ -3,11 +3,9 @@ package org.combinators.solitaire.archway
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.syntax._
 import org.combinators.generic
+import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
-
-import domain._
-import scala.collection.JavaConverters._
 
 /** Defines Archway's controllers and their behaviors.
   *

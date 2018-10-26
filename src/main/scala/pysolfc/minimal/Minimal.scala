@@ -12,7 +12,7 @@ import play.api.inject.ApplicationLifecycle
 
 class Minimal @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
-  val domainModel = new Domain()
+  val domainModel = org.combinators.solitaire.minimal.minimal
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

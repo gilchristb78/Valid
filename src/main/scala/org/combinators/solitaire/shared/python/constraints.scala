@@ -2,14 +2,11 @@ package org.combinators.solitaire.shared.python
 
 import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
+import domain.deal.map.MapCard
 import org.combinators.cls.types.Type
-import domain.{Constraint, SolitaireContainerTypes}
-import domain.constraints._
-import domain.constraints.movetypes.{BottomCardOf, MoveComponents, TopCardOf}
 import org.combinators.cls.types.syntax._
-import org.combinators.templating.twirl.Python
-import domain.deal.DealComponents
-import domain.deal.map.{MapByRank, MapBySuit, MapCard}
+import org.combinators.solitaire.domain._
+import org.combinators.templating.twirl.{Java, Python}
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 
 object constraintCodeGenerators  {
@@ -25,37 +22,35 @@ object constraintCodeGenerators  {
 
         // following is based on this common API from PySolFC RowStack and FoundationStack
         // def acceptsCards(self, from_stack, cards):
-        if (mc == MoveComponents.Source) {
+        if (mc == Source) {
           Python(s"""from_stack""")
-        } else if (mc == MoveComponents.Destination) {
+        } else if (mc == Destination) {
           // If you make it 'self' it could work with with Narcotic 'toLeftOf' by using .x attributes
           // and it would be consistent with 'from_stack' above. However, the IsEmpty(...) depends
           // on having self.cards, so we have to make this self.cards
           Python(s"""self.cards""")
-        } else if (mc == MoveComponents.MovingCard) {
+        } else if (mc == MovingCard) {
           Python(s"""cards[0]""")
-        } else if (mc == MoveComponents.MovingColumn) {
-          Python(s"""cards""")
-        } else if (mc == MoveComponents.MovingRow) {
+        } else if (mc == MovingCards) {
           Python(s"""cards""")
         } else {
-          logger.warning(s"Unable to process MoveComponent (${mc.name}) in Python constraints.")
+          logger.warning(s"Unable to process MoveComponent (${mc.toString}) in Python constraints.")
           Python(s"""None""") // not sure what else to do...
         }
     },
 
-    CodeGeneratorRegistry[Python, DealComponents] {
-      case (_:CodeGeneratorRegistry[Python], dc:DealComponents) =>
-        Python(s"""${dc.name}""")
+    CodeGeneratorRegistry[Python, DealComponents.type] {
+      case (_:CodeGeneratorRegistry[Python], DealComponents) =>
+        Python(s"""card""") // TODO: ${dc.name}
     },
 
     CodeGeneratorRegistry[Python, AndConstraint] {
       case (registry:CodeGeneratorRegistry[Python], and: AndConstraint) =>
         println ("And:" + and.toString)
-        if (and.constraints.isEmpty) {
+        if (and.args.isEmpty) {
           Python(s"""True""")
         } else {
-          and.constraints.tail.foldLeft(registry(and.constraints.head).get) {
+          and.args.tail.foldLeft(registry(and.args.head).get) {
             case (s, c) =>
               val inner = registry(c)
               if (inner.isEmpty) {
@@ -71,7 +66,7 @@ object constraintCodeGenerators  {
     CodeGeneratorRegistry[Python, IfConstraint] {
       case (registry: CodeGeneratorRegistry[Python], ifCons: IfConstraint) =>
         logger.debug(s"PythonConstraints:If: ${ifCons.toString}")
-        val inner = registry(ifCons.constraint)
+        val inner = registry(ifCons.guard)
         val trueb = registry(ifCons.trueBranch)
         val falseb = registry(ifCons.falseBranch)
 
@@ -82,83 +77,92 @@ object constraintCodeGenerators  {
         Python(s"""$str""")
     },
 
-    CodeGeneratorRegistry[Python, Truth] {
-      case (_:CodeGeneratorRegistry[Python], _:Truth) =>
+    CodeGeneratorRegistry[Python, Truth.type] {
+      case (_:CodeGeneratorRegistry[Python], Truth) =>
         Python(s"""True""")
     },
 
-    CodeGeneratorRegistry[Python, Falsehood] {
-      case (_:CodeGeneratorRegistry[Python], _:Falsehood) =>
+    CodeGeneratorRegistry[Python, Falsehood.type] {
+      case (_:CodeGeneratorRegistry[Python], Falsehood) =>
         Python(s"""False""")
     },
 
     CodeGeneratorRegistry[Python, IsAce] {
       case (registry: CodeGeneratorRegistry[Python], isAce: IsAce) =>
-        Python(s"""${registry(isAce.element).get}.rank == 0""")
+        Python(s"""${registry(isAce.on).get}.rank == 0""")
     },
 
     // suits are 0..3
     CodeGeneratorRegistry[Python, IsSuit] {
       case (registry: CodeGeneratorRegistry[Python], isSuit: IsSuit) =>
-        Python(s"""${registry(isSuit.element).get}.suit == (${isSuit.suit.value}-1)""")
+        def toIndex(s:Suit):Int = {
+          s match {
+            case Clubs => 0
+            case Diamonds => 1
+            case Hearts => 2
+            case Spades => 3
+          }
+        }
+        Python(s"""${registry(isSuit.on).get}.suit == (${toIndex(isSuit.suit)})""")
     },
 
     /** PySolFC has Ace as 0, and King as 12. */
     CodeGeneratorRegistry[Python, IsRank] {
       case (registry: CodeGeneratorRegistry[Python], isRank: IsRank) =>
-        Python(s"""${registry(isRank.element).get}.rank == (${isRank.rank.value}-1)""")
+        Python(s"""${registry(isRank.on).get}.rank == (${isRank.rank.num}-1)""")
     },
 
     CodeGeneratorRegistry[Python, IsKing] {
       case (registry: CodeGeneratorRegistry[Python], isKing: IsKing) =>
-        Python(s"""${registry(isKing.element).get}.rank == 12""")
+        Python(s"""${registry(isKing.on).get}.rank == 12""")
     },
 
 
     CodeGeneratorRegistry[Python, IsFaceUp] {
       case (registry: CodeGeneratorRegistry[Python], c: IsFaceUp) =>
-        Python(s"""${registry(c.element).get}.face_up""")
+        Python(s"""${registry(c.on).get}.face_up""")
     },
 
-    /** Access via helper method of same name. */
-    CodeGeneratorRegistry[Python, SolitaireContainerTypes] {
-      case (_:CodeGeneratorRegistry[Python], st:SolitaireContainerTypes) =>
-        Python(s"""${st.name}()""")
+    // TODO: HACK ADD ALL OTHER SolitaireContainerTypes....
+    /** Note: This code will be invoked in a method that has game as an argument. */
+    CodeGeneratorRegistry[Python, Tableau.type] {
+      case (_:CodeGeneratorRegistry[Python], Tableau) =>
+        Java(s"""${Tableau.name}()""").expression()
     },
 
     CodeGeneratorRegistry[Python, Descending] {
       case (registry: CodeGeneratorRegistry[Python], descending: Descending) =>
-        Python(s"""isRankSequence(${registry(descending.base).get})""")
+        Python(s"""isRankSequence(${registry(descending.on).get})""")
     },
 
     CodeGeneratorRegistry[Python, TopCardOf] {
       case (registry: CodeGeneratorRegistry[Python], top:TopCardOf) =>
-        Python(s"""${registry(top.base).get}[-1]""")
+        Python(s"""${registry(top.moveInfo).get}[-1]""")
     },
 
-    CodeGeneratorRegistry[Python, BottomCardOf] {
-      case (registry: CodeGeneratorRegistry[Python], bottom:BottomCardOf) =>
-        Python(s"""${registry(bottom.base).get}[0]""")
-    },
+//    CodeGeneratorRegistry[Python, BottomCardOf] {
+//      case (registry: CodeGeneratorRegistry[Python], bottom:BottomCardOf) =>
+//        Python(s"""${registry(bottom.move).get}[0]""")
+//    },
 
     CodeGeneratorRegistry[Python, AlternatingColors] {
       case (registry: CodeGeneratorRegistry[Python], alternating: AlternatingColors) =>
-        Python(s"""isAlternateColorSequence(${registry(alternating.base).get})""")
+        Python(s"""isAlternateColorSequence(${registry(alternating.on).get})""")
     },
 
     CodeGeneratorRegistry[Python, OppositeColor] {
       case (registry: CodeGeneratorRegistry[Python], opposite:OppositeColor) =>
-        Python(s"""${registry(opposite.left).get}.color != ${registry(opposite.right).get}.color""")
+        Python(s"""${registry(opposite.on).get}.color != ${registry(opposite.other).get}.color""")  // TODO: FIX DOUBLE CHECK ORDER
     },
 
     CodeGeneratorRegistry[Python, IsEmpty] {
       case (registry: CodeGeneratorRegistry[Python], isEmpty:IsEmpty) =>
-        Python(s"""len(${registry(isEmpty.element).get}) == 0""")
+        Python(s"""len(${registry(isEmpty.on).get}) == 0""")
     },
 
     CodeGeneratorRegistry[Python, IsSingle] {
       case (registry: CodeGeneratorRegistry[Python], isSingle:IsSingle) =>
-        Python(s"""len(${registry(isSingle.element).get}) == 1""")
+        Python(s"""len(${registry(isSingle.on).get}) == 1""")
     },
 
     CodeGeneratorRegistry[Python, NextRank] {
@@ -173,22 +177,22 @@ object constraintCodeGenerators  {
 
     CodeGeneratorRegistry[Python, SameRank] {
       case (registry: CodeGeneratorRegistry[Python], sameRank:SameRank) =>
-        Python(s"""${registry(sameRank.left).get}.rank == ${registry(sameRank.right).get}.rank""")
+        Python(s"""${registry(sameRank.on).get}.rank == ${registry(sameRank.other).get}.rank""")   // TODO: FIC CHECK ORDER
     },
 
     CodeGeneratorRegistry[Python, SameSuit] {
       case (registry: CodeGeneratorRegistry[Python], sameSuit:SameSuit) =>
-        Python(s"""${registry(sameSuit.left).get}.suit == ${registry(sameSuit.right).get}.suit""")
+        Python(s"""${registry(sameSuit.on).get}.suit == ${registry(sameSuit.other).get}.suit""")  // TODO: CHECK ORDER
     },
 
     CodeGeneratorRegistry[Python, OrConstraint] {
       case (registry: CodeGeneratorRegistry[Python], or: OrConstraint) =>
         logger.debug(s"PythonConstraints:Or: ${or.toString}")
 
-        if (or.constraints.isEmpty) {
+        if (or.args.isEmpty) {
           Python(s"""False""")
         } else {
-          or.constraints.tail.foldLeft(registry(or.constraints.head).get) {
+          or.args.tail.foldLeft(registry(or.args.head).get) {
             case (s, c) =>
               Python(s"""($s or ${registry(c).get})""")
           }
@@ -197,19 +201,19 @@ object constraintCodeGenerators  {
 
     CodeGeneratorRegistry[Python, NotConstraint] {
       case (registry:CodeGeneratorRegistry[Python],not:NotConstraint) =>
-        Python(s"""not (${registry(not.constraint).get})""")
+        Python(s"""not (${registry(not.inner).get})""")
     })
 
 
   // used for map expressions
   val mapGenerators:CodeGeneratorRegistry[Python] = CodeGeneratorRegistry.merge[Python](
-    CodeGeneratorRegistry[Python, MapByRank] {
-      case (_:CodeGeneratorRegistry[Python], _:MapByRank) =>
+    CodeGeneratorRegistry[Python, MapByRank.type] {
+      case (_:CodeGeneratorRegistry[Python], MapByRank) =>
         Python(s"""card.rank""")
     },
 
-    CodeGeneratorRegistry[Python, MapBySuit] {
-      case (_:CodeGeneratorRegistry[Python], _:MapBySuit) =>
+    CodeGeneratorRegistry[Python, MapBySuit.type] {
+      case (_:CodeGeneratorRegistry[Python], MapBySuit) =>
         Python(s"""card.suit""")
     },
 
@@ -235,7 +239,7 @@ class ConstraintExpander(c:Constraint, tpe:Type) extends PythonSemanticTypes {
 
 
 /** When used, it isn't important what semantic Type is, which is why we omit it. */
-class MapExpressionCombinator(m:MapCard) extends PythonSemanticTypes {
+class MapExpressionCombinator(m:MapType) extends PythonSemanticTypes {
 
   def apply(generators: CodeGeneratorRegistry[Python]): Python = {
     val cc3: Option[Python] = generators(m)

@@ -16,12 +16,8 @@ import _root_.java.util.UUID
 import akka.actor.ActorSystem
 import akka.event.Logging
 import org.combinators.generic
-import domain._
-import domain.constraints.OrConstraint
-import domain.moves._
+import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared.compilation._
-
-import scala.collection.JavaConverters._
 
 trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with SemanticTypes {
 
@@ -34,25 +30,27 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
   def createMoveClasses[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = gamma
 
-    val combined = s.getRules.drags.asScala ++ s.getRules.presses.asScala ++ s.getRules.clicks.asScala
-    for (mv <- combined) {
-      val moveSymbol = Symbol(mv.getName)
+    //val combined = s.getRules.drags.asScala ++ s.getRules.presses.asScala ++ s.getRules.clicks.asScala
+
+    // If same move appears multiple times, bad things happen. Perhaps filter out to be safe?
+    for (m <- s.moves.distinct) {
+      val moveSymbol = Symbol(m.name)
 
       logger.debug ("    -- " + moveSymbol + " defined")
       updated = updated
-        .addCombinator(new ClassNameDef(moveSymbol, mv.getName))
-        .addCombinator(new ClassNameGenerator(moveSymbol, mv.getName))
-        .addCombinator(new UndoGenerator(mv, moveSymbol))
-        .addCombinator(new DoGenerator(mv, moveSymbol))
-        .addCombinator(new MoveHelper(mv, moveSymbol))
-        .addCombinator(new StatementCombinator (mv.constraints(), moveSymbol))
+        .addCombinator(new ClassNameDef(moveSymbol, m.name))
+        .addCombinator(new ClassNameGenerator(moveSymbol, m.name))
+        .addCombinator(new UndoGenerator(m, moveSymbol))
+        .addCombinator(new DoGenerator(m, moveSymbol))
+        .addCombinator(new MoveHelper(m, moveSymbol))
+        .addCombinator(new StatementCombinator (m.constraints, moveSymbol))
 
       /**
         * A move typically contains a single source and a single destination. For some
         * moves, there are multiple destinations (typically a deal, or remove cards) and
         * that requires different combinator.
         */
-      if (mv.isSingleDestination) {
+      if (m.isSingleDestination) {
         updated = updated.addCombinator(new SolitaireMove(moveSymbol))
       } else {
         updated = updated.addCombinator(new MultiMove(moveSymbol))
@@ -67,14 +65,13 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
   def createDragLogic[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = gamma
 
-    val rules_it = s.getRules.drags
-    while (rules_it.hasNext) {
-      val mv = rules_it.next()
-      val srcBase = mv.getSource.getClass.getSimpleName
-      val tgtBase = mv.getTarget.getClass.getSimpleName
-      val movable = mv.getMovableElement.getClass.getSimpleName
+    s.moves.filter(m => m.gesture == Drag).foreach (mv => {
+      val srcBase = s.structure(mv.source._1).head.name
+      //val srcBase = mv.source._1.name
+      val tgtBase = s.structure(mv.target.get._1).head.name
+      val movable = mv.movableElement.name
 
-      val moveString = mv.getName
+      val moveString = mv.name
       val moveSymbol = Constructor(moveString)
 
       // capture information about the source and target of each move
@@ -93,21 +90,18 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
 
       // Dragging moves are either moving a single card or a single column. Must collect together
       // all possible 'pre' moves
-      mv match {
-        case _ : SingleCardMove =>
+      mv.moveType match {
+        case SingleCard =>
           updated = updated
               .addCombinator (new PotentialMoveSingleCard(moveSymbol))
 
-       case _ : ColumnMove =>
+       case MultipleCards =>
           updated = updated
               .addCombinator (new PotentialMoveMultipleCards(moveSymbol, Java("Column").simpleName()))
 
-          // still is a 'Column' because that's how it is handled "under the hood" in framework
-        case _ : RowMove =>
-          updated = updated
-            .addCombinator (new PotentialMoveMultipleCards(moveSymbol, Java("Column").simpleName()))
+        case _ => throw new RuntimeException("Invalid drag:" + mv.moveType)
       }
-    }
+    })
 
     updated
   }
@@ -119,16 +113,14 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
     // identify all unique pairs and be sure to generate handler for
     // these cases. NOTE: TAKE FROM RULES NOT FROM S since that does not
     // have the proper instantiations of the elements inside
-    var drag_handler_map:Map[Container,List[Move]] = Map()
-    var press_handler_map:Map[Container,List[Move]] = Map()
+    var drag_handler_map:Map[ContainerType,List[Move]] = Map()
+    var press_handler_map:Map[ContainerType,List[Move]] = Map()
 
-    val inner_rules_it = s.getRules.drags
-    while (inner_rules_it.hasNext) {
-      val inner_move = inner_rules_it.next()
+    s.moves.filter(m => m.gesture == Drag).foreach (inner_move => {
 
       // handle release events
-      val tgtBaseHolder = inner_move.getTargetContainer
-      val tgtBase = tgtBaseHolder.get
+      val tgtBaseHolder = inner_move.target
+      val tgtBase:ContainerType = tgtBaseHolder.get._1
 
        if (!drag_handler_map.contains(tgtBase)) {
         drag_handler_map += (tgtBase -> List(inner_move))
@@ -140,7 +132,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
       }
 
       // handle press events
-      val srcBase = inner_move.getSourceContainer
+      val srcBase = inner_move.source._1
 
       if (!press_handler_map.contains(srcBase)) {
         press_handler_map += (srcBase -> List(inner_move))
@@ -150,48 +142,46 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
         press_handler_map -= srcBase
         press_handler_map += (srcBase -> newList)
       }
-    }
+    })
+
 
     // add press moves which are independent of drag; keep track of native press by container type
-    val press_rules_it = s.getRules.presses()
-    var haveNativePress:Map[Container,Boolean] = Map()
-    while (press_rules_it.hasNext) {
-      val inner_move = press_rules_it.next()
-      val srcContainer = inner_move.getSourceContainer
+    //
+    // TODO: I expect this can become a one-liner....
+    //var haveNativePress:Map[ContainerType,Boolean] = Map()
 
-      haveNativePress += (srcContainer -> true)
-    }
+    val haveNativePress = s.moves.collect { case m if m.gesture == Press => m.source._1 }
 
     // find all source constraints for all moves and package together into single OrConstraint. If any move
     // is a ColumnMove (which means it is triggered by a press then drag) this block adds a ColumnMoveHandler
     // to properly allow some moves to be initiating of a drag.
+
     press_handler_map.keys.foreach { container =>
       val list: List[Move] = press_handler_map(container)
 
       // if any of the Moves is a ColumnMove (or rowMove), then we must create a pre-constraint filter for drags
-      var columnMoves:List[ColumnMove] = List.empty
-      var rowMoves:List[RowMove] = List.empty
+      var multipleCardsMove:List[Move] = List.empty
       var pressMoves:List[Move] = List.empty
       for (m <- list) {
-        m match {
-          case cm:ColumnMove => columnMoves = cm :: columnMoves
-          case rm:RowMove => rowMoves = rm :: rowMoves
-          case m:Move => pressMoves = m :: pressMoves       // any other moves go here
+        m.moveType match {
+          case MultipleCards => multipleCardsMove = m :: multipleCardsMove
+          case _ => pressMoves = m :: pressMoves       // any other moves go here
         }
       }
 
-      if (columnMoves.nonEmpty || rowMoves.nonEmpty) {
-        val cons: List[Constraint] = list.map(x => x.getSourceConstraint)
-        val or: OrConstraint = new OrConstraint(cons: _*)
+      if (multipleCardsMove.nonEmpty) {
+        val cons: List[Constraint] = list.map(x => x.source._2)
+        val or: OrConstraint = OrConstraint(cons: _*)
 
-        val it: Iterator[String] = container.types.asScala
-        while (it.hasNext) {
-          val typeName: String = it.next
+        // every element inside has same TYPE so just take head
+        //s.structure.values.head.map(e => e.name).foreach (typeName => {
+        s.structure.flatMap(c => c._2.distinct).toSeq.distinct.foreach { e =>
+          val typeName = e.name
           val tpe = Constructor(typeName)
 
           // if there are any lingering press events (i.e., not all drag) then we need to somehow
           // combine these two properly. Detect by inference.
-          val terminal = if (haveNativePress.contains(container) && haveNativePress(container)) {
+          val terminal = if (haveNativePress.contains(container)) {
             // up to domain-version controller's to combine together to make final press...
             controller(tpe, controller.dragStart)
           } else {
@@ -199,9 +189,9 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
           }
 
           // Only RowView objects create RowView movables; all others create ColumnView... This is
-          // a bit of hack from framework.
-          logger.debug ("TypeName:" + typeName)
-          val dragType:SimpleName = if (typeName == "Row") {
+          // a bit of hack from framework. TODO: FIX
+          logger.debug("TypeName:" + typeName)
+          val dragType: SimpleName = if (typeName == "Row") {
             Java("RowView").simpleName()
           } else /* if (typeName == "Column") */ {
             Java("ColumnView").simpleName()
@@ -212,22 +202,25 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
       }
     }
 
+
     // key is Container, value is List of moves; this block deals with release events.
     drag_handler_map.keys.foreach{ k =>
       // iterate over moves in the handler_map(k)
       var lastID:Option[Constructor] = None
       drag_handler_map(k).foreach { m =>
 
-        val moveString = m.getName
+        val moveString = m.name
         val moveSymbol:Type = Symbol(moveString)
 
         val curID:Constructor = dynamic(Symbol(UUID.randomUUID().toString))
 
+
         val viewType =
-          m match {
-            case _ : SingleCardMove => press.card
-            case _ : ColumnMove => press.column
-            case _ : RowMove => press.row
+          m.moveType match {
+            case SingleCard => press.card
+            case MultipleCards => press.column    // TODO: HACK: FIX
+            case _ => throw new RuntimeException("Invalid drag:" + m.moveType)
+//            case RowMove => press.row
           }
 
         logger.debug (moveSymbol + ":" + viewType)
@@ -245,8 +238,9 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
         }
       }
 
-      val originalTarget = k.types().next()
-      val typ:Type = Symbol(originalTarget)
+      val originalTarget = s.structure(k).head
+      //val originalTarget = k.types().next()
+      val typ:Type = Symbol(originalTarget.name)
 
       val item = controller(typ, controller.released)
       updated = updated
@@ -266,10 +260,10 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
 
   class PotentialDraggingVariableGenerator(m:Move, moveSymbol:Type) {
     def apply(): SimpleName = {
-      m match {
-        case _: SingleCardMove => Java(s"""movingCard""").simpleName()
-        case _: ColumnMove     => Java(s"""movingColumn""").simpleName()
-        case _: RowMove        => Java(s"""movingRow""").simpleName()
+      m.moveType match {
+        case SingleCard => Java(s"movingCard").simpleName
+        case MultipleCards => Java(s"movingCards").simpleName
+        case _ => throw new RuntimeException("Invalid drag:" + m.moveType)
       }
     }
     val semanticType: Type = move(moveSymbol, move.draggingVariableCardName)
