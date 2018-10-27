@@ -1,8 +1,7 @@
 package org.combinators.solitaire.shared
 
 import org.combinators.cls.interpreter.ReflectedRepository
-import domain._
-import org.combinators.cls.git.Results
+import org.combinators.solitaire.domain.Solitaire
 
 // Base trait for any trait using dynamic combinators. Assumes availability
 // of solitaire domain object model passed in during init.

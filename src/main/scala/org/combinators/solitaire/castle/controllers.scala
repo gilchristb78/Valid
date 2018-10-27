@@ -1,12 +1,10 @@
 package org.combinators.solitaire.castle
 
 import org.combinators.cls.interpreter.ReflectedRepository
-import domain._
 import org.combinators.generic
+import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
-
-import scala.collection.JavaConverters._
 
 trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms  {
 

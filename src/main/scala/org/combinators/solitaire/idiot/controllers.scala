@@ -9,7 +9,7 @@ import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.generic
-import domain._
+import org.combinators.solitaire.domain.Solitaire
 
 trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms  {
 

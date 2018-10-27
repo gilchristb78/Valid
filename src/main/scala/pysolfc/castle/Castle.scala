@@ -7,13 +7,12 @@ import org.combinators.templating.persistable.PythonWithPath
 import org.combinators.templating.persistable.PythonWithPathPersistable._
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.git.{EmptyResults, InhabitationController, Results}
-import domain.castle.Domain
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
 
 class Castle @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
 
-  val domainModel = new Domain()
+  val domainModel = org.combinators.solitaire.castle.castle  //new Domain()
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,

@@ -3,15 +3,11 @@ package pysolfc.shared
 import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
+import org.combinators.solitaire.domain._
 import org.combinators.templating.twirl.Python
-import domain.constraints.{Falsehood, OrConstraint}
-import domain._
-import domain.moves._
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.PythonSemanticTypes
-
-import scala.collection.JavaConverters._
 
 trait Structure extends PythonSemanticTypes {
 
@@ -62,16 +58,17 @@ trait Structure extends PythonSemanticTypes {
 
     // drag will be responsible for the release; press will be responsible for source constraints.
     // I believe flip and deal moves have to be handled in special way.
-    var drag_handler_map: Map[Container, List[Move]] = Map()
-    var press_handler_map: Map[Container, List[Move]] = Map()
+    var drag_handler_map: Map[ContainerType, List[Move]] = Map()
+    var press_handler_map: Map[ContainerType, List[Move]] = Map()
 
-    val inner_rules_it = s.getRules.drags
-    while (inner_rules_it.hasNext) {
-      val inner_move = inner_rules_it.next()
+//    val inner_rules_it = s.getRules.drags
+//    while (inner_rules_it.hasNext) {
+//      val inner_move = inner_rules_it.next()
+    s.moves.filter(m => m.gesture == Drag).foreach (inner_move => {
 
       // handle release events
-      val tgtBaseHolder = inner_move.getTargetContainer
-      val tgtBase = tgtBaseHolder.get
+      val tgtBaseHolder = inner_move.target
+      val tgtBase:ContainerType = tgtBaseHolder.get._1
 
       if (!drag_handler_map.contains(tgtBase)) {
         drag_handler_map += (tgtBase -> List(inner_move))
@@ -81,13 +78,14 @@ trait Structure extends PythonSemanticTypes {
         drag_handler_map -= tgtBase
         drag_handler_map += (tgtBase -> newList)
       }
-    }
+    })
 
-    val press_rules_it = s.getRules.presses
-    while (press_rules_it.hasNext) {
-      val press_move = press_rules_it.next()
+//    val press_rules_it = s.getRules.presses
+//    while (press_rules_it.hasNext) {
+//      val press_move = press_rules_it.next()
+    s.moves.filter(m => m.gesture == Press).foreach (press_move => {
       // handle press events
-      val srcBase = press_move.getSourceContainer
+      val srcBase = press_move.source._1 // TODO: PICK UP HERE
 
       if (!press_handler_map.contains(srcBase)) {
         press_handler_map += (srcBase -> List(press_move))
@@ -97,7 +95,7 @@ trait Structure extends PythonSemanticTypes {
         press_handler_map -= srcBase
         press_handler_map += (srcBase -> newList)
       }
-    }
+    })
 
     // TODO: Press events that do not involve STOCK are to be handled by LocalClassConstruction;
     // only
@@ -110,7 +108,7 @@ trait Structure extends PythonSemanticTypes {
     updated
   }
 
-  class PythonFieldConstruction(solitaire: Solitaire, map:Map[Container, List[Move]]) {
+  class PythonFieldConstruction(solitaire: Solitaire, map:Map[ContainerType, List[Move]]) {
     //var clazzes:Seq[Python] = Seq.empty
     def apply: Python = {
 //      map.keys.foreach { container =>
@@ -132,20 +130,20 @@ trait Structure extends PythonSemanticTypes {
     * handle press actions. These currently fall into a number of cases:
     * (a) DealDeckMove; (b) ResetDeck; (c) FlipCardMove; (d) RemoveSingleCardMove; (e) RemoveMultipleCardsMove
     */
-  class PythonStockConstruction(s:Solitaire, map:Map[Container, List[Move]]) {
+  class PythonStockConstruction(s:Solitaire, map:Map[ContainerType, List[Move]]) {
 
     def apply(generators: CodeGeneratorRegistry[Python]): Python = {
       var stmts:Seq[Python] = Seq.empty
 
       // the pressMap container has as its key the container for which a press is initiated. For
       // Deck Deal, the target receives the cards. For ResetDeck, the target represents the source
-      map.keys.foreach { container =>
-        val list: List[Move] = map(container)
+      map.keys.foreach { ct =>
+        val list: List[Move] = map(ct)
 
-        container match {
-          case st: Stock =>
+        ct match {
+          case StockContainer =>
 
-            val one: Python = talonClass(s, generators, container, list)
+            val one: Python = talonClass(s, generators, StockContainer, list)
             stmts = stmts :+ one
 
           case _ =>
@@ -173,16 +171,14 @@ trait Structure extends PythonSemanticTypes {
     * @param s           solitaire domain
     * @param dragMap     dragMap of events
     */
-  class PythonLocalClassConstruction(s:Solitaire, dragMap:Map[Container, List[Move]], pressMap:Map[Container, List[Move]]) {
+  class PythonLocalClassConstruction(s:Solitaire, dragMap:Map[ContainerType, List[Move]], pressMap:Map[ContainerType, List[Move]]) {
 
     def apply(generators: CodeGeneratorRegistry[Python]): Python = {
       var stmts:Seq[Python] = Seq.empty
 
       // the DragMap container has as its key the container for which a drag is completing. This will
       // therefore miss those widgets which are press-only (or initiating of drags only).
-      var processedContainers:Seq[Container] = Seq.empty
-
-
+      var processedContainers:Seq[ContainerType] = Seq.empty
 
       dragMap.keys.foreach { container =>
         val list: List[Move] = dragMap(container)
@@ -192,12 +188,13 @@ trait Structure extends PythonSemanticTypes {
         var targetCons:Seq[Constraint] = Seq.empty
 
         for (m <- list) {
-          if (m.getSourceContainer.isSame(container)) {
-            srcCons = srcCons :+ m.getSourceConstraint
+          if (m.source._1 == container) {
+            srcCons = srcCons :+ m.source._2
           }
-          if (m.getTargetContainer.isPresent) {
-            if (m.getTargetContainer.get.isSame(container)) {
-              targetCons = targetCons :+ m.getTargetConstraint
+
+          if (m.target.isDefined) {
+            if (m.target.get._1 == container) {
+              targetCons = targetCons :+ m.target.get._2
             }
           }
         }
@@ -217,15 +214,15 @@ trait Structure extends PythonSemanticTypes {
       // find those containers which had been involved, but only as recipient.
       dragMap.keys.foreach { container =>
         val list: List[Move] = dragMap(container)
-        val srcCons: List[Constraint] = list.map(x => x.getSourceConstraint)
+        val srcCons: List[Constraint] = list.map(x => x.source._2)
 
         list.foreach { move =>
-          val src: Container = move.getSourceContainer
+          val src:ContainerType = move.source._1
           if (!processedContainers.contains(src)) {
             processedContainers = processedContainers :+ src
 
-            val srcOr: OrConstraint = new OrConstraint(srcCons: _*)
-            val two: Python = oneClass(s, generators, src, srcOr, new OrConstraint(new Falsehood()), pressMap.get(container))
+            val srcOr: OrConstraint = OrConstraint(srcCons: _*)
+            val two: Python = oneClass(s, generators, src, srcOr, OrConstraint(Falsehood), pressMap.get(container))
 
             stmts = stmts :+ two
           }
@@ -261,7 +258,7 @@ trait Structure extends PythonSemanticTypes {
     * There MAY be optional press actions for these containers, which are passed in, and would be handled
     * by raw clickHandler
     */
-  def oneClass(s:Solitaire, generators: CodeGeneratorRegistry[Python], container:Container,
+  def oneClass(s:Solitaire, generators: CodeGeneratorRegistry[Python], container:ContainerType,
                srcOr:OrConstraint, targetOr:OrConstraint, pressList:Option[List[Move]]): Python = {
 
     // these are the OR constraints for press/release drag moves
@@ -278,20 +275,18 @@ trait Structure extends PythonSemanticTypes {
     if (pressList.isDefined) {
 
       for (m <- pressList.get) {
-        val cons: Python = generators(m.getSourceConstraint).get
-        val src = m.getSourceContainer
+        val cons: Python = generators(m.source._2).get
+        val src = m.source._1
 
-        // hack to expand
+        // TODO: hack to expand
         val source = src match {
-          case _: Tableau => "tableau()"
-
-          case _: Waste => "waste()"
-
+          case Tableau => "tableau()"
+          case Waste => "waste()"
         }
 
         // here is where we deal with these ones...
-        m match {
-          case rm: RemoveMultipleCardsMove =>
+        m.moveType match {
+          case RemoveMultipleCards =>
 
             actions = actions +
               s"""
@@ -307,7 +302,7 @@ trait Structure extends PythonSemanticTypes {
                  |    return -1
               """.stripMargin
 
-          case rs: RemoveSingleCardMove =>
+          case RemoveSingleCard =>
             actions = actions +
               s"""
                  |from_stack = self.cards
@@ -322,7 +317,7 @@ trait Structure extends PythonSemanticTypes {
                  |    return -1
               """.stripMargin
 
-          case flip: FlipCardMove =>
+          case FlipCard =>
             actions = actions +
               s"""
                  |from_stack = self.cards
@@ -350,21 +345,22 @@ trait Structure extends PythonSemanticTypes {
     }
 
     // get the type of element contained within the container.
-    val element:Element = container.iterator().next
-    val tpe:String = container.types.next
+    val element = s.structure(container).head
+    val tpe:String = element.name    // TODO: CHECK does this make sense?
+    //val tpe:String = container.types.next
     val name:String = "My" + tpe
     var base = "None"
 
     // map KlondikeDomain types into PySolFC types. This is in wrong place. Make Code Generator extension
     // HACK. TODO: FIX THIS
     element match {
-      case c:Column =>
+      case Column =>
         base = "SequenceRowStack"
 
-      case p:Pile =>
+      case Pile =>
         base = "ReserveStack"  // in general, a pile is just a pile
 
-      case bp:BuildablePile =>
+      case BuildablePile =>
         base = "SequenceRowStack"
 
       case _ =>
@@ -372,7 +368,7 @@ trait Structure extends PythonSemanticTypes {
     }
 
     container match {
-      case f:Foundation =>
+      case Foundation =>
         base = "AbstractFoundationStack"   // but when within a Foundation, it becomes AbstractFoundationStack
 
       case st:Stock =>
@@ -434,24 +430,22 @@ trait Structure extends PythonSemanticTypes {
     * if CONDITION:
     *    DOMOVE
     */
-  def talonClass(s:Solitaire, generators: CodeGeneratorRegistry[Python], container:Container, list:List[Move]): Python = {
+  def talonClass(s:Solitaire, generators: CodeGeneratorRegistry[Python], container:ContainerType, list:List[Move]): Python = {
 
     // For each of the cases, have to generate constraints
     var actions:String = ""
     for (m <- list) {
-      val cons:Python = generators(m.getSourceConstraint).get
-      val tgt = m.getTargetContainer.get
+      val cons:Python = generators(m.source._2).get
+      val tgt = m.target.get
 
       // hack to expand. TODO: FIX THIS CENTRALLY
-      val target = tgt match {
-        case _:Tableau => "tableau()"
-
-        case _:Waste => "waste()"
-
+      val target = tgt._1 match {
+        case Tableau => "tableau()"
+        case Waste => "waste()"
       }
 
-      m match {
-        case dm: DeckDealMove =>
+      m.moveType match {
+        case DealDeck(_) =>
             actions = actions +
               s"""
                  |from_stack = self.cards
@@ -460,7 +454,7 @@ trait Structure extends PythonSemanticTypes {
                  |    return
               """.stripMargin
 
-        case rd: ResetDeckMove =>
+        case ResetDeck =>
             actions = actions +
               s"""
                  |from_stack = self.cards
@@ -478,8 +472,8 @@ trait Structure extends PythonSemanticTypes {
     // Only interested in DeckMove and ResetDeckMove for now
 
     // get the type of element contained within the container.
-    val element:Element = container.iterator().next
-    val tpe:String = container.types.next
+    val element = s.structure(container).head
+    val tpe:String = element.name
     val name:String = "My" + tpe
     val dealAction:Python = Python(actions)
 

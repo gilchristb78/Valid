@@ -1,25 +1,18 @@
 package org.combinators.solitaire.freecell
 
 import javax.inject.Inject
-
 import org.webjars.play.WebJarsUtil
 import com.github.javaparser.ast.CompilationUnit
-import domain.freeCell.FreeCellDomain
 import org.combinators.cls.interpreter.ReflectedRepository
-import org.combinators.cls.types.syntax._
 import org.combinators.cls.git._
-import org.combinators.cls.types.Constructor
+import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared.cls.Synthesizer
-import org.combinators.templating.persistable.JavaPersistable._
 import play.api.inject.ApplicationLifecycle
-
-
-// domain
-import domain._
+import org.combinators.templating.persistable.JavaPersistable._
 
 abstract class FreeCellVariationController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries  {
 
-  val variation: freeCell.FreeCellDomain
+  val variation: Solitaire
 
   // FreeCellDomain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
@@ -40,30 +33,30 @@ abstract class FreeCellVariationController @Inject()(webJars: WebJarsUtil, appli
 
 class FreeCellController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FreeCellVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new freeCell.FreeCellDomain
+  lazy val variation = freecell // new freeCell.FreeCellDomain
 }
 
 class ChallengeFreeCellController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FreeCellVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new freeCell.ChallengeFreeCell
+  lazy val variation = freecell //  new freeCell.ChallengeFreeCell
 }
 
 class SuperChallengeFreeCellController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FreeCellVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new freeCell.SuperChallengeFreeCell
+  lazy val variation = freecell //  new freeCell.SuperChallengeFreeCell
 }
 
 class ForeCellController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FreeCellVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new freeCell.ForeCell
+  lazy val variation = freecell //  new freeCell.ForeCell
 }
 
 class DoubleFreeCellController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FreeCellVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new freeCell.DoubleFreeCell
+  lazy val variation = freecell //  new freeCell.DoubleFreeCell
 }
 
 class StalactitesController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FreeCellVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new freeCell.Stalactites
+  lazy val variation = freecell //  new freeCell.Stalactites
 }

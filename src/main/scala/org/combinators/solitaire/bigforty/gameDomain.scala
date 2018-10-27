@@ -1,5 +1,4 @@
 package org.combinators.solitaire.bigforty
-import domain._
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
@@ -7,20 +6,37 @@ import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
+import org.combinators.solitaire.domain._
 import org.combinators.templating.twirl.Java
-import domain.bigforty.AllSameSuit
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
 class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with SemanticTypes
   with GameTemplate  with Controller {
 
+  case class AllSameSuit(on: MoveInformation) extends Constraint
+
+  // TODO: Should be able to derive this from the modeling
+  override def baseModelNameFromElement (e:Element): String = {
+    e match {
+      case WastePile => "Pile"
+      case _ => super.baseModelNameFromElement(e)
+    }
+  }
+
+  override def baseViewNameFromElement (e:Element): String = {
+    e match {
+      case WastePile => "PileView"
+      case _ => super.baseViewNameFromElement(e)
+    }
+  }
+
   object bigFortyCodeGenerator {
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, AllSameSuit] {
         case (registry:CodeGeneratorRegistry[Expression], c:AllSameSuit) =>
-          val column = registry(c.base).get
+          val column = registry(c.on).get
           Java(s"""ConstraintHelper.allSameSuit($column)""").expression()
       },
 
@@ -68,9 +84,9 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
     val semanticType: Type = constraints(constraints.methods)
   }
 
-  @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
-
-  @combinator object MakeWastePileView extends ExtendView("View", "WastePileView", "WastePile", 'WastePileViewClass)
+//  @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
+//
+//  @combinator object MakeWastePileView extends ExtendView("View", "WastePileView", "WastePile", 'WastePileViewClass)
 
   @combinator object ExtraImports {
     def apply(nameExpr: Name): Seq[ImportDeclaration] = {

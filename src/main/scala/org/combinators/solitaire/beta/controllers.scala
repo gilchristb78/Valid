@@ -2,11 +2,11 @@ package org.combinators.solitaire.beta
 
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
-import domain._
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
 import org.combinators.generic
+import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
 import org.combinators.templating.twirl.Java
