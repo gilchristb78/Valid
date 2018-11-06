@@ -29,7 +29,8 @@ class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(so
       CodeGeneratorRegistry[Expression, AllSameSuit] {
         case (registry:CodeGeneratorRegistry[Expression], c:AllSameSuit) =>
           val column = registry(c.src).get
-          Java(s"""ConstraintHelper.allSameSuit($column)""").expression()
+          //Java(s"""ConstraintHelper.allSameSuit($column)""").expression()
+          Java(s"""((org.combinators.solitaire.spider.Spider)game.allSameSuit($column)""").expression()
       },
 
     ).merge(constraintCodeGenerators.generators)

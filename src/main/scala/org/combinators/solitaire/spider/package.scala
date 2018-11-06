@@ -15,59 +15,26 @@ package object spider {
     StockContainer -> Seq(Stock(2))
   )
 
-  //scala loop
-  var colNum:Int = 0
-  var blah:Int = 0
-  var dealSeq:Seq[DealStep] = Seq()// doesn't like me declaring it without initializing
-  for (colNum <- 0 to 4) {
-    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, 5)) //SolitaireContainerTypes.Tableau -> Tableau
-  }
-  for (colNum <- 4 to 10) {
-    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, 4))
-  }
-  colNum = 0
-  for (colNum <- 0 to 10) {
-    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, 1))
-  }
-
-  val isEmpty = IsEmpty(Destination)
-  val nextOne =  NextRank(TopCardOf(Destination), MovingCard) //maybe not needed?
-
-  val topMoving = TopCardOf(MovingCards)
   val bottomMoving = BottomCardOf(MovingCards)
+  val topMoving = TopCardOf(MovingCards)
   val topDestination = TopCardOf(Destination)
-  val topSource = TopCardOf(Source)
-
-  //constraint to the destination
-  val or = OrConstraint(isEmpty, NextRank(TopCardOf(Destination),
-    BottomCardOf(MovingCards)))
-
-  //constraint to the source
+  val isEmpty = IsEmpty(Destination)
   val descend = Descending(MovingCards)
-  val and = AndConstraint(descend, AllSameSuit(MovingCards))
+
+  val or = OrConstraint(isEmpty, NextRank(topDestination,
+    bottomMoving))
 
   val tableauToTableau:Move = MultipleCardsMove ("MoveColumn", Drag,
-    source=(Tableau, and),  target=Some((Tableau, or))) //TODO what exactly does this "some" mean?
+    source=(Tableau, Truth), target=Some((Tableau, AndConstraint(descend, or))))
 
-  //3. tableau to foundation
-  val pileFinish = AndConstraint(and, AndConstraint(IsAce(topMoving), IsKing(bottomMoving)))
+  val f_and = AndConstraint(descend, AndConstraint(IsAce(topMoving), IsKing(bottomMoving)))
 
   val buildFoundation:Move = MultipleCardsMove("BuildFoundation", Drag,
-    source=(Tableau, pileFinish), target=Some((Foundation, isEmpty)))
-
-  //4. flip card
-  //TODO MAKE THIS WORK not in?
-  val faceDown = NotConstraint(IsFaceUp(topSource))
-  //val flip:Move = FlipCardMove("FlipCard", Press, source=(Tableau, faceDown)) //is this the way? Do I need to say Press like other moves say Drag?
+    source=(Tableau, Truth), target=Some((Foundation, AndConstraint(f_and, isEmpty))))
 
   // Deal card from deck
-  //how to do this?? Currently, this is just for moving the top card of the deck to a waste pile
-  val deck_move = NotConstraint(IsEmpty(Source))
-  //val deckDeal:Move = DealDeckMove("DealDeck", 1, source=(StockContainer, deck_move), target=Some((Waste, Truth)))
-  //does this work? How to have Deal N cards do one to each tableau?
-  //val deckDeal:Move = DeckDealNCardsMove(10, "DealDeck", source=(StockContainer, deck_move), target=Some((Tableau, Truth)))
-  //this might be it, according to other usage. Code says multiple targets by default, so if going to the tableau and 10 do 1 to each?
-  val deckDeal:Move = DealDeckMove("DealDeck", 10, source=(StockContainer, deck_move), target=Some((Tableau, Truth)))
+  val deckDealMove:Move = DealDeckMove("DealDeck", 1,
+    source=(StockContainer, Truth), target=Some((Tableau, Truth)))
 
   val spider:Solitaire = {
 
@@ -82,16 +49,14 @@ package object spider {
         Waste -> horizontalPlacement(95, 20, 1, card_height)
       )),
 
-      //defined above
-      deal = dealSeq,
+      deal = Seq(DealStep(ContainerTarget(Tableau))),
 
-      /** from element can infer ks.ViewWidget as well as Base Element. */
-      //TODO ditch this? Does spider have any specialized elements?
       specializedElements = Seq.empty,
 
       /** All rules here. */
-      moves = Seq(tableauToTableau,buildFoundation/*,flip*/
-        ,deckDeal),
+      moves = Seq(tableauToTableau
+        ,deckDealMove
+        ,buildFoundation),
 
       // fix winning logic
       logic = BoardState(Map(Foundation -> 52))

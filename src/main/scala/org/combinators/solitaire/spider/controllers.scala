@@ -36,7 +36,8 @@ import org.combinators.solitaire.domain.WinningLogic
   * Either a rule must be associated with an action, or the action must be
   * explicity ignored. See SpiderRules in game.scala.
   */
-trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms with SemanticTypes {
+//removed semantic types
+trait controllers extends shared.Controller with GameTemplate with WinningLogic  with shared.Moves with generic.JavaCodeIdioms {
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
   ReflectedRepository[G] = {
@@ -51,11 +52,11 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     updated = updated
       .addCombinator (new IgnorePressedHandler(pile))
       .addCombinator (new IgnoreClickedHandler(pile))
-      //.addCombinator (new IgnoreReleasedHandler(pile))
+      //.addCombinator (new IgnoreReleasedHandler(pile)) //TEMP TEMP TODO TEMP this didn't fix it...
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(buildablePile))
-      .addCombinator (new buildablePilePress.CP2())
+      //.addCombinator (new buildablePilePress.CP2()) //TODO ADD THIS BACK WHEN NEEDED
     //.addCombinator (new IgnoreReleasedHandler(column))
       //.addCombinator (new SingleCardMoveHandler(column))
       //.addCombinator (new ColumnMoveHandler(column))
@@ -119,7 +120,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
   }
 
   @combinator object ChainBuildablePileTogether extends buildablePilePress.ChainBuildablePileTogether
-
+ //TODO ADD BACK WITH CP2
   /**
     * When dealing card(s) from the stock to all elements in Tableau
     * If deck is empty, then reset.
