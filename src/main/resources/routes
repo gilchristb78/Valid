@@ -33,8 +33,7 @@
 ->    /                              org.combinators.solitaire.alpha.Alpha
 ->    /                              org.combinators.solitaire.beta.Beta
 
-->    /                              org.combinators.solitaire.spider.SpiderController
-->    /                              org.combinators.solitaire.spider.SpideretteController
+->    /                              org.combinators.solitaire.spider.Spider
 
 
 

@@ -20,6 +20,7 @@ import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, gene
   * and includes extra fields and methods.
   */
 //removed "with semantic types"
+//changed c.base to c.src for allsamesuit
 class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 
   object SpiderCodeGenerator {
@@ -27,7 +28,7 @@ class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(so
 
       CodeGeneratorRegistry[Expression, AllSameSuit] {
         case (registry:CodeGeneratorRegistry[Expression], c:AllSameSuit) =>
-          val column = registry(c.base).get
+          val column = registry(c.src).get
           Java(s"""ConstraintHelper.allSameSuit($column)""").expression()
       },
 

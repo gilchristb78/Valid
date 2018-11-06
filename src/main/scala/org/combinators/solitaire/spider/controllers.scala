@@ -1,5 +1,5 @@
 package org.combinators.solitaire.spider
-
+/*
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.types.syntax._
@@ -10,8 +10,21 @@ import org.combinators.cls.types.{Constructor, Type}
 import org.combinators.templating.twirl.Java
 import org.combinators.generic
 import domain._
-
 import scala.collection.JavaConverters._
+*/
+
+import com.github.javaparser.ast.expr.SimpleName
+import com.github.javaparser.ast.stmt.Statement
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types.Type
+import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Java
+import org.combinators.solitaire.shared._
+import org.combinators.solitaire.shared
+import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.generic
+import org.combinators.solitaire.domain._
+import org.combinators.solitaire.domain.WinningLogic
 
 /** Defines Spider's controllers and their behaviors.
   *
@@ -74,7 +87,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     * to chain together to form complete set.
     */
   object buildablePilePress {
-    val buildablePile1:Constructor = 'BuildablePile1
+    val buildablePile1:Type = 'BuildablePile1 //Changed from :Constructor to :Type, sure why not
 
     class CP2() {
       def apply(): (SimpleName, SimpleName) => Seq[Statement] = {

@@ -1,8 +1,5 @@
 package org.combinators.solitaire
 
-//import domain.constraints.NotConstraint
-//import domain.constraints.movetypes.TopCardOf
-//import domain.moves.DeckDealNCardsMove
 import org.combinators.solitaire.domain._
 
 package object spider {
@@ -21,19 +18,16 @@ package object spider {
   //scala loop
   var colNum:Int = 0
   var blah:Int = 0
-  var dealSeq:Seq[DealStep]
+  var dealSeq:Seq[DealStep] = Seq()// doesn't like me declaring it without initializing
   for (colNum <- 0 to 4) {
-    dealSeq = dealSeq :+ DealStep(ElementTarget(SolitaireContainerTypes.Tableau, colNum), Payload(faceUp = false, 5))
-    blah = blah + 1
+    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, 5)) //SolitaireContainerTypes.Tableau -> Tableau
   }
   for (colNum <- 4 to 10) {
-    dealSeq = dealSeq :+ DealStep(ElementTarget(SolitaireContainerTypes.Tableau, colNum), Payload(faceUp = false, 4))
-    blah = blah + 1
+    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, 4))
   }
   colNum = 0
   for (colNum <- 0 to 10) {
-    dealSeq = dealSeq :+ DealStep(ElementTarget(SolitaireContainerTypes.Tableau, colNum), Payload(faceUp = true, 1))
-    blah = blah + 1
+    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, 1))
   }
 
   val isEmpty = IsEmpty(Destination)
@@ -62,9 +56,9 @@ package object spider {
     source=(Tableau, pileFinish), target=Some((Foundation, isEmpty)))
 
   //4. flip card
-  //TODO MAKE THIS WORK
+  //TODO MAKE THIS WORK not in?
   val faceDown = NotConstraint(IsFaceUp(topSource))
-  val flip:Move = FlipCardMove("FlipCard", Press, source=(Tableau, faceDown)) //is this the way? Do I need to say Press like other moves say Drag?
+  //val flip:Move = FlipCardMove("FlipCard", Press, source=(Tableau, faceDown)) //is this the way? Do I need to say Press like other moves say Drag?
 
   // Deal card from deck
   //how to do this?? Currently, this is just for moving the top card of the deck to a waste pile
@@ -73,7 +67,7 @@ package object spider {
   //does this work? How to have Deal N cards do one to each tableau?
   //val deckDeal:Move = DeckDealNCardsMove(10, "DealDeck", source=(StockContainer, deck_move), target=Some((Tableau, Truth)))
   //this might be it, according to other usage. Code says multiple targets by default, so if going to the tableau and 10 do 1 to each?
-  val deckDeal:Move = DeckDeal("DealDeck", 10, source=(StockContainer, deck_move), target=Some((Tableau, Truth)))
+  val deckDeal:Move = DealDeckMove("DealDeck", 10, source=(StockContainer, deck_move), target=Some((Tableau, Truth)))
 
   val spider:Solitaire = {
 
@@ -93,10 +87,11 @@ package object spider {
 
       /** from element can infer ks.ViewWidget as well as Base Element. */
       //TODO ditch this? Does spider have any specialized elements?
-      //specializedElements = Seq(WastePile),
+      specializedElements = Seq.empty,
 
       /** All rules here. */
-      moves = Seq(tableauToTableau,buildFoundation,flip,deckDeal),
+      moves = Seq(tableauToTableau,buildFoundation/*,flip*/
+        ,deckDeal),
 
       // fix winning logic
       logic = BoardState(Map(Foundation -> 52))
