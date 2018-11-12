@@ -38,7 +38,7 @@ class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(so
 
   @combinator object SpiderGenerator {
     def apply: CodeGeneratorRegistry[Expression] = SpiderCodeGenerator.generators
-
+  //slight difference between this and narcotic...
     val semanticType: Type = constraints(constraints.generator)
   }
 /*
@@ -47,6 +47,8 @@ class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(so
     val semanticType: Type = constraints(constraints.generator)
   }
 */
+
+  //need anything for deal generator?
 
   /** Each Solitaire variation must provide default do generation. */
   @combinator object DefaultDoGenerator {
@@ -67,15 +69,6 @@ class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(so
       val methods = generateHelper.helpers(solitaire)
       methods ++ Java(s"""
            |public static boolean allSameSuit (Column column) {
-           | if(column.empty() || (column.count() == 1)) { return true; }
-           | else{
-           |  Card c1, c2;
-           |  int size = column.count();
-           |  for(int i = 1; i < size; i++){
-           |   c1 = column.peek(i - 1);
-           |   c2 = column.peek(i);
-           |   if(c1.getSuit() != c2.getSuit()) { return false; }
-           |  }
            |  return true;
            | }
            |}""".stripMargin).methodDeclarations()
