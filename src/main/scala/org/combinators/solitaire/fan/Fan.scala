@@ -1,21 +1,23 @@
 package org.combinators.solitaire.fan
-
-import com.github.javaparser.ast.CompilationUnit
 import javax.inject.Inject
-import org.combinators.cls.git._
+import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, InhabitationController, Results, RoutingEntries}
 import org.combinators.cls.types.Constructor
+import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared.cls.Synthesizer
-import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
+import org.combinators.templating.persistable.JavaPersistable._
 import play.api.inject.ApplicationLifecycle
-import domain.fan
-import domain.fan.Shamrocks
+import org.combinators.solitaire.fanfreepile.fanfreepile
+import org.combinators.solitaire.shamrocks.shamrocks
+import org.combinators.solitaire.scotchpatience.scotchpatience
+
 
 
 abstract class FanVariationController(web: WebJarsUtil, app: ApplicationLifecycle) extends InhabitationController(web, app) with RoutingEntries {
 
-  val variation: domain.fan.Domain
+  lazy val variation:Solitaire =  fan
 
   lazy val repository = new FanDomain(variation) with controllers {}
 
@@ -35,20 +37,20 @@ abstract class FanVariationController(web: WebJarsUtil, app: ApplicationLifecycl
 
 class FanController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new fan.Domain
+  override lazy val variation = fan
 }
 
 class FanFreePileController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new fan.FanFreePile
+  override lazy val variation = fanfreepile
 }
 
 class ScotchPatienceController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new fan.ScotchPatience
+  override lazy val variation = scotchpatience
 }
 
 class ShamrocksController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new fan.Shamrocks
+  override lazy val variation = shamrocks
 }

@@ -28,5 +28,3 @@ from within IntelliJ.
 
 8. A window will appear which contains the list of previously generated solitaire variations (including the
    one that was just generated). Select the desired variation and execute it.
-
-
