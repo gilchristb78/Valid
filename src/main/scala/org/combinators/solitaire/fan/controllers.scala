@@ -2,7 +2,7 @@ package org.combinators.solitaire.fan
 
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
-import domain._
+import org.combinators.solitaire.domain._
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
@@ -10,8 +10,9 @@ import org.combinators.generic
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
 import org.combinators.templating.twirl.Java
+import org.combinators.solitaire.fanfreepile.fanfreepile
 
-/** Defines Archway's controllers and their behaviors.
+/** Defines Fan's controllers and their behaviors.
   *
   * Every controller requires definitions for three actions:
   *   - Click (no dragging, like clicking on a deck to deal more cards)
@@ -19,15 +20,15 @@ import org.combinators.templating.twirl.Java
   *   - Release (release after press)
   *
   * Either a rule must be associated with an action, or the action must be
-  * explicity ignored. See ArchwayRules in game.scala.
+  * explicity ignored. See FanRules in game.scala.
   */
-trait controllers extends shared.Controller with shared.Moves with GameTemplate with generic.JavaCodeIdioms  {
+trait controllers extends shared.Controller  with GameTemplate with shared.Moves with generic.JavaCodeIdioms  {
 
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
   ReflectedRepository[G] = {
     var updated = super.init(gamma, s)
-    println (">>> Archway Controller dynamic combinators.")
+    println (">>> Fan Controller dynamic combinators.")
 
     updated = createMoveClasses(updated, s)
     updated = createDragLogic(updated, s)
@@ -43,9 +44,11 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new IgnorePressedHandler(pile))
       .addCombinator (new IgnoreClickedHandler(pile))
 
-    if (s.asInstanceOf[fan.Domain].hasReserve) {
-      updated = updated.addCombinator(new IgnoreClickedHandler('FreePile))
-      updated = updated.addCombinator(new SingleCardMoveHandler('FreePile))
+    s match {
+      case fanfreepile => {
+        updated = updated.addCombinator(new IgnoreClickedHandler('FreePile))
+        updated = updated.addCombinator(new SingleCardMoveHandler('FreePile))
+      }
     }
 
 
