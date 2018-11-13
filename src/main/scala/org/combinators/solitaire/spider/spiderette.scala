@@ -2,7 +2,7 @@ package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
 
-package object spider {
+package object spiderette {
 
   case class AllSameSuit(movingCards: MoveInformation) extends Constraint
 
@@ -11,25 +11,19 @@ package object spider {
   val map:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](numTableau)(BuildablePile),
     Foundation -> Seq.fill[Element](numFoundation)(Pile),
-    StockContainer -> Seq(Stock(2)) //apparently this will break things further down the road
+    StockContainer -> Seq(Stock(1)) //apparently this will break things further down the road
   )
-  var colNum:Int = 0
+  var colNum:Int = 1
   var dealSeq:Seq[DealStep] = Seq()// doesn't like me declaring it without initializing
-  //first four piles get 5 face down cards
-  for (colNum <- 0 to 3) {
+  // Klondike deal - the ith pile gets i face down cards
+  for (colNum <- 1 to 7) {
     //TODO change these to face down when FlipCardMove exists
-    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 5))
-    //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = 5))
-  }
-  //the rest get 4 face down cards
-  for (colNum <- 4 to 9) {
-    //TODO change these to face down when FlipCardMove exists
-    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 4))
-    //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = 4))
+    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
+    //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
   }
   //each pile gets a face up card
   colNum = 0
-  for (colNum <- 0 to 9) {
+  for (colNum <- 0 to 7) {
     dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
   }
 
@@ -85,7 +79,7 @@ package object spider {
         ,buildFoundation),
 
       // fix winning logic
-      logic = BoardState(Map(Foundation -> 104))
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }

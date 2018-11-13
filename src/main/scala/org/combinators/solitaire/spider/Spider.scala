@@ -11,16 +11,15 @@ import org.webjars.play.WebJarsUtil
 import org.combinators.templating.persistable.JavaPersistable._
 import play.api.inject.ApplicationLifecycle
 
-//TODO Not for variations rn, just the singluar spider... see doc for saved old
+//TODO Not for variations rn, just the singular spider... see doc for saved old
 //Changes: slightly to class header, variation is now named 'solitaire' and that change propogated throughout
-//for repo, it's SpiderDomain not gamedomain
 class Spider @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
   // request a specific variation via "http://localhost:9000/spider/SUBVAR-NAME
   val solitaire:Solitaire = spider
 
   /** SpiderDomain for Spider defined herein. Controllers are defined in Controllers area. */
-  lazy val repository = new SpiderDomain(solitaire) with controllers {}
+  lazy val repository = new gameDomain(solitaire) with controllers {}
 
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 
