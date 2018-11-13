@@ -20,6 +20,11 @@
 ->    /                              org.combinators.solitaire.freecell.DoubleFreeCellController
 ->    /                              org.combinators.solitaire.freecell.StalactitesController
 
+->    /                              org.combinators.solitaire.fan.FanController
+->    /                              org.combinators.solitaire.fan.FanFreePileController
+->    /                              org.combinators.solitaire.fan.ScotchPatienceController
+->    /                              org.combinators.solitaire.fan.ShamrocksController
+
 ->    /                              org.combinators.solitaire.klondike.KlondikeController
 ->    /                              org.combinators.solitaire.klondike.WhiteheadController
 ->    /                              org.combinators.solitaire.klondike.EastcliffController
