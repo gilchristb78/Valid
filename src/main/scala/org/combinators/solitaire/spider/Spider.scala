@@ -10,36 +10,36 @@ import org.combinators.solitaire.shared.cls.Synthesizer
 import org.webjars.play.WebJarsUtil
 import org.combinators.templating.persistable.JavaPersistable._
 import play.api.inject.ApplicationLifecycle
+import org.combinators.solitaire.spider.spider
+import org.combinators.solitaire.spiderette.spiderette
 
-//TODO Not for variations rn, just the singular spider... see doc for saved old
-//Changes: slightly to class header, variation is now named 'solitaire' and that change propogated throughout
-class Spider @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
+class SpiderVariationController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
   // request a specific variation via "http://localhost:9000/spider/SUBVAR-NAME
-  val solitaire:Solitaire = spider
+  lazy val variation:Solitaire = spider
 
-  /** SpiderDomain for Spider defined herein. Controllers are defined in Controllers area. */
-  lazy val repository = new gameDomain(solitaire) with controllers {}
+  lazy val repository = new gameDomain(variation) with controllers {}
 
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), variation)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(solitaire)
+  lazy val targets = Synthesizer.allTargets(variation)
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-  //override val routingPrefix = Some("spider")
-  val controllerAddress: String = solitaire.name.toLowerCase
+  override val routingPrefix = Some("spider")
+  lazy val controllerAddress: String = variation.name.toLowerCase
 }
-/*
+
 class SpiderController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends SpiderVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new spider.SpiderDomain
+  override lazy val variation = spider
 }
+
 
 class SpideretteController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends SpiderVariationController(webJars, applicationLifecycle) {
-  lazy val variation = new spider.Spiderette
-}*/
+  override lazy val variation = spiderette
+}

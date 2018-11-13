@@ -1,85 +1,99 @@
 package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
+import org.combinators.solitaire.spider.variationPoints
 
-package object spiderette {
 
-  case class AllSameSuit(movingCards: MoveInformation) extends Constraint
+package object spiderette extends variationPoints {
 
-  val numTableau:Int = 10
-  val numFoundation:Int = 8
-  val map:Map[ContainerType,Seq[Element]] = Map(
-    Tableau -> Seq.fill[Element](numTableau)(BuildablePile),
-    Foundation -> Seq.fill[Element](numFoundation)(Pile),
-    StockContainer -> Seq(Stock(1)) //apparently this will break things further down the road
+  //override val numTableau:Int = 8
+  //override val numFoundation:Int = 4
+  //override val numStock:Int = 1
+
+  override val map:Map[ContainerType, Seq[Widget]] = Map (
+    Tableau -> horizontalPlacement(15, 200, 8, 13*card_height),
+    StockContainer -> horizontalPlacement(15, 20, 1, card_height),
+    Foundation -> horizontalPlacement(293, 20, 4, card_height)
   )
-  var colNum:Int = 1
-  var dealSeq:Seq[DealStep] = Seq()// doesn't like me declaring it without initializing
-  // Klondike deal - the ith pile gets i face down cards
-  for (colNum <- 1 to 7) {
-    //TODO change these to face down when FlipCardMove exists
-    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
-    //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
+
+
+  override val structureMap:Map[ContainerType,Seq[Element]] = Map(
+    Tableau -> Seq.fill[Element](8)(BuildablePile),
+    Foundation -> Seq.fill[Element](4)(Pile),
+    StockContainer -> Seq(Stock(1))
+  )
+
+  override def getDeal: Seq[DealStep] = {
+    var colNum: Int = 1
+    var dealSeq: Seq[DealStep] = Seq() // doesn't like me declaring it without initializing
+    // Klondike deal - the ith pile gets i face down cards
+    for (colNum <- 1 to 7) {
+      //TODO change these to face down when FlipCardMove exists
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
+      //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
+    }
+    //each pile gets a face up card
+    colNum = 0
+    for (colNum <- 0 to 7) {
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
+    }
+
+    dealSeq
   }
-  //each pile gets a face up card
-  colNum = 0
-  for (colNum <- 0 to 7) {
-    dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
-  }
 
-
-  val bottomMoving = BottomCardOf(MovingCards)
-  val topMoving = TopCardOf(MovingCards)
-  val topDestination = TopCardOf(Destination)
-  val isEmpty = IsEmpty(Destination)
-  val descend = Descending(MovingCards)
-  //new
-  val suit = AllSameSuit(MovingCards)
-  //new
-  val and_t = AndConstraint(descend, suit)
-
-  val or = OrConstraint(isEmpty, NextRank(topDestination,
-    bottomMoving))
-
-  val tableauToTableau:Move = MultipleCardsMove ("MoveColumn", Drag,
-    //source=(Tableau, Truth), target=Some((Tableau, AndConstraint(descend, or))))
-    source=(Tableau, Truth), target=Some((Tableau, AndConstraint(and_t, or))))
-
-  val f_and = AndConstraint(descend, AndConstraint(IsAce(topMoving), IsKing(bottomMoving)))
-
-  val buildFoundation:Move = MultipleCardsMove("BuildFoundation", Drag,
-    source=(Tableau, Truth), target=Some((Foundation, AndConstraint(f_and, isEmpty))))
-
-  //TODO Add the flip move.
-
-  // Deal card from deck
-  val deckDealMove:Move = DealDeckMove("DealDeck", 1,
-    source=(StockContainer, Truth), target=Some((Tableau, Truth)))
-
-  val spider:Solitaire = {
-
-    Solitaire( name="Spider",
-      structure = map,
-      solvable = false,
-
-      layout = Layout(Map(
-        Tableau -> horizontalPlacement(15, 200, numTableau, 13*card_height),
-        StockContainer -> horizontalPlacement(15, 20, 1, card_height),
-        Foundation -> horizontalPlacement(293, 20, numFoundation, card_height),
-        Waste -> horizontalPlacement(95, 20, 1, card_height)
-      )),
-
-      deal = dealSeq,
-
+  val spiderette:Solitaire = {
+    Solitaire(name = "Spiderette",
+      structure = structureMap,
+      layout = Layout(map),
+      deal = getDeal,
       specializedElements = Seq.empty,
-
-      /** All rules here. */
-      moves = Seq(tableauToTableau
-        ,deckDealMove
-        ,buildFoundation),
-
-      // fix winning logic
-      logic = BoardState(Map(Foundation -> 52))
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),
+      logic = BoardState(Map(Foundation -> 104)),
+      solvable = false
     )
   }
 }
+
+/*
+package org.combinators.solitaire
+
+import org.combinators.solitaire.domain._
+import org.combinators.solitaire.spider.variationPoints
+
+package object spiderette extends variationPoints {
+
+  override val numTableau:Int = 7
+  override val numFoundation:Int = 4
+  override val numStock:Int = 1
+
+  override def getDeal: Seq[DealStep] = {
+    var colNum: Int = 1
+    var dealSeq: Seq[DealStep] = Seq() // doesn't like me declaring it without initializing
+    // Klondike deal - the ith pile gets i face down cards
+    for (colNum <- 1 to 7) {
+      //TODO change these to face down when FlipCardMove exists
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
+      //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
+    }
+    //each pile gets a face up card
+    colNum = 0
+    for (colNum <- 0 to 7) {
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
+    }
+
+    dealSeq
+  }
+
+  val spiderette:Solitaire = {
+    Solitaire(name = "Spiderette",
+      structure = structureMap,
+      layout = Layout(map),
+      deal = getDeal,
+      specializedElements = Seq.empty,
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove),
+      logic = BoardState(Map(Foundation -> 52)),
+      solvable = true
+    )
+  }
+}
+*/
