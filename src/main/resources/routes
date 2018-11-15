@@ -37,6 +37,10 @@
 ->    /                              org.combinators.solitaire.golf_no_wrap.Golf_no_wrap
 
 
+->    /                              org.combinators.solitaire.spider.SpiderController
+->    /                              org.combinators.solitaire.spider.SpideretteController
+
+
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)

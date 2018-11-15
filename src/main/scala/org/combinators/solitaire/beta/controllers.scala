@@ -11,7 +11,7 @@ import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
 import org.combinators.templating.twirl.Java
 
-/** Defines Archway's controllers and their behaviors.
+/** Defines Beta's controllers and their behaviors.
   *
   * Every controller requires definitions for three actions:
   *   - Click (no dragging, like clicking on a deck to deal more cards)
@@ -19,7 +19,7 @@ import org.combinators.templating.twirl.Java
   *   - Release (release after press)
   *
   * Either a rule must be associated with an action, or the action must be
-  * explicity ignored. See ArchwayRules in game.scala.
+  * explicity ignored. See BetaRules in game.scala.
   */
 trait controllers extends shared.Controller with shared.Moves with GameTemplate with generic.JavaCodeIdioms  {
 
@@ -27,7 +27,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
   ReflectedRepository[G] = {
     var updated = super.init(gamma, s)
-    println (">>> Archway Controller dynamic combinators.")
+    println (">>> Beta Controller dynamic combinators.")
 
     updated = createMoveClasses(updated, s)
     updated = createDragLogic(updated, s)

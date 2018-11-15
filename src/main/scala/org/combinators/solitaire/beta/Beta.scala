@@ -10,7 +10,7 @@ import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
 
-/** Loads and runs the combinators to generate the Archway variation.
+/** Loads and runs the combinators to generate the Beta variation.
   *
   * @param webJars
   */
