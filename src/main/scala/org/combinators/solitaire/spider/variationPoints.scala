@@ -16,6 +16,7 @@ trait variationPoints {
 
   case class AllSameSuit(movingCards: MoveInformation) extends Constraint
 
+  //TODO behaves strangely when overriding numTableau/Foundation, hardcoded in maps for now
   //val numTableau:Int = 10
   //val numFoundation:Int = 8
   val numStock:Int = 2
@@ -56,8 +57,6 @@ trait variationPoints {
     dealSeq
   }
 
-  //DO THESE NEED INPUT AT ALL?
-  //can probably organize this a bit better
   def buildOnTableau(cards: MovingCards.type): Constraint = {
     val topDestination = TopCardOf(Destination)
     val bottomMoving = BottomCardOf(cards)
@@ -68,7 +67,6 @@ trait variationPoints {
     AndConstraint( AndConstraint(descend, suit), OrConstraint(isEmpty, NextRank(topDestination, bottomMoving)) )
   }
 
-  //can probably organize this a bit better
   def buildOnFoundation(cards: MovingCards.type): Constraint = {
     val topMoving = TopCardOf(cards)
     val bottomMoving = BottomCardOf(cards)
@@ -86,5 +84,4 @@ trait variationPoints {
 
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     source=(StockContainer, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
-
 }

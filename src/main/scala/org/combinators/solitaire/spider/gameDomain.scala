@@ -2,7 +2,7 @@ package org.combinators.solitaire.spider
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
-import com.github.javaparser.ast.expr.{Expression, Name}
+import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
@@ -15,22 +15,22 @@ import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, gene
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 
   object spiderCodeGenerator {
-    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
+    def generators(pkg:Name, varName:SimpleName):CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
       CodeGeneratorRegistry[Expression, AllSameSuit] {
         case (registry:CodeGeneratorRegistry[Expression], c:AllSameSuit) =>
           val moving = registry(c.movingCards).get
-          Java(s"""((org.combinators.solitaire.spider.Spider)game).allSameSuit($moving)""").expression()
-
+          Java(s"(($pkg.$varName)game).allSameSuit($moving)").expression()
       }
     ).merge(constraintCodeGenerators.generators)
   }
 
   @combinator object SpiderGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = {
-      spiderCodeGenerator.generators
+    def apply(pkg:Name, varName:SimpleName): CodeGeneratorRegistry[Expression] = {
+      spiderCodeGenerator.generators(pkg, varName)
     }
-    val semanticType: Type = constraints(constraints.generator)
+    val semanticType: Type =   packageName =>: variationName =>:
+      constraints(constraints.generator)
   }
 
   /**

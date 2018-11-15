@@ -6,6 +6,7 @@ import org.combinators.solitaire.spider.variationPoints
 
 package object spiderette extends variationPoints {
 
+  //TODO behaves strangely when overriding numTableau/Foundation, hardcoded in maps for now
   //override val numTableau:Int = 8
   //override val numFoundation:Int = 4
   //override val numStock:Int = 1
@@ -28,8 +29,8 @@ package object spiderette extends variationPoints {
     var dealSeq: Seq[DealStep] = Seq() // doesn't like me declaring it without initializing
     // Klondike deal - the ith pile gets i face down cards
     for (colNum <- 1 to 7) {
-      //TODO change these to face down when FlipCardMove exists
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
+      //TODO change these to face down when FlipCardMove added
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = colNum))
       //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
     }
     //each pile gets a face up card
@@ -53,47 +54,3 @@ package object spiderette extends variationPoints {
     )
   }
 }
-
-/*
-package org.combinators.solitaire
-
-import org.combinators.solitaire.domain._
-import org.combinators.solitaire.spider.variationPoints
-
-package object spiderette extends variationPoints {
-
-  override val numTableau:Int = 7
-  override val numFoundation:Int = 4
-  override val numStock:Int = 1
-
-  override def getDeal: Seq[DealStep] = {
-    var colNum: Int = 1
-    var dealSeq: Seq[DealStep] = Seq() // doesn't like me declaring it without initializing
-    // Klondike deal - the ith pile gets i face down cards
-    for (colNum <- 1 to 7) {
-      //TODO change these to face down when FlipCardMove exists
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
-      //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = colNum))
-    }
-    //each pile gets a face up card
-    colNum = 0
-    for (colNum <- 0 to 7) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
-    }
-
-    dealSeq
-  }
-
-  val spiderette:Solitaire = {
-    Solitaire(name = "Spiderette",
-      structure = structureMap,
-      layout = Layout(map),
-      deal = getDeal,
-      specializedElements = Seq.empty,
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove),
-      logic = BoardState(Map(Foundation -> 52)),
-      solvable = true
-    )
-  }
-}
-*/
