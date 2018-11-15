@@ -34,23 +34,7 @@ class golfDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
 
   object golfCodeGenerator {
-    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
-
-      CodeGeneratorRegistry[Expression, ToLeftOf] {
-        case (registry:CodeGeneratorRegistry[Expression], c:ToLeftOf) =>
-          val destination = registry(c.destination).get
-          val src = registry(c.src).get
-          Java(s"""((org.combinators.solitaire.golf.Golf)game).toLeftOf($destination, $src)""").expression()
-
-      },
-
-      CodeGeneratorRegistry[Expression, AllSameRank] {
-        case (registry:CodeGeneratorRegistry[Expression], all:AllSameRank) =>
-          val inner = registry(all.src).get
-          Java(s"""((org.combinators.solitaire.golf.Golf)game).allSameRank($inner)""").expression()
-
-      }
-    ).merge(constraintCodeGenerators.generators)
+    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression]().merge(constraintCodeGenerators.generators)
   }
 
   @combinator object golfGenerator {

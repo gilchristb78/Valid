@@ -38,8 +38,8 @@
 ->    /                              org.combinators.solitaire.alpha.Alpha
 ->    /                              org.combinators.solitaire.beta.Beta
 
-->    /                              org.combinators.solitaire.golf.Golf
-->    /                              org.combinators.solitaire.golf_no_wrap.Golf_no_wrap
+->    /                              org.combinators.solitaire.golf.GolfController
+->    /                              org.combinators.solitaire.golf.Golf_no_wrapController
 
 
 ->    /                              org.combinators.solitaire.spider.SpiderController
