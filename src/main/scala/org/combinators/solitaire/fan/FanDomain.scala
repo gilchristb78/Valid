@@ -1,49 +1,55 @@
-package org.combinators.solitaire.spider
+package org.combinators.solitaire.fan
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.stmt.Statement
-import domain._
-import domain.spider.AllSameSuit
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 import org.combinators.templating.twirl.Java
-
+import org.combinators.solitaire.domain.{Element, MaxSizeConstraint, Solitaire}
+import org.combinators.solitaire.fanfreepile.FreePile
 
 /**
   * Defines Java package, the game's name, initializes the domain model,
   * the UI, and the controllers (doesn't define them, just generates),
   * and includes extra fields and methods.
   */
-class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(solitaire) with SemanticTypes with GameTemplate with Controller {
+class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 
-  object SpiderCodeGenerator {
+  override def baseModelNameFromElement (e:Element): String = {
+    e match {
+      case FreePile => "Pile"
+      case _ => super.baseModelNameFromElement(e)
+    }
+  }
+
+  override def baseViewNameFromElement (e:Element): String = {
+    e match {
+      case FreePile => "PileView"
+      case _ => super.baseViewNameFromElement(e)
+    }
+  }
+  object fanCodeGenerator {
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
-
-      CodeGeneratorRegistry[Expression, AllSameSuit] {
-        case (registry:CodeGeneratorRegistry[Expression], c:AllSameSuit) =>
-          val column = registry(c.base).get
-          Java(s"""ConstraintHelper.allSameSuit($column)""").expression()
+      CodeGeneratorRegistry[Expression, MaxSizeConstraint] {
+        case (registry:CodeGeneratorRegistry[Expression], c:MaxSizeConstraint) =>
+          val destination = registry(c.destination).get
+          val moving = registry(c.movingCards).get
+          val num = c.maxSize
+          Java(s"""ConstraintHelper.maxSizeExceeded($moving, $destination, $num)""").expression()
       },
 
     ).merge(constraintCodeGenerators.generators)
   }
 
-  @combinator object SpiderGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = SpiderCodeGenerator.generators
-
+  @combinator object FanGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = fanCodeGenerator.generators
     val semanticType: Type = constraints(constraints.generator)
   }
-/*
-  @combinator object DefaultGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
-    val semanticType: Type = constraints(constraints.generator)
-  }
-*/
 
   /** Each Solitaire variation must provide default do generation. */
   @combinator object DefaultDoGenerator {
@@ -59,27 +65,19 @@ class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(so
     val semanticType: Type = constraints(constraints.undo_generator)
   }
 
-  @combinator object HelperMethodsSpider {
+  @combinator object HelperMethodsFan {
     def apply(): Seq[BodyDeclaration[_]] = {
       val methods = generateHelper.helpers(solitaire)
+
       methods ++ Java(s"""
-           |public static boolean allSameSuit (Column column) {
-           | if(column.empty() || (column.count() == 1)) { return true; }
-           | else{
-           |  Card c1, c2;
-           |  int size = column.count();
-           |  for(int i = 1; i < size; i++){
-           |   c1 = column.peek(i - 1);
-           |   c2 = column.peek(i);
-           |   if(c1.getSuit() != c2.getSuit()) { return false; }
-           |  }
-           |  return true;
-           | }
-           |}""".stripMargin).methodDeclarations()
+                         |public static boolean maxSizeExceeded(Card moving, Stack destination, int max) {
+                         | return destination.count() < max;
+                         |}""".stripMargin).methodDeclarations()
     }
 
-      val semanticType: Type = constraints(constraints.methods)
+    val semanticType: Type = constraints(constraints.methods)
   }
+
 
   /**
     * Deal may require additional generators.
@@ -108,18 +106,29 @@ class SpiderDomain(override val solitaire: Solitaire) extends SolitaireDomain(so
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] =
 
-      Java(s"""
-         |public java.util.Enumeration<Move> availableMoves() {
-         |    java.util.Vector<Move> v = new java.util.Vector<Move>();
-         |
-         |	  if (!this.deck.empty()) {
-         |	    DealDeck dd = new DealDeck(deck, tableau);
-         |		  if (dd.valid(this)) {
-         |			  v.add(dd);
-         |		  }
-         |		}
-         |    return v.elements();
-         |}
+      Java(s"""public java.util.Enumeration<Move> availableMoves() {
+              |  java.util.Vector<Move> v = new java.util.Vector<Move>();
+              |        for (Column c : tableau) {
+              |            for (Pile p : foundation) {
+              |                PotentialMoveCardFoundation pfm = new PotentialMoveCardFoundation(c, p);
+              |                if (pfm.valid(this)) {
+              |                    v.add(pfm);
+              |                }
+              |            }
+              |        }
+              |        if (v.isEmpty()) {
+              |            for (Column c : tableau) {
+              |
+              |            for (Column c2 : tableau) {
+              |                PotentialMoveCard pm = new PotentialMoveCard(c, c2);
+              |                if (pm.valid(this)) {
+              |                    v.add(pm);
+              |                }
+              |            }
+              |           }
+              |        }
+              |        return v.elements();
+              |}
        """.stripMargin).methodDeclarations()
 
     val semanticType: Type = game(game.methods :&: game.availableMoves)

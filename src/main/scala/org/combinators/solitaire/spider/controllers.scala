@@ -2,16 +2,16 @@ package org.combinators.solitaire.spider
 
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
+import org.combinators.cls.interpreter.combinator
+import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
+import org.combinators.templating.twirl.Java
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared
-import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
-import org.combinators.cls.types.{Constructor, Type}
-import org.combinators.templating.twirl.Java
+import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.generic
-import domain._
-
-import scala.collection.JavaConverters._
+import org.combinators.solitaire.domain._
+import org.combinators.solitaire.domain.WinningLogic
 
 /** Defines Spider's controllers and their behaviors.
   *
@@ -21,9 +21,10 @@ import scala.collection.JavaConverters._
   *   - Release (release after press)
   *
   * Either a rule must be associated with an action, or the action must be
-  * explicity ignored. See SpiderRules in game.scala.
+  * explicitly ignored.
   */
-trait controllers extends shared.Controller with shared.Moves with GameTemplate with WinningLogic with generic.JavaCodeIdioms with SemanticTypes {
+
+trait controllers extends shared.Controller with GameTemplate with WinningLogic  with shared.Moves with generic.JavaCodeIdioms {
   // dynamic combinators added as needed
   override def init[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) :
   ReflectedRepository[G] = {
@@ -38,14 +39,10 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     updated = updated
       .addCombinator (new IgnorePressedHandler(pile))
       .addCombinator (new IgnoreClickedHandler(pile))
-      //.addCombinator (new IgnoreReleasedHandler(pile))
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(buildablePile))
-      .addCombinator (new buildablePilePress.CP2())
-    //.addCombinator (new IgnoreReleasedHandler(column))
-      //.addCombinator (new SingleCardMoveHandler(column))
-      //.addCombinator (new ColumnMoveHandler(column))
+      //.addCombinator (new buildablePilePress.CP2()) //TODO add back when flip-press added
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(deck))
@@ -74,7 +71,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     * to chain together to form complete set.
     */
   object buildablePilePress {
-    val buildablePile1:Constructor = 'BuildablePile1
+    val buildablePile1:Type = 'BuildablePile1 //Changed from :Constructor to :Type
 
     class CP2() {
       def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
@@ -82,7 +79,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
 
           Java(s"""|BuildablePile srcPile = (BuildablePile) src.getModelElement();
                    |
-                 |// Only apply if not empty AND if top card is face down
+                   |// Only apply if not empty AND if top card is face down
                    |if (srcPile.count() != 0) {
                    |  if (!srcPile.peek().isFaceUp()) {
                    |    Move fm = new FlipCard(srcPile, srcPile);
@@ -106,7 +103,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
   }
 
   @combinator object ChainBuildablePileTogether extends buildablePilePress.ChainBuildablePileTogether
-
+ //TODO double check above when flip-press added
   /**
     * When dealing card(s) from the stock to all elements in Tableau
     * If deck is empty, then reset.
