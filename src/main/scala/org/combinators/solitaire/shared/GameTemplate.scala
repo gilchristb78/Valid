@@ -65,9 +65,15 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
     updated
   }
 
+
   def modelNameFromElement (e:Element): String = e.name
   def viewNameFromElement (e:Element): String = e.name + "View"
 
+  /**
+    * Any variation that seeks to add their own specialized elements must override these methods properly.
+    * @param e
+    * @return
+    */
   // override as needed in your own own specialized trait. I.e. "AcesUpPile" -> "PileView"
   def baseViewNameFromElement (e:Element): String = viewNameFromElement(e)
   // override as needed in your own own specialized trait. I.e. "AcesUpPile" -> "Pile"

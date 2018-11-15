@@ -33,6 +33,10 @@
 ->    /                              org.combinators.solitaire.alpha.Alpha
 ->    /                              org.combinators.solitaire.beta.Beta
 
+->    /                              org.combinators.solitaire.golf.Golf
+->    /                              org.combinators.solitaire.golf_no_wrap.Golf_no_wrap
+
+
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)
