@@ -64,7 +64,7 @@ trait variationPoints {
     val descend = Descending(cards)
     val suit = AllSameSuit(cards)
 
-    AndConstraint( AndConstraint(descend, suit), OrConstraint(isEmpty, NextRank(topDestination, bottomMoving)) )
+    AndConstraint( AndConstraint(descend, suit), OrConstraint(isEmpty, NextRank(topDestination, bottomMoving, true)) )
   }
 
   def buildOnFoundation(cards: MovingCards.type): Constraint = {
