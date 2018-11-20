@@ -15,7 +15,7 @@ import org.combinators.templating.twirl.Java
   */
 trait variationPoints {
   val points: Seq[(Int, Int)] = Seq ((100,200), (203,200), (306, 200), (409, 200), (512, 200), (615, 200), (100,400), (203,400), (306, 400), (409, 400), (512, 400), (615, 400), (100,600), (203,600), (306, 600), (409, 600), (512, 600), (615, 600))
-  val map:Map[ContainerType, Seq[Widget]] = Map (
+  val layoutMap:Map[ContainerType, Seq[Widget]] = Map (
     Tableau -> calculatedPlacement(points, height = card_height*2),
     Foundation -> horizontalPlacement(200, 10, 4, card_height),
   )

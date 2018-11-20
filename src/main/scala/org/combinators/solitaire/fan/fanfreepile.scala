@@ -13,7 +13,7 @@ package object fanfreepile extends variationPoints {
     Reserve -> Seq.fill[Element](2)(FreePile),
     StockContainer -> Seq(Stock(1))
   )
-  override val map:Map[ContainerType, Seq[Widget]] = Map (
+  override val layoutMap:Map[ContainerType, Seq[Widget]] = Map (
     Tableau -> calculatedPlacement(points, height = card_height*2),
     Foundation -> horizontalPlacement(200, 10, 4, card_height),
     Reserve -> calculatedPlacement(Seq((800,250),(800, 250+card_height+card_gap)))
@@ -31,7 +31,7 @@ package object fanfreepile extends variationPoints {
   val fanfreepile:Solitaire = {
     Solitaire(name = "FanFreePile",
       structure = structureMap,
-      layout = Layout(map),
+      layout = Layout(layoutMap),
       deal = getDeal,
       specializedElements = Seq(FreePile),
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, moveFromFreePile, moveToFreePile),

@@ -12,8 +12,8 @@ import play.api.inject.ApplicationLifecycle
 import org.combinators.solitaire.fanfreepile.fanfreepile
 import org.combinators.solitaire.shamrocks.shamrocks
 import org.combinators.solitaire.scotchpatience.scotchpatience
-
-
+import org.combinators.solitaire.fantwodeck.fantwodeck
+import org.combinators.solitaire.faneasy.faneasy
 
 abstract class FanVariationController(web: WebJarsUtil, app: ApplicationLifecycle) extends InhabitationController(web, app) with RoutingEntries {
 
@@ -53,4 +53,14 @@ class ScotchPatienceController @Inject()(webJars: WebJarsUtil, applicationLifecy
 class ShamrocksController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
   override lazy val variation = shamrocks
+}
+
+class FanTwoDeckController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends FanVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = fantwodeck
+}
+
+class FanEasyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends FanVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = faneasy
 }

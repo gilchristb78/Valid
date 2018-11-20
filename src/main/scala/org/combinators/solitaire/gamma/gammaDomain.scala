@@ -1,4 +1,4 @@
-package org.combinators.solitaire.TEMPLATE
+package org.combinators.solitaire.gamma
 
 import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
@@ -13,34 +13,17 @@ import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
 // Looks awkward how solitaire val is defined, but I think I need to do this
-// to get the code to compile
-class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
+// to get the code to compile 
+class gammaDomain(override val solitaire: Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 
-  object templateCodeGenerator {
-    val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
-
-      CodeGeneratorRegistry[Expression, ToLeftOf] {
-        case (registry:CodeGeneratorRegistry[Expression], c:ToLeftOf) =>
-          val destination = registry(c.destination).get
-          val src = registry(c.src).get
-          Java(s"""((org.combinators.solitaire.tEMPLATE.TEMPLATE)game).toLeftOf($destination, $src)""").expression()
-
-      },
-
-      CodeGeneratorRegistry[Expression, AllSameRank] {
-        case (registry:CodeGeneratorRegistry[Expression], all:AllSameRank) =>
-          val inner = registry(all.src).get
-          Java(s"""((org.combinators.solitaire.tEMPLATE.TEMPLATE)game).allSameRank($inner)""").expression()
-
-      }
-    ).merge(constraintCodeGenerators.generators)
+  object gammaCodeGenerator {
+    val generators: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
   }
 
-  @combinator object TEMPLATEGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = {
-      print ("In ngen")
-      tEMPLATECodeGenerator.generators
-    }
+  @combinator object gammaGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = gammaCodeGenerator.generators
+
+
     val semanticType: Type = constraints(constraints.generator)
   }
 
@@ -49,13 +32,8 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     */
   @combinator object DefaultDealGenerator {
     def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.mapGenerators
+
     val semanticType: Type = constraints(constraints.map)
-  }
-
-  @combinator object HelperMethodsNtEMPLATE {
-    def apply(): Seq[BodyDeclaration[_]] = generateHelper.helpers(solitaire)
-
-    val semanticType: Type = constraints(constraints.methods)
   }
 
   /** Each Solitaire variation must provide default do generation. */
@@ -80,14 +58,20 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
         Java(s"import $nameExpr.model.*;").importDeclaration()
       )
     }
+
     val semanticType: Type = packageName =>: game(game.imports)
   }
 
   @combinator object ExtraMethods {
-    def apply(): Seq[MethodDeclaration] = {
-    }
+    def apply(): Seq[MethodDeclaration] = Seq.empty
 
     val semanticType: Type = game(game.methods)
+  }
+
+  @combinator object HelperMethods {
+    def apply(): Seq[BodyDeclaration[_]] = generateHelper.helpers(solitaire)
+
+    val semanticType: Type = constraints(constraints.methods)
   }
 
 }

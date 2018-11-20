@@ -7,7 +7,7 @@ package object fan extends variationPoints {
   val fan:Solitaire = {
     Solitaire(name = "Fan",
       structure = structureMap,
-      layout = Layout(map),
+      layout = Layout(layoutMap),
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),

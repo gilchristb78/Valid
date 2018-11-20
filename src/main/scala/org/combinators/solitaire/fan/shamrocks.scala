@@ -50,7 +50,7 @@ package object shamrocks extends variationPoints {
   val shamrocks:Solitaire = {
     Solitaire(name = "Shamrocks",
       structure = structureMap,
-      layout = Layout(map),
+      layout = Layout(layoutMap),
       deal = getDeal2,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
