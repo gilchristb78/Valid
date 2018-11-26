@@ -85,36 +85,8 @@ class golfDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
   }
 
   @combinator object ExtraMethods {
-    def apply(): Seq[MethodDeclaration] = {
-      Java(s"""|public boolean toLeftOf(Stack target, Stack src) {
-               |  // Check whether target is to left of src
-               |  for (int i = 0; i < tableau.length; i++) {
-               |    if (tableau[i] == target) {
-               |      return true;   // found target first (in left-right)
-               |    }
-               |    if (tableau[i] == src) {
-               |      return false;  // found src first
-               |    }
-               |  }
-               |  return false; // will never get here
-               |}
-               |
-                | public boolean allSameRank(Stack[] group) {
-               |   if (group[0].empty()) { return false; }
-               |   // Check whether tops of all piles are same rank
-               |   for (int i = 1; i < group.length; i++) {
-               |      if (group[i].empty()) { return false; }
-               |      if (group[i].rank() != group[i-1].rank()) {
-               |        return false;
-               |      }
-               |   }
-               |  // looks good
-               |  return true;
-               |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
-
-    }
+    def apply(): Seq[MethodDeclaration] = Seq.empty[MethodDeclaration]
 
     val semanticType: Type = game(game.methods)
   }
-
 }

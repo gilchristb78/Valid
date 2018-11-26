@@ -10,6 +10,8 @@ import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
 import org.combinators.solitaire.golf.golf
 import org.combinators.solitaire.golf_no_wrap.golf_no_wrap
+import org.combinators.solitaire.allInARow.allInARow
+import org.combinators.solitaire.flake.flake
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
 
@@ -44,4 +46,14 @@ class GolfVariationController @Inject()(webJars: WebJarsUtil, applicationLifecyc
   class Golf_no_wrapController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
     extends GolfVariationController(webJars, applicationLifecycle) {
     override lazy val variation = golf_no_wrap
+  }
+
+  class AllInARowController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+    extends GolfVariationController(webJars, applicationLifecycle) {
+    override lazy val variation = allInARow
+  }
+
+  class FlakeController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+    extends GolfVariationController(webJars, applicationLifecycle) {
+    override lazy val variation = flake
   }

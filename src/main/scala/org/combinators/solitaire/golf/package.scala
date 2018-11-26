@@ -8,13 +8,9 @@ package object golf extends variationPoints{
     Solitaire( name="Golf",
       structure = map,
       layout = golfLayout(),
-      deal = Seq(DealStep(ContainerTarget(Tableau)),
-        DealStep(ContainerTarget(Tableau)),
-        DealStep(ContainerTarget(Tableau)),
-        DealStep(ContainerTarget(Tableau)),
-        DealStep(ContainerTarget(Tableau))),
+      deal = getDeal(),
       specializedElements = Seq(WastePile),
-      moves = Seq(tableauToWasteMove,deckDealMove),
+      moves = Seq(tableauToWasteMove,deckDealMove, getTableauToTableauMove()),
       logic = BoardState(Map(Waste -> 52))
     )
   }

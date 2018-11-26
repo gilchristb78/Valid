@@ -27,7 +27,6 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
     // Must determine how to handle clicks
     updated = updated
       .addCombinator(new IgnoreClickedHandler(column))
-      .addCombinator(new IgnoreReleasedHandler(column))
       .addCombinator(new SingleCardMoveHandler(column))
 
     updated = updated

@@ -12,13 +12,9 @@ package object golf_no_wrap extends variationPoints{
     Solitaire( name="Golf_no_wrap",
       structure = map,
       layout = golfLayout(),
-      deal = Seq(DealStep(ContainerTarget(Tableau)),
-        DealStep(ContainerTarget(Tableau)),
-        DealStep(ContainerTarget(Tableau)),
-        DealStep(ContainerTarget(Tableau)),
-        DealStep(ContainerTarget(Tableau))),
+      deal = getDeal(),
       specializedElements = Seq(WastePile),
-      moves = Seq(tableauToWasteMove,deckDealMove),
+      moves = Seq(tableauToWasteMove,deckDealMove, getTableauToTableauMove()),
       logic = BoardState(Map(Waste -> 52))
     )
   }

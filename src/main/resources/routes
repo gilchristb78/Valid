@@ -40,6 +40,8 @@
 
 ->    /                              org.combinators.solitaire.golf.GolfController
 ->    /                              org.combinators.solitaire.golf.Golf_no_wrapController
+->    /                              org.combinators.solitaire.golf.AllInARowController
+->    /                              org.combinators.solitaire.golf.FlakeController
 
 
 ->    /                              org.combinators.solitaire.spider.SpiderController
