@@ -16,22 +16,30 @@ trait variationPoints {
 
   case class AllSameSuit(movingCards: MoveInformation) extends Constraint
 
-  //TODO behaves strangely when overriding numTableau/Foundation, hardcoded in maps for now
-  //val numTableau:Int = 10
-  //val numFoundation:Int = 8
-  val numStock:Int = 2
+  def numTableau(): Int ={
+    10
+  }
+
+  def numFoundation(): Int ={
+    8
+  }
+
+  def numStock(): Int ={
+    2
+  }
+
 
   val map:Map[ContainerType, Seq[Widget]] = Map (
-    Tableau -> horizontalPlacement(15, 200, 10, 13*card_height),
+    Tableau -> horizontalPlacement(15, 200, numTableau(), 13*card_height),
     StockContainer -> horizontalPlacement(15, 20, 1, card_height),
-    Foundation -> horizontalPlacement(293, 20, 8, card_height)
+    Foundation -> horizontalPlacement(293, 20, numFoundation(), card_height)
   )
 
 
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
-    Tableau -> Seq.fill[Element](10)(BuildablePile),
-    Foundation -> Seq.fill[Element](8)(Pile),
-    StockContainer -> Seq(Stock(numStock))
+    Tableau -> Seq.fill[Element](numTableau())(BuildablePile),
+    Foundation -> Seq.fill[Element](numFoundation())(Pile),
+    StockContainer -> Seq(Stock(numStock()))
   )
 
   def getDeal: Seq[DealStep] = {
@@ -39,15 +47,11 @@ trait variationPoints {
     var dealSeq:Seq[DealStep] = Seq()// doesn't like me declaring it without initializing
     //first four piles get 5 face down cards
     for (colNum <- 0 to 3) {
-      //TODO change these to face down when FlipCardMove exists
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 5))
-      //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = 5))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = 5))
     }
     //the rest get 4 face down cards
     for (colNum <- 4 to 9) {
-      //TODO change these to face down when FlipCardMove exists
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 4))
-      //dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = 4))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = 4))
     }
     //each pile gets a face up card
     colNum = 0
@@ -84,4 +88,7 @@ trait variationPoints {
 
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     source=(StockContainer, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
+
+  val allowed = AndConstraint(NotConstraint(IsEmpty(Source)), NotConstraint(IsFaceUp(TopCardOf(Source))))
+  val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))
 }
