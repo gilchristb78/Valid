@@ -6,11 +6,6 @@ import org.combinators.solitaire.spider.variationPoints
 
 package object gigantic extends variationPoints {
 
-  //TODO behaves strangely when overriding numTableau/Foundation, hardcoded in maps for now
-  //override val numTableau:Int = 15
-  //override val numFoundation:Int = 16
-  //override val numStock:Int = 4
-
   override def numTableau(): Int ={
     15
   }
@@ -22,21 +17,7 @@ package object gigantic extends variationPoints {
   override def numStock(): Int ={
     4
   }
-  /*
-  //Gigantic is like a marathon spider, with twice as many decks
-  override val map:Map[ContainerType, Seq[Widget]] = Map (
-    Tableau -> horizontalPlacement(15, 200, 15, 13*card_height),
-    StockContainer -> horizontalPlacement(15, 20, 1, card_height),
-    Foundation -> horizontalPlacement(150, 20, 16, card_height)
-  )
 
-
-  override val structureMap:Map[ContainerType,Seq[Element]] = Map(
-    Tableau -> Seq.fill[Element](15)(BuildablePile),
-    Foundation -> Seq.fill[Element](16)(Pile),
-    StockContainer -> Seq(Stock(4))
-  )
-*/
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 0
     var dealSeq: Seq[DealStep] = Seq()

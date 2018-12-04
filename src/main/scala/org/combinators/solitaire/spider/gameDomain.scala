@@ -9,7 +9,7 @@ import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
 import org.combinators.templating.twirl.Java
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.shared._
+import org.combinators.solitaire.shared.{compilation, _}
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
@@ -21,6 +21,12 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
         case (registry:CodeGeneratorRegistry[Expression], c:AllSameSuit) =>
           val moving = registry(c.movingCards).get
           Java(s"(($pkg.$varName)game).allSameSuit($moving)").expression()
+      },
+
+      CodeGeneratorRegistry[Expression, AllSameRank] {
+        case (registry:CodeGeneratorRegistry[Expression], c:AllSameRank) =>
+          val moving = registry(c.movingCards).get
+          Java(s"(($pkg.$varName)game).allSameRank($moving)").expression()
       }
     ).merge(constraintCodeGenerators.generators)
   }
@@ -74,19 +80,40 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] = {
-      Java(s"""|public boolean allSameSuit(Stack col) {
-               | if(col.empty() || col.count() == 1) { return true; }
-               | else{
-               |   Card c1, c2;
-               |   int size = col.count();
-               |   for(int i = 1; i < size; i++){
-               |    c1 = col.peek(i - 1);
-               |    c2 = col.peek(i);
-               |    if(c1.getSuit() != c2.getSuit()) { return false; }
-               |   }
-               |   return true;
-               | }
-               |}""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+      Java(s"""    public boolean allSameSuit(Stack col) {
+              |        if (col.empty() || col.count() == 1) {
+              |            return true;
+              |        } else {
+              |            Card c1, c2;
+              |            int size = col.count();
+              |            for (int i = 1; i < size; i++) {
+              |                c1 = col.peek(i - 1);
+              |                c2 = col.peek(i);
+              |                if (c1.getSuit() != c2.getSuit()) {
+              |                    return false;
+              |                }
+              |            }
+              |            return true;
+              |        }
+              |    }
+              |
+              | public boolean allSameRank(Stack col) {
+              |        if (col.empty() || col.count() == 1) {
+              |            return true;
+              |        } else {
+              |            Card c1, c2;
+              |            int size = col.count();
+              |            for (int i = 1; i < size; i++) {
+              |                c1 = col.peek(i - 1);
+              |                c2 = col.peek(i);
+              |                if (c1.getRank() != c2.getRank()) {
+              |                    return false;
+              |                }
+              |            }
+              |            return true;
+              |        }
+              |    }
+              |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
 
     }
 

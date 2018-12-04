@@ -48,6 +48,8 @@
 ->    /                              org.combinators.solitaire.spider.BabyController
 ->    /                              org.combinators.solitaire.spider.OpenSpiderController
 ->    /                              org.combinators.solitaire.spider.OpenScorpionController
+->    /                              org.combinators.solitaire.spider.CurdsAndWheyController
+
 
 
 

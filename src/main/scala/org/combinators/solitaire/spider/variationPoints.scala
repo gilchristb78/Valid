@@ -15,6 +15,7 @@ import org.combinators.templating.twirl.Java
 trait variationPoints {
 
   case class AllSameSuit(movingCards: MoveInformation) extends Constraint
+  case class AllSameRank(movingCards: MoveInformation) extends Constraint
 
   def numTableau(): Int ={
     10
