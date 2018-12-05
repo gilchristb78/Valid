@@ -12,6 +12,8 @@ import org.combinators.solitaire.golf.golf
 import org.combinators.solitaire.golf_no_wrap.golf_no_wrap
 import org.combinators.solitaire.allInARow.allInARow
 import org.combinators.solitaire.flake.flake
+import org.combinators.solitaire.flake_two_decks.flake_two_decks
+import org.combinators.solitaire.robert.robert
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
 
@@ -57,3 +59,15 @@ class GolfVariationController @Inject()(webJars: WebJarsUtil, applicationLifecyc
     extends GolfVariationController(webJars, applicationLifecycle) {
     override lazy val variation = flake
   }
+
+class Flake_two_decksController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends GolfVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = flake_two_decks
+}
+
+class RobertController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends GolfVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = robert
+}
+
+

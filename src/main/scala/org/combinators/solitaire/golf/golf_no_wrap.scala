@@ -14,7 +14,7 @@ package object golf_no_wrap extends variationPoints{
       layout = golfLayout(),
       deal = getDeal(),
       specializedElements = Seq(WastePile),
-      moves = Seq(tableauToWasteMove,deckDealMove, getTableauToTableauMove()),
+      moves = Seq(tableauToWasteMove,deckDealMove),
       logic = BoardState(Map(Waste -> 52))
     )
   }

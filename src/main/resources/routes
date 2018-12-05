@@ -44,11 +44,15 @@
 ->    /                              org.combinators.solitaire.golf.Golf_no_wrapController
 ->    /                              org.combinators.solitaire.golf.AllInARowController
 ->    /                              org.combinators.solitaire.golf.FlakeController
+->    /                              org.combinators.solitaire.golf.Flake_two_decksController
+->    /                              org.combinators.solitaire.golf.RobertController
 
 
 ->    /                              org.combinators.solitaire.spider.SpiderController
 ->    /                              org.combinators.solitaire.spider.SpideretteController
 
+
+->    /                              org.combinators.solitaire.gypsy.GypsyController
 
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()

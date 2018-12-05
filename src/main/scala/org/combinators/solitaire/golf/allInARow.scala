@@ -28,7 +28,7 @@ package object allInARow extends variationPoints{
       layout = golfLayout(),
       deal = getDeal(),
       specializedElements = Seq(WastePile),
-      moves = Seq(tableauToWasteMove, getTableauToTableauMove()),
+      moves = Seq(tableauToWasteMove),
       logic = BoardState(Map(Waste -> 52))
     )
   }

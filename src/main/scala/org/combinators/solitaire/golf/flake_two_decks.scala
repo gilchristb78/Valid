@@ -3,10 +3,10 @@ package org.combinators.solitaire
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.golf.variationPoints
 
-package object flake extends variationPoints{
+package object flake_two_decks extends variationPoints{
 
   override def getNumTableau(): Int = 6
-
+  override def getNumDecks(): Int = 2
   override def golfLayout():Layout = {
     Layout(Map(
       Tableau -> horizontalPlacement(120, 20, getNumTableau(), 5*card_height),
@@ -15,31 +15,33 @@ package object flake extends variationPoints{
   }
 
   override def getDeal(): Seq[DealStep] = {
-    var colNum:Int = 0
-    var dealSeq:Seq[DealStep] = Seq()// doesn't like me declaring it without initializing
-    //first four piles get 9 cards
-    for (colNum <- 0 to 3) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 9))
-    }
-    //the rest get 8 cards
-    for (colNum <- 4 to 5) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 8))
-    }
-    dealSeq
+    Seq(DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)),
+      DealStep(ContainerTarget(Tableau)))
   }
 
   val tableauToTableauMove:Move = SingleCardMove("MoveTableauToTableau", Drag,
     source=(Tableau,Truth), target=Some((Tableau, wasteMove)))
 
-  val flake:Solitaire = {
+  val flake_two_decks:Solitaire = {
 
-    Solitaire( name="Flake",
+    Solitaire( name="Flake_two_decks",
       structure = map,
       layout = golfLayout(),
       deal = getDeal(),
       specializedElements = Seq(WastePile),
       moves = Seq(tableauToWasteMove, tableauToTableauMove),
-      logic = BoardState(Map(Waste -> 52))
+      logic = BoardState(Map(Waste -> 104))
     )
   }
 }
