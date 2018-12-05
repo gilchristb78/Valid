@@ -22,8 +22,7 @@ trait variationPoints {
   )
 
   def getDeal(): Seq[DealStep] = {
-    Seq(DealStep(ContainerTarget(Tableau)),
-      DealStep(ContainerTarget(Tableau)),
+    Seq(DealStep(ContainerTarget(Tableau), Payload(faceUp = false, numCards = 2)),
       DealStep(ContainerTarget(Tableau)))
   }
 
@@ -61,4 +60,8 @@ trait variationPoints {
 
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     source=(StockContainer, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
+
+  val allowed = AndConstraint(NotConstraint(IsEmpty(Source)), NotConstraint(IsFaceUp(TopCardOf(Source))))
+  val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))
+
 }

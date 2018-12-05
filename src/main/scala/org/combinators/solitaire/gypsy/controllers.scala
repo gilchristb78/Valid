@@ -40,7 +40,7 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(buildablePile))
-      //.addCombinator (new buildablePilePress.CP2()) //TODO add back when flip-press added
+      .addCombinator (new buildablePilePress.CP2())
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(deck))
@@ -121,7 +121,6 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
 
     val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed)
   }
-
 }
 
 

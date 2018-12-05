@@ -11,7 +11,7 @@ package object gypsy extends variationPoints {
       layout = Layout(map),
       deal = getDeal,
       specializedElements = Seq.empty,
-      moves = Seq(tableauToTableauMove, buildFoundation, foundationToTableauMove, deckDealMove),
+      moves = Seq(tableauToTableauMove, buildFoundation, foundationToTableauMove, flipMove, deckDealMove),
       logic = BoardState(Map(Foundation -> 104)),
       solvable = false
     )
