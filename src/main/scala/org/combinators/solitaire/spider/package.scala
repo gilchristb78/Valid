@@ -10,7 +10,7 @@ package object spider extends variationPoints {
       layout = Layout(map),
       deal = getDeal,
       specializedElements = Seq.empty,
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
       logic = BoardState(Map(Foundation -> 104)),
       solvable = false
     )

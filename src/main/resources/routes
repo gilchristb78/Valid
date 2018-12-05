@@ -39,6 +39,7 @@
 
 ->    /                              org.combinators.solitaire.alpha.Alpha
 ->    /                              org.combinators.solitaire.beta.Beta
+->    /                              org.combinators.solitaire.delta.Delta
 
 ->    /                              org.combinators.solitaire.golf.GolfController
 ->    /                              org.combinators.solitaire.golf.Golf_no_wrapController
@@ -50,6 +51,17 @@
 
 ->    /                              org.combinators.solitaire.spider.SpiderController
 ->    /                              org.combinators.solitaire.spider.SpideretteController
+->    /                              org.combinators.solitaire.spider.ScorpionController
+->    /                              org.combinators.solitaire.spider.MrsMopController
+->    /                              org.combinators.solitaire.spider.GiganticController
+->    /                              org.combinators.solitaire.spider.SpiderwortController
+->    /                              org.combinators.solitaire.spider.BabyController
+->    /                              org.combinators.solitaire.spider.OpenSpiderController
+->    /                              org.combinators.solitaire.spider.OpenScorpionController
+
+
+
+
 
 
 ->    /                              org.combinators.solitaire.gypsy.GypsyController

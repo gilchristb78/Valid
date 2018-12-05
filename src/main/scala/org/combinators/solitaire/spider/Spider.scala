@@ -12,6 +12,15 @@ import org.combinators.templating.persistable.JavaPersistable._
 import play.api.inject.ApplicationLifecycle
 import org.combinators.solitaire.spider.spider
 import org.combinators.solitaire.spiderette.spiderette
+import org.combinators.solitaire.scorpion.scorpion
+import org.combinators.solitaire.mrsmop.mrsmop
+import org.combinators.solitaire.gigantic.gigantic
+import org.combinators.solitaire.spiderwort.spiderwort
+import org.combinators.solitaire.baby.baby
+import org.combinators.solitaire.openspider.openspider
+import org.combinators.solitaire.openscorpion.openscorpion
+
+
 
 class SpiderVariationController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
@@ -42,4 +51,39 @@ class SpiderController @Inject()(webJars: WebJarsUtil, applicationLifecycle: App
 class SpideretteController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends SpiderVariationController(webJars, applicationLifecycle) {
   override lazy val variation = spiderette
+}
+
+class ScorpionController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SpiderVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = scorpion
+}
+
+class MrsMopController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SpiderVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = mrsmop
+}
+
+class GiganticController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SpiderVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = gigantic
+}
+
+class SpiderwortController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SpiderVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = spiderwort
+}
+
+class BabyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SpiderVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = baby
+}
+
+class OpenSpiderController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SpiderVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = openspider
+}
+
+class OpenScorpionController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SpiderVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = openscorpion
 }
