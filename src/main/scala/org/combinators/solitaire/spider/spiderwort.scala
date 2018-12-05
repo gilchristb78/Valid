@@ -5,7 +5,7 @@ import org.combinators.solitaire.spider.variationPoints
 
 
 package object spiderwort extends variationPoints {
-  
+
   override def numTableau(): Int ={
     13
   }

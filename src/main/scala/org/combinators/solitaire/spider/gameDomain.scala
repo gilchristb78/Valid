@@ -27,6 +27,12 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
         case (registry:CodeGeneratorRegistry[Expression], c:AllSameRank) =>
           val moving = registry(c.movingCards).get
           Java(s"(($pkg.$varName)game).allSameRank($moving)").expression()
+      },
+
+      CodeGeneratorRegistry[Expression, EmptyPiles] {
+        case (registry:CodeGeneratorRegistry[Expression], c:EmptyPiles) =>
+          val source = registry(c.src).get
+          Java(s"(($pkg.$varName)game).emptyPiles($source)").expression()
       }
     ).merge(constraintCodeGenerators.generators)
   }
@@ -113,6 +119,13 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
               |            return true;
               |        }
               |    }
+              |
+              | public boolean emptyPiles(Stack[] group) {
+              |   for (int i = 0; i < group.length; i++) {
+              |       if (group[i].empty()) { return true; }
+              |   }
+              |  return false;
+              | }
               |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
 
     }
