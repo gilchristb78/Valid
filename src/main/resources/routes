@@ -65,6 +65,7 @@
 
 
 ->    /                              org.combinators.solitaire.gypsy.GypsyController
+->    /                              org.combinators.solitaire.gypsy.GiantController
 
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()

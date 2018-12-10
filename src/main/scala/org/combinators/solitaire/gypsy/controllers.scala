@@ -40,7 +40,10 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(buildablePile))
-      .addCombinator (new buildablePilePress.CP2())
+
+    // Giant does not need flipmoves
+    //if (!s.name.equals("Giant"))
+      updated = updated.addCombinator (new buildablePilePress.CP2())
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(deck))

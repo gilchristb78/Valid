@@ -43,9 +43,9 @@ trait variationPoints {
       SameSuit(BottomCardOf(MovingCards), TopCardOf(Destination))))
 
   val buildFoundation:Move = MultipleCardsMove("BuildFoundation", Drag,
-    source=(Tableau, NotConstraint(IsEmpty(Source))), target=Some((Foundation, tf_tgt)))
+    source=(Tableau, Truth), target=Some((Foundation, tf_tgt)))
 
-  val foundationToTableauConstraint = OrConstraint(
+  val foundationToTableauConstraint:Constraint = OrConstraint(
     IsEmpty(Destination),
     AndConstraint(
       OppositeColor(MovingCard, TopCardOf(Destination)),

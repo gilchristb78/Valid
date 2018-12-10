@@ -9,6 +9,7 @@ import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
+import org.combinators.solitaire.giant.giant
 
 class GypsyVariationController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
@@ -33,4 +34,8 @@ class GypsyVariationController @Inject()(webJars: WebJarsUtil, applicationLifecy
 class GypsyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends GypsyVariationController(webJars, applicationLifecycle) {
   override lazy val variation = gypsy
+}
+class GiantController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends GypsyVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = giant
 }
