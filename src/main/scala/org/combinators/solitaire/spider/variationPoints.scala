@@ -15,6 +15,8 @@ import org.combinators.templating.twirl.Java
 trait variationPoints {
 
   case class AllSameSuit(movingCards: MoveInformation) extends Constraint
+  case class AllSameRank(movingCards: MoveInformation) extends Constraint
+  case class EmptyPiles(src:MoveInformation) extends Constraint
 
   def numTableau(): Int ={
     10
@@ -86,8 +88,9 @@ trait variationPoints {
   val tableauToFoundationMove:Move = MultipleCardsMove("MoveCardFoundation", Drag,
     source=(Tableau,Truth), target=Some((Foundation, AndConstraint( IsEmpty(Destination), buildOnFoundation(MovingCards)))))
 
+  val deckCon = AndConstraint(NotConstraint(IsEmpty(Source)), NotConstraint(EmptyPiles(Tableau)))
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
-    source=(StockContainer, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
+    source=(StockContainer, deckCon), target=Some((Tableau, Truth)))
 
   val allowed = AndConstraint(NotConstraint(IsEmpty(Source)), NotConstraint(IsFaceUp(TopCardOf(Source))))
   val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))

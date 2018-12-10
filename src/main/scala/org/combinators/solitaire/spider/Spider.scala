@@ -19,6 +19,7 @@ import org.combinators.solitaire.spiderwort.spiderwort
 import org.combinators.solitaire.baby.baby
 import org.combinators.solitaire.openspider.openspider
 import org.combinators.solitaire.openscorpion.openscorpion
+import org.combinators.solitaire.curdsandwhey.curdsandwhey
 
 
 
@@ -86,4 +87,9 @@ class OpenSpiderController @Inject()(webJars: WebJarsUtil, applicationLifecycle:
 class OpenScorpionController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends SpiderVariationController(webJars, applicationLifecycle) {
   override lazy val variation = openscorpion
+}
+
+class CurdsAndWheyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SpiderVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = curdsandwhey
 }
