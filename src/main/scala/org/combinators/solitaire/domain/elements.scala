@@ -1,5 +1,8 @@
 package org.combinators.solitaire.domain
 
+import com.github.javaparser.ast.body.BodyDeclaration
+import org.combinators.templating.twirl.Java
+
 /**
   * Variation-specific element sub-types are allowed.
   *
@@ -8,9 +11,11 @@ package org.combinators.solitaire.domain
   * Determines whether view is one card at a time (like Pile) or multiple (like Column, Row).
   */
 abstract class Element(
-      val viewOneAtATime: Boolean,
-      val verticalOrientation:Boolean = true) {
-
+                        val viewOneAtATime: Boolean,
+                        val verticalOrientation:Boolean = true,
+                        val modelMethods:BodyDeclaration[_] = Java(s"""""").classBodyDeclaration(),
+                        val viewMethods:BodyDeclaration[_] = Java(s"""""").classBodyDeclaration())
+                        {
   // case classes have $ in their name
   def name:String = getClass.getSimpleName.replace("$","")
 }

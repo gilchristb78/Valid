@@ -26,6 +26,9 @@
 ->    /                              org.combinators.solitaire.fan.ScotchPatienceController
 ->    /                              org.combinators.solitaire.fan.FanTwoDeckController
 ->    /                              org.combinators.solitaire.fan.FanEasyController
+->    /                              org.combinators.solitaire.fan.LaBelleLucieController
+->    /                              org.combinators.solitaire.fan.SuperFlowerGardenController
+->    /                              org.combinators.solitaire.fan.TrefoilController
 
 ->    /                              org.combinators.solitaire.klondike.KlondikeController
 ->    /                              org.combinators.solitaire.klondike.WhiteheadController

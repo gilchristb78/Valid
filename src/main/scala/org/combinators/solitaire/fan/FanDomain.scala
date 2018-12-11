@@ -1,6 +1,6 @@
 package org.combinators.solitaire.fan
 
-import com.github.javaparser.ast.ImportDeclaration
+import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
 import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.stmt.Statement
@@ -10,8 +10,10 @@ import org.combinators.cls.types.syntax._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 import org.combinators.templating.twirl.Java
-import org.combinators.solitaire.domain.{Element, MaxSizeConstraint, Solitaire}
+import org.combinators.solitaire.domain.{Element, Solitaire}
 import org.combinators.solitaire.fanfreepile.FreePile
+import org.combinators.solitaire.alexanderthegreat.AlexColumn
+import org.combinators.solitaire.shamrocks.MaxSizeConstraint
 
 /**
   * Defines Java package, the game's name, initializes the domain model,
@@ -23,6 +25,7 @@ class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solit
   override def baseModelNameFromElement (e:Element): String = {
     e match {
       case FreePile => "Pile"
+      case AlexColumn => "Column"
       case _ => super.baseModelNameFromElement(e)
     }
   }
@@ -30,9 +33,11 @@ class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solit
   override def baseViewNameFromElement (e:Element): String = {
     e match {
       case FreePile => "PileView"
+      case AlexColumn => "ColumnView"
       case _ => super.baseViewNameFromElement(e)
     }
   }
+
   object fanCodeGenerator {
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
       CodeGeneratorRegistry[Expression, MaxSizeConstraint] {
@@ -51,6 +56,25 @@ class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = constraints(constraints.generator)
   }
 
+
+  object oneTimeUseGenerator {
+    val generators: CodeGeneratorRegistry[Seq[Statement]] = CodeGeneratorRegistry.merge[Seq[Statement]](
+
+      CodeGeneratorRegistry[Seq[Statement], SingleCardMoveHandler] {
+        // retrieve old statements, and just add one more
+        case (registry: CodeGeneratorRegistry[Seq[Statement]], r: SingleCardMoveHandler) =>
+          val old:Seq[Statement] = constraintCodeGenerators.doGenerators(r).get
+          old ++ Java(s"""        if (ConstraintHelper.isFromMiddleMove) {
+                         |        	ConstraintHelper.fromMiddleMove = this;
+                         |        }""").statements()
+      },
+
+    ).merge(constraintCodeGenerators.doGenerators)
+
+
+
+
+  }
   /** Each Solitaire variation must provide default do generation. */
   @combinator object DefaultDoGenerator {
     def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.doGenerators
@@ -70,9 +94,12 @@ class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solit
       val methods = generateHelper.helpers(solitaire)
 
       methods ++ Java(s"""
+                         |public static boolean isFromMiddleMove = false;
+                         |public static Move fromMiddleMove = null;
+                         |public static int fromMiddleIndex = 0;
                          |public static boolean maxSizeExceeded(Card moving, Stack destination, int max) {
                          | return destination.count() < max;
-                         |}""".stripMargin).methodDeclarations()
+                         |}""".stripMargin).classBodyDeclarations()
     }
 
     val semanticType: Type = constraints(constraints.methods)

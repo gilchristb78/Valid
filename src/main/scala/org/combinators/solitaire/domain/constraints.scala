@@ -20,7 +20,6 @@ case class OppositeColor(on: MoveInformation, other:MoveInformation) extends Con
 case class SameColor(on: MoveInformation, other:MoveInformation) extends Constraint
 case class SameRank(on: MoveInformation, other:MoveInformation) extends Constraint
 case class SameSuit(on: MoveInformation, other:MoveInformation) extends Constraint
-case class MaxSizeConstraint(movingCards: MoveInformation, destination:MoveInformation, maxSize:Int) extends Constraint
 
 case object Truth extends Constraint
 case object Falsehood extends Constraint

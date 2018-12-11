@@ -9,6 +9,7 @@ import scala.util.Random
 
 
 package object shamrocks extends variationPoints {
+  case class MaxSizeConstraint(movingCards: MoveInformation, destination:MoveInformation, maxSize:Int) extends Constraint
 
   override def buildOnTableau (card: MovingCard.type): Constraint = {
     val topDestination = TopCardOf(Destination)

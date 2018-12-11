@@ -14,6 +14,11 @@ import org.combinators.solitaire.shamrocks.shamrocks
 import org.combinators.solitaire.scotchpatience.scotchpatience
 import org.combinators.solitaire.fantwodeck.fantwodeck
 import org.combinators.solitaire.faneasy.faneasy
+import org.combinators.solitaire.labellelucie.labellelucie
+import org.combinators.solitaire.superflowergarden.superflowergarden
+import org.combinators.solitaire.alexanderthegreat.alexanderthegreat
+import org.combinators.solitaire.trefoil.trefoil
+
 
 abstract class FanVariationController(web: WebJarsUtil, app: ApplicationLifecycle) extends InhabitationController(web, app) with RoutingEntries {
 
@@ -63,4 +68,24 @@ class FanTwoDeckController @Inject()(webJars: WebJarsUtil, applicationLifecycle:
 class FanEasyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
   override lazy val variation = faneasy
+}
+
+class LaBelleLucieController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends FanVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = labellelucie
+}
+
+class SuperFlowerGardenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends FanVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = superflowergarden
+}
+
+class TrefoilController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends FanVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = trefoil
+}
+
+class AlexanderTheGreatController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends FanVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = alexanderthegreat
 }

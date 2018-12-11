@@ -81,10 +81,10 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
       val parent: String = baseModelNameFromElement(e)    // e.getClass.getSuperclass.getSimpleName
       val name: String = e.name
       updated = updated
-        .addCombinator(new ExtendModel(parent, name, classes(name)))
+        .addCombinator(new ExtendModel(parent, name, classes(name), e.modelMethods))
 
       updated = updated
-        .addCombinator(new ExtendView(baseViewNameFromElement(e), viewNameFromElement(e), name, classes(viewNameFromElement(e))))
+        .addCombinator(new ExtendView(baseViewNameFromElement(e), viewNameFromElement(e), name, classes(viewNameFromElement(e)), e.viewMethods))
     }
 
     updated
@@ -118,7 +118,7 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
     val semanticType: Type = game(game.autoMoves)
   }
 
-  class ExtendModel(parent: String, subclass: String, typ:Constructor) {
+  class ExtendModel(parent: String, subclass: String, typ:Constructor, modelMethods:BodyDeclaration[_] = Java(s"""""").classBodyDeclaration()) {
 
     def apply(rootPackage: Name): CompilationUnit = {
       val name = rootPackage.toString()
@@ -128,6 +128,7 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
 		  public $subclass (String name) {
 		    super(name);
 		  }
+      $modelMethods
 		}
 	     """).compilationUnit()
     }
@@ -135,7 +136,7 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
     val semanticType : Type = packageName =>: typ
   }
 
-  class ExtendView(parent: String, subclass: String, model: String, typ:Constructor) {
+  class ExtendView(parent: String, subclass: String, model: String, typ:Constructor, viewMethods:BodyDeclaration[_] =  Java(s"""""").classBodyDeclaration()) {
 
     def apply(rootPackage: Name): CompilationUnit = {
       val name = rootPackage.toString()
@@ -145,6 +146,7 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
                   public $subclass ($model element) {
                     super(element);
                   }
+                  $viewMethods
                 }
              """).compilationUnit()
     }

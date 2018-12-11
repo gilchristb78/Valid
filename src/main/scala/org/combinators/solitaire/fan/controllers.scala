@@ -33,10 +33,15 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
     updated = createMoveClasses(updated, s)
     updated = createDragLogic(updated, s)
     updated = generateMoveLogic(updated, s)
+    updated = generateExtendedClasses(updated, s)
+
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(column))
       .addCombinator (new SingleCardMoveHandler(column))
+    updated = updated
+      .addCombinator (new IgnoreClickedHandler('AlexColumn))
+      .addCombinator (new SingleCardMoveHandler('AlexColumn))
 
 
     updated = updated
