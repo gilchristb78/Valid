@@ -11,7 +11,7 @@ package object mrsmop extends variationPoints {
   }
 
   override def numFoundation(): Int ={
-    4
+    8
   }
 
   override def numStock(): Int ={

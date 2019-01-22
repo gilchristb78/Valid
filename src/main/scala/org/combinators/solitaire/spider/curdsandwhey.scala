@@ -40,7 +40,7 @@ package object curdsandwhey extends variationPoints {
 
   // curds and whey allows us to build down like suit, or to stack cards of the same rank
   // we can move a column if it's built down as a single suit, or if it is all cards of the same rank
-  // BUT, we can't
+  // BUT, we can't if it fulfills both conditions (xor)
   override def buildOnTableau(cards: MovingCards.type): Constraint = {
     val topDestination = TopCardOf(Destination)
     val bottomMoving = BottomCardOf(cards)
@@ -62,7 +62,8 @@ package object curdsandwhey extends variationPoints {
       layout = Layout(map),
       deal = getDeal,
       specializedElements = Seq.empty,
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove, flipMove),
+      //moves = Seq(tableauToTableauMove, tableauToFoundationMove, flipMove),
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Foundation -> 52)),
       solvable = false
     )

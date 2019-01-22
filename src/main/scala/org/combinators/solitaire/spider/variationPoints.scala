@@ -1,15 +1,7 @@
 package org.combinators.solitaire.spider
 
-import com.github.javaparser.ast.expr.SimpleName
-import com.github.javaparser.ast.stmt.Statement
-import org.combinators.cls.interpreter.ReflectedRepository
-import org.combinators.cls.types.Type
-import org.combinators.cls.types.syntax._
-import org.combinators.generic
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.shared
-import org.combinators.solitaire.shared._
-import org.combinators.templating.twirl.Java
+
 /** Defines Spider's variation points
   */
 trait variationPoints {
@@ -47,18 +39,11 @@ trait variationPoints {
   def getDeal: Seq[DealStep] = {
     var colNum:Int = 0
     var dealSeq:Seq[DealStep] = Seq()// doesn't like me declaring it without initializing
-    //first four piles get 5 face down cards
     for (colNum <- 0 to 3) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = 5))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 6))
     }
-    //the rest get 4 face down cards
     for (colNum <- 4 to 9) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = false, numCards = 4))
-    }
-    //each pile gets a face up card
-    colNum = 0
-    for (colNum <- 0 to 9) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 5))
     }
     dealSeq
   }
@@ -92,6 +77,6 @@ trait variationPoints {
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     source=(StockContainer, deckCon), target=Some((Tableau, Truth)))
 
-  val allowed = AndConstraint(NotConstraint(IsEmpty(Source)), NotConstraint(IsFaceUp(TopCardOf(Source))))
-  val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))
+  //val allowed = AndConstraint(NotConstraint(IsEmpty(Source)), NotConstraint(IsFaceUp(TopCardOf(Source))))
+  //val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))
 }

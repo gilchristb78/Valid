@@ -42,7 +42,22 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(buildablePile))
-      .addCombinator (new buildablePilePress.CP2())
+
+
+    //determine if our variation needs the buildablePilePress controller
+    //if(s.isInstanceOf[closedVariationPoints]){
+    var flip = 0
+    for( m <- s.moves) {
+      //TODO try utilizing movetype here?
+      if (m.name contains "FlipCard") {
+        flip = 1
+      }
+    }
+
+    if(flip == 1){
+      updated = updated
+        .addCombinator (new buildablePilePress.CP2())
+    }
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(deck))

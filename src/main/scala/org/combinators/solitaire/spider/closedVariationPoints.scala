@@ -1,9 +1,10 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.spider
 
 import org.combinators.solitaire.domain._
 
-
-package object spider extends closedVariationPoints {
+/** Additional shared code for spider variations with face-down cards
+  */
+trait closedVariationPoints extends variationPoints{
 
   override def getDeal: Seq[DealStep] = {
     var colNum:Int = 0
@@ -24,15 +25,6 @@ package object spider extends closedVariationPoints {
     dealSeq
   }
 
-  val spider:Solitaire = {
-    Solitaire(name = "Spider",
-      structure = structureMap,
-      layout = Layout(map),
-      deal = getDeal,
-      specializedElements = Seq.empty,
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
-      logic = BoardState(Map(Foundation -> 104)),
-      solvable = false
-    )
-  }
+  val allowed = AndConstraint(NotConstraint(IsEmpty(Source)), NotConstraint(IsFaceUp(TopCardOf(Source))))
+  val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))
 }
