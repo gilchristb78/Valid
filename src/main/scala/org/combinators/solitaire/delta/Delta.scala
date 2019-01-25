@@ -1,27 +1,26 @@
-package org.combinators.solitaire.beta
+package org.combinators.solitaire.delta
 
 import com.github.javaparser.ast.CompilationUnit
 import javax.inject.Inject
-import org.combinators.cls.git._
+import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, InhabitationController, Results, RoutingEntries}
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Constructor
+import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared.cls.Synthesizer
-import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
+import org.combinators.templating.persistable.JavaPersistable._
 
-/** Loads and runs the combinators to generate the Beta variation.
-  *
-  * @param webJars
-  */
-class Beta @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
+class Delta @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val solitaire = beta// new domain.beta.Domain()
+  val solitaire: Solitaire = delta
 
-  lazy val repository = new BetaDomain(solitaire) with controllers {}
+  // FreeCellDomain is base class for the solitaire variation. Note that this
+  // class is used (essentially) as a placeholder for the solitaire val,
+  // which can then be referred to anywhere as needed.
+  lazy val repository = new DeltaDomain(solitaire) with controllers {}
 
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
-
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
@@ -31,5 +30,5 @@ class Beta @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLife
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
   lazy val controllerAddress: String = solitaire.name.toLowerCase
-
 }
+  

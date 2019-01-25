@@ -42,6 +42,12 @@ package object domain {
       source=source, target=target)
   }
 
+  def FlipCardMove(name:String, gesture:GestureType,
+                           source:(ContainerType,Constraint)):Move = {
+    Move(name, FlipCard, gesture, movableElement=Card,
+      source=source, target=None)
+  }
+
   def RemoveMultipleCardsMove(name:String, gesture:GestureType,
                            source:(ContainerType,Constraint),
                            target:Option[(ContainerType,Constraint)]):Move = {

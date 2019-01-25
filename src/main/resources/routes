@@ -43,6 +43,39 @@
 
 ->    /                              org.combinators.solitaire.alpha.Alpha
 ->    /                              org.combinators.solitaire.beta.Beta
+->    /                              org.combinators.solitaire.delta.Delta
+
+->    /                              org.combinators.solitaire.golf.GolfController
+->    /                              org.combinators.solitaire.golf.Golf_no_wrapController
+->    /                              org.combinators.solitaire.golf.AllInARowController
+->    /                              org.combinators.solitaire.golf.FlakeController
+->    /                              org.combinators.solitaire.golf.Flake_two_decksController
+->    /                              org.combinators.solitaire.golf.RobertController
+
+
+->    /                              org.combinators.solitaire.spider.SpiderController
+->    /                              org.combinators.solitaire.spider.SpideretteController
+->    /                              org.combinators.solitaire.spider.ScorpionController
+->    /                              org.combinators.solitaire.spider.MrsMopController
+->    /                              org.combinators.solitaire.spider.GiganticController
+->    /                              org.combinators.solitaire.spider.SpiderwortController
+->    /                              org.combinators.solitaire.spider.BabyController
+->    /                              org.combinators.solitaire.spider.OpenSpiderController
+->    /                              org.combinators.solitaire.spider.OpenScorpionController
+->    /                              org.combinators.solitaire.spider.CurdsAndWheyController
+
+
+
+
+
+
+
+->    /                              org.combinators.solitaire.gypsy.GypsyController
+->    /                              org.combinators.solitaire.gypsy.GiantController
+->    /                              org.combinators.solitaire.gypsy.NomadController
+->    /                              org.combinators.solitaire.gypsy.EastHavenController
+->    /                              org.combinators.solitaire.gypsy.IrmgardController
+->    /                              org.combinators.solitaire.gypsy.MilliganCellController
 
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()
