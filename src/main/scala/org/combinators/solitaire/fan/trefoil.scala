@@ -37,7 +37,8 @@ package object trefoil extends variationPoints{
       deal = getDeal2,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove2, tableauToFoundationMove),
-      logic = BoardState(Map(Tableau-> 0, Foundation->52))
+      logic = BoardState(Map(Tableau-> 0, Foundation->52)),
+      solvable = true
     )
   }
 }

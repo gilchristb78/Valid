@@ -81,10 +81,10 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
       val parent: String = baseModelNameFromElement(e)    // e.getClass.getSuperclass.getSimpleName
       val name: String = e.name
       updated = updated
-        .addCombinator(new ExtendModel(parent, name, classes(name), e.modelMethods))
+        .addCombinator(new ExtendModel(parent, name, classes(name), e.modelMethods, e.modelImports))
 
       updated = updated
-        .addCombinator(new ExtendView(baseViewNameFromElement(e), viewNameFromElement(e), name, classes(viewNameFromElement(e)), e.viewMethods))
+        .addCombinator(new ExtendView(baseViewNameFromElement(e), viewNameFromElement(e), name, classes(viewNameFromElement(e)), e.viewMethods, e.viewImports))
     }
 
     updated
@@ -118,37 +118,44 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
     val semanticType: Type = game(game.autoMoves)
   }
 
-  class ExtendModel(parent: String, subclass: String, typ:Constructor, modelMethods:BodyDeclaration[_] = Java(s"""""").classBodyDeclaration()) {
+  class ExtendModel(parent: String, subclass: String, typ:Constructor, modelMethods:Seq[BodyDeclaration[_]] = Seq.empty, modelImports:Seq[ImportDeclaration] =  Seq.empty) {
 
     def apply(rootPackage: Name): CompilationUnit = {
       val name = rootPackage.toString()
-      Java(s"""package $name;
+      val comp = Java(s"""package $name;
                 import ks.common.model.*;
                 public class $subclass extends $parent {
 		  public $subclass (String name) {
 		    super(name);
 		  }
-      $modelMethods
 		}
 	     """).compilationUnit()
+
+      val clazz  = comp.getTypes.get(0)
+      modelMethods.foreach {m => clazz.addMember(m) }
+      modelImports.foreach { i => comp.addImport(i) }
+      comp
     }
 
     val semanticType : Type = packageName =>: typ
   }
 
-  class ExtendView(parent: String, subclass: String, model: String, typ:Constructor, viewMethods:BodyDeclaration[_] =  Java(s"""""").classBodyDeclaration()) {
+  class ExtendView(parent: String, subclass: String, model: String, typ:Constructor, viewMethods:Seq[BodyDeclaration[_]] =  Seq.empty, viewImports:Seq[ImportDeclaration] =  Seq.empty) {
 
     def apply(rootPackage: Name): CompilationUnit = {
       val name = rootPackage.toString()
-      Java(s"""package $name;
+      val comp  = Java(s"""package $name;
                 import ks.common.view.*;
                 public class $subclass extends $parent {
                   public $subclass ($model element) {
                     super(element);
                   }
-                  $viewMethods
                 }
-             """).compilationUnit()
+             """)compilationUnit()
+      val clazz  = comp.getTypes.get(0)
+      viewMethods.foreach {m => clazz.addMember(m) }
+      viewImports.foreach {i => comp.addImport(i) }
+      comp
     }
 
     val semanticType : Type = packageName =>: typ

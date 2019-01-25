@@ -29,6 +29,7 @@
 ->    /                              org.combinators.solitaire.fan.LaBelleLucieController
 ->    /                              org.combinators.solitaire.fan.SuperFlowerGardenController
 ->    /                              org.combinators.solitaire.fan.TrefoilController
+->    /                              org.combinators.solitaire.fan.AlexanderTheGreatController
 
 ->    /                              org.combinators.solitaire.klondike.KlondikeController
 ->    /                              org.combinators.solitaire.klondike.WhiteheadController

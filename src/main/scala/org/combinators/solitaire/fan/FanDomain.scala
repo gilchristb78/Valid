@@ -133,30 +133,32 @@ class FanDomain(override val solitaire: Solitaire) extends SolitaireDomain(solit
   @combinator object ExtraMethods {
     def apply(): Seq[MethodDeclaration] =
 
-      Java(s"""public java.util.Enumeration<Move> availableMoves() {
-              |  java.util.Vector<Move> v = new java.util.Vector<Move>();
-              |        for (Column c : tableau) {
-              |            for (Pile p : foundation) {
-              |                PotentialMoveCardFoundation pfm = new PotentialMoveCardFoundation(c, p);
-              |                if (pfm.valid(this)) {
-              |                    v.add(pfm);
-              |                }
-              |            }
-              |        }
-              |        if (v.isEmpty()) {
-              |            for (Column c : tableau) {
-              |
+        Java(
+          s"""public java.util.Enumeration<Move> availableMoves() {
+             |  java.util.Vector<Move> v = new java.util.Vector<Move>();
+             |        for (Column c : tableau) {
+             |            for (Pile p : foundation) {
+             |                PotentialMoveCardFoundation pfm = new PotentialMoveCardFoundation(c, p);
+             |                if (pfm.valid(this)) {
+             |                    v.add(pfm);
+             |                }
+             |            }
+             |        }
+             |        if (v.isEmpty()) {
+             |            for (Column c : tableau) {
+             |
               |            for (Column c2 : tableau) {
-              |                PotentialMoveCard pm = new PotentialMoveCard(c, c2);
-              |                if (pm.valid(this)) {
-              |                    v.add(pm);
-              |                }
-              |            }
-              |           }
-              |        }
-              |        return v.elements();
-              |}
+             |                PotentialMoveCard pm = new PotentialMoveCard(c, c2);
+             |                if (pm.valid(this)) {
+             |                    v.add(pm);
+             |                }
+             |            }
+             |           }
+             |        }
+             |        return v.elements();
+             |}
        """.stripMargin).methodDeclarations()
+
 
     val semanticType: Type = game(game.methods :&: game.availableMoves)
   }

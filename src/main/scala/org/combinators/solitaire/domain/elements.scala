@@ -1,5 +1,6 @@
 package org.combinators.solitaire.domain
 
+import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.templating.twirl.Java
 
@@ -13,8 +14,10 @@ import org.combinators.templating.twirl.Java
 abstract class Element(
                         val viewOneAtATime: Boolean,
                         val verticalOrientation:Boolean = true,
-                        val modelMethods:BodyDeclaration[_] = Java(s"""""").classBodyDeclaration(),
-                        val viewMethods:BodyDeclaration[_] = Java(s"""""").classBodyDeclaration())
+                        val modelMethods:Seq[BodyDeclaration[_]] = Seq.empty,
+                        val viewMethods:Seq[BodyDeclaration[_]] = Seq.empty,
+                        val modelImports:Seq[ImportDeclaration] = Seq.empty,
+                        val viewImports:Seq[ImportDeclaration] = Seq.empty)
                         {
   // case classes have $ in their name
   def name:String = getClass.getSimpleName.replace("$","")
