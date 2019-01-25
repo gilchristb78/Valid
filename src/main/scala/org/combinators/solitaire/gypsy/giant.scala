@@ -10,17 +10,14 @@ package object giant extends variationPoints {
     Seq(DealStep(ContainerTarget(Tableau)))
   }
 
-  val giantFoundationToTableauConstraint:Constraint = AndConstraint(
-    IsEmpty(StockContainer),
+  override def foundationToTableauConstraint:Constraint = AndConstraint(
+    IsEmpty(Destination),
     OrConstraint(
     IsEmpty(Destination),
     AndConstraint(
       OppositeColor(MovingCard, TopCardOf(Destination)),
       NextRank(TopCardOf(Destination), MovingCard))
     ))
-
-  override val foundationToTableauMove:Move = SingleCardMove("MoveFoundationToTableau", Drag,
-    source=(Foundation,Truth), target=Some((Tableau, giantFoundationToTableauConstraint)))
 
   val giant:Solitaire = {
     Solitaire(name = "Giant",

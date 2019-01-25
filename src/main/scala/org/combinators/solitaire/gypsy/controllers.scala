@@ -41,6 +41,11 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(buildablePile))
 
+    if (s.name.equals("Nomad") || s.name.equals("MilliganCell")) {
+      updated = updated.addCombinator(new IgnoreClickedHandler('FreeCell))
+        .addCombinator(new SingleCardMoveHandler('FreeCell))
+    }
+
     // Giant does not need flipmoves
     //if (!s.name.equals("Giant"))
       updated = updated.addCombinator (new buildablePilePress.CP2())

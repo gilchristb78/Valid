@@ -68,6 +68,10 @@
 
 ->    /                              org.combinators.solitaire.gypsy.GypsyController
 ->    /                              org.combinators.solitaire.gypsy.GiantController
+->    /                              org.combinators.solitaire.gypsy.NomadController
+->    /                              org.combinators.solitaire.gypsy.EastHavenController
+->    /                              org.combinators.solitaire.gypsy.IrmgardController
+->    /                              org.combinators.solitaire.gypsy.MilliganCellController
 
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()

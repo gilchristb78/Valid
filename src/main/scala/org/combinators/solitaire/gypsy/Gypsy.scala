@@ -10,6 +10,10 @@ import org.combinators.templating.persistable.JavaPersistable._
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
 import org.combinators.solitaire.giant.giant
+import org.combinators.solitaire.nomad.nomad
+import org.combinators.solitaire.easthaven.easthaven
+import org.combinators.solitaire.irmgard.irmgard
+import org.combinators.solitaire.milligancell.milligancell
 
 class GypsyVariationController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
@@ -38,4 +42,20 @@ class GypsyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: Appl
 class GiantController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends GypsyVariationController(webJars, applicationLifecycle) {
   override lazy val variation = giant
+}
+class NomadController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends GypsyVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = nomad
+}
+class EastHavenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends GypsyVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = easthaven
+}
+class IrmgardController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends GypsyVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = irmgard
+}
+class MilliganCellController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends GypsyVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = milligancell
 }

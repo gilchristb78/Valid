@@ -5,20 +5,21 @@ import org.combinators.solitaire.domain._
 /** Defines Gypsy's variation points
   */
 trait variationPoints {
-
   case class AllSameSuit(movingCards: MoveInformation) extends Constraint
-  val numStock:Int = 2
+  def getNumStock():Int = 2
+  def getNumTableau():Int = 8
+  def getNumFoundation():Int = 8
 
   val map:Map[ContainerType, Seq[Widget]] = Map (
-    Tableau -> horizontalPlacement(15, 200, 8, 13*card_height),
+    Tableau -> horizontalPlacement(15, 200, getNumTableau(), 13*card_height),
     StockContainer -> horizontalPlacement(15, 20, 1, card_height),
-    Foundation -> horizontalPlacement(100, 20, 8, card_height)
+    Foundation -> horizontalPlacement(100, 20, getNumFoundation(), card_height)
   )
 
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
-    Tableau -> Seq.fill[Element](8)(BuildablePile),
-    Foundation -> Seq.fill[Element](8)(Pile),
-    StockContainer -> Seq(Stock(numStock))
+    Tableau -> Seq.fill[Element](getNumTableau())(BuildablePile),
+    Foundation -> Seq.fill[Element](getNumFoundation())(Pile),
+    StockContainer -> Seq(Stock(getNumStock()))
   )
 
   def getDeal(): Seq[DealStep] = {
@@ -33,7 +34,7 @@ trait variationPoints {
     val descend = Descending(cards)
     val suit = AlternatingColors(cards)
 
-    AndConstraint( AndConstraint(descend, suit, OppositeColor(topDestination, bottomMoving)), OrConstraint(isEmpty, NextRank(topDestination, bottomMoving)) )
+    OrConstraint(AndConstraint(isEmpty, descend, suit), AndConstraint(descend, suit, OppositeColor(topDestination, bottomMoving)))
   }
 
   val tf_tgt = IfConstraint(IsEmpty(Destination),
@@ -45,7 +46,7 @@ trait variationPoints {
   val buildFoundation:Move = MultipleCardsMove("BuildFoundation", Drag,
     source=(Tableau, Truth), target=Some((Foundation, tf_tgt)))
 
-  val foundationToTableauConstraint:Constraint = OrConstraint(
+  def foundationToTableauConstraint():Constraint = OrConstraint(
     IsEmpty(Destination),
     AndConstraint(
       OppositeColor(MovingCard, TopCardOf(Destination)),
@@ -56,7 +57,7 @@ trait variationPoints {
     source=(Tableau,Truth), target=Some((Tableau, buildOnTableau(MovingCards))))
 
   val foundationToTableauMove:Move = SingleCardMove("MoveFoundationToTableau", Drag,
-    source=(Foundation,Truth), target=Some((Tableau, foundationToTableauConstraint)))
+    source=(Foundation,Truth), target=Some((Tableau, foundationToTableauConstraint())))
 
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     source=(StockContainer, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))

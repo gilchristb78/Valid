@@ -11,8 +11,27 @@ import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 import org.combinators.templating.twirl.Java
+import org.combinators.solitaire.nomad
+import org.combinators.solitaire.milligancell
+
 
 class gypsyDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
+
+  override def baseModelNameFromElement (e:Element): String = {
+    e match {
+      case nomad.FreeCell => "Pile"
+      case milligancell.FreeCell => "Pile"
+      case _ => super.baseModelNameFromElement(e)
+    }
+  }
+
+  override def baseViewNameFromElement (e:Element): String = {
+    e match {
+      case nomad.FreeCell => "PileView"
+      case milligancell.FreeCell => "PileView"
+      case _ => super.baseViewNameFromElement(e)
+    }
+  }
 
   object gypsyCodeGenerator {
     def generators(pkg:Name, varName:SimpleName):CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
