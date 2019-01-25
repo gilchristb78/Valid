@@ -1,10 +1,10 @@
 package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.spider.variationPoints
+import org.combinators.solitaire.spider.closedVariationPoints
 
 
-package object gigantic extends variationPoints {
+package object gigantic extends closedVariationPoints {
 
   override def numTableau(): Int ={
     15
