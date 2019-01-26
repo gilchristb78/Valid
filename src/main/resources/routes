@@ -113,4 +113,9 @@ GET   /temperature/raw_:number              example.temperature.Temperature.raw(
 GET   /temperature/prepare                  example.temperature.Temperature.prepare(number: Long)
 GET   /temperature/temperature.git/*file    example.temperature.Temperature.serveFile(file)
 
+GET   /pyfan                          pysolfc.fan.Fan.overview()
+GET   /pyfan/raw_:number              pysolfc.fan.Fan.raw(number: Long)
+GET   /pyfan/prepare                  pysolfc.fan.Fan.prepare(number: Long)
+GET   /pyfan/pyfan.git/*file      pysolfc.fan.Fan.serveFile(file)
+
 ->    /                                   example.timeGadget.TimeGadget
