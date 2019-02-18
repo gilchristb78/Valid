@@ -42,7 +42,11 @@ class GolfVariationController @Inject()(webJars: WebJarsUtil, applicationLifecyc
 
   class GolfController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
     extends GolfVariationController(webJars, applicationLifecycle) {
+    val g0 = System.nanoTime()
     override lazy val variation = golf
+    val g1 = System.nanoTime()
+    println("---BASE GOLF TIME: " + (g1-g0) + " ns---")
+
   }
 
   class Golf_no_wrapController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -57,7 +61,11 @@ class GolfVariationController @Inject()(webJars: WebJarsUtil, applicationLifecyc
 
   class FlakeController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
     extends GolfVariationController(webJars, applicationLifecycle) {
+    val f0 = System.nanoTime()
     override lazy val variation = flake
+    val f1 = System.nanoTime()
+    println("---FLAKE GOLF TIME: " + (f1-f0) + " ns---")
+
   }
 
 class Flake_two_decksController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -67,7 +75,11 @@ class Flake_two_decksController @Inject() (webJars: WebJarsUtil, applicationLife
 
 class RobertController @Inject() (webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends GolfVariationController(webJars, applicationLifecycle) {
+  val r0 = System.nanoTime()
   override lazy val variation = robert
+  val r1 = System.nanoTime()
+  println("---ROBERT GOLF TIME: " + (r1-r0) + " ns---")
+
 }
 
 

@@ -45,7 +45,11 @@ class SpiderVariationController @Inject()(webJars: WebJarsUtil, applicationLifec
 
 class SpiderController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends SpiderVariationController(webJars, applicationLifecycle) {
+  val s0 = System.nanoTime()
   override lazy val variation = spider
+  val s1 = System.nanoTime()
+  println("---BASE SPIDER TIME: " + (s1-s0) + " ns---")
+
 }
 
 
@@ -56,7 +60,11 @@ class SpideretteController @Inject()(webJars: WebJarsUtil, applicationLifecycle:
 
 class ScorpionController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends SpiderVariationController(webJars, applicationLifecycle) {
+  val c0 = System.nanoTime()
   override lazy val variation = scorpion
+  val c1 = System.nanoTime()
+  println("---SCORPION SPIDER FAN TIME: " + (c1-c0) + " ns---")
+
 }
 
 class MrsMopController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -91,5 +99,8 @@ class OpenScorpionController @Inject()(webJars: WebJarsUtil, applicationLifecycl
 
 class CurdsAndWheyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends SpiderVariationController(webJars, applicationLifecycle) {
+  val w0 = System.nanoTime()
   override lazy val variation = curdsandwhey
+  val w1 = System.nanoTime()
+  println("---CURDS SPIDER TIME: " + (w1-w0) + " ns---")
 }

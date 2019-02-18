@@ -42,7 +42,10 @@ abstract class FanVariationController(web: WebJarsUtil, app: ApplicationLifecycl
 
 class FanController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
+  val f0 = System.nanoTime()
   override lazy val variation = fan
+  val f1 = System.nanoTime()
+  println("---BASE FAN TIME: " + (f1-f0) + " ns---")
 }
 
 class FanFreePileController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -57,7 +60,10 @@ class ScotchPatienceController @Inject()(webJars: WebJarsUtil, applicationLifecy
 
 class ShamrocksController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
+  val s0 = System.nanoTime()
   override lazy val variation = shamrocks
+  val s1 = System.nanoTime()
+  println("---SHAMROCKS FAN TIME: " + (s1-s0) + " ns---")
 }
 
 class FanTwoDeckController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -87,5 +93,8 @@ class TrefoilController @Inject()(webJars: WebJarsUtil, applicationLifecycle: Ap
 
 class AlexanderTheGreatController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends FanVariationController(webJars, applicationLifecycle) {
+  val a0 = System.nanoTime()
   override lazy val variation = alexanderthegreat
+  val a1 = System.nanoTime()
+  println("---ALEXANDER FAN TIME: " + (a1-a0) + " ns---")
 }

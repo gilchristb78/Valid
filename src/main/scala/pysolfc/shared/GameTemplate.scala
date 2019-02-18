@@ -170,6 +170,7 @@ trait GameTemplate extends Base with Initialization with Structure with DealLogi
           pair._2.head match {     // even if not visible, must update numDecks
             case Stock (nd) =>
               numDecks = nd
+              deckArrangement = 0
           }
         }
       )
