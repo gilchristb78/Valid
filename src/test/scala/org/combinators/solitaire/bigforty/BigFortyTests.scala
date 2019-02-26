@@ -5,6 +5,7 @@ import org.combinators.cls.interpreter._
 import domain.bigforty.Domain
 import domain.{Solitaire, SolitaireContainerTypes}
 import org.combinators.TypeNameStatistics
+import org.combinators.solitaire.domain.{Foundation, StockContainer, Tableau, Waste}
 import org.combinators.solitaire.shared.SolitaireDomainTest
 import org.scalatest.FunSpec
 
@@ -13,20 +14,20 @@ import scala.collection.JavaConverters._
 class BigFortyTests extends FunSpec {
 
   describe("Inhabitation") {
-    val domainModel:Solitaire = new Domain()
+    val domainModel = bigforty
 
     describe("KlondikeDomain Model") {
       it("Tableau is size 4.") {
-        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Tableau).next().size() == 10)
+        assert(domainModel.structure.get(Tableau).size == 10)
       }
       it("Foundation is size 4.") {
-        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Foundation).next().size() == 4)
+        assert(domainModel.structure.get(Foundation).size == 4)
       }
       it("Stock is size 1.") {
-        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Stock).next().size() == 1)
+        assert(domainModel.structure.get(StockContainer).size == 1)
       }
       it("Waste is size 1.") {
-        assert(domainModel.containers.asScala.filter(x => x.`type` == SolitaireContainerTypes.Waste).next().size() == 1)
+        assert(domainModel.structure.get(Waste).size == 1)
       }
 
 
