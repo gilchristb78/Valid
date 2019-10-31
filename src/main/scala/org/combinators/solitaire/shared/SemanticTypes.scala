@@ -70,6 +70,10 @@ trait SemanticTypes {
     val target:Type = 'TargetWidgetName
   }
 
+  object unitTest {
+    def apply (context:Type): Constructor = 'UnitTest (context)
+  }
+
   /**
     * Manages the press/click/release on widgets.
     *

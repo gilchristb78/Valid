@@ -17,7 +17,8 @@ object Synthesizer extends JavaSemanticTypes {
       standardTargets() ++
       computeControllersFromDomain(model) ++
       computeSpecialClasses(model) ++
-      computeMovesFromDomain(model)
+      computeMovesFromDomain(model) ++
+      generateTestCases(model)
         .distinct
   }
 
@@ -107,6 +108,19 @@ object Synthesizer extends JavaSemanticTypes {
     targets
   }
 
+  /**
+    * Given the model produce all test cases
+    *
+    * @param model  Solitaire FreeCellDomain Model
+    * @return       Targets suitable for KombatSolitaire framework
+    */
+  def generateTestCases(model:Solitaire) :Seq[Constructor] = {
+    var targets :Seq[Constructor] = Seq.empty
+
+    targets = targets :+ classes("TestCases")
+
+    targets
+  }
 
   /**
     * Given the domain object, compute the targets for the required moves.
