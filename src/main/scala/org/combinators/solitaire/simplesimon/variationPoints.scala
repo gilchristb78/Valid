@@ -25,9 +25,9 @@ trait variationPoints {
   )
 
   val map:Map[ContainerType, Seq[Widget]] = Map (
-    Tableau -> horizontalPlacement(15, 200, 10, 13*card_height),
-    //StockContainer -> horizontalPlacement(15, 20, 1, card_height),
-    Foundation -> horizontalPlacement(293, 20, 4, card_height)
+    Tableau -> horizontalPlacement(15, 200, numTableau(), 13*card_height),
+    StockContainer -> horizontalPlacement(15, 20, numStock(), card_height),
+    Foundation -> horizontalPlacement(293, 20, numFoundation(), card_height)
   )
 
   def getDeal: Seq[DealStep] = {
@@ -68,12 +68,11 @@ trait variationPoints {
 
   val tableauToTableauMove:Move = MultipleCardsMove("MoveColumn", Drag,
     source=(Tableau,Truth), target=Some((Tableau, buildOnTableau(MovingCards))))
+
   val tableauToFoundationMove:Move = MultipleCardsMove("MoveCardFoundation", Drag,
     source=(Tableau,Truth), target=Some((Foundation, AndConstraint(
       IsEmpty(Destination), buildOnFoundation(MovingCards)))))
-//  val deckDealMove:Move = DealDeckMove("DealDeck", 1,
-//    source=(StockContainer, NotConstraint(IsEmpty(Source))), target=Some((Tableau,
-//      Truth)))
+
   val allowed = AndConstraint(NotConstraint(IsEmpty(Source)),
     NotConstraint(IsFaceUp(TopCardOf(Source))))
 //  val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))

@@ -12,7 +12,7 @@ import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared.{compilation, _}
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 
-class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
+class simplesimonDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 
   object simplesimonCodeGenerator {
     def generators(pkg:Name, varName:SimpleName):CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](

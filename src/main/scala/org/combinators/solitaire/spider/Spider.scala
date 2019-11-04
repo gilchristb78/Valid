@@ -34,7 +34,7 @@ class SpiderVariationController @Inject()(webJars: WebJarsUtil, applicationLifec
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  lazy val targets = Synthesizer.allTargets(variation)
+  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(variation)
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()

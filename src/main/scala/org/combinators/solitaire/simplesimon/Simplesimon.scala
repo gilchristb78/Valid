@@ -10,24 +10,34 @@ import org.combinators.solitaire.shared.cls.Synthesizer
 import org.webjars.play.WebJarsUtil
 import org.combinators.templating.persistable.JavaPersistable._
 import play.api.inject.ApplicationLifecycle
+import org.combinators.solitaire.simplevar.simplevar
 
-class Simplesimon @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
+class SimplesimonVariationController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val solitaire: Solitaire = simplesimon
+  lazy val variation:Solitaire = simplesimon
 
-  // FreeCellDomain is base class for the solitaire variation. Note that this
+  // Domain is base class for the solitaire variation. Note that this
   // class is used (essentially) as a placeholder for the solitaire val,
   // which can then be referred to anywhere as needed.
-  lazy val repository = new gameDomain(solitaire) with controllers {}
+  lazy val repository = new simplesimonDomain(variation) with controllers {}
 
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), variation)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(solitaire)
+  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(variation)
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-  lazy val controllerAddress: String = solitaire.name.toLowerCase
+  override val routingPrefix = Some("simplesimon")
+  lazy val controllerAddress: String = variation.name.toLowerCase
+}
+class SimplesimonController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SimplesimonVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = simplesimon
+}
+class SimplevarController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+  extends SimplesimonVariationController(webJars, applicationLifecycle) {
+  override lazy val variation = simplevar
 }

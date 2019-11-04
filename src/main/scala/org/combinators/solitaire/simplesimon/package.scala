@@ -30,7 +30,7 @@ package object simplesimon extends variationPoints {
       layout = Layout(map),
       deal = getDeal,
       specializedElements = Seq.empty,
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove),  //deckDealMove before flipmove and in varpoints. End with flipmove
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Foundation -> 52)),
       solvable = false
     )
