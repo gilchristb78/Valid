@@ -19,16 +19,20 @@ import org.combinators.generic
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared.compilation._
 
-trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with SemanticTypes {
+trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with UnitTestCaseGeneration with SemanticTypes {
 
   private val logger = Logging.getLogger(ActorSystem("Controller"), "Controller")
   logger.info("Controller logging activated...")
 
+  // TODO: FOR NOW INSERT THE DEFAULT TEST CASE HERE
   // shared logic to process rules as needed for Solitaire extensions
   // Note: this creates Move classes for each of the moves that are
   // defined in either the presses, drags, or clicks sets 
   def createMoveClasses[G <: SolitaireDomain](gamma : ReflectedRepository[G], s:Solitaire) : ReflectedRepository[G] = {
     var updated = gamma
+
+    // TODO: MOVE OUTSIDE TO MAKE MORE GENERIC
+    updated = updated.addCombinator(new SolitaireTestSuite(s))
 
     //val combined = s.getRules.drags.asScala ++ s.getRules.presses.asScala ++ s.getRules.clicks.asScala
 
