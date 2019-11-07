@@ -7,7 +7,7 @@ import akka.actor.ActorSystem
 import akka.event.Logging
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.expr.SimpleName
+import com.github.javaparser.ast.expr.{Expression, SimpleName}
 import org.combinators.cls.types.{Constructor, Type}
 import org.combinators.generic
 import org.combinators.solitaire.domain._
@@ -24,12 +24,80 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
   // PLEASE SIMPLIFY. TODO
   // HACK
   class SolitaireTestSuite(solitaire:Solitaire) {
-    def apply(): CompilationUnit = {
+
+    def max(c:Constraint) : Int = {
+      c match {
+        case andc:AndConstraint => andc.args.map(c => max(c)).sum
+        case ifc:IfConstraint => max(ifc.falseBranch) + max(ifc.trueBranch)
+        case notc:NotConstraint => max(notc.inner)
+        case orc:OrConstraint => orc.args.map(c => max(c)).sum
+        case _ => 1
+      }
+    }
+
+    def perturb(c:Constraint, ctr:Int, flipIndex:Int) : (Constraint,Int) = {
+      c match {
+          case andc:AndConstraint => {
+            var newctr:Int = ctr
+            var argc:Seq[Constraint] = Seq.empty
+            andc.args.foreach(arg => {
+              val rc = perturb(arg, newctr, flipIndex)
+              argc = argc :+ rc._1
+              newctr = rc._2
+            })
+
+            (AndConstraint(argc : _*), newctr)
+          }
+
+          case ifc:IfConstraint => {
+            val fbIdx = perturb(ifc.falseBranch, ctr, flipIndex)
+            val tbIdx = perturb(ifc.trueBranch, fbIdx._2, flipIndex)
+            (IfConstraint(fbIdx._1, tbIdx._1), tbIdx._2)
+          }
+
+          case notc:NotConstraint => {
+            val rc = perturb(notc.inner, ctr, flipIndex)
+            (NotConstraint(rc._1), rc._2)
+          }
+
+          case orc:OrConstraint => {
+            var newctr:Int = ctr
+            var argc:Seq[Constraint] = Seq.empty
+            orc.args.foreach(arg => {
+              val rc = perturb(arg, newctr, flipIndex)
+              argc = argc :+ rc._1
+              newctr = rc._2
+            })
+
+            (OrConstraint(argc : _*), newctr)
+          }
+
+          case c:Constraint => {
+            if (ctr == flipIndex) {
+              (NotConstraint(c), ctr+1)
+            } else {
+              (c, ctr+1)
+            }
+          }
+      }
+    }
+
+    def apply(gen:CodeGeneratorRegistry[Expression]): CompilationUnit = {
       val pkgName = solitaire.name;
       val name = solitaire.name.capitalize;
 
       var methods:Seq[MethodDeclaration] = Seq.empty
       for (m <- solitaire.moves) {
+        val constraint:Constraint = m.constraints
+        val total = max(constraint)
+        val targets = (1 to total).toSeq
+        val falsifiedConstrains:Seq[Constraint] = targets.map(idx => perturb(constraint, 0, idx)._1)
+
+        falsifiedConstrains.foreach(c => {
+          val cc3: Option[Expression] = gen(c)
+          println("CC3:" + cc3.mkString("\n"))
+        })
+
         val sym = Constructor(m.name)
         val source_loc = if(m.source._1.name.equalsIgnoreCase("stockcontainer")) "deck" else m.source._1.name + "[0]"
         val dealDeck_logic = if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck")) "game.tableau" else "movingStack, dest"
@@ -103,7 +171,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
 
       container
     }
-    val semanticType: Type = classes("TestCases")
+    val semanticType: Type = constraints(constraints.generator) =>: classes("TestCases")
   }
 
       //val combi
