@@ -8,6 +8,7 @@ import akka.event.Logging
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.{Expression, SimpleName}
+import com.github.javaparser.ast.stmt.Statement
 import org.combinators.cls.types.{Constructor, Type}
 import org.combinators.generic
 import org.combinators.solitaire.domain._
@@ -32,6 +33,91 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         case notc:NotConstraint => max(notc.inner)
         case orc:OrConstraint => orc.args.map(c => max(c)).sum
         case _ => 1
+      }
+    }
+
+    def flatten(cons:Constraint) : Seq[Constraint] = {
+      cons match {
+        case andc: AndConstraint => andc.args.flatMap(c => flatten(c))
+        case ifc: IfConstraint => flatten(ifc.falseBranch) ++ flatten(ifc.trueBranch)
+        case notc: NotConstraint => flatten(notc.inner)
+        case orc: OrConstraint => orc.args.flatMap(c => flatten(c))
+        case c: Constraint => Seq(c)
+      }
+    }
+
+    val foundIndex = -1
+    def nthAtomicConstraint(c:Constraint, ctr:Int, targetIndex:Int) : (Option[Constraint], Int) = {
+      c match {
+        case andc:AndConstraint => {
+          var newctr:Int = ctr
+          var found:Option[Constraint] = None
+
+          andc.args.foreach(arg => {
+            if (found.isEmpty) {
+              val rc = nthAtomicConstraint(arg, newctr, targetIndex)
+              if (rc._2 == foundIndex) {
+                found = rc._1
+              }
+
+              newctr = rc._2
+            }
+          })
+
+          if (found.isDefined) {
+            (found, foundIndex)
+          } else {
+            (None, newctr)
+          }
+        }
+
+        case ifc:IfConstraint => {
+          val fbIdx = nthAtomicConstraint(ifc.falseBranch, ctr, targetIndex)
+          if (fbIdx._2 == foundIndex) {
+            fbIdx
+          } else {
+            val tbIdx = nthAtomicConstraint(ifc.trueBranch, fbIdx._2, targetIndex)
+            if (tbIdx._2 == foundIndex) {
+              tbIdx
+            } else {
+              (None, tbIdx._2)
+            }
+          }
+        }
+
+        case notc:NotConstraint => {
+          nthAtomicConstraint(notc.inner, ctr, targetIndex)
+        }
+
+        case orc:OrConstraint => {
+          var newctr:Int = ctr
+          var argc:Seq[Constraint] = Seq.empty
+          var found:Option[Constraint] = None
+          orc.args.foreach(arg => {
+            if (found.isEmpty) {
+              val rc = nthAtomicConstraint(arg, newctr, targetIndex)
+              if (rc._2 == foundIndex) {
+                found = rc._1
+              }
+
+              newctr = rc._2
+            }
+          })
+
+          if (found.isDefined) {
+            (found, foundIndex)
+          } else {
+            (None, newctr)
+          }
+        }
+
+        case c:Constraint => {
+          if (ctr == targetIndex) {
+            (Some(c), foundIndex)  // found
+          } else {
+            (None, ctr+1)
+          }
+        }
       }
     }
 
@@ -82,6 +168,20 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       }
     }
 
+    def isEmptyNegative(name:String) : Seq[Statement] = {
+      Java(
+        s"""
+           |Stack $name = getValidStack();
+           |""".stripMargin).statements()
+    }
+
+    def isKingPositive(name:String) : Seq[Statement] = {
+      Java(
+        s"""
+           |Card $name = new Card(Card.KING, Card.CLUBS);
+           |""".stripMargin).statements()
+    }
+
     def apply(gen:CodeGeneratorRegistry[Expression]): CompilationUnit = {
       val pkgName = solitaire.name;
       val name = solitaire.name.capitalize;
@@ -91,7 +191,11 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         val constraint:Constraint = m.constraints
         val total = max(constraint)
         val targets = (1 to total).toSeq // the range of constraints
+
+        // Full hierarchy with individuals negated as by index
         val falsifiedConstrains:Seq[Constraint] = targets.map(idx => perturb(constraint, 0, idx)._1)
+        val targetedConstraints:Seq[Constraint] = flatten(constraint)
+        targetedConstraints.foreach(c => println ("Constraint:" + c))
 
         falsifiedConstrains.foreach(c => {
           val cc3: Option[Expression] = gen(c)
@@ -133,6 +237,20 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |}""".stripMargin).methodDeclarations().head
 
         methods = methods :+ method
+
+        val methodFalsify = Java(
+          s"""
+             |@Test
+             |public void test${m.name} () {
+             |String type  = "${m.moveType.getClass.getSimpleName}";
+             |
+             |${isEmptyNegative("source").mkString("\n")}
+             |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
+             |
+             |Assert.assertFalse(move.valid(game));
+             |}""".stripMargin).methodDeclarations().head
+
+        methods = methods :+ methodFalsify
 
         var testNum = 0
         falsifiedConstrains.foreach(c => {
