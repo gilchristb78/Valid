@@ -100,29 +100,29 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
 
         val sym = Constructor(m.name)
         val source_loc = if(m.source._1.name.equalsIgnoreCase("stockcontainer")) "deck" else m.source._1.name + "[0]"
-        val dealDeck_logic = if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck")) "game.tableau" else "movingStack, dest"
+        val dealDeck_logic = if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck")) "game.tableau" else "movingCards, destination"
         //Additional assertion dependent on if move is dealdeck or not
         val additional_assertion =
           if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck"))
           "ss - game.tableau.length, game.deck.count()"
         else
-          "ds + ms, dest.count()"
+          "ds + ms, destination.count()"
 
         val method = Java(
           s"""
              |@Test
              |public void test${m.name} () {
              |String type  = "${m.moveType.getClass.getSimpleName}";
-             |Stack movingStack = getValidStack();
+             |Stack movingCards = getValidStack();
              |
              |game.tableau[0].removeAll();
              |game.tableau[1].removeAll();
              |
              |Stack source = game.${source_loc}; //game.tableau[0] or deck
-             |Stack dest = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
+             |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
              |int ss = source.count();
-             |int ds = dest.count();
-             |int ms = movingStack.count();
+             |int ds = destination.count();
+             |int ms = movingCards.count();
              |
              |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
              |
@@ -142,19 +142,19 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                  |@Test
                  |public void subtest${m.name + testNum} () {
                  |String type  = "${m.moveType.getClass.getSimpleName}";
-                 |Stack movingStack = getValidStack();
+                 |Stack movingCards = getValidStack();
                  |
                  |game.tableau[0].removeAll();
                  |game.tableau[1].removeAll();
                  |
                  |Stack source = game.${source_loc}; //game.tableau[0] or deck
-                 |Stack dest = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
+                 |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
                  |int ss = source.count();
-                 |int ds = dest.count();
-                 |int ms = movingStack.count();
+                 |int ds = destination.count();
+                 |int ms = movingCards.count();
                  |
                  |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
-                 |Assert.assertFalse(${cc3.mkString("")});
+                 |Assert.assertTrue(${cc3.mkString("")});
                  |
                  |}""".stripMargin).methodDeclarations().head
           testNum = testNum + 1
