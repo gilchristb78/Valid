@@ -256,10 +256,12 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
+    //For user-defined functions right now: prints name, guarantees fail case
     def showConstraint(constraint:Constraint) : Seq[Statement] = {
       Java(
         s"""
-           |String name = "${constraint}";
+           |String user_defined_constraint = "${constraint}";
+           |movingCards = new Stack();
            |""".stripMargin).statements()
     }
 
@@ -328,6 +330,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |}""".stripMargin).methodDeclarations().head
 
         methods = methods :+ method
+
         var num = 0
         targetedConstraints.foreach(c=>{
         val constraintMethod = getConstraintMethod(c)
@@ -335,6 +338,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
           s"""
              |@Test
              |public void falsifiedTest${m.name + num} () {
+             |//Test for constraint ${c}
              |String type  = "${m.moveType.getClass.getSimpleName}";
              |Stack movingCards = getValidStack();
              |
