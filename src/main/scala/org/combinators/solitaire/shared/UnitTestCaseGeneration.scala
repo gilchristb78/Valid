@@ -175,12 +175,79 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
+    def isEmptyPositive(name:String) : Seq[Statement] = {
+      Java(
+        s"""
+           |Stack $name = new Stack();
+           |""".stripMargin).statements()
+    }
+
     def isKingPositive(name:String) : Seq[Statement] = {
       Java(
         s"""
            |Card $name = new Card(Card.KING, Card.CLUBS);
            |""".stripMargin).statements()
     }
+
+    def isKingNegative(name:String) : Seq[Statement] = {
+      Java(
+        s"""
+           |Card $name = new Card(Card.ACE, Card.CLUBS);
+           |""".stripMargin).statements()
+    }
+
+    def isAcePositive(name:String) : Seq[Statement] = {
+      Java(
+        s"""
+           |Card $name = new Card(Card.ACE, Card.CLUBS);
+           |""".stripMargin).statements()
+    }
+
+    def isAceNegative(name:String) : Seq[Statement] = {
+      Java(
+        s"""
+           |Card $name = new Card(Card.KING, Card.CLUBS);
+           |""".stripMargin).statements()
+    }
+
+    def AllSameSuitPositive(name:String) : Seq[Statement] = {
+      Java(
+        s"""
+           |Stack $name = new Stack();
+           |$name.add(new Card(Card.ACE, Card.CLUBS));
+           |$name.add(new Card(Card.TWO, Card.CLUBS));
+           |$name.add(new Card(Card.THREE, Card.CLUBS));
+           |""".stripMargin).statements()
+    }
+
+    def AllSameSuitNegative(name:String) : Seq[Statement] = {
+      Java(
+        s"""
+           |Stack $name = new Stack();
+           |$name.add(new Card(Card.ACE, Card.CLUBS));
+           |$name.add(new Card(Card.ACE, Card.HEARTS));
+           |$name.add(new Card(Card.ACE, Card.SPADES));
+           |""".stripMargin).statements()
+    }
+
+    def nextRankPositive(name1:String, name2:String) :Seq[Statement] = {
+      Java(
+        s"""
+           |Card $name1 = new Card(Card.THREE, Card.CLUBS);
+           |Card $name2 = new Card(Card.FOUR, Card.CLUBS);
+           |""".stripMargin).statements()
+    }
+
+    def nextRankNegative(name1:String, name2:String) :Seq[Statement] = {
+      Java(
+        s"""
+           |Card $name1 = new Card(Card.THREE, Card.CLUBS);
+           |Card $name2 = new Card(Card.FIVE, Card.CLUBS);
+           |""".stripMargin).statements()
+    }
+
+
+
 
     def apply(gen:CodeGeneratorRegistry[Expression]): CompilationUnit = {
       val pkgName = solitaire.name;

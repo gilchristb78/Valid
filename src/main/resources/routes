@@ -8,6 +8,7 @@
 ->    /                              org.combinators.solitaire.idiot.Idiot
 ->    /                              org.combinators.solitaire.bigforty.BigForty
 ->    /                              org.combinators.solitaire.castle.Castle
+->    /                              org.combinators.solitaire.narcotictest.NarcoticTest
 ->    /                              org.combinators.solitaire.narcotic.Narcotic
 #->    /                              org.combinators.solitaire.narcoticTest.NarcoticTest
 #->    /                              org.combinators.solitaire.simplesimon.Simplesimon
@@ -15,6 +16,9 @@
 ->    /                              org.combinators.solitaire.napoleon.Napoleon
 ->    /                              org.combinators.solitaire.gamma.Gamma
 # All variants have names that end in "Controller", and then can extract package.MainClass easily
+->    /                              org.combinators.solitaire.bakersdozen.BakersdozenController
+->    /                              org.combinators.solitaire.bakersdozen.Spanish_PatienceController
+->    /                              org.combinators.solitaire.bakersdozen.Castles_In_SpainController
 ->    /                              org.combinators.solitaire.freecell.FreeCellController
 ->    /                              org.combinators.solitaire.freecell.ChallengeFreeCellController
 ->    /                              org.combinators.solitaire.freecell.SuperChallengeFreeCellController
