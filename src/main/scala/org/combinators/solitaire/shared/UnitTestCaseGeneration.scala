@@ -168,10 +168,10 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       }
     }
 
-    def isEmptyNegative(name:String) : Seq[Statement] = {
+    def isEmptyNegative() : Seq[Statement] = {
       Java(
         s"""
-           |Stack $name = getValidStack();
+           |movingCards = getValidStack();
            |""".stripMargin).statements()
     }
 
@@ -198,18 +198,19 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
     def allSameSuitNegative(name:String) : Seq[Statement] = {
       Java(
         s"""
-           |Stack $name = new Stack();
-           |$name.add(new Card(Card.ACE, Card.CLUBS));
-           |$name.add(new Card(Card.ACE, Card.HEARTS));
-           |$name.add(new Card(Card.ACE, Card.SPADES));
+           |movingCards = new Stack();
+           |movingCards.add(new Card(Card.ACE, Card.CLUBS));
+           |movingCards.add(new Card(Card.ACE, Card.HEARTS));
+           |movingCards.add(new Card(Card.ACE, Card.SPADES));
            |""".stripMargin).statements()
     }
 
-    def nextRankNegative(name1:String, name2:String) :Seq[Statement] = {
+    def nextRankNegative() :Seq[Statement] = {
       Java(
         s"""
-           |Card $name1 = new Card(Card.THREE, Card.CLUBS);
-           |Card $name2 = new Card(Card.FIVE, Card.CLUBS);
+           |movingCards = new Stack();
+           |movingCards.add(Card(Card.THREE, Card.CLUBS));
+           |destination.add(Card(Card.FIVE, Card.CLUBS));
            |""".stripMargin).statements()
     }
 
@@ -241,10 +242,10 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
           isKingNegative()
         }
         case e:IsEmpty=>{
-          isEmptyNegative("movingCards")
+          isEmptyNegative()
         }
         case r:NextRank=>{
-          nextRankNegative("movingCards.peek(0)", "destination")
+          nextRankNegative()
         }
         /*case s:AllSameSuit=>{
           allSameSuitNegative("movingCards")
