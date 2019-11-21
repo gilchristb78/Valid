@@ -9,6 +9,7 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.{Expression, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
+import domain.constraints.Truth
 import org.combinators.cls.types.{Constructor, Type}
 import org.combinators.generic
 import org.combinators.solitaire.domain._
@@ -168,14 +169,21 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       }
     }
 
-    def isEmptyNegative() : Seq[Statement] = {
+    def isEmptyNegative(constraint: Constraint) : Seq[Statement] = {
+      var place = "destination"
+      var amount = "getValidStack()"
+      if(constraint.toString.contains("Source")){
+        place = "source"
+        amount = "new Deck()"
+      }
+
       Java(
         s"""
-           |movingCards = getValidStack();
+           |$place = $amount;
            |""".stripMargin).statements()
     }
 
-    def isKingNegative() : Seq[Statement] = {
+    def isKingNegative(constraint: Constraint) : Seq[Statement] = {
       Java(
         s"""
            |movingCards = new Stack();
@@ -185,7 +193,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
-    def isAceNegative() : Seq[Statement] = {
+    def isAceNegative(constraint: Constraint) : Seq[Statement] = {
       Java(
         s"""
            |movingCards = new Stack();
@@ -195,7 +203,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
-    def allSameSuitNegative(name:String) : Seq[Statement] = {
+    def allSameSuitNegative(constraint: Constraint) : Seq[Statement] = {
       Java(
         s"""
            |movingCards = new Stack();
@@ -205,16 +213,16 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
-    def nextRankNegative() :Seq[Statement] = {
+    def nextRankNegative(constraint: Constraint) :Seq[Statement] = {
       Java(
         s"""
            |movingCards = new Stack();
-           |movingCards.add(Card(Card.THREE, Card.CLUBS));
-           |destination.add(Card(Card.FIVE, Card.CLUBS));
+           |movingCards.add(new Card(Card.THREE, Card.CLUBS));
+           |destination.add(new Card(Card.FIVE, Card.CLUBS));
            |""".stripMargin).statements()
     }
 
-    def notDescending() : Seq[Statement] = {
+    def notDescending(constraint: Constraint) : Seq[Statement] = {
       Java(
         s"""
            |movingCards = notDescending(movingCards);//Worked!!
@@ -226,26 +234,34 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       Java(
         s"""
            |String user_defined_constraint = "${constraint}";
-           |movingCards = new Stack();
+           |userDefined = true;//Set to True because it's user defined
            |""".stripMargin).statements()
+    }
+
+    //Doesnt create the function if constraint is true
+    def negateCase(constraint: Constraint) : Boolean ={
+      constraint match{
+        case t:Truth => true
+        case _=> false
+      }
     }
 
     def getConstraintMethod(constraint:Constraint) : Seq[Statement] = {
       constraint match{
         case d:Descending =>{
-          notDescending()
+          notDescending(constraint)
         }
         case a:IsAce=>{
-          isAceNegative()
+          isAceNegative(constraint)
         }
         case k:IsKing=>{
-          isKingNegative()
+          isKingNegative(constraint)
         }
         case e:IsEmpty=>{
-          isEmptyNegative()
+          isEmptyNegative(constraint)
         }
         case r:NextRank=>{
-          nextRankNegative()
+          nextRankNegative(constraint)
         }
         /*case s:AllSameSuit=>{
           allSameSuitNegative("movingCards")
@@ -313,29 +329,35 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
 
         var num = 0
         targetedConstraints.foreach(c=>{
-        val constraintMethod = getConstraintMethod(c)
-        val methodFalsify = Java(
-          s"""
-             |@Test
-             |public void falsifiedTest${m.name + num} () {
-             |//Test for constraint ${c}
-             |String type  = "${m.moveType.getClass.getSimpleName}";
-             |Stack movingCards = getValidStack();
-             |
-             |game.tableau[0].removeAll();
-             |game.tableau[1].removeAll();
-             |Stack source = game.${source_loc}; //game.tableau[0] or deck
-             |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
-             |
-             |${constraintMethod.mkString("\n")}
-             |
-             |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
-             |
-             |Assert.assertFalse(move.valid(game));
-             |}""".stripMargin).methodDeclarations().head
+          if(!negateCase(c)){
+          val constraintMethod = getConstraintMethod(c)
+          val methodFalsify = Java(
+            s"""
+               |@Test
+               |public void falsifiedTest${m.name + num} () {
+               |//Test for constraint ${c}
+               |String type  = "${m.moveType.getClass.getSimpleName}";
+               |Boolean userDefined = false;
+               |Stack movingCards = getValidStack();
+               |
+               |game.tableau[0].removeAll();
+               |game.tableau[1].removeAll();
+               |Stack source = game.${source_loc}; //game.tableau[0] or deck
+               |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
+               |
+               |${constraintMethod.mkString("\n")}
+               |
+               |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
+               |if(userDefined){
+               |  Assert.assertTrue(move.valid(game));
+               |}else{
+               |  Assert.assertFalse(move.valid(game));
+               |}
+               |}""".stripMargin).methodDeclarations().head
 
-          num = num+1
-          methods = methods :+ methodFalsify
+            num = num+1
+            methods = methods :+ methodFalsify
+        }
         })
         /*var testNum = 0
         falsifiedConstrains.foreach(c => {
