@@ -275,6 +275,8 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |
              |game.tableau[0].removeAll();
              |game.tableau[1].removeAll();
+             |Stack source = game.${source_loc}; //game.tableau[0] or deck
+             |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
              |
              |${constraintMethod.mkString("\n")}
              |
