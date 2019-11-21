@@ -198,9 +198,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
 
     def getConstraintMethod(constraint:Constraint) : Seq[Statement] = {
       constraint match{
-        case d:Descending =>{
-          notDescending()
-        }
+        case d:Descending => notDescending()
         case _=> showConstraint(constraint)
 
 
