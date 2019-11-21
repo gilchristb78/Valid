@@ -182,6 +182,32 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
+    def notDescending() : Seq[Statement] = {
+      Java(
+        s"""
+           |movingCards = notDescending(movingCards);//Worked!!
+           |""".stripMargin).statements()
+    }
+
+    def showConstraint(constraint:Constraint) : Seq[Statement] = {
+      Java(
+        s"""
+           |String name = "${constraint}";
+           |""".stripMargin).statements()
+    }
+
+    def getConstraintMethod(constraint:Constraint) : Seq[Statement] = {
+      constraint match{
+        case d:Descending =>{
+          notDescending()
+        }
+        case _=> showConstraint(constraint)
+
+
+      }
+    }
+
+
     def apply(gen:CodeGeneratorRegistry[Expression]): CompilationUnit = {
       val pkgName = solitaire.name;
       val name = solitaire.name.capitalize;
@@ -237,22 +263,30 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |}""".stripMargin).methodDeclarations().head
 
         methods = methods :+ method
-
+        var num = 0
+        targetedConstraints.foreach(c=>{
+        val constraintMethod = getConstraintMethod(c)
         val methodFalsify = Java(
           s"""
              |@Test
-             |public void test${m.name} () {
+             |public void falsifiedTest${m.name + num} () {
              |String type  = "${m.moveType.getClass.getSimpleName}";
+             |Stack movingCards = getValidStack();
              |
-             |${isEmptyNegative("source").mkString("\n")}
+             |game.tableau[0].removeAll();
+             |game.tableau[1].removeAll();
+             |
+             |${constraintMethod.mkString("\n")}
+             |
              |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
              |
              |Assert.assertFalse(move.valid(game));
              |}""".stripMargin).methodDeclarations().head
 
-        methods = methods :+ methodFalsify
-
-        var testNum = 0
+          num = num+1
+          methods = methods :+ methodFalsify
+        })
+        /*var testNum = 0
         falsifiedConstrains.foreach(c => {
           val cc3: Option[Expression] = gen(c)
           val testCase = Java(
@@ -277,7 +311,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                  |}""".stripMargin).methodDeclarations().head
           testNum = testNum + 1
           methods = methods :+ testCase
-        })
+        })*/
       }
 
       val container = Java(s"""|package org.combinators.solitaire.${pkgName.toLowerCase};
@@ -300,6 +334,25 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                |   }
                |   return movingCards;
                |}
+               |
+               |private Stack notDescending(Stack stack){
+               |        if(stack.empty() || stack.count() == 1){
+               |            stack.add(new Card(Card.KING, Card.CLUBS));
+               |            stack.add(new Card(Card.ACE, Card.CLUBS));
+               |            return stack;
+               |        }else{
+               |            for(int i=0;i<stack.count()-1; i++){
+               |                if(stack.peek(i).getRank() != stack.peek(i+1).getRank()+1){
+               |                    return stack;
+               |                }
+               |            }
+               |            //end of loop, stack in descending order
+               |            Card top = stack.get();
+               |            stack.add(new Card(Card.KING, Card.CLUBS));
+               |            stack.add(top);
+               |            return stack;
+               |        }
+               |    }
                |
                | @Before
                |    public void makeGame() {
