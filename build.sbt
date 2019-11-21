@@ -9,7 +9,8 @@ lazy val commonSettings = Seq(
 
   resolvers ++= Seq(
     Resolver.sonatypeRepo("releases"),
-    Resolver.typesafeRepo("releases")
+    Resolver.typesafeRepo("releases"),
+      Resolver.sbtPluginRepo("releases")
   ),
 
   scalacOptions ++= Seq(
