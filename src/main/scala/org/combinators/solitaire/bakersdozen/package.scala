@@ -12,7 +12,8 @@ package object bakersdozen extends variationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),  //deckDealMove before flipmove and in varpoints. End with flipmove
       logic = BoardState(Map(Foundation -> 52)),
-      solvable = false
+      solvable = false,
+      testSetup = Seq()
     )
   }
 }

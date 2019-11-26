@@ -1,7 +1,9 @@
 package org.combinators.solitaire
 
+import com.github.javaparser.ast.body.MethodDeclaration
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.simplesimon.variationPoints
+import org.combinators.templating.twirl.Java
 
 
 package object simplevar extends variationPoints {
@@ -30,6 +32,17 @@ package object simplevar extends variationPoints {
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     source=(StockContainer, deckCon), target=Some((Tableau, Truth)))
 
+  def javaTest: Seq[MethodDeclaration] = {
+    Java(s"""public boolean didtItComp(Stack[] group) {
+            |   for (int i = 0; i < group.length; i++) {
+            |       if (group[i].empty()) { return true; }
+            |   }
+            |  return false;
+            | }
+            |""".stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+
+  }
+
   val simplevar:Solitaire = {
     Solitaire(name = "Simplevar",
       structure = structureMap,
@@ -38,7 +51,8 @@ package object simplevar extends variationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),
       logic = BoardState(Map(Foundation -> 52)),
-      solvable = false
+      solvable = false,
+      testSetup = javaTest
     )
   }
 }

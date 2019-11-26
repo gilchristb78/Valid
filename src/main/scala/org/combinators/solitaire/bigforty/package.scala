@@ -92,7 +92,8 @@ package object bigforty {
       moves = Seq(tableauToTableau,wasteToTableau,buildFoundation,buildFoundationFromWaste,deckDeal,deckReset),
 
       // fix winning logic
-      logic = BoardState(Map(Foundation -> 52))
+      logic = BoardState(Map(Foundation -> 52)),
+      testSetup = Seq()
     )
   }
 }

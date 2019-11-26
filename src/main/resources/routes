@@ -8,7 +8,6 @@
 ->    /                              org.combinators.solitaire.idiot.Idiot
 ->    /                              org.combinators.solitaire.bigforty.BigForty
 ->    /                              org.combinators.solitaire.castle.Castle
-->    /                              org.combinators.solitaire.narcotictest.NarcoticTest
 ->    /                              org.combinators.solitaire.narcotic.Narcotic
 #->    /                              org.combinators.solitaire.narcoticTest.NarcoticTest
 #->    /                              org.combinators.solitaire.simplesimon.Simplesimon
