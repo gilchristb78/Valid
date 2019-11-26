@@ -1,5 +1,7 @@
 package org.combinators.solitaire.domain
 
+import com.github.javaparser.ast.body.MethodDeclaration
+
 /** No longer keep track of index. */
 case class Widget( x:Int,  y:Int,  width:Int,  height:Int)
 
@@ -102,5 +104,6 @@ case class Solitaire
 
    logic:WinningLogic = ScoreAchieved(52),
    autoMoves:Boolean = false,
-   solvable:Boolean = false
+   solvable:Boolean = false,
+  testSetup:Seq[MethodDeclaration] = Seq()
 )

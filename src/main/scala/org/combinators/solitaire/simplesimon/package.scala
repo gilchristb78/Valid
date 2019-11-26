@@ -32,7 +32,8 @@ package object simplesimon extends variationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Foundation -> 52)),
-      solvable = false
+      solvable = false,
+      testSetup = Seq()
     )
   }
 }
