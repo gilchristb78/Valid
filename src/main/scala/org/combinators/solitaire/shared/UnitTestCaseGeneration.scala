@@ -292,7 +292,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         })
 
         val sym = Constructor(m.name)
-        val source_loc = if(m.source._1.name.equalsIgnoreCase("stockcontainer")) "deck" else m.source._1.name + "[0]"
+        val source_loc = if(m.source._1.name.equalsIgnoreCase("stockcontainer")) "deck" else m.source._1.name + "[1]"
         val dealDeck_logic = if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck")) "game.tableau" else "movingCards, destination"
         //Additional assertion dependent on if move is dealdeck or not
         val additional_assertion =
@@ -306,13 +306,11 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |@Test
              |public void test${m.name} () {
              |String type  = "${m.moveType.getClass.getSimpleName}";
-             |Stack movingCards = getValidStack();
              |
-             |game.tableau[0].removeAll();
-             |game.tableau[1].removeAll();
+             |
              |
              |Stack source = game.${source_loc}; //game.tableau[0] or deck
-             |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
+             |Stack destination = game.${m.target.head._1.name}[2]; //game.foundation[2] or game.tableau[2]
              |int ss = source.count();
              |int ds = destination.count();
              |int ms = movingCards.count();
@@ -329,36 +327,50 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
 
         var num = 0
         targetedConstraints.foreach(c=>{
-          if(!negateCase(c)){
-          val constraintMethod = getConstraintMethod(c)
-          val methodFalsify = Java(
-            s"""
-               |@Test
-               |public void falsifiedTest${m.name + num} () {
-               |//Test for constraint ${c}
-               |String type  = "${m.moveType.getClass.getSimpleName}";
-               |Boolean userDefined = false;
-               |Stack movingCards = getValidStack();
+          if(!negateCase(c)) {
+            val constraintMethod = getConstraintMethod(c)
+            val methodFalsify = Java(
+              s"""
+                 |@Test
+                 |public void falsifiedTest${m.name + num} () {
+                 |//Test for constraint ${c}
+
+                 |String type  = "${m.moveType.getClass.getSimpleName}
+";
+
+                 Defined = false;
+                 |Stac
+                 getValidStack();
+                 |
+
+                 [0].removeAll();
+
+                 [1].removeAll();
+                 |Stack source = game.${source_loc}
+; //game.tableau[0] or deck
+               |Stack destination = game.${m.target.head._1.name}
+[1]; //game.foundation[1] or game.tableau[1]
+
+                 |${constraintMethod.mkString("\n")}
                |
-               |game.tableau[0].removeAll();
-               |game.tableau[1].removeAll();
-               |Stack source = game.${source_loc}; //game.tableau[0] or deck
-               |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
-               |
-               |${constraintMethod.mkString("\n")}
-               |
-               |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
-               |if(userDefined){
-               |  Assert.assertTrue(move.valid(game));
-               |}else{
-               |  Assert.assertFalse(move.valid(game));
-               |}
-               |}""".stripMargin).methodDeclarations().head
+               |${m.name}
+ move = new ${m.
+                name}(source, ${dealDeck_logic}
+)
+                 |if(userDefined){
+                 |  Ass
+                 ov
+                 |}else{
+                 |  Assert.assertFalse(move.va l id(game));
+                 |}
+                 |}""".
+                stripMargin).methodDeclarations().head
 
             num = num+1
             methods = methods :+ methodFalsify
         }
-        })
+        }
+        )
         /*var testNum = 0
         falsifiedConstrains.foreach(c => {
           val cc3: Option[Expression] = gen(c)

@@ -1,6 +1,8 @@
 package org.combinators.solitaire.simplesimon
 
 import org.combinators.solitaire.domain._
+import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
+import org.combinators.templating.twirl.Java
 //Simple Simon VariationPoints
 trait variationPoints {
   case class AllSameSuit(movingCards: MoveInformation) extends Constraint
@@ -77,6 +79,20 @@ trait variationPoints {
     NotConstraint(IsFaceUp(TopCardOf(Source))))
 //  val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))
 
+  def setValidBoardState(): Seq[MethodDeclaration] = {
+    Java(
+      s"""
+         |Stack movingCards = new Stack();
+         |for (int rank = Card.KING; rank >= Card.ACE; rank--) {
+         |  movingCards.add(new Card(rank, Card.CLUBS));
+         |}
+         |
+         |game.tableau[1].removeAll();
+         |game.tableau[2].removeAll();
+         |
+       """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
+
+  }
 
 }
 

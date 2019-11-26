@@ -105,5 +105,5 @@ case class Solitaire
    logic:WinningLogic = ScoreAchieved(52),
    autoMoves:Boolean = false,
    solvable:Boolean = false,
-  testSetup:Seq[MethodDeclaration] = Seq()
+  //testSetup:Seq[MethodDeclaration] = Seq()
 )
