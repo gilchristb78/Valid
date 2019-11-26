@@ -1,5 +1,6 @@
 package org.combinators.solitaire
 
+import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.MethodDeclaration
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.simplesimon.variationPoints
@@ -32,14 +33,19 @@ package object simplevar extends variationPoints {
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     source=(StockContainer, deckCon), target=Some((Tableau, Truth)))
 
-  def javaTest: Seq[Java] = {
-    Java(s"""public boolean didtItComp(Stack[] group) {
-            |   for (int i = 0; i < group.length; i++) {
-            |       if (group[i].empty()) { return true; }
-            |   }
-            |  return false;
-            | }
-            |""".stripMargin)}
+  def setBoardState: Seq[Java] = {
+    Seq(Java(
+      s"""
+         |
+         |Stack movingCards = new Stack();
+         |   for (int rank = Card.KING; rank >= Card.ACE; rank--) {
+         |       movingCards.add(new Card(rank, Card.CLUBS));
+         |   }
+         |
+         |game.tableau[1].removeAll();
+         |game.tableau[2].removeAll();
+         |
+       """.stripMargin))}
 
   val simplevar:Solitaire = {
     Solitaire(name = "Simplevar",
@@ -50,7 +56,7 @@ package object simplevar extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),
       logic = BoardState(Map(Foundation -> 52)),
       solvable = false,
-      testSetup = javaTest
+      testSetup = setBoardState
     )
   }
 }

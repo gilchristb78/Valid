@@ -307,7 +307,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |public void test${m.name} () {
              |String type  = "${m.moveType.getClass.getSimpleName}";
              |
-             |
+             |${solitaire.testSetup.head}
              |
              |Stack source = game.${source_loc}; //game.tableau[0] or deck
              |Stack destination = game.${m.target.head._1.name}[2]; //game.foundation[2] or game.tableau[2]
@@ -334,38 +334,23 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                  |@Test
                  |public void falsifiedTest${m.name + num} () {
                  |//Test for constraint ${c}
-
-                 |String type  = "${m.moveType.getClass.getSimpleName}
-";
-
-                 Defined = false;
-                 |Stac
-                 getValidStack();
+                 |String type  = "${m.moveType.getClass.getSimpleName}";
+                 |Boolean userDefined = false;
                  |
-
-                 [0].removeAll();
-
-                 [1].removeAll();
-                 |Stack source = game.${source_loc}
-; //game.tableau[0] or deck
-               |Stack destination = game.${m.target.head._1.name}
-[1]; //game.foundation[1] or game.tableau[1]
-
-                 |${constraintMethod.mkString("\n")}
-               |
-               |${m.name}
- move = new ${m.
-                name}(source, ${dealDeck_logic}
-)
+                 |${solitaire.testSetup.head}
+                 |
+                 |Stack source = game.${source_loc}; //game.tableau[0] or deck
+                 |Stack destination = game.${m.target.head._1.name}[2]; //game.foundation[1] or game.tableau[1]
+                 |
+               |${constraintMethod.mkString("\n")}
+                 |
+               |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
                  |if(userDefined){
-                 |  Ass
-                 ov
+                 |  Assert.assertTrue(move.valid(game));
                  |}else{
-                 |  Assert.assertFalse(move.va l id(game));
+                 |  Assert.assertFalse(move.valid(game));
                  |}
-                 |}""".
-                stripMargin).methodDeclarations().head
-
+                 |}""".stripMargin).methodDeclarations().head
             num = num+1
             methods = methods :+ methodFalsify
         }
@@ -411,8 +396,6 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                |//Should hold falsified cases
                |public class ${name}TestCases {
                |${name} game;
-               |
-               |${solitaire.testSetup.head}
                |
                |private Stack getValidStack() {
                |   Stack movingCards = new Stack();

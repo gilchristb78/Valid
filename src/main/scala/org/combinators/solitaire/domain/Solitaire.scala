@@ -1,6 +1,8 @@
 package org.combinators.solitaire.domain
 
+import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.MethodDeclaration
+import org.combinators.templating.twirl.Java
 
 /** No longer keep track of index. */
 case class Widget( x:Int,  y:Int,  width:Int,  height:Int)
@@ -89,23 +91,23 @@ case class Move
 case class Solitaire
 (
   /** Every solitaire game has its own name. */
-   name:String,
+  name:String,
 
-   structure:Map[ContainerType, Seq[Element]],
+  structure:Map[ContainerType, Seq[Element]],
 
-   layout:Layout,
+  layout:Layout,
 
-   deal:Seq[Step],
+  deal:Seq[Step],
 
   specializedElements:Seq[Element],
 
-   /** All rules here. */
-   moves:Seq[Move],
+  /** All rules here. */
+  moves:Seq[Move],
 
-   logic:WinningLogic = ScoreAchieved(52),
-   autoMoves:Boolean = false,
-   solvable:Boolean = false,
-    testSetup:Seq[MethodDeclaration] = Seq(),
+  logic:WinningLogic = ScoreAchieved(52),
+  autoMoves:Boolean = false,
+  solvable:Boolean = false,
+  testSetup:Seq[Java] = Seq(),
 )
 /*
 testSetup:Seq[MethodDeclaration] = Seq()*/

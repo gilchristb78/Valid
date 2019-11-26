@@ -79,20 +79,5 @@ trait variationPoints {
     NotConstraint(IsFaceUp(TopCardOf(Source))))
 //  val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))
 
-  def setValidBoardState(): Seq[MethodDeclaration] = {
-    Java(
-      s"""
-         |Stack movingCards = new Stack();
-         |for (int rank = Card.KING; rank >= Card.ACE; rank--) {
-         |  movingCards.add(new Card(rank, Card.CLUBS));
-         |}
-         |
-         |game.tableau[1].removeAll();
-         |game.tableau[2].removeAll();
-         |
-       """.stripMargin).classBodyDeclarations().map(_.asInstanceOf[MethodDeclaration])
-
-  }
-
 }
 
