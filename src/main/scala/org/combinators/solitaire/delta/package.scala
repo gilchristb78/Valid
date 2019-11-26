@@ -48,7 +48,8 @@ package object delta {
       specializedElements = Seq.empty,
       moves = Seq(tab_to_tab, tab_to_found, deckDeal),
       logic = BoardState(Map(Foundation->52)), //we win when we get all of the cards up to the Foundation
-      solvable = false
+      solvable = false,
+      testSetup = Seq()
     )
   }
 }

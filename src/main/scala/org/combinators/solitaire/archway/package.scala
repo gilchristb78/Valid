@@ -78,7 +78,9 @@ package object archway {
       moves = Seq(tableauFoundation, tableauKingsFoundation, reserveFoundation, reserveKingsFoundation, reserveTableau, tableauTableau),
 
       // fix winning logic
-      logic = BoardState(Map(KingsDownFoundation -> 52, Foundation -> 52))
+      logic = BoardState(Map(KingsDownFoundation -> 52, Foundation -> 52)),
+
+      testSetup = Seq()
     )
   }
 }

@@ -21,7 +21,8 @@ package object klondike {
       moves = Seq.empty,
 
       // fix winning logic
-      logic = BoardState(Map(Foundation -> 52))
+      logic = BoardState(Map(Foundation -> 52)),
+      testSetup = Seq()
 
     )
   }

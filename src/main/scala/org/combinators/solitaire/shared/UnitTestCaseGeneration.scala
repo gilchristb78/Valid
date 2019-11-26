@@ -412,6 +412,8 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                |public class ${name}TestCases {
                |${name} game;
                |
+               |${solitaire.testSetup.head}
+               |
                |private Stack getValidStack() {
                |   Stack movingCards = new Stack();
                |   for (int rank = Card.KING; rank >= Card.ACE; rank--) {

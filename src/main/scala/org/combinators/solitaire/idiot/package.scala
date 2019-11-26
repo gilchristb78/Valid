@@ -57,7 +57,8 @@ package object idiot {
       moves = Seq(tableauToTableauMove,removeCardFromTableau, deckDeal),
 
       // fix winning logic
-      logic = BoardState(Map(Tableau -> 0))
+      logic = BoardState(Map(Tableau -> 0)),
+      testSetup = Seq()
 
     )
   }
