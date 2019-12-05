@@ -34,7 +34,8 @@ package object fantwodeck extends variationPoints{
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 104)),
-      solvable = true
+      solvable = true,
+      testSetup = Seq(),
     )
   }
 }

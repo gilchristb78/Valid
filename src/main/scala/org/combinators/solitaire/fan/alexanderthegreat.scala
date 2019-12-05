@@ -93,7 +93,8 @@ package object alexanderthegreat extends variationPoints{
       specializedElements = Seq(AlexColumn),
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
-      solvable = true
+      solvable = true,
+      testSetup = Seq(),
     )
   }
 }

@@ -29,7 +29,8 @@ package object allInARow extends variationPoints{
       deal = getDeal(),
       specializedElements = Seq(WastePile),
       moves = Seq(tableauToWasteMove),
-      logic = BoardState(Map(Waste -> 52))
+      logic = BoardState(Map(Waste -> 52)),
+      testSetup = Seq(),
     )
   }
 }

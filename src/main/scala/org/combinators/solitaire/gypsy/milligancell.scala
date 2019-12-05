@@ -69,7 +69,8 @@ package object milligancell extends variationPoints {
       specializedElements = Seq(FreeCell),
       moves = Seq(tableauToTableauMove, buildFoundation, flipMove, foundationToTableauMove, deckDealMove, moveToFreeCell, moveFoundationToFreeCell, moveFreeCellToFoundation),
       logic = BoardState(Map(Foundation -> 104)),
-      solvable = false
+      solvable = false,
+      testSetup = Seq(),
     )
   }
 }

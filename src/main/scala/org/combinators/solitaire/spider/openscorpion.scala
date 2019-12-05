@@ -52,7 +52,8 @@ package object openscorpion extends variationPoints {
       //moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),
       logic = BoardState(Map(Foundation -> 52)),
-      solvable = false
+      solvable = false,
+      testSetup = Seq(),
     )
   }
 }

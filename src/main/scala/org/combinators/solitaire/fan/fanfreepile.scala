@@ -36,7 +36,8 @@ package object fanfreepile extends variationPoints {
       specializedElements = Seq(FreePile),
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, moveFromFreePile, moveToFreePile),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
-      solvable = true
+      solvable = true,
+      testSetup = Seq()
     )
   }
 }

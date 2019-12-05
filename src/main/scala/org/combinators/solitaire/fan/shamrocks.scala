@@ -2,6 +2,7 @@ package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.fan.variationPoints
+import org.combinators.templating.twirl.Java
 
 import scala.util.Random
 
@@ -48,6 +49,18 @@ package object shamrocks extends variationPoints {
     deal
   }
 
+  def setBoardState: Seq[Java] = {
+    Seq(Java(
+      s"""
+         |
+         |Card movingCards = new Card(Card.THREE, Card.CLUBS);
+         |game.tableau[1].removeAll();
+         |game.tableau[2].removeAll();
+         |game.tableau[2].add(new Card(Card.TWO, Card.HEARTS));
+         |game.foundation[2].add(new Card(Card.ACE, Card.CLUBS));
+         |game.foundation[2].add(new Card(Card.TWO, Card.CLUBS));
+       """.stripMargin))}
+
   val shamrocks:Solitaire = {
     Solitaire(name = "Shamrocks",
       structure = structureMap,
@@ -56,7 +69,8 @@ package object shamrocks extends variationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
-      solvable = true
+      solvable = true,
+      testSetup = setBoardState,
     )
   }
 }

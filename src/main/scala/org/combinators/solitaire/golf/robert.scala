@@ -38,7 +38,8 @@ package object robert extends variationPoints{
       deal = getDeal(),
       specializedElements = Seq(WastePile),
       moves = Seq(tableauToWasteMove,dealToTableauMove,deckReset),
-      logic = BoardState(Map(Waste -> 52))
+      logic = BoardState(Map(Waste -> 52)),
+      testSetup = Seq(),
     )
   }
 }

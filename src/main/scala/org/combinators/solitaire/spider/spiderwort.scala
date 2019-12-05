@@ -46,7 +46,8 @@ package object spiderwort extends closedVariationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
       logic = BoardState(Map(Foundation -> 156)),
-      solvable = false
+      solvable = false,
+      testSetup = Seq(),
     )
   }
 }

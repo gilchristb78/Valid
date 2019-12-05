@@ -183,24 +183,38 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
-    def isKingNegative(constraint: Constraint) : Seq[Statement] = {
-      Java(
-        s"""
-           |movingCards = new Stack();
-           |for (int rank = Card.QUEEN; rank >= Card.ACE; rank--) {
-           |  movingCards.add(new Card(rank, Card.CLUBS));
-           |}
-           |""".stripMargin).statements()
+    def isKingNegative(constraint: Constraint, isSingle:Boolean) : Seq[Statement] = {
+      if(isSingle){
+        Java(
+          s"""
+             |movingCards = new Card(Card.QUEEN, Card.CLUBS);
+             |""".stripMargin).statements()
+      }else {
+        Java(
+          s"""
+             |movingCards = new Stack();
+             |for (int rank = Card.QUEEN; rank >= Card.ACE; rank--) {
+             |  movingCards.add(new Card(rank, Card.CLUBS));
+             |}
+             |""".stripMargin).statements()
+      }
     }
 
-    def isAceNegative(constraint: Constraint) : Seq[Statement] = {
-      Java(
-        s"""
-           |movingCards = new Stack();
-           |for (int rank = Card.KING; rank >= Card.TWO; rank--) {
-           |  movingCards.add(new Card(rank, Card.CLUBS));
-           |}
-           |""".stripMargin).statements()
+    def isAceNegative(constraint: Constraint, isSingle:Boolean) : Seq[Statement] = {
+      if(isSingle){
+        Java(
+          s"""
+             |movingCards = new Card(Card.TWO, Card.CLUBS);
+             |""".stripMargin).statements()
+      }else {
+        Java(
+          s"""
+             |movingCards = new Stack();
+             |for (int rank = Card.KING; rank >= Card.TWO; rank--) {
+             |  movingCards.add(new Card(rank, Card.CLUBS));
+             |}
+             |""".stripMargin).statements()
+      }
     }
 
     def allSameSuitNegative(constraint: Constraint) : Seq[Statement] = {
@@ -213,19 +227,26 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
-    def nextRankNegative(constraint: Constraint) :Seq[Statement] = {
-      Java(
-        s"""
-           |movingCards = new Stack();
-           |movingCards.add(new Card(Card.THREE, Card.CLUBS));
-           |destination.add(new Card(Card.FIVE, Card.CLUBS));
-           |""".stripMargin).statements()
+    def nextRankNegative(constraint: Constraint, isSingle:Boolean) :Seq[Statement] = {
+      if (isSingle) {
+        Java(
+          s"""
+             |movingCards = new Card(Card.FIVE, Card.CLUBS);
+             |""".stripMargin).statements()
+      } else {
+        Java(
+          s"""
+             |movingCards = new Stack();
+             |movingCards.add(new Card(Card.THREE, Card.CLUBS));
+             |destination.add(new Card(Card.FIVE, Card.CLUBS));
+             |""".stripMargin).statements()
+      }
     }
 
     def notDescending(constraint: Constraint) : Seq[Statement] = {
       Java(
         s"""
-           |movingCards = notDescending(movingCards);//Worked!!
+           |movingCards = notDescending(movingCards);
            |""".stripMargin).statements()
     }
 
@@ -246,22 +267,22 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       }
     }
 
-    def getConstraintMethod(constraint:Constraint) : Seq[Statement] = {
+    def getConstraintMethod(constraint:Constraint, isSingle:Boolean) : Seq[Statement] = {
       constraint match{
         case d:Descending =>{
           notDescending(constraint)
         }
         case a:IsAce=>{
-          isAceNegative(constraint)
+          isAceNegative(constraint, isSingle)
         }
         case k:IsKing=>{
-          isKingNegative(constraint)
+          isKingNegative(constraint, isSingle)
         }
         case e:IsEmpty=>{
           isEmptyNegative(constraint)
         }
         case r:NextRank=>{
-          nextRankNegative(constraint)
+          nextRankNegative(constraint, isSingle)
         }
         /*case s:AllSameSuit=>{
           allSameSuitNegative("movingCards")
@@ -292,8 +313,16 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         })
 
         val sym = Constructor(m.name)
+        var isSingle = false
         val source_loc = if(m.source._1.name.equalsIgnoreCase("stockcontainer")) "deck" else m.source._1.name + "[1]"
         val dealDeck_logic = if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck")) "game.tableau" else "movingCards, destination"
+        val singleCard_logic = if(m.moveType.getClass.getSimpleName.replaceAll("[$]", "").equalsIgnoreCase("singlecard")){
+          isSingle = true
+          "1"
+        }else{
+          "movingCards.count()"
+        }
+
         //Additional assertion dependent on if move is dealdeck or not
         val additional_assertion =
           if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck"))
@@ -313,7 +342,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |Stack destination = game.${m.target.head._1.name}[2]; //game.foundation[2] or game.tableau[2]
              |int ss = source.count();
              |int ds = destination.count();
-             |int ms = movingCards.count();
+             |int ms = ${singleCard_logic};
              |
              |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
              |
@@ -328,7 +357,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         var num = 0
         targetedConstraints.foreach(c=>{
           if(!negateCase(c)) {
-            val constraintMethod = getConstraintMethod(c)
+            val constraintMethod = getConstraintMethod(c, isSingle)
             val methodFalsify = Java(
               s"""
                  |@Test

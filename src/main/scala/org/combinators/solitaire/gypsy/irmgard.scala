@@ -50,7 +50,8 @@ package object irmgard extends variationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, buildFoundation, foundationToTableauMove, flipMove, deckDealMove),
       logic = BoardState(Map(Foundation -> 104)),
-      solvable = false
+      solvable = false,
+      testSetup = Seq(),
     )
   }
 }

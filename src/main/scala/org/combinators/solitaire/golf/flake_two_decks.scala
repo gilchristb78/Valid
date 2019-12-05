@@ -41,7 +41,8 @@ package object flake_two_decks extends variationPoints{
       deal = getDeal(),
       specializedElements = Seq(WastePile),
       moves = Seq(tableauToWasteMove, tableauToTableauMove),
-      logic = BoardState(Map(Waste -> 104))
+      logic = BoardState(Map(Waste -> 104)),
+      testSetup = Seq(),
     )
   }
 }

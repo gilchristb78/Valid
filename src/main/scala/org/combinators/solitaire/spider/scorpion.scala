@@ -59,7 +59,8 @@ package object scorpion extends closedVariationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
       logic = BoardState(Map(Foundation -> 52)),
-      solvable = false
+      solvable = false,
+      testSetup = Seq(),
     )
   }
 }

@@ -13,7 +13,7 @@ package object fan extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
-      testSetup = Seq()
+      testSetup = Seq(),
     )
   }
 }

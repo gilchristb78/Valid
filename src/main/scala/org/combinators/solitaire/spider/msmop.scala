@@ -38,7 +38,8 @@ package object mrsmop extends variationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),
       logic = BoardState(Map(Foundation -> 104)),
-      solvable = false
+      solvable = false,
+      testSetup = Seq(),
     )
   }
 }
