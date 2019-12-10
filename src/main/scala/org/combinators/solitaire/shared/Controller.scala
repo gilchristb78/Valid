@@ -32,7 +32,13 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
     var updated = gamma
 
     // TODO: MOVE OUTSIDE TO MAKE MORE GENERIC
-    updated = updated.addCombinator(new SolitaireTestSuite(s))
+    //Only print test cases if testsetup is defined
+    if(s.testSetup.nonEmpty){
+      println("Test setup found for variation: " + s.name)
+      updated = updated.addCombinator(new SolitaireTestSuite(s))
+    }else{
+      println("no setup found")
+    }
 
     //val combined = s.getRules.drags.asScala ++ s.getRules.presses.asScala ++ s.getRules.clicks.asScala
 
