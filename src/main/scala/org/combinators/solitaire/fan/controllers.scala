@@ -1,9 +1,10 @@
 package org.combinators.solitaire.fan
 
-import com.github.javaparser.ast.expr.SimpleName
+import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.expr.{Expression, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
 import org.combinators.solitaire.domain._
-import org.combinators.cls.interpreter.ReflectedRepository
+import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
 import org.combinators.generic
@@ -99,6 +100,50 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
       val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed)
     }
 
+  /** New Sinan combinator. */
+
+  /** Each Solitaire variation must provide default conversion for moves. */
+  @combinator
+  object Earth {
+    def apply:Expression = {
+      Java(s""""Earth"""").expression()
+    }
+    val semanticType: Type = 'Planet
+  }
+
+  @combinator
+  object Mars {
+    def apply:Expression = {
+      Java(s""""Mars"""").expression()
+    }
+    val semanticType: Type = 'Planet
+  }
+
+  @combinator
+  object NewSinanCombinator {
+    def apply(expr:Expression) :CompilationUnit = {
+      Java(
+        s"""
+           |package something;
+           |
+           |public class NewClass {
+           |  public static void main (String[] args) {
+           |    System.out.println($expr);
+           |  }
+           |}
+           |""".stripMargin).compilationUnit()
+    }
+
+    val semanticType: Type = 'Planet =>: sinan(sinan.begin)
+  }
+
+  @combinator object TemplateLoad {
+    def apply(expr:Expression) :CompilationUnit = {
+
+      shared.java.SampleTemplate.render(expr).compilationUnit()
+    }
+    val semanticType: Type = 'Planet =>: sinan(sinan.begin)
+  }
 }
 
 
