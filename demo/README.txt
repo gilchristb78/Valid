@@ -1,3 +1,5 @@
+OLD INSTRUCTIONS DON'T READ
+
 To execute the standard demonstration, you must first isntall IntelliJ and retrieve this project
 from within IntelliJ.
 
