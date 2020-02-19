@@ -9,8 +9,6 @@
 ->    /                              org.combinators.solitaire.bigforty.BigForty
 ->    /                              org.combinators.solitaire.castle.Castle
 ->    /                              org.combinators.solitaire.narcotic.Narcotic
-#->    /                              org.combinators.solitaire.narcoticTest.NarcoticTest
-#->    /                              org.combinators.solitaire.simplesimon.Simplesimon
 ->    /                              org.combinators.solitaire.minimal.Minimal
 ->    /                              org.combinators.solitaire.napoleon.Napoleon
 ->    /                              org.combinators.solitaire.gamma.Gamma
