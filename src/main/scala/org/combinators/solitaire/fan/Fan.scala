@@ -17,6 +17,7 @@ import org.combinators.solitaire.faneasy.faneasy
 import org.combinators.solitaire.labellelucie.labellelucie
 import org.combinators.solitaire.superflowergarden.superflowergarden
 import org.combinators.solitaire.alexanderthegreat.alexanderthegreat
+import org.combinators.solitaire.shared.SemanticTypes
 import org.combinators.solitaire.trefoil.trefoil
 
 
@@ -30,7 +31,8 @@ abstract class FanVariationController(web: WebJarsUtil, app: ApplicationLifecycl
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  lazy val targets = Synthesizer.allTargets(variation)
+  // TEMPORARILY BREAK for all other Fan variations.
+  lazy val targets = Synthesizer.allTargets(variation) ++ Synthesizer.newTargets()
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
