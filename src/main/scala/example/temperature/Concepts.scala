@@ -1,12 +1,15 @@
 package example.temperature
 
+import java.nio.file.Paths
+
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.`type`.{Type => JType}
 import com.github.javaparser.ast.expr.Expression
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types.syntax._
-import org.combinators.templating.twirl.Java
+import org.combinators.templating.twirl.{Java, Python}
 import org.combinators.cls.types.Type
+import org.combinators.templating.persistable.PythonWithPath
 
 trait Concepts extends SemanticTypes {
 
@@ -30,6 +33,22 @@ trait Concepts extends SemanticTypes {
   @combinator object WorcesterLocation {
     def apply: String = "01609"
     val semanticType:Type = artifact(artifact.location)
+  }
+
+  // Offers static API for extracting current temperature as celsius
+  @combinator
+  object HackPython {
+    def apply(): PythonWithPath = {
+      val code = Python(
+        s"""
+           |Garbage goes here
+           |any format.
+           |""".stripMargin)
+
+      PythonWithPath(code, Paths.get("something.tyxy"))
+    }
+
+    val semanticType:Type = sample()
   }
 
   // Offers static API for extracting current temperature as celsius

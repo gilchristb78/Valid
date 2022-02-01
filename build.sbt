@@ -1,5 +1,6 @@
 import play.sbt.PlayLayoutPlugin
 import play.twirl.sbt.SbtTwirl
+import sbt.Keys.libraryDependencies
 
 lazy val commonSettings = Seq(
   version := "1.0.0-SNAPSHOT",
@@ -26,9 +27,11 @@ lazy val commonSettings = Seq(
     "org.combinators" %% "cls-scala-presentation-play-git" % "1.0.0-RC1+8-63d5cf0b",
     "org.scalactic" %% "scalactic" % "3.0.1" % "test",
     "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+    // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
+    "javax.xml.bind" % "jaxb-api" % "2.3.1",
+
     guice
   )
-
 )
 
 lazy val root = (Project(id = "nextgen-solitaire", base = file(".")))

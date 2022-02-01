@@ -38,6 +38,10 @@ trait SemanticTypes {
     val floating:Type = 'Float
   }
 
+  object sample {
+    def apply ():Type = 'Sample
+  }
+
   object artifact {
     def apply (part:Type):Type = 'Artifact(part)
 

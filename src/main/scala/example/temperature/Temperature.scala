@@ -1,13 +1,14 @@
 package example.temperature
 
 import javax.inject.Inject
-
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.expr.Expression
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.syntax._
 import org.combinators.cls.git.{EmptyResults, InhabitationController}
 import org.combinators.templating.persistable.JavaPersistable._
+import org.combinators.templating.persistable.PythonWithPathPersistable._
+import org.combinators.templating.persistable.PythonWithPath
 import org.webjars.play.WebJarsUtil
 import play.api.inject.ApplicationLifecycle
 
@@ -23,6 +24,7 @@ class Temperature @Inject()(webJars: WebJarsUtil, applicationLifecycle: Applicat
 
   lazy val jobs = Gamma.InhabitationBatchJob[CompilationUnit](artifact(artifact.api) :&: precision(precision.floating))
     .addJob[CompilationUnit](artifact(artifact.impl) :&: precision(precision.integer) :&: unit(unit.celsius))
+    .addJob[PythonWithPath](sample())
 
   lazy val results = EmptyResults().addAll(jobs.run())
 
