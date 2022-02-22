@@ -220,7 +220,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
     def allSameSuitNegative(constraint: Constraint) : Seq[Statement] = {
       Java(
         s"""
-           |movingCards = new Stack();
+           |movingCards = new ks.common.model.Stack();
            |movingCards.add(new Card(Card.ACE, Card.CLUBS));
            |movingCards.add(new Card(Card.ACE, Card.HEARTS));
            |movingCards.add(new Card(Card.ACE, Card.SPADES));
@@ -314,7 +314,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
 
         val sym = Constructor(m.name)
         var isSingle = false
-        val source_loc = if(m.source._1.name.equalsIgnoreCase("stockcontainer")) "deck" else m.source._1.name + "[1]"
+        val source_loc = if(m.source._1.name.equalsIgnoreCase("stockcontainer")) "deck" else m.source._1.name + "[0]"
         val dealDeck_logic = if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck")) "game.tableau" else "movingCards, destination"
         val singleCard_logic = if(m.moveType.getClass.getSimpleName.replaceAll("[$]", "").equalsIgnoreCase("singlecard")){
           isSingle = true
@@ -339,7 +339,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |${solitaire.testSetup.head}
              |
              |Stack source = game.${source_loc}; //game.tableau[0] or deck
-             |Stack destination = game.${m.target.head._1.name}[2]; //game.foundation[2] or game.tableau[2]
+             |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
              |int ss = source.count();
              |int ds = destination.count();
              |int ms = ${singleCard_logic};

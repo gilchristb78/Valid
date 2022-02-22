@@ -37,7 +37,7 @@ trait DealLogic extends SemanticTypes with Base {
             // filter removes cards, but up to a certain limit only
             stmts = stmts + s"""{
                  |java.util.ArrayList<Card> tmp = new java.util.ArrayList<Card>();
-                 |Stack keep = new Stack();
+                 |ks.common.model.Stack keep = new ks.common.model.Stack();
                  |int _limit = $limit;
                  |while (!deck.empty()) {
                  |    Card card = deck.get();

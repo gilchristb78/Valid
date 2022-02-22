@@ -44,7 +44,7 @@ trait variationPoints {
 
   def buildOnTableau(card: MovingCard.type): Constraint = {
     val topDestination = TopCardOf(Destination)
-    AndConstraint( NextRank(topDestination, card),  SameSuit(card, topDestination))
+    AndConstraint(NextRank(topDestination, card),  SameSuit(card, topDestination))
   }
 
   def buildOnEmptyTableau(card: MovingCard.type): Constraint = {

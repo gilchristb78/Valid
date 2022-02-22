@@ -1,7 +1,8 @@
 package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.fan.{variationPoints}
+import org.combinators.solitaire.fan.variationPoints
+import org.combinators.templating.twirl.Java
 
 package object fanfreepile extends variationPoints {
 
@@ -24,6 +25,17 @@ package object fanfreepile extends variationPoints {
   val moveFromFreePile:Move = SingleCardMove("MoveFromFreePile", Drag,
     source=(Reserve,Truth), target=Some((Tableau, tt_move)))
 
+  def setBoardState: Seq[Java] = {
+    Seq(Java(
+      s"""
+         |
+         |Card movingCards = new Card(Card.THREE, Card.HEARTS);
+         |game.tableau[1].removeAll();
+         |game.tableau[2].removeAll();
+         |game.foundation[2].add(new Card(Card.ACE, Card.HEARTS));
+         |game.foundation[2].add(new Card(Card.TWO, Card.HEARTS));
+      """.stripMargin))}
+
   /**
     * Moving from Reserve to anywhere but Tableau will through an error
     * Views from element as
@@ -37,7 +49,7 @@ package object fanfreepile extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, moveFromFreePile, moveToFreePile),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
-      testSetup = Seq()
+      testSetup = setBoardState,
     )
   }
 }

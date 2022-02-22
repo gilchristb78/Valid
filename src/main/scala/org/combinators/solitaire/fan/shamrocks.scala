@@ -19,7 +19,7 @@ package object shamrocks extends variationPoints {
   }
 
   def getDeal2: Seq[Step] ={
-    var deal:Seq[Step] = Seq (FilterStep(IsKing(DealComponents)))
+    var deal:Seq[Step] = Seq (FilterStep(IsKing(DealComponents))) // remove all kingws
     //only first 16 cols get a third
     val rand = Random
     var visitedSpots:Seq[Int] = Seq()
@@ -29,6 +29,7 @@ package object shamrocks extends variationPoints {
       while (num2 == num){
         num2 = rand.nextInt(18)
       }
+
       num = num2
       visitedSpots = visitedSpots :+ num
       deal = deal :+ DealStep(ElementTarget(Tableau, num))
