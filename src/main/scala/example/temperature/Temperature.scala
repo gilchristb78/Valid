@@ -41,7 +41,7 @@ object Manual {
     lazy val Gamma = ReflectedRepository(repository, substitutionSpace=precisions.merge(units), semanticTaxonomy=taxonomyLoss,
       classLoader = this.getClass.getClassLoader)
     println("Expressions that return Fahrenheit")
-    Gamma.inhabit[Expression](artifact(artifact.compute) :&: precision(precision.floating) :&: unit(unit.fahrenheit))
+    Gamma.inhabit[Expression](artifact(artifact.compute) :&: precision(precision.integer) :&: unit(unit.celsius))
       .interpretedTerms.values.flatMap(_._2)
       .foreach(exp => println(exp))
 

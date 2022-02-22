@@ -20,7 +20,6 @@ trait variationPoints {
     Foundation -> horizontalPlacement(200, 10, 4, card_height),
   )
 
-
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](18)(Column),
     Foundation -> Seq.fill[Element](4)(Pile),
@@ -60,11 +59,9 @@ trait variationPoints {
     IsAce(card)
   }
 
-
   val tt_move:Constraint = IfConstraint(IsEmpty(Destination), buildOnEmptyTableau(MovingCard), buildOnTableau(MovingCard))
 
   val tf_move:Constraint = IfConstraint(IsEmpty(Destination), buildOnEmptyFoundation(MovingCard), buildOnFoundation(MovingCard))
-
 
   val tableauToTableauMove:Move = SingleCardMove("MoveCard", Drag,
     source=(Tableau,Truth), target=Some((Tableau, tt_move)))

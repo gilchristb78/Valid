@@ -330,6 +330,20 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         else
           "ds + ms, destination.count()"
 
+        // The 'customizedSetup' contains triples for all moves (src,opt[target]) and the goal is to find the seq[java] that we need
+        val source_customized_seq = if (m.target.isDefined) {
+          solitaire.customizedSetup.filter(triple => (triple._1 == m.source._1) && triple._2.isDefined && triple._2.get == m.target.get._1)
+        } else {
+          solitaire.customizedSetup.filter(triple => (triple._1 == m.source._1) && m.target.isEmpty)
+        }
+
+        // IF there is no customized code, just set to empty, otherwise grab it and use it
+        val source_customized = if (source_customized_seq.isEmpty) {
+          Seq.empty
+        } else {
+          source_customized_seq.head._3
+        }
+
         val method = Java(
           s"""
              |@Test
@@ -337,6 +351,8 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |String type  = "${m.moveType.getClass.getSimpleName}";
              |
              |${solitaire.testSetup.head}
+             |
+             |${source_customized.mkString("\n")}
              |
              |Stack source = game.${source_loc}; //game.tableau[0] or deck
              |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
@@ -371,9 +387,9 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                  |Stack source = game.${source_loc}; //game.tableau[0] or deck
                  |Stack destination = game.${m.target.head._1.name}[2]; //game.foundation[1] or game.tableau[1]
                  |
-               |${constraintMethod.mkString("\n")}
+                 |${constraintMethod.mkString("\n")}
                  |
-               |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
+                 |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
                  |if(userDefined){
                  |  Assert.assertTrue(move.valid(game));
                  |}else{

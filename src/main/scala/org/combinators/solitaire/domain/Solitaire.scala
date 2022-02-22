@@ -66,8 +66,8 @@ case class Move
   moveType:MoveType,
   gesture:GestureType,
   movableElement:Element,
-  source:(ContainerType,Constraint),
-  target:Option[(ContainerType,Constraint)],
+  source:(ContainerType,Constraint),             // MUST be present
+  target:Option[(ContainerType,Constraint)],     // has to be optional BECAUSE some moves do not involve any designated target
   isSingleDestination:Boolean = true,
 ) {
 
@@ -107,7 +107,8 @@ case class Solitaire
   logic:WinningLogic = ScoreAchieved(52),
   autoMoves:Boolean = false,
   solvable:Boolean = false,
-  testSetup:Seq[Java] = Seq(),
+  testSetup:Seq[Java] = Seq(),            // @Before by making this a Seq, it simplifies handling case when there is no test
+  customizedSetup:Seq[(ContainerType,Option[ContainerType],Seq[Java])] = Seq(),        // @Custom pairs of triples (ContainerType,Option[ContainerType], Seq[Java])
 )
 /*
 testSetup:Seq[MethodDeclaration] = Seq()*/

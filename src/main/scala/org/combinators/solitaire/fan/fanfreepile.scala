@@ -19,11 +19,33 @@ package object fanfreepile extends variationPoints {
     Foundation -> horizontalPlacement(200, 10, 4, card_height),
     Reserve -> calculatedPlacement(Seq((800,250),(800, 250+card_height+card_gap)))
   )
-  val moveToFreePile:Move = SingleCardMove("MoveToFreePile", Drag,
+
+  // ambiguity: two kinds of moves to freePile
+  val fromTableauToReserve:Move = SingleCardMove("TableauToReserve", Drag,
     source=(Tableau,Truth), target=Some((Reserve, IsEmpty(Destination))))
 
-  val moveFromFreePile:Move = SingleCardMove("MoveFromFreePile", Drag,
+  // should be "NotEmpty" not Truth
+  val fromReserveToReserve:Move = SingleCardMove("ReserveToReserve", Drag,
+    source=(Reserve,Truth), target=Some((Reserve, IsEmpty(Destination))))
+
+  val fromReserveToTableau:Move = SingleCardMove("ReserveToTableau", Drag,
     source=(Reserve,Truth), target=Some((Tableau, tt_move)))
+
+  val fromReserveToFoundation:Move = SingleCardMove("ReserveToFoundation", Drag,
+    source=(Reserve,Truth), target=Some((Foundation, tf_move)))
+
+  // place A-spades in Foundation[0]
+  val foundationCustomSetup:(ContainerType,Option[ContainerType],Seq[Java]) = (
+    Tableau,              // source is tableau
+    Some(Foundation),     // target is foundation
+    Seq(Java(             // sequence for any test case to validate this move
+      s"""
+         |// special set for Tableau to Foundation
+         |game.foundation[0].add(new Card(Card.ACE, Card.SPADES));
+         |game.foundation[1].add(new Card(Card.ACE, Card.CLUBS));
+         |game.foundation[1].add(new Card(Card.TWO, Card.CLUBS));
+      """.stripMargin))
+  )
 
   def setBoardState: Seq[Java] = {
     Seq(Java(
@@ -46,10 +68,11 @@ package object fanfreepile extends variationPoints {
       layout = Layout(layoutMap),
       deal = getDeal,
       specializedElements = Seq(FreePile),
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove, moveFromFreePile, moveToFreePile),
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove, fromTableauToReserve, fromReserveToReserve, fromReserveToTableau,fromReserveToFoundation ),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
       testSetup = setBoardState,
+      customizedSetup = Seq(foundationCustomSetup),
     )
   }
 }
