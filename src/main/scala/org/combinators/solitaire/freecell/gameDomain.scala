@@ -361,8 +361,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
     val semanticType: Type = game(game.methods :&: game.availableMoves)
   }
 
-
-
 //   @combinator object MakeHomePile extends ExtendModel("Pile", "HomePile", 'HomePileClass)
 //   @combinator object MakeFreePile extends ExtendModel("Pile", "FreePile", 'FreePileClass)
 //   @combinator object MakeHomePileView extends ExtendView("View", "HomePileView", "HomePile", 'HomePileViewClass)

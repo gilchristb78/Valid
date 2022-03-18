@@ -13,14 +13,13 @@ import play.api.inject.ApplicationLifecycle
 
 class Castle @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
 
-  val solitaire:Solitaire = castle //  new domain.castle.Domain()
+  val solitaire = castle //  new domain.castle.Domain()
 
-  /** KlondikeDomain for Klondike defined herein. Controllers are defined in Controllers area. */
+  /** KlondikeDomain for Castle defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new CastleDomain(solitaire) with controllers {}
 
 
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
-
   lazy val combinatorComponents = Gamma.combinatorComponents
 
   lazy val targets: Seq[Constructor] = Synthesizer.allTargets(solitaire)

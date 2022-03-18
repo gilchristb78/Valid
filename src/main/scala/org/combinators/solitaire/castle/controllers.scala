@@ -20,9 +20,10 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(row))
+      .addCombinator (new SingleCardMoveHandler(row))
+      .addCombinator (new IgnoreReleasedHandler(deck))
       .addCombinator (new IgnoreClickedHandler(pile))
       .addCombinator (new IgnorePressedHandler(pile))
-      .addCombinator (new IgnoreReleasedHandler(deck))
 
 
     updated = createWinLogic(updated, s)
@@ -31,6 +32,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     updated = updated
       .addCombinator (new DefineRootPackage(s))
       .addCombinator (new DefineNameOfTheGame(s))
+      .addCombinator (new ProcessModel(s))
       .addCombinator (new ProcessView(s))
       .addCombinator (new ProcessControl(s))
       .addCombinator (new ProcessFields(s))

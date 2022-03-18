@@ -2,6 +2,7 @@ package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.spider.closedVariationPoints
+import org.combinators.templating.twirl.Java
 
 
 package object baby extends closedVariationPoints {
@@ -43,6 +44,17 @@ package object baby extends closedVariationPoints {
     AndConstraint( descend, OrConstraint(isEmpty, NextRank(topDestination, bottomMoving, true)) )
   }
 
+  def setBoardState: Seq[Java] = {
+    Seq(Java(
+      s"""
+         |
+         |Card movingCards = new Card(Card.THREE, Card.HEARTS);
+         |game.tableau[1].removeAll();
+         |game.tableau[2].removeAll();
+         |game.foundation[2].add(new Card(Card.ACE, Card.HEARTS));
+         |game.foundation[2].add(new Card(Card.TWO, Card.HEARTS));
+      """.stripMargin))}
+
   val baby:Solitaire = {
     Solitaire(name = "Baby",
       structure = structureMap,
@@ -52,7 +64,7 @@ package object baby extends closedVariationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
       logic = BoardState(Map(Foundation -> 52)),
       solvable = false,
-      testSetup = Seq(),
+      testSetup = setBoardState,
     )
   }
 }

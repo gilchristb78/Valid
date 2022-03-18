@@ -126,6 +126,34 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
     val semanticType: Type = packageName =>: game(game.imports)
   }
 
+//  @combinator object ExtraMethods {
+//    def apply(): Seq[MethodDeclaration] =
+//
+//      Java(
+//        s"""public java.util.Enumeration<Move> availableMoves() {
+//           |  java.util.Vector<Move> v = new java.util.Vector<Move>();
+//           |        for (Column c : tableau) {
+//           |            for (Pile p : foundation) {
+//           |                PotentialMoveCardFoundation pfm = new PotentialMoveCardFoundation(c, p);
+//           |                if (pfm.valid(this)) {
+//           |                    v.add(pfm);
+//           |                }
+//           |            }
+//           |        }
+//           |        if (v.isEmpty()) {
+//           |            for (Column c : tableau) {
+//           |
+//           |            for (Column c2 : tableau) {
+//           |                PotentialMoveCard pm = new PotentialMoveCard(c, c2);
+//           |                if (pm.valid(this)) {
+//           |                    v.add(pm);
+//           |                }
+//           |            }
+//           |           }
+//           |        }
+//           |        return v.elements();
+//           |}
+//       """.stripMargin).methodDeclarations()
   /**
     * Eventually will add extra methods here...
     */

@@ -41,7 +41,7 @@ trait controllers extends shared.Controller with GameTemplate with shared.Moves 
 //      .addCombinator (new IgnorePressedHandler('HomePile))
 //      .addCombinator (new IgnoreClickedHandler('HomePile))
       .addCombinator (new SingleCardMoveHandler('FreePile))
-//      .addCombinator (new IgnoreClickedHandler('FreePile))
+      .addCombinator (new IgnoreClickedHandler('FreePile))
 //      .addCombinator (new IgnoreClickedHandler('Column))
 
     updated = createWinLogic(updated, s)

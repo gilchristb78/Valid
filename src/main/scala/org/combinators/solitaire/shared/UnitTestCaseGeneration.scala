@@ -217,13 +217,10 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       }
     }
 
-    def allSameSuitNegative(constraint: Constraint) : Seq[Statement] = {
+    def sameSuitNegative(constraint: Constraint) : Seq[Statement] = {
       Java(
         s"""
-           |movingCards = new ks.common.model.Stack();
-           |movingCards.add(new Card(Card.ACE, Card.CLUBS));
-           |movingCards.add(new Card(Card.ACE, Card.HEARTS));
-           |movingCards.add(new Card(Card.ACE, Card.SPADES));
+           |movingCards = (new Card(Card.ACE, Card.SPADES));
            |""".stripMargin).statements()
     }
 
@@ -284,9 +281,9 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         case r:NextRank=>{
           nextRankNegative(constraint, isSingle)
         }
-        /*case s:AllSameSuit=>{
-          allSameSuitNegative("movingCards")
-        }*/
+        case s:SameSuit=>{
+          sameSuitNegative(constraint)
+        }
         case _=> showConstraint(constraint)
       }
     }
@@ -384,8 +381,10 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                  |
                  |${solitaire.testSetup.head}
                  |
+                 |${source_customized.mkString("\n")}
+                 |
                  |Stack source = game.${source_loc}; //game.tableau[0] or deck
-                 |Stack destination = game.${m.target.head._1.name}[2]; //game.foundation[1] or game.tableau[1]
+                 |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
                  |
                  |${constraintMethod.mkString("\n")}
                  |

@@ -34,28 +34,29 @@ package object fanfreepile extends variationPoints {
   val fromReserveToFoundation:Move = SingleCardMove("ReserveToFoundation", Drag,
     source=(Reserve,Truth), target=Some((Foundation, tf_move)))
 
-  // place A-spades in Foundation[0]
-  val foundationCustomSetup:(ContainerType,Option[ContainerType],Seq[Java]) = (
+  // place A-spades in Foundation[1]
+  val foundationCustomSetup1:(ContainerType,Option[ContainerType],Seq[Java]) = (
     Tableau,              // source is tableau
     Some(Foundation),     // target is foundation
+    IsAce(MovingCard),
     Seq(Java(             // sequence for any test case to validate this move
       s"""
          |// special set for Tableau to Foundation
-         |game.foundation[0].add(new Card(Card.ACE, Card.SPADES));
-         |game.foundation[1].add(new Card(Card.ACE, Card.CLUBS));
-         |game.foundation[1].add(new Card(Card.TWO, Card.CLUBS));
+         |game.tableau[1].add(new Card(Card.ACE, Card.CLUBS));
+         |game.tableau[1].add(new Card(Card.TWO, Card.CLUBS));
       """.stripMargin))
   )
+
 
   def setBoardState: Seq[Java] = {
     Seq(Java(
       s"""
          |
-         |Card movingCards = new Card(Card.THREE, Card.HEARTS);
+         |Card movingCards = new Card(Card.THREE, Card.CLUBS);
          |game.tableau[1].removeAll();
          |game.tableau[2].removeAll();
-         |game.foundation[2].add(new Card(Card.ACE, Card.HEARTS));
-         |game.foundation[2].add(new Card(Card.TWO, Card.HEARTS));
+         |game.foundation[2].add(new Card(Card.ACE, Card.CLUBS));
+         |game.foundation[2].add(new Card(Card.TWO, Card.CLUBS));
       """.stripMargin))}
 
   /**
@@ -72,7 +73,7 @@ package object fanfreepile extends variationPoints {
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
       testSetup = setBoardState,
-      customizedSetup = Seq(foundationCustomSetup),
+      customizedSetup = Seq(foundationCustomSetup1),
     )
   }
 }
