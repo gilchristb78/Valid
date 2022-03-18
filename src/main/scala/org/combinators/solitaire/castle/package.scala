@@ -92,7 +92,7 @@ package object castle {
       deal = getDeal,
 
       /** from element can infer ks.ViewWidget as well as Base Element. */
-      specializedElements = Seq(Row),
+      specializedElements = Seq.empty,
 
       /** All rules here. */
       moves = Seq(tableauToTableau, tableauToFoundation),
