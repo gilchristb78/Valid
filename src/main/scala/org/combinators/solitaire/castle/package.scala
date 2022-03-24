@@ -61,9 +61,10 @@ package object castle {
          |game.foundation[2].add(new Card(Card.TWO, Card.HEARTS));
       """.stripMargin))}
 
-  val foundationCustomSetup:(ContainerType,Option[ContainerType],Seq[Java]) = (
+  val foundationCustomSetup:(ContainerType,Option[ContainerType],Constraint,Seq[Java]) = (
     Tableau,              // source is tableau
     Some(Foundation),     // target is foundation
+    IsAce(MovingCard),    // HACK: NOT SURE IF RIGHT
     Seq(Java(             // sequence for any test case to validate this move
       s"""
          |// special set for Tableau to Foundation

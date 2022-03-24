@@ -108,7 +108,7 @@ case class Solitaire
   autoMoves:Boolean = false,
   solvable:Boolean = false,
   testSetup:Seq[Java] = Seq(),            // @Before by making this a Seq, it simplifies handling case when there is no test
-  customizedSetup:Seq[(ContainerType,Option[ContainerType],Seq[Java])] = Seq(),        // @Custom pairs of triples (ContainerType,Option[ContainerType], Seq[Java])
+  customizedSetup:Seq[(ContainerType,Option[ContainerType],Constraint,Seq[Java])] = Seq(),        // @Custom pairs of triples (ContainerType,Option[ContainerType], Seq[Java])
 )
 /*
 testSetup:Seq[MethodDeclaration] = Seq()*/

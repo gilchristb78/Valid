@@ -338,8 +338,11 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         val source_customized = if (source_customized_seq.isEmpty) {
           Seq.empty
         } else {
-          source_customized_seq.head._3
+          Seq(source_customized_seq.head._4)
         }
+        print("ERROR2: " + source_customized.mkString("\n"))
+        print("ERROR3: " + additional_assertion)
+
 
         val method = Java(
           s"""
@@ -361,7 +364,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
              |
              |Assert.assertTrue(move.valid(game));
              |move.doMove(game);
-             |Assert.assertEquals(${additional_assertion});
+             |//Assert.assertEquals(${additional_assertion});
              |
              |}""".stripMargin).methodDeclarations().head
 

@@ -35,15 +35,16 @@ package object fanfreepile extends variationPoints {
     source=(Reserve,Truth), target=Some((Foundation, tf_move)))
 
   // place A-spades in Foundation[1]
-  val foundationCustomSetup1:(ContainerType,Option[ContainerType],Seq[Java]) = (
+  val foundationCustomSetup1:(ContainerType,Option[ContainerType],Constraint,Seq[Java]) = (
     Tableau,              // source is tableau
     Some(Foundation),     // target is foundation
-    IsAce(MovingCard),
+    IsAce(MovingCard),    // constraint to be falsified
     Seq(Java(             // sequence for any test case to validate this move
       s"""
          |// special set for Tableau to Foundation
-         |game.tableau[1].add(new Card(Card.ACE, Card.CLUBS));
+         |game.foundation[1].removeAll();
          |game.tableau[1].add(new Card(Card.TWO, Card.CLUBS));
+         |game.tableau[1].add(new Card(Card.ACE, Card.CLUBS));
       """.stripMargin))
   )
 
