@@ -429,6 +429,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                     |  ${m.name} move = new ${m.name}(source, ${dealDeck_logic});
                     |
                     |  Assert.assertTrue(move.valid(game));               // Move is valid
+                    |  Assert.assertTrue(move.doMove(game));              // Make move
                     |  Assert.assertEquals(destination.count(), ds+ms);   // Destination set
                     |}""".stripMargin
             } else {
