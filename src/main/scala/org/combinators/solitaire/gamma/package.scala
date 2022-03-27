@@ -16,8 +16,7 @@ package object gamma {
       deal = Seq.empty,
       specializedElements = Seq.empty,
       moves = Seq.empty,
-      logic = BoardState(Map()),
-      testSetup = Seq()
+      logic = BoardState(Map())
     )
   }
 }

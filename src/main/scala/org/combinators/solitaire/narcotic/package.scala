@@ -31,12 +31,6 @@ package object narcotic {
   val deckReset:Move = ResetDeckMove("ResetDeck",
     source=(StockContainer,IsEmpty(Source)), target=Some((Tableau, Truth)))
 
-  def setBoardState: Seq[Java] = {
-    Seq(Java(
-      s"""
-         |
-      """.stripMargin))}
-
   val narcotic:Solitaire = {
 
     Solitaire( name="Narcotic",
@@ -45,8 +39,7 @@ package object narcotic {
       deal = Seq(DealStep(ContainerTarget(Tableau))),
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove,tableauRemove,deckDealMove,deckReset),
-      logic = BoardState(Map(Tableau -> 0, StockContainer -> 0)),
-      testSetup = setBoardState,
+      logic = BoardState(Map(Tableau -> 0, StockContainer -> 0))
     )
   }
 }

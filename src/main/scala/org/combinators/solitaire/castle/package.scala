@@ -61,18 +61,22 @@ package object castle {
          |game.foundation[2].add(new Card(Card.TWO, Card.HEARTS));
       """.stripMargin))}
 
-  val foundationCustomSetup:(ContainerType,Option[ContainerType],Constraint,Seq[Java]) = (
-    Tableau,              // source is tableau
-    Some(Foundation),     // target is foundation
-    IsAce(MovingCard),    // HACK: NOT SURE IF RIGHT
-    Seq(Java(             // sequence for any test case to validate this move
-      s"""
-         |// special set for Tableau to Foundation
-         |game.foundation[0].add(new Card(Card.ACE, Card.SPADES));
-         |game.foundation[1].add(new Card(Card.ACE, Card.CLUBS));
-         |game.foundation[1].add(new Card(Card.TWO, Card.CLUBS));
-      """.stripMargin))
-  )
+  /**
+    * Clear 0th Foundation and place [Two, Ace] on the 0th Tableau
+    */
+  case object PrepareTableauToFoundation extends Setup {
+
+    val sourceElement = ElementInContainer(Foundation, 0)
+    val targetElement = Some(ElementInContainer(Tableau, 1))
+
+    // clear Foundation, and place [2C, AC] on 0th tableau
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),     // might not be necessary?
+      InitializeStep(sourceElement, CardCreate(Spades, Ace)),
+      InitializeStep(ElementInContainer(Foundation, 1), CardCreate(Spades, Ace)),
+      InitializeStep(ElementInContainer(Foundation, 1), CardCreate(Clubs, Two)),
+    )
+  }
 
   val tt_move:Constraint = IfConstraint(IsEmpty(Destination), buildOnEmptyTableau(MovingCard), buildOnTableau(MovingCard))
 
@@ -98,8 +102,8 @@ package object castle {
       /** All rules here. */
       moves = Seq(tableauToTableau, tableauToFoundation),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
-      solvable = true,testSetup = setBoardState,
-      customizedSetup = Seq(foundationCustomSetup),
+      solvable = true,
+      customizedSetup = Seq(PrepareTableauToFoundation)
     )
   }
 }

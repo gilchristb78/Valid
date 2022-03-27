@@ -3,7 +3,6 @@ package org.combinators.solitaire
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.gypsy.variationPoints
 
-
 package object irmgard extends variationPoints {
   override def getNumTableau(): Int = 9
   override def getDeal(): Seq[DealStep] = {
@@ -49,9 +48,7 @@ package object irmgard extends variationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, buildFoundation, foundationToTableauMove, flipMove, deckDealMove),
-      logic = BoardState(Map(Foundation -> 104)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 104))
     )
   }
 }

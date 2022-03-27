@@ -33,19 +33,7 @@ package object simplevar extends variationPoints {
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     source=(StockContainer, deckCon), target=Some((Tableau, Truth)))
 
-  def setBoardState: Seq[Java] = {
-    Seq(Java(
-      s"""
-         |
-         |Stack movingCards = new Stack();
-         |   for (int rank = Card.KING; rank >= Card.ACE; rank--) {
-         |       movingCards.add(new Card(rank, Card.CLUBS));
-         |   }
-         |
-         |game.tableau[1].removeAll();
-         |game.tableau[2].removeAll();
-         |
-       """.stripMargin))}
+  // some how deal with movingCards being a stack of cards?
 
   val simplevar:Solitaire = {
     Solitaire(name = "Simplevar",
@@ -54,9 +42,7 @@ package object simplevar extends variationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),
-      logic = BoardState(Map(Foundation -> 52)),
-      solvable = false,
-      testSetup = setBoardState
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }

@@ -1,8 +1,6 @@
 package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.gypsy.variationPoints
-
 
 package object gypsy extends variationPoints {
   val gypsy:Solitaire = {
@@ -12,9 +10,7 @@ package object gypsy extends variationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, buildFoundation, foundationToTableauMove, flipMove, deckDealMove),
-      logic = BoardState(Map(Foundation -> 104)),
-      solvable = false,
-      testSetup = Seq()
+      logic = BoardState(Map(Foundation -> 104))
     )
   }
 }

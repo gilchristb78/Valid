@@ -19,8 +19,7 @@ package object castles_in_spain extends variationPoints{
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
-      logic = BoardState(Map(Foundation -> 52)),
-      solvable = false
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }

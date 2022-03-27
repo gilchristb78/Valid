@@ -14,8 +14,7 @@ package object spanish_patience extends variationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),  //deckDealMove before flipmove and in varpoints. End with flipmove
-      logic = BoardState(Map(Foundation -> 52)),
-      solvable = false
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }

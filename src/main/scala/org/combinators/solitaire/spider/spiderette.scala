@@ -3,20 +3,11 @@ package org.combinators.solitaire
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.spider.closedVariationPoints
 
-
 package object spiderette extends closedVariationPoints {
 
-  override def numTableau(): Int ={
-    8
-  }
-
-  override def numFoundation(): Int ={
-    4
-  }
-
-  override def numStock(): Int ={
-    1
-  }
+  override def numTableau(): Int = 8
+  override def numFoundation(): Int = 4
+  override def numStock(): Int = 1
 
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 1
@@ -41,9 +32,7 @@ package object spiderette extends closedVariationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
-      logic = BoardState(Map(Foundation -> 52)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }

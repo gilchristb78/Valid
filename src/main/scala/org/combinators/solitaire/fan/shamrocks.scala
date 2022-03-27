@@ -50,17 +50,24 @@ package object shamrocks extends variationPoints {
     deal
   }
 
-  def setBoardState: Seq[Java] = {
-    Seq(Java(
-      s"""
-         |
-         |Card movingCards = new Card(Card.THREE, Card.CLUBS);
-         |game.tableau[1].removeAll();
-         |game.tableau[2].removeAll();
-         |game.tableau[2].add(new Card(Card.TWO, Card.HEARTS));
-         |game.foundation[2].add(new Card(Card.ACE, Card.CLUBS));
-         |game.foundation[2].add(new Card(Card.TWO, Card.CLUBS));
-       """.stripMargin))}
+  case object PrepareTableauToFoundation extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    // clear Foundation, and place [2C, AC] on 0th tableau
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      InitializeStep(ElementInContainer(Tableau, 2), CardCreate(Hearts, Two)),
+      InitializeStep(ElementInContainer(Foundation, 2), CardCreate(Clubs, Ace)),
+      InitializeStep(ElementInContainer(Foundation, 2), CardCreate(Clubs, Two)),
+    )
+
+    // Note: The premise behind falsifiedTest() is flawed. Specifically, given a condition
+    // that is OR(c1, c2) and if you attempt to falsify with OR(not c1, c2) to demonstrate
+    // an error, it could still succeed, because of c2. So we are only going to work on
+    // positive test cases, to validate that a move works.
+
+  }
 
   val shamrocks:Solitaire = {
     Solitaire(name = "Shamrocks",
@@ -71,7 +78,7 @@ package object shamrocks extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
-      testSetup = setBoardState,
+      customizedSetup = Seq(PrepareTableauToFoundation),
     )
   }
 }

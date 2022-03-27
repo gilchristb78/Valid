@@ -3,7 +3,6 @@ package org.combinators.solitaire
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.gypsy.variationPoints
 
-
 package object nomad extends variationPoints {
   case object FreeCell extends Element(true)
 
@@ -52,9 +51,7 @@ package object nomad extends variationPoints {
       deal = getDeal,
       specializedElements = Seq(FreeCell),
       moves = Seq(tableauToTableauMove, buildFoundation, flipMove, foundationToTableauMove, deckDealMove, moveToFreeCell, moveFoundationToFreeCell, moveFreeCellToFoundation),
-      logic = BoardState(Map(Foundation -> 104)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 104))
     )
   }
 }

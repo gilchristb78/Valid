@@ -34,31 +34,29 @@ package object fanfreepile extends variationPoints {
   val fromReserveToFoundation:Move = SingleCardMove("ReserveToFoundation", Drag,
     source=(Reserve,Truth), target=Some((Foundation, tf_move)))
 
-  // place A-spades in Foundation[1]
-  val foundationCustomSetup1:(ContainerType,Option[ContainerType],Constraint,Seq[Java]) = (
-    Tableau,              // source is tableau
-    Some(Foundation),     // target is foundation
-    IsAce(MovingCard),    // constraint to be falsified
-    Seq(Java(             // sequence for any test case to validate this move
-      s"""
-         |// special set for Tableau to Foundation
-         |game.foundation[1].removeAll();
-         |game.tableau[1].add(new Card(Card.TWO, Card.CLUBS));
-         |game.tableau[1].add(new Card(Card.ACE, Card.CLUBS));
-      """.stripMargin))
-  )
+  trait TableauFoundationMoves extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Foundation, 0))
+  }
 
+  /** Clear 0th Foundation and prep to move Ace */
+  case object TableauToEmptyFoundation extends TableauFoundationMoves {
 
-  def setBoardState: Seq[Java] = {
-    Seq(Java(
-      s"""
-         |
-         |Card movingCards = new Card(Card.THREE, Card.CLUBS);
-         |game.tableau[1].removeAll();
-         |game.tableau[2].removeAll();
-         |game.foundation[2].add(new Card(Card.ACE, Card.CLUBS));
-         |game.foundation[2].add(new Card(Card.TWO, Card.CLUBS));
-      """.stripMargin))}
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      MovingCardStep(CardCreate(Clubs, Ace)),             // Drag ACE to empty spot
+    )
+  }
+
+  /** Clear 0th Foundation and prep to move Two */
+  case object TableauToNextFoundation extends TableauFoundationMoves {
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),   // place ACE in target
+      MovingCardStep(CardCreate(Clubs, Two)),                      // Drag Two to follow-up with Ace
+    )
+  }
 
   /**
     * Moving from Reserve to anywhere but Tableau will through an error
@@ -73,8 +71,7 @@ package object fanfreepile extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, fromTableauToReserve, fromReserveToReserve, fromReserveToTableau,fromReserveToFoundation ),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
-      testSetup = setBoardState,
-      customizedSetup = Seq(foundationCustomSetup1),
+      customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation),
     )
   }
 }

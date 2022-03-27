@@ -44,16 +44,23 @@ package object baby extends closedVariationPoints {
     AndConstraint( descend, OrConstraint(isEmpty, NextRank(topDestination, bottomMoving, true)) )
   }
 
-  def setBoardState: Seq[Java] = {
-    Seq(Java(
-      s"""
-         |
-         |Card movingCards = new Card(Card.THREE, Card.HEARTS);
-         |game.tableau[1].removeAll();
-         |game.tableau[2].removeAll();
-         |game.foundation[2].add(new Card(Card.ACE, Card.HEARTS));
-         |game.foundation[2].add(new Card(Card.TWO, Card.HEARTS));
-      """.stripMargin))}
+  case object PrepareTableauToFoundation extends Setup {
+
+    val sourceElement = ElementInContainer(Tableau, 0)
+    val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    // clear Foundation, and place [2C, AC] on 0th tableau
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      InitializeStep(targetElement.get, CardCreate(Hearts, Ace)),
+      InitializeStep(targetElement.get, CardCreate(Hearts, Two)),
+    )
+
+    // Note: The premise behind falsifiedTest() is flawed. Specifically, given a condition
+    // that is OR(c1, c2) and if you attempt to falsify with OR(not c1, c2) to demonstrate
+    // an error, it could still succeed, because of c2. So we are only going to work on
+    // positive test cases, to validate that a move works.
+  }
 
   val baby:Solitaire = {
     Solitaire(name = "Baby",
@@ -63,8 +70,7 @@ package object baby extends closedVariationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
       logic = BoardState(Map(Foundation -> 52)),
-      solvable = false,
-      testSetup = setBoardState,
+      customizedSetup = Seq(PrepareTableauToFoundation)
     )
   }
 }

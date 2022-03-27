@@ -1,9 +1,5 @@
 package org.combinators.solitaire.domain
 
-import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.body.MethodDeclaration
-import org.combinators.templating.twirl.Java
-
 /** No longer keep track of index. */
 case class Widget( x:Int,  y:Int,  width:Int,  height:Int)
 
@@ -86,19 +82,55 @@ case class Move
   }
 }
 
+trait Setup {
+  val setup:Seq[SetupStep]
 
+  val sourceElement:ElementInContainer
+  val targetElement:Some[ElementInContainer]
 
-case class Solitaire
-(
+  // used to discriminate among move types, and can be extracted from sourceElement and targetElement
+  def source: ContainerType = sourceElement.target
+  def target: Option[ContainerType] = if (targetElement.isDefined) { Some(targetElement.get.target) } else { None}
+}
+
+trait SetupStep {
+  val name:String
+}
+trait SetupTarget {
+  val name:String    // every target must be able to report its name
+}
+
+// Note: The premise behind falsifiedTest() is flawed. Specifically, given a condition
+// that is OR(c1, c2) and if you attempt to falsify with OR(not c1, c2) to demonstrate
+// an error, it could still succeed, because of c2. So we are only going to work on
+// positive test cases, to validate that a move works.
+
+/** Designate a target  */
+case class ElementInContainer(target:ContainerType, index:Int) extends SetupTarget {
+  override val name = target.name + "[" + index + "]"
+}
+
+case class CardCreate(suit:Suit, rank:Rank)
+
+// request, for example, to place an Ace of Spades on Tableau[0]
+case class InitializeStep(target:SetupTarget, card:CardCreate) extends SetupStep {
+  override val name = target.name
+}
+case class RemoveStep(target:SetupTarget) extends SetupStep {
+  override val name = target.name
+}
+case class MovingCardStep(card:CardCreate) extends SetupStep {
+  override val name = "movingCard" // will be the card that
+}
+case class MovingCardsStep(card:Seq[CardCreate]) extends SetupStep {
+  override val name = "movingCards" // will be the card that
+}
+case class Solitaire (
   /** Every solitaire game has its own name. */
   name:String,
-
   structure:Map[ContainerType, Seq[Element]],
-
   layout:Layout,
-
   deal:Seq[Step],
-
   specializedElements:Seq[Element],
 
   /** All rules here. */
@@ -107,8 +139,8 @@ case class Solitaire
   logic:WinningLogic = ScoreAchieved(52),
   autoMoves:Boolean = false,
   solvable:Boolean = false,
-  testSetup:Seq[Java] = Seq(),            // @Before by making this a Seq, it simplifies handling case when there is no test
-  customizedSetup:Seq[(ContainerType,Option[ContainerType],Constraint,Seq[Java])] = Seq(),        // @Custom pairs of triples (ContainerType,Option[ContainerType], Seq[Java])
+  //testSetup:Seq[Java] = Seq(),              // @Before by making this a Seq, it simplifies handling case when there is no test
+  customizedSetup:Seq[Setup] = Seq(),     // @Custom Setup Routines, which contain unique setups to validate certain moves
 )
 /*
 testSetup:Seq[MethodDeclaration] = Seq()*/

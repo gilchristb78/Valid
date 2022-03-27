@@ -16,9 +16,7 @@ package object easthaven extends variationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, buildFoundation, flipMove, foundationToTableauMove, deckDealMove),
-      logic = BoardState(Map(Foundation -> 52)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }

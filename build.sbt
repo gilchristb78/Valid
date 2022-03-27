@@ -5,7 +5,9 @@ import sbt.Keys.libraryDependencies
 lazy val commonSettings = Seq(
   version := "1.0.0-SNAPSHOT",
   organization := "org.combinators",
-  
+
+  javacOptions ++= Seq("-source", "8"),
+
   scalaVersion := "2.12.4",
 
   resolvers ++= Seq(

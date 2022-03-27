@@ -22,8 +22,7 @@ package object faneasy extends variationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
-      solvable = true,
-      testSetup = Seq(),
+      solvable = true
     )
   }
 }

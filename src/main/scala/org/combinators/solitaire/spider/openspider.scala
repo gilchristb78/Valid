@@ -14,9 +14,7 @@ package object openspider extends variationPoints {
       specializedElements = Seq.empty,
       //moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),
-      logic = BoardState(Map(Foundation -> 104)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 104))
     )
   }
 }

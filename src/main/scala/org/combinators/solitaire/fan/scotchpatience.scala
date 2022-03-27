@@ -2,6 +2,7 @@ package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.fan.variationPoints
+import org.combinators.solitaire.fanfreepile.TableauToEmptyFoundation
 import org.combinators.templating.twirl.Java
 
 import scala.util.Random
@@ -19,18 +20,23 @@ package object scotchpatience extends variationPoints {
     AndConstraint( NextRank(card, topDestination),  OppositeColor(card, topDestination))
   }
 
-  def setBoardState: Seq[Java] = {
-    Seq(Java(
-      s"""
-         |
-         |Card movingCards = new Card(Card.THREE, Card.CLUBS);
-         |game.tableau[1].removeAll();
-         |game.tableau[2].removeAll();
-         |game.tableau[2].add(new Card(Card.ACE, Card.CLUBS));
-         |game.tableau[2].add(new Card(Card.TWO, Card.HEARTS));
-         |game.foundation[2].add(new Card(Card.ACE, Card.SPADES));
-         |game.foundation[2].add(new Card(Card.TWO, Card.DIAMONDS));
-      """.stripMargin))}
+  /**
+    * Clear 0th Foundation and place [Two, Ace] on the 0th Tableau
+    */
+  case object PrepareTableauToFoundation extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 0)
+    val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    // clear Foundation, and place [2C, AC] on 0th tableau
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(ElementInContainer(Tableau, 1)),
+      RemoveStep(ElementInContainer(Tableau, 2)),
+      InitializeStep(ElementInContainer(Tableau, 2), CardCreate(Clubs, Ace)),
+      InitializeStep(ElementInContainer(Tableau, 2), CardCreate(Hearts, Two)),
+      InitializeStep(ElementInContainer(Foundation, 2), CardCreate(Spades, Ace)),
+      InitializeStep(ElementInContainer(Foundation, 2), CardCreate(Diamonds, Two)),
+    )
+  }
 
   val scotchpatience:Solitaire = {
     Solitaire(name = "ScotchPatience",
@@ -41,7 +47,7 @@ package object scotchpatience extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
-      testSetup = setBoardState,
+      customizedSetup = Seq(PrepareTableauToFoundation),
     )
   }
 }

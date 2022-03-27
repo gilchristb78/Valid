@@ -122,6 +122,13 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       }
     }
 
+    /**
+      * Locate one constraint and negate it
+      * @param c
+      * @param ctr
+      * @param flipIndex
+      * @return
+      */
     def perturb(c:Constraint, ctr:Int, flipIndex:Int) : (Constraint,Int) = {
       c match {
           case andc:AndConstraint => {
@@ -169,7 +176,8 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       }
     }
 
-    def isEmptyNegative(constraint: Constraint) : Seq[Statement] = {
+    def isEmptyNegative(constraint: IsEmpty, isSingle:Boolean) : Seq[Statement] = {
+      //constraint.on.
       var place = "destination"
       var amount = "getValidStack()"
       if(constraint.toString.contains("Source")){
@@ -183,7 +191,10 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
-    def isKingNegative(constraint: Constraint, isSingle:Boolean) : Seq[Statement] = {
+    /**
+      * Statements to build up either a single non-King (queen of clubs) or a stack whose bottom card is a queen.
+      */
+    def isKingNegative(constraint: IsKing, isSingle:Boolean) : Seq[Statement] = {
       if(isSingle){
         Java(
           s"""
@@ -193,14 +204,12 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         Java(
           s"""
              |movingCards = new Stack();
-             |for (int rank = Card.QUEEN; rank >= Card.ACE; rank--) {
-             |  movingCards.add(new Card(rank, Card.CLUBS));
-             |}
+             |movingCards.add(new Card(Card.QUEEN, Card.CLUBS));
              |""".stripMargin).statements()
       }
     }
 
-    def isAceNegative(constraint: Constraint, isSingle:Boolean) : Seq[Statement] = {
+    def isAceNegative(constraint: IsAce, isSingle:Boolean) : Seq[Statement] = {
       if(isSingle){
         Java(
           s"""
@@ -210,14 +219,15 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
         Java(
           s"""
              |movingCards = new Stack();
-             |for (int rank = Card.KING; rank >= Card.TWO; rank--) {
-             |  movingCards.add(new Card(rank, Card.CLUBS));
-             |}
+             |movingCards.add(new Card(Card.QUEEN, Card.CLUBS));
              |""".stripMargin).statements()
       }
     }
 
-    def sameSuitNegative(constraint: Constraint) : Seq[Statement] = {
+    /** Not sure what to place here... */
+    def sameSuitNegative(constraint: SameSuit, isSingle:Boolean) : Seq[Statement] = {
+      constraint.on.getName()
+
       Java(
         s"""
            |movingCards = (new Card(Card.ACE, Card.SPADES));
@@ -240,7 +250,8 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       }
     }
 
-    def notDescending(constraint: Constraint) : Seq[Statement] = {
+    // TODO: Needs Work
+    def notDescending(constraint: Descending) : Seq[Statement] = {
       Java(
         s"""
            |movingCards = notDescending(movingCards);
@@ -256,7 +267,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |""".stripMargin).statements()
     }
 
-    //Doesnt create the function if constraint is true
+    //Doesn't create the function if constraint is true
     def negateCase(constraint: Constraint) : Boolean ={
       constraint match{
         case t:Truth => true
@@ -267,171 +278,171 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
     def getConstraintMethod(constraint:Constraint, isSingle:Boolean) : Seq[Statement] = {
       constraint match{
         case d:Descending =>{
-          notDescending(constraint)
+          notDescending(d)
         }
         case a:IsAce=>{
-          isAceNegative(constraint, isSingle)
+          isAceNegative(a, isSingle)
         }
         case k:IsKing=>{
-          isKingNegative(constraint, isSingle)
+          isKingNegative(k, isSingle)
         }
         case e:IsEmpty=>{
-          isEmptyNegative(constraint)
+          isEmptyNegative(e, isSingle)
         }
         case r:NextRank=>{
           nextRankNegative(constraint, isSingle)
         }
         case s:SameSuit=>{
-          sameSuitNegative(constraint)
+          sameSuitNegative(s, isSingle)
         }
         case _=> showConstraint(constraint)
       }
     }
 
+    def suitOf(s:Suit): String = {
+      s match {
+        case Clubs => "CLUBS"
+        case Diamonds => "DIAMONDS"
+        case Hearts => "HEARTS"
+        case Spades => "SPADES"
+      }
+    }
+
+    def rankOf(r:Rank): String = {
+      r match {
+        case Ace => "ACE"
+        case Two => "TWO"
+        case Three => "THREE"
+        case Four => "FOUR"
+        case Five => "FIVE"
+        case Six => "SIX"
+        case Seven => "SEVEN"
+        case Eight => "EIGHT"
+        case Nine => "NINE"
+        case Ten => "TEN"
+        case Jack => "JACK"
+        case Queen => "QUEEN"
+        case King => "KING"
+      }
+    }
+
+    def sourceOf(move:Move): ContainerType = {
+      move.source._1
+    }
+
+    def targetOf(move:Move): Option[ContainerType] = {
+      if (move.target.isEmpty) {
+        None
+      } else {
+        Some(move.target.get._1)
+      }
+    }
+
+    def generateSetup(setup:Setup, move:Move): Seq[Statement] = {
+      val source = sourceOf(move)
+      val target = targetOf(move)
+
+      var stmts = ""
+      for (step <- setup.setup) {
+        step match {
+          case InitializeStep(target, card) =>
+            val rank = rankOf(card.rank)
+            val suit = suitOf(card.suit)
+            stmts = stmts + s"""game.${target.name}.add(new Card(Card.${rank}, Card.${suit}));\n""".stripMargin
+
+          case MovingCardStep(card) =>
+            val rank = rankOf(card.rank)
+            val suit = suitOf(card.suit)
+            stmts = stmts + s"""Card movingCard = new Card(Card.${rank}, Card.${suit});\n""".stripMargin
+
+          case MovingCardsStep(cards) =>
+            stmts += "Stack movingCards = new Stack();\n"
+            for (card <- cards) {
+              val rank = rankOf(card.rank)
+              val suit = suitOf(card.suit)
+              stmts = stmts + s"""movingCards.add(new Card(Card.${rank}, Card.${suit});\n""".stripMargin
+            }
+
+          case RemoveStep(target) =>
+            stmts = stmts + s"""game.${target.name}.removeAll();\n""".stripMargin
+        }
+      }
+      Java(stmts).statements()
+    }
 
     def apply(gen:CodeGeneratorRegistry[Expression]): CompilationUnit = {
       val pkgName = solitaire.name;
       val name = solitaire.name.capitalize;
 
       var methods:Seq[MethodDeclaration] = Seq.empty
-      for (m <- solitaire.moves) {
-        val constraint:Constraint = m.constraints
-        val total = max(constraint)
-        val targets = (1 to total).toSeq // the range of constraints
 
-        // Full hierarchy with individuals negated as by index
-        val falsifiedConstrains:Seq[Constraint] = targets.map(idx => perturb(constraint, 0, idx)._1)
-        val targetedConstraints:Seq[Constraint] = flatten(constraint)
-        targetedConstraints.foreach(c => println ("Constraint:" + c))
+      // go through SETUP not MOVE
+      val matched = solitaire.customizedSetup
+      var idx = 0
 
-        falsifiedConstrains.foreach(c => {
-          val cc3: Option[Expression] = gen(c)
-          println("CC3:" + m.name + "//:"+ cc3.mkString("\n"))
-        })
+      for (setup <- solitaire.customizedSetup) {
+        // must be a move
+        idx = idx + 1
+        val move = solitaire.moves.filter(m => sourceOf(m) == setup.source && targetOf(m) == setup.target)
 
-        val sym = Constructor(m.name)
-        var isSingle = false
-        val source_loc = if(m.source._1.name.equalsIgnoreCase("stockcontainer")) "deck" else m.source._1.name + "[0]"
-        val dealDeck_logic = if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck")) "game.tableau" else "movingCards, destination"
-        val singleCard_logic = if(m.moveType.getClass.getSimpleName.replaceAll("[$]", "").equalsIgnoreCase("singlecard")){
-          isSingle = true
-          "1"
-        }else{
-          "movingCards.count()"
-        }
+        if (move.nonEmpty) {
+          val m = move.head
+          // generate a test case for this setup (based on the given move)...
+          val source_customized_seq = generateSetup(setup, m)
 
-        //Additional assertion dependent on if move is dealdeck or not
-        val additional_assertion =
-          if(m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck"))
-          "ss - game.tableau.length, game.deck.count()"
-        else
-          "ds + ms, destination.count()"
+          var isSingle = false
+          val singleCard_logic = if(m.moveType.getClass.getSimpleName.replaceAll("[$]", "").equalsIgnoreCase("singlecard")){
+            isSingle = true
+            "1"
+          }else{
+            "movingCards.count()"
+          }
 
-        // The 'customizedSetup' contains triples for all moves (src,opt[target]) and the goal is to find the seq[java] that we need
-        val source_customized_seq = if (m.target.isDefined) {
-          solitaire.customizedSetup.filter(triple => (triple._1 == m.source._1) && triple._2.isDefined && triple._2.get == m.target.get._1)
-        } else {
-          solitaire.customizedSetup.filter(triple => (triple._1 == m.source._1) && m.target.isEmpty)
-        }
-
-        // IF there is no customized code, just set to empty, otherwise grab it and use it
-        val source_customized = if (source_customized_seq.isEmpty) {
-          Seq.empty
-        } else {
-          Seq(source_customized_seq.head._4)
-        }
-        print("ERROR2: " + source_customized.mkString("\n"))
-        print("ERROR3: " + additional_assertion)
+          // HACK
+          val dealDeck_logic = if (m.moveType.getClass.getSimpleName.equalsIgnoreCase("dealdeck")) {
+            "game.tableau"
+          } else {
+            if (isSingle) {
+              "movingCard, destination"
+            } else {
+              "movingCards, destination"
+            }
+          }
 
 
-        val method = Java(
-          s"""
-             |@Test
-             |public void test${m.name} () {
-             |String type  = "${m.moveType.getClass.getSimpleName}";
-             |
-             |${solitaire.testSetup.head}
-             |
-             |${source_customized.mkString("\n")}
-             |
-             |Stack source = game.${source_loc}; //game.tableau[0] or deck
-             |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
-             |int ss = source.count();
-             |int ds = destination.count();
-             |int ms = ${singleCard_logic};
-             |
-             |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
-             |
-             |Assert.assertTrue(move.valid(game));
-             |move.doMove(game);
-             |//Assert.assertEquals(${additional_assertion});
-             |
-             |}""".stripMargin).methodDeclarations().head
-
-        methods = methods :+ method
-
-        var num = 0
-        targetedConstraints.foreach(c=>{
-          if(!negateCase(c)) {
-            val constraintMethod = getConstraintMethod(c, isSingle)
-            val methodFalsify = Java(
+          // This represents the successful move. TODO: Must deal with moves that have NO TARGET (TBD)
+          val parsedString = if (m.target.isDefined) {
               s"""
-                 |@Test
-                 |public void falsifiedTest${m.name + num} () {
-                 |//Test for constraint ${c}
-                 |String type  = "${m.moveType.getClass.getSimpleName}";
-                 |Boolean userDefined = false;
-                 |
-                 |${solitaire.testSetup.head}
-                 |
-                 |${source_customized.mkString("\n")}
-                 |
-                 |Stack source = game.${source_loc}; //game.tableau[0] or deck
-                 |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
-                 |
-                 |${constraintMethod.mkString("\n")}
-                 |
-                 |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
-                 |if(userDefined){
-                 |  Assert.assertTrue(move.valid(game));
-                 |}else{
-                 |  Assert.assertFalse(move.valid(game));
-                 |}
-                 |}""".stripMargin).methodDeclarations().head
-            num = num+1
-            methods = methods :+ methodFalsify
-        }
-        }
-        )
-        /*var testNum = 0
-        falsifiedConstrains.foreach(c => {
-          val cc3: Option[Expression] = gen(c)
-          val testCase = Java(
-              s"""
-                 |@Test
-                 |public void subtest${m.name + testNum} () {
-                 |String type  = "${m.moveType.getClass.getSimpleName}";
-                 |Stack movingCards = getValidStack();
-                 |
-                 |game.tableau[0].removeAll();
-                 |game.tableau[1].removeAll();
-                 |
-                 |Stack source = game.${source_loc}; //game.tableau[0] or deck
-                 |Stack destination = game.${m.target.head._1.name}[1]; //game.foundation[1] or game.tableau[1]
-                 |int ss = source.count();
-                 |int ds = destination.count();
-                 |int ms = movingCards.count();
-                 |
-                 |${m.name} move = new ${m.name}(source, ${dealDeck_logic});
-                 |Assert.assertTrue(${cc3.mkString("")});
-                 |
-                 |}""".stripMargin).methodDeclarations().head
-          testNum = testNum + 1
-          methods = methods :+ testCase
-        })*/
+                    |@Test
+                    |public void test${m.name}${idx} () {
+                    |  String type = "${m.moveType.getClass.getSimpleName}";
+                    |
+                    |  // this is where test set-up must go.
+                    |  ${source_customized_seq.mkString("\n")}
+                    |
+                    |  Stack source = game.${setup.sourceElement.name};
+                    |  Stack destination = game.${setup.targetElement.get.name};
+                    |  int ss = source.count();
+                    |  int ds = destination.count();
+                    |  int ms = ${singleCard_logic};
+                    |
+                    |  ${m.name} move = new ${m.name}(source, ${dealDeck_logic});
+                    |
+                    |  Assert.assertTrue(move.valid(game));               // Move is valid
+                    |  Assert.assertEquals(destination.count(), ds+ms);   // Destination set
+                    |}""".stripMargin
+            } else {
+              // TODO: Move with no target...
+            "// TO BE REPLACED"
+            }
+
+            val method = Java(parsedString).methodDeclarations().head
+
+            methods = methods :+ method
+          }
       }
-
-      val container = Java(s"""|package org.combinators.solitaire.${pkgName.toLowerCase};
+      val container = Java(s"""
+               |package org.combinators.solitaire.${pkgName.toLowerCase};
                |import org.combinators.solitaire.${pkgName.toLowerCase}.model.*;
                |import ks.client.gamefactory.GameWindow;
                |import ks.common.model.*;
@@ -453,11 +464,11 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                |}
                |
                |private Stack notDescending(Stack stack){
-               |        if(stack.empty() || stack.count() == 1){
+               |        if (stack.empty() || stack.count() == 1) {
                |            stack.add(new Card(Card.KING, Card.CLUBS));
                |            stack.add(new Card(Card.ACE, Card.CLUBS));
                |            return stack;
-               |        }else{
+               |        } else {
                |            for(int i=0;i<stack.count()-1; i++){
                |                if(stack.peek(i).getRank() != stack.peek(i+1).getRank()+1){
                |                    return stack;
@@ -471,14 +482,14 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                |        }
                |    }
                |
-               | @Before
+               |    @Before
                |    public void makeGame() {
                |        game = new ${name}();
                |        final GameWindow window = Main.generateWindow(game, Deck.OrderBySuit);
                |        window.setVisible(true);
                |        try{
                |          Thread.sleep(500);
-               |        }catch(Exception e){
+               |        } catch (Exception e) {
                |          e.printStackTrace();
                |        }
                |    }
@@ -490,6 +501,4 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
     }
     val semanticType: Type = constraints(constraints.generator) =>: classes("TestCases")
   }
-
-      //val combi
 }

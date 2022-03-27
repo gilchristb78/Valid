@@ -3,7 +3,6 @@ package org.combinators.solitaire
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.gypsy.variationPoints
 
-
 package object giant extends variationPoints {
 
   override def getDeal(): Seq[DealStep] = {
@@ -26,9 +25,7 @@ package object giant extends variationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, buildFoundation, flipMove, foundationToTableauMove, deckDealMove),
-      logic = BoardState(Map(Foundation -> 104)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 104))
     )
   }
 }

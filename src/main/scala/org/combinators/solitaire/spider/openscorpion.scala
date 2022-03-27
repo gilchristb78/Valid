@@ -42,7 +42,6 @@ package object openscorpion extends variationPoints {
   //override val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     //source=(StockContainer, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
 
-
   val openscorpion:Solitaire = {
     Solitaire(name = "OpenScorpion",
       structure = structureMap,
@@ -51,9 +50,7 @@ package object openscorpion extends variationPoints {
       specializedElements = Seq.empty,
       //moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),
-      logic = BoardState(Map(Foundation -> 52)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }

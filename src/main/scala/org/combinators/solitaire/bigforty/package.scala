@@ -72,7 +72,6 @@ package object bigforty {
 
     Solitaire( name="Bigforty",
       structure = map,
-      solvable = false,
 
       layout = Layout(Map(
         Tableau -> horizontalPlacement(15, 200, numTableau, 13*card_height),
@@ -92,8 +91,7 @@ package object bigforty {
       moves = Seq(tableauToTableau,wasteToTableau,buildFoundation,buildFoundationFromWaste,deckDeal,deckReset),
 
       // fix winning logic
-      logic = BoardState(Map(Foundation -> 52)),
-      testSetup = Seq()
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }

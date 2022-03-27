@@ -64,9 +64,7 @@ package object curdsandwhey extends variationPoints {
       specializedElements = Seq.empty,
       //moves = Seq(tableauToTableauMove, tableauToFoundationMove, flipMove),
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
-      logic = BoardState(Map(Foundation -> 52)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }

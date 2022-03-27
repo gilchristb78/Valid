@@ -45,9 +45,7 @@ package object gigantic extends closedVariationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
-      logic = BoardState(Map(Foundation -> 208)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 208))
     )
   }
 }

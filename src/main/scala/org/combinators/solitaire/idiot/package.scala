@@ -54,12 +54,10 @@ package object idiot {
       specializedElements = Seq.empty,
 
       /** All rules here. */
-      moves = Seq(tableauToTableauMove,removeCardFromTableau, deckDeal),
+      moves = Seq(tableauToTableauMove, removeCardFromTableau, deckDeal),
 
       // fix winning logic
-      logic = BoardState(Map(Tableau -> 0)),
-      testSetup = Seq()
-
+      logic = BoardState(Map(Tableau -> 0))
     )
   }
 }

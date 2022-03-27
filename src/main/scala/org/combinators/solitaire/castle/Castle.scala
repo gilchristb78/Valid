@@ -18,7 +18,6 @@ class Castle @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLi
   /** KlondikeDomain for Castle defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new CastleDomain(solitaire) with controllers {}
 
-
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
   lazy val combinatorComponents = Gamma.combinatorComponents
 

@@ -6,17 +6,9 @@ import org.combinators.solitaire.spider.closedVariationPoints
 
 package object spiderwort extends closedVariationPoints {
 
-  override def numTableau(): Int ={
-    13
-  }
-
-  override def numFoundation(): Int ={
-    12
-  }
-
-  override def numStock(): Int ={
-    3
-  }
+  override def numTableau(): Int = 13
+  override def numFoundation(): Int = 12
+  override def numStock(): Int = 3
 
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 0
@@ -45,9 +37,7 @@ package object spiderwort extends closedVariationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
-      logic = BoardState(Map(Foundation -> 156)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 156))
     )
   }
 }

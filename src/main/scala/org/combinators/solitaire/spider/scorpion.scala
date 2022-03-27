@@ -6,17 +6,9 @@ import org.combinators.solitaire.spider.closedVariationPoints
 
 package object scorpion extends closedVariationPoints {
 
-  override def numTableau(): Int ={
-    7
-  }
-
-  override def numFoundation(): Int ={
-    4
-  }
-
-  override def numStock(): Int ={
-    1
-  }
+  override def numTableau(): Int = 7
+  override def numFoundation(): Int = 4
+  override def numStock(): Int = 1
 
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 0
@@ -58,9 +50,7 @@ package object scorpion extends closedVariationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
-      logic = BoardState(Map(Foundation -> 52)),
-      solvable = false,
-      testSetup = Seq(),
+      logic = BoardState(Map(Foundation -> 52))
     )
   }
 }
