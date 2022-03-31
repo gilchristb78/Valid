@@ -415,6 +415,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
               s"""
                     |@Test
                     |public void test${m.name}${idx} () {
+                    |  // Testing ${setup.getClass().getSimpleName}
                     |  String type = "${m.moveType.getClass.getSimpleName}";
                     |
                     |  // this is where test set-up must go.
