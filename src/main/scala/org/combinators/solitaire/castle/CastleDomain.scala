@@ -93,7 +93,7 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
 
 
 
-  @combinator object MakeRow extends ExtendModel("Column", "Row", 'RowClass)
+//  @combinator object MakeRow extends ExtendModel("Column", "Row", 'RowClass)
 
 
   /**
@@ -107,9 +107,9 @@ class CastleDomain(override val solitaire:Solitaire) extends SolitaireDomain(sol
               Java(s"""
                    |for (int j = 0; j < 8; j++) {
                    |   if (j < 4) {
-                   |      tableauView[j].setJustification(RowView.RIGHT);
+                   |      tableauView[j].setJustification(ColumnView.RIGHT);
                    |    } else {
-                   |      tableauView[j].setDirection(RowView.LEFT);
+                   |      tableauView[j].setDirection(ColumnView.LEFT);
                    |    }
                    |}
                  """.stripMargin).statements()

@@ -14,8 +14,8 @@ package object shamrocks extends variationPoints {
 
   override def buildOnTableau (card: MovingCard.type): Constraint = {
     val topDestination = TopCardOf(Destination)
-    AndConstraint( NextRank(topDestination, card),  SameSuit(card, topDestination))
-    AndConstraint( OrConstraint( NextRank(topDestination, card),  NextRank(card, topDestination)),  MaxSizeConstraint(card, Destination, 3))
+    AndConstraint(NextRank(topDestination, card),  SameSuit(card, topDestination))
+    AndConstraint(OrConstraint( NextRank(topDestination, card),  NextRank(card, topDestination)),  MaxSizeConstraint(card, Destination, 3))
   }
 
   def getDeal2: Seq[Step] ={
@@ -50,25 +50,6 @@ package object shamrocks extends variationPoints {
     deal
   }
 
-  case object PrepareTableauToFoundation extends Setup {
-    val sourceElement = ElementInContainer(Tableau, 1)
-    val targetElement = Some(ElementInContainer(Foundation, 2))
-
-    // clear Foundation, and place [2C, AC] on 0th tableau
-    val setup:Seq[SetupStep] = Seq(
-      RemoveStep(sourceElement),
-      InitializeStep(ElementInContainer(Tableau, 2), CardCreate(Hearts, Two)),
-      InitializeStep(ElementInContainer(Foundation, 2), CardCreate(Clubs, Ace)),
-      InitializeStep(ElementInContainer(Foundation, 2), CardCreate(Clubs, Two)),
-    )
-
-    // Note: The premise behind falsifiedTest() is flawed. Specifically, given a condition
-    // that is OR(c1, c2) and if you attempt to falsify with OR(not c1, c2) to demonstrate
-    // an error, it could still succeed, because of c2. So we are only going to work on
-    // positive test cases, to validate that a move works.
-
-  }
-
   val shamrocks:Solitaire = {
     Solitaire(name = "Shamrocks",
       structure = structureMap,
@@ -78,7 +59,7 @@ package object shamrocks extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
-      customizedSetup = Seq(PrepareTableauToFoundation),
+      customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation, TableauToEmptyTableau, TableauToNextTableau)
     )
   }
 }

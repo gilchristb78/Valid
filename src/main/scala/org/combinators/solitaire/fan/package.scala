@@ -12,7 +12,8 @@ package object fan extends variationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
-      solvable = true
+      solvable = true,
+      customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation, TableauToEmptyTableau, TableauToNextTableau)
     )
   }
 }

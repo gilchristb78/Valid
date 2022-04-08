@@ -7,7 +7,7 @@ package object castle {
 
 
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
-    Tableau -> Seq.fill[Element](8)(Row), // used to be column
+    Tableau -> Seq.fill[Element](8)(Column), // used to be column
     Foundation -> Seq.fill[Element](4)(Pile),
     StockContainer -> Seq(Stock(1))
   )

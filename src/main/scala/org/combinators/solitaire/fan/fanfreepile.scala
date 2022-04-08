@@ -39,24 +39,125 @@ package object fanfreepile extends variationPoints {
     val targetElement = Some(ElementInContainer(Foundation, 0))
   }
 
-  /** Clear 0th Foundation and prep to move Ace */
-  case object TableauToEmptyFoundation extends TableauFoundationMoves {
+  trait TableauTableauMoves extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 0))
+  }
+  trait TableauReserveMoves extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Reserve, 0))
+  }
+  trait ReserveReserveMoves extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Reserve, 0))
+  }
+  trait ReserveTableauMoves extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 0))
+  }
+  trait ReserveFoundationMoves extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Foundation, 0))
+  }
+//
+//  /** Clear 0th Tableau and add King */
+//  case object TableauToEmptyTableau extends TableauFoundationMoves {
+//
+//    val setup:Seq[SetupStep] = Seq(
+//      RemoveStep(sourceElement),
+//      RemoveStep(targetElement.get),
+//      MovingCardStep(CardCreate(Clubs, King)),                      // Drag King to empty Tableau
+//    )
+//  }
+//
+//  /** Clear 0th Foundation and prep to move Ace */
+//  case object TableauToEmptyFoundation extends TableauFoundationMoves {
+//
+//    val setup:Seq[SetupStep] = Seq(
+//      RemoveStep(sourceElement),
+//      MovingCardStep(CardCreate(Clubs, Ace)),             // Drag ACE to empty spot
+//    )
+//  }
+//
+//  /** Clear 0th Foundation and prep to move Two */
+//  case object TableauToNextFoundation extends TableauFoundationMoves {
+//
+//    val setup:Seq[SetupStep] = Seq(
+//      RemoveStep(sourceElement),
+//      InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),   // place ACE in target
+//      MovingCardStep(CardCreate(Clubs, Two)),                      // Drag Two to follow-up with Ace
+//    )
+//  }
+//
+//  /** Clear 0th Tableau and add Ace, prep to move Two */
+//  case object TableauToNextTableau extends TableauTableauMoves {
+//
+//    val setup:Seq[SetupStep] = Seq(
+//      RemoveStep(sourceElement),
+//      RemoveStep(targetElement.get),
+//      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),   // place Two in target
+//      MovingCardStep(CardCreate(Clubs, Ace)),                      // move ACE to target
+//    )
+//  }
+
+  /** Clear 0th Reserve and add Three because any card can go in a reserve */
+  case object TableauToEmptyReserve extends TableauReserveMoves {
 
     val setup:Seq[SetupStep] = Seq(
-      RemoveStep(sourceElement),
-      MovingCardStep(CardCreate(Clubs, Ace)),             // Drag ACE to empty spot
+      RemoveStep(sourceElement),  //this should clear the 0th Reserve
+      MovingCardStep(CardCreate(Clubs, Three)),                      // move Three to target
     )
   }
 
-  /** Clear 0th Foundation and prep to move Two */
-  case object TableauToNextFoundation extends TableauFoundationMoves {
+  /** Clear 0th Reserve and add Three to 1st reserve because any card can go in a reserve */
+  case object ReserveToReserve extends ReserveReserveMoves {
 
     val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),
-      InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),   // place ACE in target
-      MovingCardStep(CardCreate(Clubs, Two)),                      // Drag Two to follow-up with Ace
+      MovingCardStep(CardCreate(Clubs, Three)),        // move Three to target
     )
   }
+
+  /** Clear 0th Reserve and prep to move King to empty tableau */
+  case object ReserveToEmptyTableau extends ReserveTableauMoves {
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardStep(CardCreate(Clubs, King)),        // move King to target
+    )
+  }
+
+  /** Clear 0th Reserve and prep to move two */
+  case object ReserveToNextTableau extends ReserveTableauMoves {
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),  //put Two in target
+      MovingCardStep(CardCreate(Clubs, Ace)),        // move Ace to target
+    )
+  }
+
+  /** Clear 0th Reserve and add to move ace to foundation */
+  case object ReserveToEmptyFoundation extends ReserveFoundationMoves {
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      MovingCardStep(CardCreate(Clubs, Ace)),        // move ACE to target
+    )
+  }
+
+  /** Clear 0th Reserve and prep to move two */
+  case object ReserveToNextFoundation extends ReserveFoundationMoves {
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),  // add ace to target
+      MovingCardStep(CardCreate(Clubs, Two)),        // move two to target
+    )
+  }
+
 
   /**
     * Moving from Reserve to anywhere but Tableau will through an error
@@ -71,7 +172,13 @@ package object fanfreepile extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, fromTableauToReserve, fromReserveToReserve, fromReserveToTableau,fromReserveToFoundation ),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
-      customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation),
+      customizedSetup = Seq(TableauToEmptyTableau, TableauToNextTableau,
+        TableauToEmptyFoundation, TableauToNextFoundation,
+        TableauToEmptyReserve,
+        ReserveToReserve,
+        ReserveToEmptyTableau, ReserveToNextTableau,
+        ReserveToEmptyFoundation, ReserveToNextFoundation
+      ),
     )
   }
 }

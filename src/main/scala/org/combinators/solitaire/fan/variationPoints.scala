@@ -66,7 +66,61 @@ trait variationPoints {
   val tableauToTableauMove:Move = SingleCardMove("MoveCard", Drag,
     source=(Tableau,Truth), target=Some((Tableau, tt_move)))
 
+
   val tableauToFoundationMove:Move = SingleCardMove("MoveCardFoundation", Drag,
     source=(Tableau,Truth), target=Some((Foundation, tf_move)))
 
+
+  case object TableauToEmptyFoundation extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardStep(CardCreate(Clubs, Ace))
+    )
+
+    // Note: The premise behind falsifiedTest() is flawed. Specifically, given a condition
+    // that is OR(c1, c2) and if you attempt to falsify with OR(not c1, c2) to demonstrate
+    // an error, it could still succeed, because of c2. So we are only going to work on
+    // positive test cases, to validate that a move works.
+
+  }
+  case object TableauToNextFoundation extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    // clear Foundation, and place [2C, AC] on 1st tableau
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),
+      MovingCardStep(CardCreate(Clubs, Three))
+    )
+  }
+
+  case object TableauToEmptyTableau extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardStep(CardCreate(Clubs, King))
+    )
+  }
+
+  case object TableauToNextTableau extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Three)),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),
+      MovingCardStep(CardCreate(Clubs, Ace))
+    )
+  }
 }
