@@ -15,7 +15,7 @@ package object labellelucie extends variationPoints{
       structure = structureMap,
       layout = Layout(layoutMap),
       deal = getDeal,
-      specializedElements = Seq.empty,
+      specializedElements = Seq.empty, //should have a redeal
       moves = Seq(tableauToTableauMove2, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,

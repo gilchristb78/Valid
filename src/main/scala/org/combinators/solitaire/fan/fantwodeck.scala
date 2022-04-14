@@ -17,7 +17,6 @@ package object fantwodeck extends variationPoints{
   override def getDeal: Seq[DealStep] = {
     var deal:Seq[DealStep] = Seq()
     var colNum = 0
-    //only first 16 cols get a third
     while (colNum < 26)
     {
       deal = deal :+ DealStep(ElementTarget(Tableau, colNum), Payload(numCards =  4))

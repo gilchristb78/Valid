@@ -45,9 +45,8 @@ package object scotchpatience extends variationPoints {
     override val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),
       RemoveStep(targetElement.get),
-      InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),
-      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),
-      MovingCardStep(CardCreate(Hearts, Three))
+      InitializeStep(targetElement.get, CardCreate(Clubs, Three)),
+      MovingCardStep(CardCreate(Hearts, Two))
     )
   }
   case object TableauToNextFoundationOppositeColor extends Setup {

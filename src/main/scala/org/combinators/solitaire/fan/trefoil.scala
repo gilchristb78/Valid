@@ -15,10 +15,6 @@ package object trefoil extends variationPoints{
     Tableau -> calculatedPlacement(points2, height = card_height*2),
     Foundation -> horizontalPlacement(200, 10, 4, card_height),
   )
-  val tt_move2:Constraint = AndConstraint(NotConstraint(IsEmpty(Destination)), buildOnTableau(MovingCard))
-
-  val tableauToTableauMove2:Move = SingleCardMove("MoveCard", Drag,
-    source=(Tableau,Truth), target=Some((Tableau, tt_move2)))
 
   def getDeal2: Seq[Step] = {
     var deal: Seq[Step] = Seq(FilterStep(IsAce(DealComponents)))
@@ -35,8 +31,8 @@ package object trefoil extends variationPoints{
       structure = structureMap,
       layout = Layout(layoutMap),
       deal = getDeal2,
-      specializedElements = Seq.empty,
-      moves = Seq(tableauToTableauMove2, tableauToFoundationMove),
+      specializedElements = Seq.empty,  //should have a redeal
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau-> 0, Foundation->52)),
       solvable = true,
       customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation, TableauToEmptyTableau, TableauToNextTableau)

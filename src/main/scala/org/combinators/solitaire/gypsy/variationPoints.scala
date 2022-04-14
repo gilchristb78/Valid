@@ -65,4 +65,53 @@ trait variationPoints {
   val allowed = AndConstraint(NotConstraint(IsEmpty(Source)), NotConstraint(IsFaceUp(TopCardOf(Source))))
   val flipMove:Move = FlipCardMove("FlipCard", Press, source = (Tableau, allowed))
 
+
+  case object TableauToEmptyFoundation extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardStep(CardCreate(Clubs, Ace))
+    )
+
+  }
+  case object TableauToNextFoundation extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    // clear Foundation, and place [2C, AC] on 1st tableau
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),
+      MovingCardStep(CardCreate(Clubs, Three))
+    )
+  }
+
+  case object TableauToEmptyTableau extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardStep(CardCreate(Clubs, King))
+    )
+  }
+
+  case object TableauToNextTableau extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Three)),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),
+      MovingCardStep(CardCreate(Clubs, Ace))
+    )
+  }
+
 }

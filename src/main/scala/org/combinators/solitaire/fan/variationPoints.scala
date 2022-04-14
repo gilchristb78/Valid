@@ -29,12 +29,12 @@ trait variationPoints {
   def getDeal: Seq[DealStep] = {
     var deal:Seq[DealStep] = Seq()
     var colNum = 0
-    //only first 16 cols get a third
+    //only first 17 cols get a third -- last one is just one
     while (colNum < 18)
     {
-      deal = deal :+ DealStep(ElementTarget(Tableau, colNum), Payload(numCards =  2))
-      if (colNum < 16) {
-        deal = deal :+ DealStep(ElementTarget(Tableau, colNum))
+      deal = deal :+ DealStep(ElementTarget(Tableau, colNum)) //used to b Payload(2)
+      if (colNum < 17) {
+        deal = deal :+ DealStep(ElementTarget(Tableau, colNum), Payload(true, 2))
       }
       colNum += 1
     }
@@ -60,7 +60,6 @@ trait variationPoints {
   }
 
   val tt_move:Constraint = IfConstraint(IsEmpty(Destination), buildOnEmptyTableau(MovingCard), buildOnTableau(MovingCard))
-
   val tf_move:Constraint = IfConstraint(IsEmpty(Destination), buildOnEmptyFoundation(MovingCard), buildOnFoundation(MovingCard))
 
   val tableauToTableauMove:Move = SingleCardMove("MoveCard", Drag,
@@ -80,11 +79,6 @@ trait variationPoints {
       RemoveStep(targetElement.get),
       MovingCardStep(CardCreate(Clubs, Ace))
     )
-
-    // Note: The premise behind falsifiedTest() is flawed. Specifically, given a condition
-    // that is OR(c1, c2) and if you attempt to falsify with OR(not c1, c2) to demonstrate
-    // an error, it could still succeed, because of c2. So we are only going to work on
-    // positive test cases, to validate that a move works.
 
   }
   case object TableauToNextFoundation extends Setup {

@@ -5,14 +5,26 @@ import org.combinators.solitaire.fan.{variationPoints}
 
 package object faneasy extends variationPoints {
 
-  def easyBuildOnTableau(card: MovingCard.type): Constraint = {
+  override def buildOnTableau(card: MovingCard.type): Constraint = {
     val topDestination = TopCardOf(Destination)
-    NextRank(topDestination, card)
+    NextRank(topDestination, card)  //suit doesn't matter
   }
-  val tt_easy_move:Constraint = IfConstraint(IsEmpty(Destination), buildOnEmptyTableau(MovingCard), easyBuildOnTableau(MovingCard))
+  val tt_easy_move:Constraint = IfConstraint(IsEmpty(Destination), buildOnEmptyTableau(MovingCard), buildOnTableau(MovingCard))
 
   override val tableauToTableauMove:Move = SingleCardMove("MoveCard", Drag,
     source=(Tableau,Truth), target=Some((Tableau, tt_easy_move)))
+
+  case object TableauToNextTableauIgnoreSuit extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    override val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Three)),
+      MovingCardStep(CardCreate(Hearts, Two))
+    )
+  }
 
   val faneasy: Solitaire = {
     Solitaire(name = "faneasy",
@@ -23,7 +35,7 @@ package object faneasy extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
-      customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation, TableauToEmptyTableau, TableauToNextTableau)
+      customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation, TableauToEmptyTableau, TableauToNextTableau, TableauToNextTableauIgnoreSuit)
     )
   }
 }
