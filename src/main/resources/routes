@@ -72,8 +72,6 @@
 ->    /                              org.combinators.solitaire.simplesimon.SimplevarController
 
 
-
-
 ->    /                              org.combinators.solitaire.gypsy.GypsyController
 ->    /                              org.combinators.solitaire.gypsy.GiantController
 ->    /                              org.combinators.solitaire.gypsy.NomadController
@@ -120,6 +118,7 @@ GET   /temperature/temperature.git/*file    example.temperature.Temperature.serv
 GET   /pyfan                          pysolfc.fan.Fan.overview()
 GET   /pyfan/raw_:number              pysolfc.fan.Fan.raw(number: Long)
 GET   /pyfan/prepare                  pysolfc.fan.Fan.prepare(number: Long)
-GET   /pyfan/pyfan.git/*file      pysolfc.fan.Fan.serveFile(file)
+GET   /pyfan/pyfan.git/*file          pysolfc.fan.Fan.serveFile(file)
+
 
 ->    /                                   example.timeGadget.TimeGadget

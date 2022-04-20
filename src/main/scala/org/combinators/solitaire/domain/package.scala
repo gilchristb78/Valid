@@ -35,6 +35,7 @@ package object domain {
       source=source, target=target, isSingleDestination = false)
   }
 
+
   def RemoveSingleCardMove(name:String, gesture:GestureType,
                      source:(ContainerType,Constraint),
                      target:Option[(ContainerType,Constraint)]):Move = {

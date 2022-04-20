@@ -25,7 +25,9 @@ package object giant extends variationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, buildFoundation, flipMove, foundationToTableauMove, deckDealMove),
-      logic = BoardState(Map(Foundation -> 104))
+      logic = BoardState(Map(Foundation -> 104)),
+      customizedSetup = Seq(TableauToEmptyTableau, TableauToNextTableau, TableauToEmptyFoundation, TableauToNextFoundation,
+        TableauToTableauMultipleCards, TableauToEmptyTableauMultipleCards)
     )
   }
 }

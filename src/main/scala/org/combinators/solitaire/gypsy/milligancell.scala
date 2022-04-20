@@ -21,7 +21,7 @@ package object milligancell extends variationPoints {
   )
 
   override def getDeal(): Seq[DealStep] = {
-    Seq(DealStep(ContainerTarget(Tableau), Payload(faceUp=true, numCards=4)))
+    Seq(DealStep(ContainerTarget(Tableau), Payload(numCards=4)))
   }
 
   val freeCellConstraint:Constraint = AndConstraint(
@@ -60,6 +60,69 @@ package object milligancell extends variationPoints {
       NextRank(TopCardOf(Destination), MovingCard))
   )
 
+  case object TableauToEmptyReserve extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Reserve, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),  //this should clear the 0th Reserve
+      MovingCardStep(CardCreate(Clubs, Three)),                      // move Three to target
+    )
+  }
+
+  case object ReserveToReserve extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Reserve, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      MovingCardStep(CardCreate(Clubs, Three)),        // move Three to target
+    )
+  }
+
+  case object ReserveToEmptyTableau extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardStep(CardCreate(Clubs, Six)),        // move Six to target, doesn't matter if its king
+    )
+  }
+
+  case object ReserveToNextTableau extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),  //put Two in target
+      MovingCardStep(CardCreate(Hearts, Ace)),        // move Ace to target
+    )
+  }
+
+    case object ReserveToEmptyFoundation extends Setup {
+      val sourceElement = ElementInContainer(Reserve, 1)
+      val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      MovingCardStep(CardCreate(Clubs, Ace)),        // move ACE to target
+    )
+  }
+      case object ReserveToNextFoundation extends Setup {
+        val sourceElement = ElementInContainer(Reserve, 1)
+        val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),  // add ace to target
+      MovingCardStep(CardCreate(Clubs, Two)),        // move two to target
+    )
+  }
+
   val milligancell:Solitaire = {
     Solitaire(name = "MilliganCell",
       structure = structureMap,
@@ -67,7 +130,11 @@ package object milligancell extends variationPoints {
       deal = getDeal,
       specializedElements = Seq(FreeCell),
       moves = Seq(tableauToTableauMove, buildFoundation, flipMove, foundationToTableauMove, deckDealMove, moveToFreeCell, moveFoundationToFreeCell, moveFreeCellToFoundation),
-      logic = BoardState(Map(Foundation -> 104))
+      logic = BoardState(Map(Foundation -> 104)),
+      customizedSetup = Seq(TableauToEmptyTableau, TableauToNextTableau, TableauToEmptyFoundation, TableauToNextFoundation,
+        ReserveToReserve, ReserveToEmptyFoundation, ReserveToEmptyTableau, ReserveToNextFoundation,
+        ReserveToNextTableau, TableauToEmptyReserve,
+        TableauToTableauMultipleCards, TableauToEmptyTableauMultipleCards)
     )
   }
 }

@@ -11,7 +11,8 @@ package object gypsy extends variationPoints {
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, buildFoundation, foundationToTableauMove, flipMove, deckDealMove),
       logic = BoardState(Map(Foundation -> 104)),
-      customizedSetup = Seq(TableauToEmptyTableau, TableauToNextTableau)
+      customizedSetup = Seq(TableauToEmptyTableau, TableauToNextTableau, TableauToEmptyFoundation, TableauToNextFoundation,
+        TableauToTableauMultipleCards, TableauToEmptyTableauMultipleCards)
     )
   }
 }

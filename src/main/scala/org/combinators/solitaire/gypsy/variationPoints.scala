@@ -33,7 +33,6 @@ trait variationPoints {
     val isEmpty = IsEmpty(Destination)
     val descend = Descending(cards)
     val suit = AlternatingColors(cards)
-
     OrConstraint(AndConstraint(isEmpty, descend, suit), AndConstraint(descend, suit, OppositeColor(topDestination, bottomMoving)))
   }
 
@@ -73,7 +72,8 @@ trait variationPoints {
     val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),
       RemoveStep(targetElement.get),
-      MovingCardStep(CardCreate(Clubs, Ace))
+      //MovingCardsStep(Seq(CardCreate(Clubs, Ace)))
+        MovingCardStep(CardCreate(Clubs, Eight))
     )
 
   }
@@ -86,7 +86,8 @@ trait variationPoints {
       RemoveStep(sourceElement),
       InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),
       InitializeStep(targetElement.get, CardCreate(Clubs, Two)),
-      MovingCardStep(CardCreate(Clubs, Three))
+      //MovingCardsStep(Seq(CardCreate(Clubs, Three)))
+      MovingCardStep(CardCreate(Clubs, Eight))
     )
   }
 
@@ -97,7 +98,8 @@ trait variationPoints {
     val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),
       RemoveStep(targetElement.get),
-      MovingCardStep(CardCreate(Clubs, King))
+      //MovingCardsStep(Seq(CardCreate(Clubs, Four)))
+      MovingCardStep(CardCreate(Clubs, Eight))
     )
   }
 
@@ -109,8 +111,42 @@ trait variationPoints {
       RemoveStep(sourceElement),
       RemoveStep(targetElement.get),
       InitializeStep(targetElement.get, CardCreate(Clubs, Three)),
-      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),
-      MovingCardStep(CardCreate(Clubs, Ace))
+      InitializeStep(targetElement.get, CardCreate(Hearts, Two)),
+      //MovingCardsStep(Seq(CardCreate(Clubs, Ace)))
+      MovingCardStep(CardCreate(Clubs, Eight))
+    )
+  }
+
+  case object TableauToTableauMultipleCards extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Ten)),
+      InitializeStep(targetElement.get, CardCreate(Hearts, Nine)),
+      MovingCardStep(CardCreate(Clubs, Eight))
+      //MovingCardsStep(Seq(CardCreate(Clubs, Eight), CardCreate(Diamonds, Seven)))
+    )
+  }
+
+  case object TableauToEmptyTableauMultipleCards extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardStep(CardCreate(Clubs, Eight))
+     // MovingCardsStep(Seq(CardCreate(Clubs, Eight), CardCreate(Diamonds, Seven)))
+    )
+  }
+
+  case object DealDeck {
+
+    val setup:Seq[SetupStep] = Seq(
+
     )
   }
 

@@ -54,6 +54,9 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
         updated = updated.addCombinator(new IgnoreClickedHandler('FreePile))
         updated = updated.addCombinator(new SingleCardMoveHandler('FreePile))
       }
+      case superflowergarden => {
+        updated = updated.addCombinator(new DealToTableauHandlerLocal())
+      }
     }
 
 

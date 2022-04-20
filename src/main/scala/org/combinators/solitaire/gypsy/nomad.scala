@@ -6,6 +6,16 @@ import org.combinators.solitaire.gypsy.variationPoints
 package object nomad extends variationPoints {
   case object FreeCell extends Element(true)
 
+
+  override def buildOnTableau(cards: MovingCards.type): Constraint = {
+    val topDestination = TopCardOf(Destination)
+    val bottomMoving = BottomCardOf(cards)
+    val isEmpty = IsEmpty(Destination)
+    val descend = Descending(cards)
+    val suit = AlternatingColors(cards)
+    OrConstraint(AndConstraint(isEmpty, descend, suit), AndConstraint(descend, suit, SameColor(topDestination, bottomMoving)))
+  }
+
   override val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](getNumTableau())(BuildablePile),
     Foundation -> Seq.fill[Element](getNumFoundation())(Pile),
@@ -44,6 +54,69 @@ package object nomad extends variationPoints {
   val moveFreeCellToFoundation:Move = SingleCardMove("MoveFreeCellToFoundation", Drag,
     source=(Reserve,Truth), target=Some((Foundation, fcToFoundationConstraint)))
 
+  case object TableauToEmptyReserve extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Reserve, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),  //this should clear the 0th Reserve
+      MovingCardStep(CardCreate(Clubs, Three)),                      // move Three to target
+    )
+  }
+
+  case object ReserveToReserve extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Reserve, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      MovingCardStep(CardCreate(Clubs, Three)),        // move Three to target
+    )
+  }
+
+  case object ReserveToEmptyTableau extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardStep(CardCreate(Clubs, Six)),        // move Six to target, doesn't matter if its king
+    )
+  }
+
+  case object ReserveToNextTableau extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Two)),  //put Two in target
+      MovingCardStep(CardCreate(Hearts, Ace)),        // move Ace to target
+    )
+  }
+
+  case object ReserveToEmptyFoundation extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      MovingCardStep(CardCreate(Clubs, Ace)),        // move ACE to target
+    )
+  }
+  case object ReserveToNextFoundation extends Setup {
+    val sourceElement = ElementInContainer(Reserve, 1)
+    val targetElement = Some(ElementInContainer(Foundation, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),  // add ace to target
+      MovingCardStep(CardCreate(Clubs, Two)),        // move two to target
+    )
+  }
+
   val nomad:Solitaire = {
     Solitaire(name = "Nomad",
       structure = structureMap,
@@ -51,7 +124,11 @@ package object nomad extends variationPoints {
       deal = getDeal,
       specializedElements = Seq(FreeCell),
       moves = Seq(tableauToTableauMove, buildFoundation, flipMove, foundationToTableauMove, deckDealMove, moveToFreeCell, moveFoundationToFreeCell, moveFreeCellToFoundation),
-      logic = BoardState(Map(Foundation -> 104))
+      logic = BoardState(Map(Foundation -> 104)),
+      customizedSetup = Seq(TableauToEmptyTableau, TableauToNextTableau, TableauToEmptyFoundation, TableauToNextFoundation,
+        ReserveToReserve, ReserveToEmptyFoundation, ReserveToEmptyTableau, ReserveToNextFoundation,
+        ReserveToNextTableau, TableauToEmptyReserve,
+        TableauToTableauMultipleCards, TableauToEmptyTableauMultipleCards)
     )
   }
 }

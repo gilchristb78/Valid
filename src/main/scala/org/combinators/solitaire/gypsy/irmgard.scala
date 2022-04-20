@@ -4,7 +4,9 @@ import org.combinators.solitaire.domain._
 import org.combinators.solitaire.gypsy.variationPoints
 
 package object irmgard extends variationPoints {
-  override def getNumTableau(): Int = 9
+
+  override def getNumTableau(): Int = 9  //instead of 8
+
   override def getDeal(): Seq[DealStep] = {
     Seq(DealStep(ElementTarget(Tableau, 0)),
       DealStep(ElementTarget(Tableau, 1), Payload(faceUp = false)),
@@ -41,6 +43,17 @@ package object irmgard extends variationPoints {
       NextRank(TopCardOf(Destination), MovingCard))
   )
 
+   case object TableauToEmptyTableauHasToBeKing extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup:Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardStep(CardCreate(Clubs, King))
+    )
+  }
+
   val irmgard:Solitaire = {
     Solitaire(name = "Irmgard",
       structure = structureMap,
@@ -48,7 +61,9 @@ package object irmgard extends variationPoints {
       deal = getDeal,
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove, buildFoundation, foundationToTableauMove, flipMove, deckDealMove),
-      logic = BoardState(Map(Foundation -> 104))
+      logic = BoardState(Map(Foundation -> 104)),
+      customizedSetup = Seq(TableauToEmptyTableau, TableauToEmptyTableauHasToBeKing, TableauToEmptyFoundation, TableauToNextFoundation,
+        TableauToTableauMultipleCards, TableauToEmptyTableauMultipleCards)
     )
   }
 }
