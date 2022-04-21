@@ -15,13 +15,13 @@ package object superflowergarden extends variationPoints {
   override val layoutMap:Map[ContainerType, Seq[Widget]] = Map (
     Tableau -> calculatedPlacement(points, height = card_height*2),
     Foundation -> horizontalPlacement(300, 10, 4, card_height),
-    Redeal -> horizontalPlacement(100, 10, 1, card_height)
+    StockContainer -> horizontalPlacement(15, 20, 1, card_height),
   )
 
   override val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](18)(Column),
     Foundation -> Seq.fill[Element](4)(Pile),
-    Redeal -> Seq(Stock(1))
+    StockContainer -> Seq(Stock(2))
   )
 
 
@@ -38,15 +38,16 @@ package object superflowergarden extends variationPoints {
     )
   }
 
-  val redealMove:Move = ResetDeckMove("ResetDeck", source=(Redeal, Truth), target=Some((Tableau, Truth)))
+  val deckDealMove:Move = DealDeckMove("DealDeck", 1,
+    source=(Tableau, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
 
   val superflowergarden: Solitaire = {
     Solitaire(name = "Superflowergarden",
       structure = structureMap,
       layout = Layout(layoutMap),
       deal = getDeal,
-      specializedElements = Seq(RedealBox), //should have a redeal
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove, redealMove),  //tableauToTableauMove2
+      specializedElements = Seq.empty,
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),  //tableauToTableauMove2
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
       customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation, TableauToEmptyTableau, TableauToNextTableauIgnoreSuit, TableauToNextTableau)

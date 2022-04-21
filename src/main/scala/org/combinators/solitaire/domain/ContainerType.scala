@@ -23,5 +23,4 @@ case object Foundation extends ContainerType
 case object StockContainer extends ContainerType   // Causing problems. Should be Deck? But then not consistent
 case object Reserve extends ContainerType
 case object Waste extends ContainerType
-case object Redeal extends ContainerType
 
