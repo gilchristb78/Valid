@@ -16,6 +16,7 @@
 ->    /                              org.combinators.solitaire.bakersdozen.BakersdozenController
 ->    /                              org.combinators.solitaire.bakersdozen.Spanish_PatienceController
 ->    /                              org.combinators.solitaire.bakersdozen.Castles_In_SpainController
+
 ->    /                              org.combinators.solitaire.freecell.FreeCellController
 ->    /                              org.combinators.solitaire.freecell.ChallengeFreeCellController
 ->    /                              org.combinators.solitaire.freecell.SuperChallengeFreeCellController

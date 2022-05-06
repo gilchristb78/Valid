@@ -53,7 +53,7 @@ trait variationPoints {
   )
 
   val tableauToTableauMove:Move = MultipleCardsMove("MoveColumn", Drag,
-    source=(Tableau,Truth), target=Some((Tableau, buildOnTableau(MovingCards))))
+    source=(Tableau, Truth), target=Some((Tableau, buildOnTableau(MovingCards))))
 
   val foundationToTableauMove:Move = SingleCardMove("MoveFoundationToTableau", Drag,
     source=(Foundation,Truth), target=Some((Tableau, foundationToTableauConstraint())))
