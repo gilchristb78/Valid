@@ -1,10 +1,9 @@
 package org.combinators.solitaire.shared.compilation
 
-import akka.actor.ActorSystem
-import akka.event.{Logging, LoggingAdapter}
 import com.github.javaparser.ast.expr._
 import com.github.javaparser.ast.stmt._
 import com.github.javaparser.ast.body._
+import com.typesafe.scalalogging.LazyLogging
 import org.combinators.cls.types.Type
 import org.combinators.templating.twirl.Java
 import org.combinators.cls.types.syntax._
@@ -20,7 +19,7 @@ import org.combinators.solitaire.domain._
   *
   * All logging through constraintCodeGenerators.logger
   */
-object constraintCodeGenerators  {
+object constraintCodeGenerators extends LazyLogging {
 
   def ordinal(s:Suit):Int = {
     s match {
@@ -50,7 +49,7 @@ object constraintCodeGenerators  {
   }
 
   // log everything as needed.
-  val logger:LoggingAdapter = Logging.getLogger(ActorSystem("ConstraintCodeGenerators"), constraintCodeGenerators.getClass)
+  //val logger:LoggingAdapter = Logging.getLogger(ActorSystem("ConstraintCodeGenerators"), constraintCodeGenerators.getClass)
   logger.info("Constraint Generation logging active...")
 
   // used for do statements expressions
@@ -427,12 +426,12 @@ object constraintCodeGenerators  {
 
 
 /** Provides a return (EXPR) statement. */
-class StatementCombinator(c:Constraint, moveSymbol:Type) extends JavaSemanticTypes {
+class StatementCombinator(c:Constraint, moveSymbol:Type) extends JavaSemanticTypes with LazyLogging {
 
   def apply(generators: CodeGeneratorRegistry[Expression]): Seq[Statement] = {
     val cc3: Option[Expression] = generators(c)
     if (cc3.isEmpty) {
-      constraintCodeGenerators.logger.error("CodeGeneratorRegistry: Unable to locate:" + c.toString)
+      logger.error("CodeGeneratorRegistry: Unable to locate:" + c.toString)
       Seq.empty
     } else {
       Java(s"""return ${cc3.get};""").statements()
@@ -443,12 +442,12 @@ class StatementCombinator(c:Constraint, moveSymbol:Type) extends JavaSemanticTyp
 }
 
 /** When used, it isn't important what semantic Type is, which is why we omit it. */
-class ExpressionCombinator(c:Constraint) extends JavaSemanticTypes {
+class ExpressionCombinator(c:Constraint) extends JavaSemanticTypes with LazyLogging {
 
   def apply(generators: CodeGeneratorRegistry[Expression]): Expression = {
     val cc3: Option[Expression] = generators(c)
     if (cc3.isEmpty) {
-      constraintCodeGenerators.logger.error("ExpressionCombinator: Unable to locate:" + c.toString)
+      logger.error("ExpressionCombinator: Unable to locate:" + c.toString)
       Java("false").expression()
     } else {
       cc3.get
@@ -457,12 +456,12 @@ class ExpressionCombinator(c:Constraint) extends JavaSemanticTypes {
 }
 
 /** When used, it isn't important what semantic Type is, which is why we omit it. */
-class MapExpressionCombinator(m:MapType) extends JavaSemanticTypes {
+class MapExpressionCombinator(m:MapType) extends JavaSemanticTypes with LazyLogging {
 
   def apply(generators: CodeGeneratorRegistry[Expression]): Expression = {
     val cc3: Option[Expression] = generators(m)
     if (cc3.isEmpty) {
-      constraintCodeGenerators.logger.error("MapExpressionCombinator: Unable to locate:" + m.toString)
+      logger.error("MapExpressionCombinator: Unable to locate:" + m.toString)
       Java("false").expression()
     } else {
       cc3.get
@@ -470,11 +469,11 @@ class MapExpressionCombinator(m:MapType) extends JavaSemanticTypes {
   }
 }
 
-class SeqStatementCombinator(m:Move) extends JavaSemanticTypes {
+class SeqStatementCombinator(m:Move) extends JavaSemanticTypes with LazyLogging {
   def apply(generators: CodeGeneratorRegistry[Seq[Statement]]): Seq[Statement] = {
     val cc3: Option[Seq[Statement]] = generators(m)
     if (cc3.isEmpty) {
-      constraintCodeGenerators.logger.error("SeqStatementCombinator: Unable to locate:" + m.toString)
+      logger.error("SeqStatementCombinator: Unable to locate:" + m.toString)
       val empty:Seq[Statement] = Seq.empty
 
       empty
@@ -486,11 +485,11 @@ class SeqStatementCombinator(m:Move) extends JavaSemanticTypes {
 
 
 // should be Seq[BodyDeclaration[_]] but can't get to compile, so make String for now
-class HelperDeclarationCombinator(m:Move) extends JavaSemanticTypes {
+class HelperDeclarationCombinator(m:Move) extends JavaSemanticTypes with LazyLogging {
   def apply(generators: CodeGeneratorRegistry[String]): String = {
     val cc3: Option[String] = generators(m)
     if (cc3.isEmpty) {
-      constraintCodeGenerators.logger.error("HelperDeclarationCombinator: Unable to locate:" + m.toString)
+      logger.error("HelperDeclarationCombinator: Unable to locate:" + m.toString)
 
       ""
     } else {

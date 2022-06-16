@@ -22,9 +22,10 @@ object Synthesizer extends JavaSemanticTypes {
         .distinct
   }
 
-  def newTargets():Seq[Constructor] = {
-    Seq(sinan(sinan.begin))
-  }
+  // what you might do to add new targes...
+//  def newTargets():Seq[Constructor] = {
+//    Seq(sinan(sinan.begin))
+//  }
 
   /**
     * Standard targets in all variations

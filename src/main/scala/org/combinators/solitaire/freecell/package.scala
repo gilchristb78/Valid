@@ -77,7 +77,8 @@ package object freecell {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, fromTableauToReserve, fromReserveToReserve, fromReserveToTableau,fromReserveToFoundation ),
       // fix winning logic
       logic = BoardState(Map(Foundation -> 52)),
-      solvable = true
+      solvable = false,
+      customizedSetup = Seq.empty
     )
   }
 }

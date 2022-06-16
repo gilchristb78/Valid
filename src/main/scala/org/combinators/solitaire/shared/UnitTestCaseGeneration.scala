@@ -1,23 +1,18 @@
 package org.combinators.solitaire.shared
-import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.solitaire.shared
-import _root_.java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.event.Logging
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.expr.{Expression, SimpleName}
+import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.stmt.Statement
 import domain.constraints.Truth
-import org.combinators.cls.types.{Constructor, Type}
+import org.combinators.cls.types.Type
 import org.combinators.generic
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared.compilation._
 import org.combinators.templating.twirl.Java
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
-import org.combinators.solitaire.shared.cls.Synthesizer.complete
 
 
 trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCodeIdioms with SemanticTypes {

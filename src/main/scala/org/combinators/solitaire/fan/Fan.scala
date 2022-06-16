@@ -1,102 +1,102 @@
 package org.combinators.solitaire.fan
-import javax.inject.Inject
 import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter.ReflectedRepository
-import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, InhabitationController, Results, RoutingEntries}
-import org.combinators.cls.types.Constructor
-import org.combinators.solitaire.domain.Solitaire
+import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, Results}
 import org.combinators.solitaire.shared.cls.Synthesizer
-import org.webjars.play.WebJarsUtil
 import org.combinators.templating.persistable.JavaPersistable._
-import play.api.inject.ApplicationLifecycle
 import org.combinators.solitaire.fanfreepile.fanfreepile
-import org.combinators.solitaire.shamrocks.shamrocks
 import org.combinators.solitaire.scotchpatience.scotchpatience
 import org.combinators.solitaire.fantwodeck.fantwodeck
 import org.combinators.solitaire.faneasy.faneasy
-import org.combinators.solitaire.labellelucie.labellelucie
 import org.combinators.solitaire.superflowergarden.superflowergarden
 import org.combinators.solitaire.alexanderthegreat.alexanderthegreat
-import org.combinators.solitaire.shared.SemanticTypes
+import org.combinators.solitaire.labellelucie.labellelucie
+import org.combinators.solitaire.shamrocks.shamrocks
+import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
 import org.combinators.solitaire.trefoil.trefoil
 
-
+/***
 abstract class FanVariationController(web: WebJarsUtil, app: ApplicationLifecycle) extends InhabitationController(web, app) with RoutingEntries {
+***/
+trait FanVariationT extends SolitaireSolution {
 
-  lazy val variation:Solitaire =  fan
+  lazy val repository = new FanDomain(solitaire) with controllers {}
 
-  lazy val repository = new FanDomain(variation) with controllers {}
-
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), variation)
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  // TEMPORARILY BREAK for all other Fan variations.
-  lazy val targets = Synthesizer.allTargets(variation) ++ Synthesizer.newTargets()
+  // if a variation required extra code, just add on, like...  ++ Synthesizer.newTargets()
+  lazy val targets = Synthesizer.allTargets(solitaire)
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-  override val routingPrefix = Some("fan")
-  lazy val controllerAddress: String = variation.name.toLowerCase
-
+  override lazy val routingPrefix = Some("fan")
 }
 
-class FanController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  val f0 = System.nanoTime()
-  override lazy val variation = fan
-  val f1 = System.nanoTime()
-  println("---BASE FAN TIME: " + (f1-f0) + " ns---")
+object FanMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = fan
 }
 
-class FanFreePileController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = fanfreepile
+// NOTE: While this is solvable, the generic SOLVE logic doesn't take into account
+// moves to/from the free cells; this needs to be fixed.
+object FanFreeMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = fanfreepile
 }
 
-class ScotchPatienceController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = scotchpatience
+object ScotchPatienceMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = scotchpatience
 }
 
-class ShamrocksController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  val s0 = System.nanoTime()
-  override lazy val variation = shamrocks
-  val s1 = System.nanoTime()
-  println("---SHAMROCKS FAN TIME: " + (s1-s0) + " ns---")
+object ShamrocksMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = shamrocks
 }
 
-class FanTwoDeckController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = fantwodeck
+//class FanTwoDeckController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+//  extends InhabitationController(webJars, applicationLifecycle) with FanVariationT {
+//  override lazy val solitaire = fantwodeck
+//}
+object FanTwoDeckMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = fantwodeck
 }
 
-class FanEasyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = faneasy
+//class FanEasyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+//  extends InhabitationController(webJars, applicationLifecycle) with FanVariationT {
+//  override lazy val solitaire = faneasy
+//}
+object FanEasyDeckMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = faneasy
 }
 
-class LaBelleLucieController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = labellelucie
+//class LaBelleLucieController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+//  extends InhabitationController(webJars, applicationLifecycle) with FanVariationT {
+//  override lazy val solitaire = labellelucie
+//}
+object LaBelleLucieMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = labellelucie
 }
 
-class SuperFlowerGardenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = superflowergarden
+//class SuperFlowerGardenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+//  extends InhabitationController(webJars, applicationLifecycle) with FanVariationT {
+//  override lazy val solitaire = superflowergarden
+//}
+object SuperFlowerGardenMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = superflowergarden
 }
 
-class TrefoilController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = trefoil
+//class TrefoilController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+//  extends InhabitationController(webJars, applicationLifecycle) with FanVariationT {
+//  override lazy val solitaire = trefoil
+//}
+object TrefoilMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = trefoil
 }
 
-class AlexanderTheGreatController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends FanVariationController(webJars, applicationLifecycle) {
-  val a0 = System.nanoTime()
-  override lazy val variation = alexanderthegreat
-  val a1 = System.nanoTime()
-  println("---ALEXANDER FAN TIME: " + (a1-a0) + " ns---")
+//class AlexanderTheGreatController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
+//  extends InhabitationController(webJars, applicationLifecycle) with FanVariationT {
+//  override lazy val solitaire = alexanderthegreat
+//}
+object AlexanderTheGreatMain extends DefaultMain with FanVariationT {
+  lazy val solitaire = alexanderthegreat
 }

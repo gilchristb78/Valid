@@ -36,14 +36,12 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
     updated = generateMoveLogic(updated, s)
     updated = generateExtendedClasses(updated, s)
 
-
     updated = updated
       .addCombinator (new IgnoreClickedHandler(column))
       .addCombinator (new SingleCardMoveHandler(column))
     updated = updated
       .addCombinator (new IgnoreClickedHandler('AlexColumn))
       .addCombinator (new SingleCardMoveHandler('AlexColumn))
-
 
     updated = updated
       .addCombinator (new IgnorePressedHandler(pile))
@@ -60,8 +58,6 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
       updated = updated.addCombinator(new IgnoreClickedHandler('Redeal))
         .addCombinator(new SingleCardMoveHandler('Redeal))
     }
-
-
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(deck))
@@ -80,8 +76,6 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
       .addCombinator (new ProcessView(s))
       .addCombinator (new ProcessControl(s))
       .addCombinator (new ProcessFields(s))
-
-
 
     updated
   }
@@ -109,47 +103,48 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
   /** New Sinan combinator. */
 
   /** Each Solitaire variation must provide default conversion for moves. */
-  @combinator
-  object Earth {
-    def apply:Expression = {
-      Java(s""""Earth"""").expression()
-    }
-    val semanticType: Type = 'Planet
-  }
+//  @combinator
+//  object Earth {
+//    def apply:Expression = {
+//      Java(s""""Earth"""").expression()
+//    }
+//    val semanticType: Type = 'Planet
+//  }
+//
+//  @combinator
+//  object Mars {
+//    def apply:Expression = {
+//      Java(s""""Mars"""").expression()
+//    }
+//    val semanticType: Type = 'Planet
+//  }
+//
+//  @combinator
+//  object NewSinanCombinator {
+//    def apply(expr:Expression) :CompilationUnit = {
+//      Java(
+//        s"""
+//           |package something;
+//           |
+//           |public class NewClass {
+//           |  public static void main (String[] args) {
+//           |    System.out.println($expr);
+//           |  }
+//           |}
+//           |""".stripMargin).compilationUnit()
+//    }
+//
+//    val semanticType: Type = 'Planet =>: sinan(sinan.begin)
+//  }
 
-  @combinator
-  object Mars {
-    def apply:Expression = {
-      Java(s""""Mars"""").expression()
-    }
-    val semanticType: Type = 'Planet
-  }
-
-  @combinator
-  object NewSinanCombinator {
-    def apply(expr:Expression) :CompilationUnit = {
-      Java(
-        s"""
-           |package something;
-           |
-           |public class NewClass {
-           |  public static void main (String[] args) {
-           |    System.out.println($expr);
-           |  }
-           |}
-           |""".stripMargin).compilationUnit()
-    }
-
-    val semanticType: Type = 'Planet =>: sinan(sinan.begin)
-  }
-
-  @combinator object TemplateLoad {
-    def apply(expr:Expression) :CompilationUnit = {
-
-      shared.java.SampleTemplate.render(expr).compilationUnit()
-    }
-    val semanticType: Type = 'Planet =>: sinan(sinan.begin)
-  }
+  // how to load up from template
+//  @combinator object TemplateLoad {
+//    def apply(expr:Expression) :CompilationUnit = {
+//
+//      shared.java.SampleTemplate.render(expr).compilationUnit()
+//    }
+//    val semanticType: Type = 'Planet =>: sinan(sinan.begin)
+//  }
 }
 
 

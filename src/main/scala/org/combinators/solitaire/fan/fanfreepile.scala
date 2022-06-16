@@ -158,7 +158,6 @@ package object fanfreepile extends variationPoints {
     )
   }
 
-
   /**
     * Moving from Reserve to anywhere but Tableau will through an error
     * Views from element as

@@ -2,11 +2,6 @@ package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.fan.variationPoints
-import org.combinators.solitaire.fanfreepile.TableauToEmptyFoundation
-import org.combinators.templating.twirl.Java
-
-import scala.util.Random
-
 
 package object scotchpatience extends variationPoints {
 
@@ -60,8 +55,6 @@ package object scotchpatience extends variationPoints {
       MovingCardStep(CardCreate(Hearts, Two))
     )
   }
-
-
 
   val scotchpatience:Solitaire = {
     Solitaire(name = "ScotchPatience",

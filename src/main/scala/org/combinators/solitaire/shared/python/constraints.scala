@@ -1,18 +1,15 @@
 package org.combinators.solitaire.shared.python
 
-import akka.actor.ActorSystem
-import akka.event.{Logging, LoggingAdapter}
-import domain.deal.map.MapCard
+import com.typesafe.scalalogging.LazyLogging
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
 import org.combinators.solitaire.domain._
 import org.combinators.templating.twirl.{Java, Python}
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 
-object constraintCodeGenerators  {
+object constraintCodeGenerators extends LazyLogging {
 
   // log everything as needed.
-  val logger:LoggingAdapter = Logging.getLogger(ActorSystem("ConstraintCodeGenerators"), constraintCodeGenerators.getClass)
   logger.info("Constraint Generation logging active...")
 
   val generators:CodeGeneratorRegistry[Python] = CodeGeneratorRegistry.merge[Python](
@@ -34,7 +31,7 @@ object constraintCodeGenerators  {
         } else if (mc == MovingCards) {
           Python(s"""cards""")
         } else {
-          logger.warning(s"Unable to process MoveComponent (${mc.toString}) in Python constraints.")
+          logger.warn(s"Unable to process MoveComponent (${mc.toString}) in Python constraints.")
           Python(s"""None""") // not sure what else to do...
         }
     },
@@ -222,11 +219,11 @@ object constraintCodeGenerators  {
 }
 
 // Before this was for a move() Java SemanticType. For now, placeholder with tpe
-class ConstraintExpander(c:Constraint, tpe:Type) extends PythonSemanticTypes {
+class ConstraintExpander(c:Constraint, tpe:Type) extends PythonSemanticTypes with LazyLogging {
   def apply(generators: CodeGeneratorRegistry[Python]): Python = {
     val cc3: Option[Python] = generators(c)
     if (cc3.isEmpty) {
-      constraintCodeGenerators.logger.warning(s"ConstraintExpander: Unable to locate: ${c.toString}")
+      logger.warn(s"ConstraintExpander: Unable to locate: ${c.toString}")
       Python("None") // not sure what to do
     } else {
       Python(s"""${cc3.get}""")
@@ -239,12 +236,12 @@ class ConstraintExpander(c:Constraint, tpe:Type) extends PythonSemanticTypes {
 
 
 /** When used, it isn't important what semantic Type is, which is why we omit it. */
-class MapExpressionCombinator(m:MapType) extends PythonSemanticTypes {
+class MapExpressionCombinator(m:MapType) extends PythonSemanticTypes with LazyLogging {
 
   def apply(generators: CodeGeneratorRegistry[Python]): Python = {
     val cc3: Option[Python] = generators(m)
     if (cc3.isEmpty) {
-      constraintCodeGenerators.logger.error("MapExpressionCombinator: Unable to locate:" + m.toString)
+      logger.error("MapExpressionCombinator: Unable to locate:" + m.toString)
       Python("false")
     } else {
       cc3.get

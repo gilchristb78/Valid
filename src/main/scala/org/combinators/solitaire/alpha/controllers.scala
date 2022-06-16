@@ -57,6 +57,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new ProcessControl(s))
       .addCombinator (new ProcessFields(s))
 
+    println("completed controller combinators")
     updated
   }
 

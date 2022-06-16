@@ -103,10 +103,11 @@ trait SemanticTypes {
     val map:Type = 'Map
   }
 
-  object sinan {
-    def apply(part: Type): Constructor = 'NewCode (part)
-
-    val begin:Type = 'Begin
-  }
+  // what you would do to add new concepts
+//  object sinan {
+//    def apply(part: Type): Constructor = 'NewCode (part)
+//
+//    val begin:Type = 'Begin
+//  }
 
 }

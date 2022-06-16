@@ -11,17 +11,15 @@ import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Constructor
 import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.solitaire.shared
-import _root_.java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.event.Logging
+import _root_.java.util.UUID
+import com.typesafe.scalalogging.LazyLogging
 import org.combinators.generic
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared.compilation._
 
-trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with UnitTestCaseGeneration with SemanticTypes {
+trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with UnitTestCaseGeneration with SemanticTypes with LazyLogging {
 
-  private val logger = Logging.getLogger(ActorSystem("Controller"), "Controller")
   logger.info("Controller logging activated...")
 
   // TODO: FOR NOW INSERT THE DEFAULT TEST CASE HERE
@@ -67,6 +65,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
       }
     }
 
+    println("completed move combinators")
     updated
   }
 

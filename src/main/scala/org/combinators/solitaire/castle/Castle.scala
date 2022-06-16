@@ -8,11 +8,11 @@ import org.combinators.cls.git._
 import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared.cls.Synthesizer
+import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
 import org.combinators.templating.persistable.JavaPersistable._
 import play.api.inject.ApplicationLifecycle
 
-class Castle @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
-
+trait CastleT extends SolitaireSolution {
   val solitaire = castle //  new domain.castle.Domain()
 
   /** KlondikeDomain for Castle defined herein. Controllers are defined in Controllers area. */
@@ -26,6 +26,13 @@ class Castle @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLi
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-  lazy val controllerAddress: String = solitaire.name.toLowerCase
+}
 
+class Castle @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries with CastleT {
+
+}
+
+
+object CastleMain extends CastleT with DefaultMain {
+  print ("Good Luck!")
 }

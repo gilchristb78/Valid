@@ -2,7 +2,6 @@ package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
 
-
 package object fan extends variationPoints {
   val fan:Solitaire = {
     Solitaire(name = "Fan",
