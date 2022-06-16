@@ -23,17 +23,6 @@
 ->    /                              org.combinators.solitaire.freecell.DoubleFreeCellController
 ->    /                              org.combinators.solitaire.freecell.StalactitesController
 
-->    /                              org.combinators.solitaire.fan.FanController
-->    /                              org.combinators.solitaire.fan.FanFreePileController
-->    /                              org.combinators.solitaire.fan.ShamrocksController
-->    /                              org.combinators.solitaire.fan.ScotchPatienceController
-->    /                              org.combinators.solitaire.fan.FanTwoDeckController
-->    /                              org.combinators.solitaire.fan.FanEasyController
-->    /                              org.combinators.solitaire.fan.LaBelleLucieController
-->    /                              org.combinators.solitaire.fan.SuperFlowerGardenController
-->    /                              org.combinators.solitaire.fan.TrefoilController
-->    /                              org.combinators.solitaire.fan.AlexanderTheGreatController
-
 ->    /                              org.combinators.solitaire.klondike.KlondikeController
 ->    /                              org.combinators.solitaire.klondike.WhiteheadController
 ->    /                              org.combinators.solitaire.klondike.EastcliffController
@@ -55,7 +44,6 @@
 ->    /                              org.combinators.solitaire.golf.Flake_two_decksController
 ->    /                              org.combinators.solitaire.golf.RobertController
 
-
 ->    /                              org.combinators.solitaire.spider.SpiderController
 ->    /                              org.combinators.solitaire.spider.SpideretteController
 ->    /                              org.combinators.solitaire.spider.ScorpionController
@@ -71,14 +59,12 @@
 ->    /                              org.combinators.solitaire.simplesimon.SimplesimonController
 ->    /                              org.combinators.solitaire.simplesimon.SimplevarController
 
-
 ->    /                              org.combinators.solitaire.gypsy.GypsyController
 ->    /                              org.combinators.solitaire.gypsy.GiantController
 ->    /                              org.combinators.solitaire.gypsy.NomadController
 ->    /                              org.combinators.solitaire.gypsy.EastHavenController
 ->    /                              org.combinators.solitaire.gypsy.IrmgardController
 ->    /                              org.combinators.solitaire.gypsy.MilliganCellController
-
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)
@@ -119,6 +105,5 @@ GET   /pyfan                          pysolfc.fan.Fan.overview()
 GET   /pyfan/raw_:number              pysolfc.fan.Fan.raw(number: Long)
 GET   /pyfan/prepare                  pysolfc.fan.Fan.prepare(number: Long)
 GET   /pyfan/pyfan.git/*file          pysolfc.fan.Fan.serveFile(file)
-
 
 ->    /                                   example.timeGadget.TimeGadget
