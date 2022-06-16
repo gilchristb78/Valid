@@ -38,7 +38,7 @@ package object superflowergarden extends variationPoints {
     )
   }
 
-  val deckDealMove:Move = DealDeckMove("DealDeck", 1,
+  val deckDealMove:Move = DealDeckMove("Reshuffle", 1,
     source=(Tableau, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
 
   val superflowergarden: Solitaire = {

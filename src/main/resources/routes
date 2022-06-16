@@ -16,6 +16,23 @@
 ->    /                              org.combinators.solitaire.bakersdozen.BakersdozenController
 ->    /                              org.combinators.solitaire.bakersdozen.Spanish_PatienceController
 ->    /                              org.combinators.solitaire.bakersdozen.Castles_In_SpainController
+->    /                              org.combinators.solitaire.freecell.FreeCellController
+->    /                              org.combinators.solitaire.freecell.ChallengeFreeCellController
+->    /                              org.combinators.solitaire.freecell.SuperChallengeFreeCellController
+->    /                              org.combinators.solitaire.freecell.ForeCellController
+->    /                              org.combinators.solitaire.freecell.DoubleFreeCellController
+->    /                              org.combinators.solitaire.freecell.StalactitesController
+
+->    /                              org.combinators.solitaire.fan.FanController
+->    /                              org.combinators.solitaire.fan.FanFreePileController
+->    /                              org.combinators.solitaire.fan.ShamrocksController
+->    /                              org.combinators.solitaire.fan.ScotchPatienceController
+->    /                              org.combinators.solitaire.fan.FanTwoDeckController
+->    /                              org.combinators.solitaire.fan.FanEasyController
+->    /                              org.combinators.solitaire.fan.LaBelleLucieController
+->    /                              org.combinators.solitaire.fan.SuperFlowerGardenController
+->    /                              org.combinators.solitaire.fan.TrefoilController
+->    /                              org.combinators.solitaire.fan.AlexanderTheGreatController
 
 ->    /                              org.combinators.solitaire.klondike.KlondikeController
 ->    /                              org.combinators.solitaire.klondike.WhiteheadController
@@ -37,6 +54,7 @@
 ->    /                              org.combinators.solitaire.golf.FlakeController
 ->    /                              org.combinators.solitaire.golf.Flake_two_decksController
 ->    /                              org.combinators.solitaire.golf.RobertController
+
 
 ->    /                              org.combinators.solitaire.spider.SpiderController
 ->    /                              org.combinators.solitaire.spider.SpideretteController
