@@ -8,63 +8,17 @@
 ->    /                              org.combinators.solitaire.idiot.Idiot
 ->    /                              org.combinators.solitaire.bigforty.BigForty
 ->    /                              org.combinators.solitaire.castle.Castle
-->    /                              org.combinators.solitaire.narcotic.Narcotic
-->    /                              org.combinators.solitaire.minimal.Minimal
 ->    /                              org.combinators.solitaire.napoleon.Napoleon
 ->    /                              org.combinators.solitaire.gamma.Gamma
-# All variants have names that end in "Controller", and then can extract package.MainClass easily
-->    /                              org.combinators.solitaire.bakersdozen.BakersdozenController
-->    /                              org.combinators.solitaire.bakersdozen.Spanish_PatienceController
-->    /                              org.combinators.solitaire.bakersdozen.Castles_In_SpainController
-->    /                              org.combinators.solitaire.freecell.FreeCellController
-->    /                              org.combinators.solitaire.freecell.ChallengeFreeCellController
-->    /                              org.combinators.solitaire.freecell.SuperChallengeFreeCellController
-->    /                              org.combinators.solitaire.freecell.ForeCellController
-->    /                              org.combinators.solitaire.freecell.DoubleFreeCellController
-->    /                              org.combinators.solitaire.freecell.StalactitesController
 
-->    /                              org.combinators.solitaire.klondike.KlondikeController
-->    /                              org.combinators.solitaire.klondike.WhiteheadController
-->    /                              org.combinators.solitaire.klondike.EastcliffController
-->    /                              org.combinators.solitaire.klondike.SmallHarpController
-->    /                              org.combinators.solitaire.klondike.ThumbAndPouchController
-->    /                              org.combinators.solitaire.klondike.DealByThreeController
-->    /                              org.combinators.solitaire.klondike.EastHavenController
-->    /                              org.combinators.solitaire.klondike.DoubleEastHavenController
-->    /                              org.combinators.solitaire.klondike.TripleEastHavenController
+->    /                              org.combinators.solitaire.minimal.Minimal
+
+# All variants have names that end in "Controller", and then can extract package.MainClass easily
 
 ->    /                              org.combinators.solitaire.alpha.Alpha
 ->    /                              org.combinators.solitaire.beta.Beta
 ->    /                              org.combinators.solitaire.delta.Delta
 
-->    /                              org.combinators.solitaire.golf.GolfController
-->    /                              org.combinators.solitaire.golf.Golf_no_wrapController
-->    /                              org.combinators.solitaire.golf.AllInARowController
-->    /                              org.combinators.solitaire.golf.FlakeController
-->    /                              org.combinators.solitaire.golf.Flake_two_decksController
-->    /                              org.combinators.solitaire.golf.RobertController
-
-->    /                              org.combinators.solitaire.spider.SpiderController
-->    /                              org.combinators.solitaire.spider.SpideretteController
-->    /                              org.combinators.solitaire.spider.ScorpionController
-->    /                              org.combinators.solitaire.spider.MrsMopController
-->    /                              org.combinators.solitaire.spider.GiganticController
-->    /                              org.combinators.solitaire.spider.SpiderwortController
-->    /                              org.combinators.solitaire.spider.BabyController
-->    /                              org.combinators.solitaire.spider.OpenSpiderController
-->    /                              org.combinators.solitaire.spider.OpenScorpionController
-->    /                              org.combinators.solitaire.spider.CurdsAndWheyController
-
-
-->    /                              org.combinators.solitaire.simplesimon.SimplesimonController
-->    /                              org.combinators.solitaire.simplesimon.SimplevarController
-
-->    /                              org.combinators.solitaire.gypsy.GypsyController
-->    /                              org.combinators.solitaire.gypsy.GiantController
-->    /                              org.combinators.solitaire.gypsy.NomadController
-->    /                              org.combinators.solitaire.gypsy.EastHavenController
-->    /                              org.combinators.solitaire.gypsy.IrmgardController
-->    /                              org.combinators.solitaire.gypsy.MilliganCellController
 
 GET   /pyarchway                          pysolfc.archway.Archway.overview()
 GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)

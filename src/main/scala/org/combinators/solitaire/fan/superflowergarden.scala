@@ -42,7 +42,7 @@ package object superflowergarden extends variationPoints {
     source=(Tableau, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
 
   val superflowergarden: Solitaire = {
-    Solitaire(name = "Superflowergarden",
+    Solitaire(name = "SuperFlowerGarden",
       structure = structureMap,
       layout = Layout(layoutMap),
       deal = getDeal,

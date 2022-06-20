@@ -16,7 +16,7 @@ import play.api.inject.ApplicationLifecycle
 import domain._
 
 class BigForty @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle)  with RoutingEntries {
-  val solitaire = bigforty
+  lazy val solitaire = bigforty
 
   /** KlondikeDomain for BigForty defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new gameDomain(solitaire) with controllers {}

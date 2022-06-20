@@ -37,7 +37,7 @@ trait DefaultMain extends App { self:SolitaireSolution =>
       ResultLocation(Paths.get("target", routingPrefix.get, controllerAddress))
   }
 
-  println("resulting targets")
+  println("resulting targets:" + results)
   println(results.targets.collect { case (ty, Some(n)) if n == BigInt(0) => s"&Gamma; &vdash; ? : ${ty.toString}" }.mkString("\n"))
 
   // clean up before generating

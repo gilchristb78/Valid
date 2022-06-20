@@ -27,7 +27,7 @@ package object trefoil extends variationPoints{
     deal
   }
   val trefoil: Solitaire = {
-    Solitaire(name = "trefoil",
+    Solitaire(name = "Trefoil",
       structure = structureMap,
       layout = Layout(layoutMap),
       deal = getDeal2,

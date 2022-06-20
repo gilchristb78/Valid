@@ -162,7 +162,6 @@ trait Initialization extends SemanticTypes {
   /** Process Solitaire domain model to construct game(game.control). */
   class ProcessControl (sol:Solitaire) {
     def apply: Seq[Statement] = {
-     // var stmts: Seq[Statement] = Seq.empty
 
       sol.structure.flatMap { case (ct, elements) =>
         ct match {

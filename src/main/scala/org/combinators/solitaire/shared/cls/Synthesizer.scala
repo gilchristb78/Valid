@@ -39,6 +39,8 @@ object Synthesizer extends JavaSemanticTypes {
     Seq(game(complete),
         constraints(complete))
 
+  def hack_just_constraints():Seq[Constructor] =
+    Seq(constraints(complete))
 //
 //  // awkward. Must map to SemanticTypes; annoying lower case, which could be fixed by just using the same
 //  // Capitalization in the JavaSemanticTypes

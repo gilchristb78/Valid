@@ -2,6 +2,7 @@ package org.combinators.solitaire.fan
 import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, Results}
+import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
 import org.combinators.solitaire.fanfreepile.fanfreepile
@@ -27,12 +28,12 @@ trait FanVariationT extends SolitaireSolution {
   lazy val combinatorComponents = Gamma.combinatorComponents
 
   // if a variation required extra code, just add on, like...  ++ Synthesizer.newTargets()
-  lazy val targets = Synthesizer.allTargets(solitaire)
+  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(solitaire)
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-  override lazy val routingPrefix = Some("fan")
+  override lazy val routingPrefix: Option[String] = Some("fan")
 }
 
 object FanMain extends DefaultMain with FanVariationT {
@@ -53,10 +54,6 @@ object ShamrocksMain extends DefaultMain with FanVariationT {
   lazy val solitaire = shamrocks
 }
 
-//class FanTwoDeckController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-//  extends InhabitationController(webJars, applicationLifecycle) with FanVariationT {
-//  override lazy val solitaire = fantwodeck
-//}
 object FanTwoDeckMain extends DefaultMain with FanVariationT {
   lazy val solitaire = fantwodeck
 }
@@ -93,10 +90,6 @@ object TrefoilMain extends DefaultMain with FanVariationT {
   lazy val solitaire = trefoil
 }
 
-//class AlexanderTheGreatController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-//  extends InhabitationController(webJars, applicationLifecycle) with FanVariationT {
-//  override lazy val solitaire = alexanderthegreat
-//}
 object AlexanderTheGreatMain extends DefaultMain with FanVariationT {
   lazy val solitaire = alexanderthegreat
 }

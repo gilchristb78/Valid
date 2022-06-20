@@ -15,4 +15,5 @@ package object simplesimon extends variationPoints {
       logic = BoardState(Map(Foundation -> 52))
     )
   }
+
 }

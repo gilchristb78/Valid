@@ -18,39 +18,21 @@ import org.combinators.templating.twirl.Java
 class MinimalDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with SemanticTypes
   with GameTemplate with Controller {
 
-  val customRegistry =  CodeGeneratorRegistry[Expression]
-    .addGenerator[AndConstraint] (
-    (registry:CodeGeneratorRegistry[Expression],
-     and: AndConstraint) =>
-      if (and.args.isEmpty) {
-        Java("true").expression()
-      } else {
-        and.args.tail.foldLeft(
-          registry(and.args.head).get) {
-          case (s, c) =>
-            val inner = registry(c)
-            if (inner.isEmpty) {
-              Java(s"${c.toString}").expression()
-            } else {
-              Java(s"($s && ${inner.get})").expression()
-            }
-        }
-      }
-    ).addGenerator[IsAce] (
-      (registry: CodeGeneratorRegistry[Expression],
-       isAce: IsAce) => {
-        val e = registry(isAce.on).get
-        Java(s"$e.getRank() == Card.ACE").expression() }
-    ).addGenerator[IsEmpty] (
-      (registry: CodeGeneratorRegistry[Expression],
-       isEmpty:IsEmpty) => {
-        val e = registry(isEmpty.on).get
-        Java(s"$e.empty()").expression() }
-    )
-
+  // When no specialized constraints, go to default
   @combinator object DefaultGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = customRegistry   // constraintCodeGenerators.generators
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.generators
     val semanticType: Type = constraints(constraints.generator)
+  }
+
+  @combinator object DefaultDealGenerator {
+    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.mapGenerators
+    val semanticType: Type = constraints(constraints.map)
+  }
+
+  @combinator object HelperMethodsMinimal {
+    def apply(): Seq[BodyDeclaration[_]] = generateHelper.helpers(solitaire)
+
+    val semanticType: Type = constraints(constraints.methods)
   }
 
   /** Each Solitaire variation must provide default do generation. */
@@ -65,17 +47,6 @@ class MinimalDomain(override val solitaire:Solitaire) extends SolitaireDomain(so
     def apply: CodeGeneratorRegistry[Seq[Statement]] = constraintCodeGenerators.undoGenerators
 
     val semanticType: Type = constraints(constraints.undo_generator)
-  }
-
-  @combinator object HelperMethodsArchway {
-    def apply(): Seq[BodyDeclaration[_]] = generateHelper.helpers(solitaire)
-
-    val semanticType: Type = constraints(constraints.methods)
-  }
-
-  @combinator object DefaultDealGenerator {
-    def apply: CodeGeneratorRegistry[Expression] = constraintCodeGenerators.mapGenerators
-    val semanticType: Type = constraints(constraints.map)
   }
 
   // vagaries of java imports means these must be defined as well.
@@ -95,9 +66,4 @@ class MinimalDomain(override val solitaire:Solitaire) extends SolitaireDomain(so
     val semanticType: Type = game(game.methods)
   }
 
-  @combinator object HelperMethodsMinimal {
-    def apply(): Seq[BodyDeclaration[_]] = Seq.empty
-
-    val semanticType: Type = constraints(constraints.methods)
-  }
 }

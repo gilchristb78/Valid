@@ -11,7 +11,7 @@ package object labellelucie extends variationPoints{
     source=(Tableau,Truth), target=Some((Tableau, tt_move2)))
 
   val labellelucie: Solitaire = {
-    Solitaire(name = "labellelucie",
+    Solitaire(name = "LabelleLucie",
       structure = structureMap,
       layout = Layout(layoutMap),
       deal = getDeal,

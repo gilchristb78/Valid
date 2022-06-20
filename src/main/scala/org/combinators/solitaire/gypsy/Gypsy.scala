@@ -1,61 +1,57 @@
 package org.combinators.solitaire.gypsy
 
 import com.github.javaparser.ast.CompilationUnit
-import javax.inject.Inject
-import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, InhabitationController, Results, RoutingEntries}
+
+import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, Results}
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
-import org.webjars.play.WebJarsUtil
-import play.api.inject.ApplicationLifecycle
 import org.combinators.solitaire.giant.giant
 import org.combinators.solitaire.nomad.nomad
 import org.combinators.solitaire.easthaven.easthaven
 import org.combinators.solitaire.irmgard.irmgard
 import org.combinators.solitaire.milligancell.milligancell
+import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
 
-class GypsyVariationController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
-
+trait GypsyVariationT extends SolitaireSolution {
   // request a specific variation via "http://localhost:9000/Gypsy/SUBVAR-NAME
-  lazy val variation:Solitaire = gypsy
+  lazy val solitaire:Solitaire = gypsy
 
-  lazy val repository = new gypsyDomain(variation) with controllers {}
+  lazy val repository = new gypsyDomain(solitaire) with controllers {}
 
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), variation)
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  lazy val targets = Synthesizer.allTargets(variation)
+  lazy val targets = Synthesizer.allTargets(solitaire)
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-  override val routingPrefix = Some("Gypsy")
-  lazy val controllerAddress: String = variation.name.toLowerCase
+  override lazy val routingPrefix = Some("gypsy")
 }
 
-class GypsyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends GypsyVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = gypsy
+object GypsyMain extends DefaultMain with GypsyVariationT {
+  override lazy val solitaire = gypsy
 }
-class GiantController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends GypsyVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = giant
+
+object GiantMain extends DefaultMain with GypsyVariationT {
+  override lazy val solitaire = giant
 }
-class NomadController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends GypsyVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = nomad
+
+object NomadMain extends DefaultMain with GypsyVariationT {
+  override lazy val solitaire = nomad
 }
-class EastHavenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends GypsyVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = easthaven
+
+object EastHavenMain extends DefaultMain with GypsyVariationT {
+  override lazy val solitaire = easthaven
 }
-class IrmgardController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends GypsyVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = irmgard
+
+object IrmgardMain extends DefaultMain with GypsyVariationT {
+  override lazy val solitaire = irmgard
 }
-class MilliganCellController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends GypsyVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = milligancell
+
+object MilliganMain extends DefaultMain with GypsyVariationT {
+  override lazy val solitaire = milligancell
 }

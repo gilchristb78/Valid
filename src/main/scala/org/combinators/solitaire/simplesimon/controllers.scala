@@ -42,23 +42,6 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(column))
-    //.addCombinator (new IgnoreClickedHandler(buildablePile))
-
-
-    //determine if our variation needs the buildablePilePress controller
-    //if(s.isInstanceOf[closedVariationPoints]){
-//    var flip = 0
-//    for( m <- s.moves) {
-//      //TODO try utilizing movetype here?
-//      if (m.name contains "FlipCard") {
-//        flip = 1
-//      }
-//    }
-//
-//    if(flip == 1){
-//      updated = updated
-//        .addCombinator (new buildablePilePress.CP2())
-//    }
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(deck))
@@ -81,45 +64,6 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
     updated
   }
 
-//  /**
-//    * Same as Klondike, Spider has two kinds of press moves (ones that act, and ones that lead to drags).
-//    * While the automatic one is handled properly, it produces terminals that will be 'dragStart'. We need
-//    * to chain together to form complete set.
-//    */
-//  object buildablePilePress {
-//    val buildablePile1:Type = 'BuildablePile1 //Changed from :Constructor to :Type
-//
-//    class CP2() {
-//      def apply(): (SimpleName, SimpleName) => Seq[Statement] = {
-//        (widget, ignore) =>
-//
-//          Java(s"""|BuildablePile srcPile = (BuildablePile) src.getModelElement();
-//                   |
-//                   |// Only apply if not empty AND if top card is face down
-//                   |if (srcPile.count() != 0) {
-//                   |  if (!srcPile.peek().isFaceUp()) {
-//                   |    Move fm = new FlipCard(srcPile, srcPile);
-//                   |    if (fm.doMove(theGame)) {
-//                   |      theGame.pushMove(fm);
-//                   |      c.repaint();
-//                   |      return;
-//                   |    }
-//                   |  }
-//                   |}""".stripMargin).statements()
-//      }
-//
-//      val semanticType: Type =
-//        drag(drag.variable, drag.ignore) =>: controller (buildablePile1, controller.pressed)
-//    }
-//
-//    class ChainBuildablePileTogether extends ParameterizedStatementCombiner[SimpleName, SimpleName](
-//      drag(drag.variable, drag.ignore) =>: controller(buildablePile1, controller.pressed),
-//      drag(drag.variable, drag.ignore) =>: controller(buildablePile, controller.dragStart),
-//      drag(drag.variable, drag.ignore) =>: controller(buildablePile, controller.pressed))
-//  }
-
-//  @combinator object ChainBuildablePileTogether extends buildablePilePress.ChainBuildablePileTogether
-  //TODO double check above when flip-press added
   /**
     * When dealing card(s) from the stock to all elements in Tableau
     * If deck is empty, then reset.

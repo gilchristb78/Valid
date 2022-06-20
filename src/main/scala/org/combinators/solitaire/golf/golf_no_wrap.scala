@@ -9,7 +9,7 @@ package object golf_no_wrap extends variationPoints{
 
   val golf_no_wrap:Solitaire = {
 
-    Solitaire( name="Golf_no_wrap",
+    Solitaire( name="GolfNoWrap",
       structure = map,
       layout = golfLayout(),
       deal = getDeal(),

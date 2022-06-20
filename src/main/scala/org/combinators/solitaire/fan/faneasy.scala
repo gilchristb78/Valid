@@ -27,7 +27,7 @@ package object faneasy extends variationPoints {
   }
 
   val faneasy: Solitaire = {
-    Solitaire(name = "faneasy",
+    Solitaire(name = "FanEasy",
       structure = structureMap,
       layout = Layout(layoutMap),
       deal = getDeal,

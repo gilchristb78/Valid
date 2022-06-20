@@ -1,11 +1,7 @@
 package org.combinators.solitaire
 
-import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.body.MethodDeclaration
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.simplesimon.variationPoints
-import org.combinators.templating.twirl.Java
-
 
 package object simplevar extends variationPoints {
 

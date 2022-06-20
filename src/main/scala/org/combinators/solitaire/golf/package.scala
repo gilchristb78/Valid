@@ -11,7 +11,8 @@ package object golf extends variationPoints{
       deal = getDeal(),
       specializedElements = Seq(WastePile),
       moves = Seq(tableauToWasteMove,deckDealMove),
-      logic = BoardState(Map(Waste -> 52))
+      logic = BoardState(Map(Waste -> 52)),
+      customizedSetup = Seq.empty
     )
   }
 }

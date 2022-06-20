@@ -33,17 +33,12 @@ trait FreeCellVariationT extends SolitaireSolution {
   override lazy val routingPrefix: Option[String] = Some("freecell")
 }
 
-class FreeCellController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends InhabitationController(webJars, applicationLifecycle) with FreeCellVariationT {
-
-  lazy val solitaire = freecell // new freeCell.FreeCellDomain
-}
-
 object FreeCellMain extends DefaultMain with FreeCellVariationT {
-  lazy val solitaire = freecell // new freeCell.FreeCellDomain
-  print ("Completed")
+  lazy val solitaire = freecell
 }
 
+// remaining ones below need updating! In particular, model the variations that are found in the
+// Java native solutions.
 class ChallengeFreeCellController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
   extends InhabitationController(webJars, applicationLifecycle) with FreeCellVariationT {
   lazy val solitaire = freecell //  new freeCell.ChallengeFreeCell

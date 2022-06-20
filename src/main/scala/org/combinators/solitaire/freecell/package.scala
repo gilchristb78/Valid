@@ -1,15 +1,22 @@
 package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.milligancell.FreeCell
 
 package object freecell {
+  case object FreeCellPile extends Element(true)
 
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](8)(Column),
     Foundation -> Seq.fill[Element](4)(Pile),
-    Reserve -> Seq.fill[Element](4)(FreeCell),
+    Reserve -> Seq.fill[Element](4)(FreeCellPile),
   )
+
+  val layoutMap:Map[ContainerType, Seq[Widget]] = Map (
+    Tableau -> horizontalPlacement(300, 10, num = 13, height = card_height*5),  // estimate
+    Foundation -> horizontalPlacement(200, 10, 4, card_height),
+    Reserve -> horizontalPlacement(600, 10, 4, card_height),
+  )
+
   def getDeal: Seq[DealStep] = {
     var deal:Seq[DealStep] = Seq()
     var colNum = 0
@@ -24,6 +31,7 @@ package object freecell {
     }
     deal
   }
+
   def buildOnTableau(card: MovingCard.type): Constraint = {
     val topDestination = TopCardOf(Destination)
     AndConstraint(NextRank(topDestination, card), SameSuit(card, topDestination))
@@ -66,15 +74,15 @@ package object freecell {
 
   val freecell:Solitaire = {
 
-    Solitaire(name="Freecell",
+    Solitaire(name="FreeCell",
       structure = structureMap,
-      layout=stockTableauColumnLayout(2),  // HACK
+      layout = Layout(layoutMap),
       deal = getDeal,
       /** from element can infer ks.ViewWidget as well as Base Element. */
-      specializedElements = Seq.empty,
+      specializedElements = Seq(FreeCellPile),
 
       /** All rules here. */
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove, fromTableauToReserve, fromReserveToReserve, fromReserveToTableau,fromReserveToFoundation ),
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove, fromTableauToReserve, fromReserveToReserve, fromReserveToTableau, fromReserveToFoundation ),
       // fix winning logic
       logic = BoardState(Map(Foundation -> 52)),
       solvable = false,

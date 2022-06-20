@@ -1,16 +1,11 @@
 package org.combinators.solitaire.spider
 
-import javax.inject.Inject
 import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter.ReflectedRepository
-import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, InhabitationController, Results, RoutingEntries}
+import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, Results}
 import org.combinators.cls.types.Constructor
-import org.combinators.solitaire.domain.Solitaire
 import org.combinators.solitaire.shared.cls.Synthesizer
-import org.webjars.play.WebJarsUtil
 import org.combinators.templating.persistable.JavaPersistable._
-import play.api.inject.ApplicationLifecycle
-import org.combinators.solitaire.spider.spider
 import org.combinators.solitaire.spiderette.spiderette
 import org.combinators.solitaire.scorpion.scorpion
 import org.combinators.solitaire.mrsmop.mrsmop
@@ -20,87 +15,60 @@ import org.combinators.solitaire.baby.baby
 import org.combinators.solitaire.openspider.openspider
 import org.combinators.solitaire.openscorpion.openscorpion
 import org.combinators.solitaire.curdsandwhey.curdsandwhey
+import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
 
+trait SpiderVariationT extends SolitaireSolution {
 
+  lazy val repository = new gameDomain(solitaire) with controllers {}
 
-class SpiderVariationController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) with RoutingEntries {
-
-  // request a specific variation via "http://localhost:9000/spider/SUBVAR-NAME
-  lazy val variation:Solitaire = spider
-
-  lazy val repository = new gameDomain(variation) with controllers {}
-
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), variation)
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(variation)
+  lazy val targets: Seq[Constructor] = Synthesizer.allTargets(solitaire)
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
-  override val routingPrefix = Some("spider")
-  lazy val controllerAddress: String = variation.name.toLowerCase
+  override lazy val routingPrefix = Some("spider")
 }
 
-class SpiderController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  val s0 = System.nanoTime()
-  override lazy val variation = spider
-  val s1 = System.nanoTime()
-  println("---BASE SPIDER TIME: " + (s1-s0) + " ns---")
-
+object SpiderMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = spider
 }
 
-
-class SpideretteController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = spiderette
+object SpideretteMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = spiderette
 }
 
-class ScorpionController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  val c0 = System.nanoTime()
-  override lazy val variation = scorpion
-  val c1 = System.nanoTime()
-  println("---SCORPION SPIDER FAN TIME: " + (c1-c0) + " ns---")
-
+object ScorpionMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = scorpion
 }
 
-class MrsMopController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = mrsmop
+object MrsMopMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = mrsmop
 }
 
-class GiganticController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = gigantic
+object GiganticMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = gigantic
 }
 
-class SpiderwortController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = spiderwort
+object SpiderwortMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = spiderwort
 }
 
-class BabyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = baby
+object BabyMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = baby
 }
 
-class OpenSpiderController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = openspider
+object OpenSpiderMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = openspider
 }
 
-class OpenScorpionController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  override lazy val variation = openscorpion
+object OpenScorpionMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = openscorpion
 }
 
-class CurdsAndWheyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
-  extends SpiderVariationController(webJars, applicationLifecycle) {
-  val w0 = System.nanoTime()
-  override lazy val variation = curdsandwhey
-  val w1 = System.nanoTime()
-  println("---CURDS SPIDER TIME: " + (w1-w0) + " ns---")
+object CurdsAndWheyMain extends DefaultMain with SpiderVariationT {
+  override lazy val solitaire = curdsandwhey
 }

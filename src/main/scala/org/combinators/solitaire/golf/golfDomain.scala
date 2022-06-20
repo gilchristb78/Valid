@@ -39,7 +39,6 @@ class golfDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
   @combinator object golfGenerator {
     def apply: CodeGeneratorRegistry[Expression] = {
-      print ("In ggen")
       golfCodeGenerator.generators
     }
     val semanticType: Type = constraints(constraints.generator)

@@ -26,7 +26,7 @@ package object fantwodeck extends variationPoints{
   }
 
   val fantwodeck: Solitaire = {
-    Solitaire(name = "fantwodeck",
+    Solitaire(name = "FanTwoDeck",
       structure = structureMap,
       layout = Layout(layoutMap),
       deal = getDeal,

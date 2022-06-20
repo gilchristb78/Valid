@@ -1,9 +1,12 @@
 package org.combinators.solitaire
 
-import com.github.javaparser.ast.body.BodyDeclaration
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.fan.variationPoints
 import org.combinators.templating.twirl.Java
+
+// TODO: NEEDS WORK - for Bonus Deal (https://www.solsuite.com/games/alexander_the_great.htm) there is
+// only supposed to happen once. ALSO, when you grab the bonus card and it is 'returned' because of
+// faulty move, it comes back to the top, which might be appropriate. DOUBLE CHECK
 
 package object alexanderthegreat extends variationPoints{
 
@@ -86,7 +89,7 @@ package object alexanderthegreat extends variationPoints{
 
 
   val alexanderthegreat: Solitaire = {
-    Solitaire(name = "alexanderthegreat",
+    Solitaire(name = "AlexanderTheGreat",
       structure = structureMap,
       layout = Layout(layoutMap),
       deal = getDeal,

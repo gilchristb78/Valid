@@ -38,7 +38,6 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
 
   @combinator object NarcoticGenerator {
     def apply: CodeGeneratorRegistry[Expression] = {
-      print ("In ngen")
       narcoticCodeGenerator.generators
     }
     val semanticType: Type = constraints(constraints.generator)
