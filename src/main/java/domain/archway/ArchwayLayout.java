@@ -1,12 +1,9 @@
 package domain.archway;
 
 import domain.*;
-import domain.Container;
 import domain.ui.CalculatedPlacement;
 import domain.ui.HorizontalPlacement;
 import domain.ui.Layout;
-import domain.ui.PlacementGenerator;
-import pysolfc.archway.Archway;
 
 import java.awt.*;
 

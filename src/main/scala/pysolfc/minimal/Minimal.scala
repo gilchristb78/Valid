@@ -1,30 +1,28 @@
 package pysolfc.minimal
 
-import javax.inject.Inject
-
 import org.combinators.templating.persistable.PythonWithPath
 import org.combinators.templating.persistable.PythonWithPathPersistable._
 import org.combinators.cls.interpreter.ReflectedRepository
-import org.combinators.cls.git.{EmptyResults, InhabitationController, Results}
-import domain.minimal.Domain
-import org.webjars.play.WebJarsUtil
-import play.api.inject.ApplicationLifecycle
+import org.combinators.cls.git.{EmptyResults, Results}
+import org.combinators.cls.types.Constructor
+import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
 
-class Minimal @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle) {
+trait PythonMinimalT extends SolitaireSolution {
 
-  val domainModel = org.combinators.solitaire.minimal.minimalS
-
-  // FreeCellDomain is base class for the solitaire variation. Note that this
-  // class is used (essentially) as a placeholder for the solitaire val,
-  // which can then be referred to anywhere as needed.
-  lazy val repository = new MinimalDomain(domainModel) with controllers {}
+  lazy val repository = new MinimalDomain(solitaire) with controllers {}
   import repository._
-  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), domainModel)
+  lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
 
   lazy val combinatorComponents = Gamma.combinatorComponents
+
+  lazy val targets: Seq[Constructor] = Seq(game(complete))
   lazy val jobs =
-    Gamma.InhabitationBatchJob[PythonWithPath](game(complete))
+    Gamma.InhabitationBatchJob[PythonWithPath](targets.head)    // Why just singular target here?
 
   lazy val results:Results = EmptyResults().addAll(jobs.run())
+}
 
+// Match the Trait with multi card moves with the model that defines multi card moves
+object PythonMinimalMain extends DefaultMain with PythonMinimalT {
+  override lazy val solitaire = org.combinators.solitaire.minimal.minimalS
 }

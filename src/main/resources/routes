@@ -3,61 +3,18 @@
 # To automatically synthesize all solitaire variants using [[buildTest.TestSynthesis]], make
 # sure that all solitaire class names start with org.combinators.solitaire.*
 #
-# All stand-alone names are simply package.MainClass
-->    /                              org.combinators.solitaire.archway.Archway
-->    /                              org.combinators.solitaire.idiot.Idiot
-->    /                              org.combinators.solitaire.bigforty.BigForty
-->    /                              org.combinators.solitaire.castle.Castle
-->    /                              org.combinators.solitaire.napoleon.Napoleon
-->    /                              org.combinators.solitaire.gamma.Gamma
+# Provided here so users can "debug" using a web-based interface that provides additional information
+# about the repository. To make this work, in the sbt shell terminal, type "run" or possibly "nextgen/run"
+# which starts a web server that processes these requests. Then type "http://localhost:3000/minimal" to
+# trigger this behavior.
 
 ->    /                              org.combinators.solitaire.minimal.Minimal
 
 # All variants have names that end in "Controller", and then can extract package.MainClass easily
-
-->    /                              org.combinators.solitaire.alpha.Alpha
-->    /                              org.combinators.solitaire.beta.Beta
-->    /                              org.combinators.solitaire.delta.Delta
-
-
-GET   /pyarchway                          pysolfc.archway.Archway.overview()
-GET   /pyarchway/raw_:number              pysolfc.archway.Archway.raw(number: Long)
-GET   /pyarchway/prepare                  pysolfc.archway.Archway.prepare(number: Long)
-GET   /pyarchway/pyarchway.git/*file      pysolfc.archway.Archway.serveFile(file)
-
-GET   /pyminimal                          pysolfc.minimal.Minimal.overview()
-GET   /pyminimal/raw_:number              pysolfc.minimal.Minimal.raw(number: Long)
-GET   /pyminimal/prepare                  pysolfc.minimal.Minimal.prepare(number: Long)
-GET   /pyminimal/pyminimal.git/*file      pysolfc.minimal.Minimal.serveFile(file)
-
-GET   /pycastle                         pysolfc.castle.Castle.overview()
-GET   /pycastle/raw_:number             pysolfc.castle.Castle.raw(number: Long)
-GET   /pycastle/prepare                 pysolfc.castle.Castle.prepare(number: Long)
-GET   /pycastle/pycastle.git/*file      pysolfc.castle.Castle.serveFile(file)
-
-GET   /pyfreecell                         pysolfc.freecell.FreeCell.overview()
-GET   /pyfreecell/raw_:number             pysolfc.freecell.FreeCell.raw(number: Long)
-GET   /pyfreecell/prepare                 pysolfc.freecell.FreeCell.prepare(number: Long)
-GET   /pyfreecell/pyfreecell.git/*file      pysolfc.freecell.FreeCell.serveFile(file)
-
-GET   /pyklondike                         pysolfc.klondike.Klondike.overview()
-GET   /pyklondike/raw_:number             pysolfc.klondike.Klondike.raw(number: Long)
-GET   /pyklondike/prepare                 pysolfc.klondike.Klondike.prepare(number: Long)
-GET   /pyklondike/pyklondike.git/*file    pysolfc.klondike.Klondike.serveFile(file)
-
-GET   /pynarcotic                         pysolfc.narcotic.Narcotic.overview()
-GET   /pynarcotic/raw_:number             pysolfc.narcotic.Narcotic.raw(number: Long)
-GET   /pynarcotic/prepare                 pysolfc.narcotic.Narcotic.prepare(number: Long)
-GET   /pynarcotic/pynarcotic.git/*file    pysolfc.narcotic.Narcotic.serveFile(file)
 
 GET   /temperature                          example.temperature.Temperature.overview()
 GET   /temperature/raw_:number              example.temperature.Temperature.raw(number: Long)
 GET   /temperature/prepare                  example.temperature.Temperature.prepare(number: Long)
 GET   /temperature/temperature.git/*file    example.temperature.Temperature.serveFile(file)
 
-GET   /pyfan                          pysolfc.fan.Fan.overview()
-GET   /pyfan/raw_:number              pysolfc.fan.Fan.raw(number: Long)
-GET   /pyfan/prepare                  pysolfc.fan.Fan.prepare(number: Long)
-GET   /pyfan/pyfan.git/*file          pysolfc.fan.Fan.serveFile(file)
-
-->    /                                   example.timeGadget.TimeGadget
+->    /                                     example.timeGadget.TimeGadget

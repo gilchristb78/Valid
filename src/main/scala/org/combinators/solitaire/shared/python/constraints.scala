@@ -43,7 +43,6 @@ object constraintCodeGenerators extends LazyLogging {
 
     CodeGeneratorRegistry[Python, AndConstraint] {
       case (registry:CodeGeneratorRegistry[Python], and: AndConstraint) =>
-        println ("And:" + and.toString)
         if (and.args.isEmpty) {
           Python(s"""True""")
         } else {

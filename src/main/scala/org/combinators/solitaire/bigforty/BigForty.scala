@@ -1,23 +1,14 @@
 package org.combinators.solitaire.bigforty
 
-import javax.inject.Inject
-
-import org.webjars.play.WebJarsUtil
 import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter.ReflectedRepository
-import org.combinators.cls.types.syntax._
 import org.combinators.cls.git._
 import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.shared.cls.Synthesizer
+import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
 import org.combinators.templating.persistable.JavaPersistable._
-import play.api.inject.ApplicationLifecycle
 
-// domain
-import domain._
-
-class BigForty @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle) extends InhabitationController(webJars, applicationLifecycle)  with RoutingEntries {
-  lazy val solitaire = bigforty
-
+trait BigFortyT extends SolitaireSolution {
   /** KlondikeDomain for BigForty defined herein. Controllers are defined in Controllers area. */
   lazy val repository = new gameDomain(solitaire) with controllers {}
 
@@ -28,6 +19,8 @@ class BigForty @Inject()(webJars: WebJarsUtil, applicationLifecycle: Application
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
+}
 
-  lazy val controllerAddress: String = solitaire.name.toLowerCase
+object BigFortyMain extends BigFortyT with DefaultMain {
+  override lazy val solitaire = bigforty
 }
