@@ -11,7 +11,7 @@ import org.combinators.cls.types.syntax._
 trait JavaSemanticTypes extends SemanticTypes {
 
   /** Placed here for ease of reference. */
-  var constraintCodeGenerators = org.combinators.solitaire.shared.compilation.constraintCodeGenerators
+  val constraintCodeGenerators = org.combinators.solitaire.shared.compilation.constraintCodeGenerators
 
   /** Used when synthesizing special class to use for variation. */
   object classes {

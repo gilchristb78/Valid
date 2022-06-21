@@ -17,10 +17,10 @@ package object simplevar extends variationPoints {
     var colNum:Int = 0
     var dealSeq:Seq[DealStep] = Seq()// doesn't like me declaring it without initializing
     for (colNum <- 0 to 3) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 6))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(numCards = 6))
     }
     for (colNum <- 4 to 7) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 5))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(numCards = 5))
     }
     dealSeq
   }

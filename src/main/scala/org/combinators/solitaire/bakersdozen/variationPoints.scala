@@ -37,7 +37,7 @@ trait variationPoints {
 
     for(colNum <- 0 to 12){
       dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum),
-        Payload(faceUp = true, numCards = 4))
+        Payload(numCards = 4))
     }
     dealSeq
   }
@@ -51,7 +51,7 @@ trait variationPoints {
     val isEmpty = IsEmpty(Destination)
     val isAce = IsAce(card)
     val topDestination = TopCardOf(Destination)
-      OrConstraint(AndConstraint(isEmpty, isAce), AndConstraint(SameSuit(topDestination, card)),NextRank(card, topDestination, true))
+      OrConstraint(AndConstraint(isEmpty, isAce), AndConstraint(SameSuit(topDestination, card)),NextRank(card, topDestination, wrapAround=true))
   }
 
   def buildOnEmptyFoundation(card: MovingCard.type): Constraint = {

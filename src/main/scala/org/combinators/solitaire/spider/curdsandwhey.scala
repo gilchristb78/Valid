@@ -6,34 +6,26 @@ import org.combinators.solitaire.spider.variationPoints
 
 package object curdsandwhey extends variationPoints {
 
-  override def numTableau(): Int ={
-    13
-  }
+  override def numTableau: Int = 13
+  override def numFoundation: Int = 4
+  override def numStock: Int = 1
 
-  override def numFoundation(): Int ={
-    4
-  }
-
-  override def numStock(): Int ={
-    1
-  }
   override val map:Map[ContainerType, Seq[Widget]] = Map (
-    Tableau -> horizontalPlacement(15, 200, numTableau(), 13*card_height),
-    Foundation -> horizontalPlacement(293, 20, numFoundation(), card_height)
+    Tableau -> horizontalPlacement(15, 200, numTableau, 13*card_height),
+    Foundation -> horizontalPlacement(293, 20, numFoundation, card_height)
   )
 
-
   override val structureMap:Map[ContainerType,Seq[Element]] = Map(
-    Tableau -> Seq.fill[Element](numTableau())(BuildablePile),
-    Foundation -> Seq.fill[Element](numFoundation())(Pile),
-    StockContainer -> Seq(Stock(1))
+    Tableau -> Seq.fill[Element](numTableau)(BuildablePile),
+    Foundation -> Seq.fill[Element](numFoundation)(Pile),
+    StockContainer -> Seq(Stock())
   )
 
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 0
     var dealSeq: Seq[DealStep] = Seq()
     for (colNum <- 0 to 12) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 4))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(numCards = 4))
     }
     dealSeq
   }
@@ -47,7 +39,7 @@ package object curdsandwhey extends variationPoints {
     val isEmpty = IsEmpty(Destination)
     val suit = AllSameSuit(cards)
     val rank = AllSameRank(cards)
-    val suitBuild = AndConstraint(NextRank(topDestination, bottomMoving, true), SameSuit(topDestination, bottomMoving))
+    val suitBuild = AndConstraint(NextRank(topDestination, bottomMoving, wrapAround=true), SameSuit(topDestination, bottomMoving))
 
     val sr_xor = OrConstraint(AndConstraint(suit, NotConstraint(rank)), AndConstraint(NotConstraint(suit), rank))
 
@@ -62,7 +54,6 @@ package object curdsandwhey extends variationPoints {
       layout = Layout(map),
       deal = getDeal,
       specializedElements = Seq.empty,
-      //moves = Seq(tableauToTableauMove, tableauToFoundationMove, flipMove),
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Foundation -> 52))
     )

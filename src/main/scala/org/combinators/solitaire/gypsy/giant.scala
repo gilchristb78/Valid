@@ -5,7 +5,7 @@ import org.combinators.solitaire.gypsy.variationPoints
 
 package object giant extends variationPoints {
 
-  override def getDeal(): Seq[DealStep] = {
+  override def getDeal: Seq[DealStep] = {
     Seq(DealStep(ContainerTarget(Tableau)))
   }
 

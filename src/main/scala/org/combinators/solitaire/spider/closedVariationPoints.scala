@@ -4,7 +4,7 @@ import org.combinators.solitaire.domain._
 
 /** Additional shared code for spider variations with face-down cards
   */
-trait closedVariationPoints extends variationPoints{
+trait closedVariationPoints extends variationPoints {
 
   override def getDeal: Seq[DealStep] = {
     var colNum:Int = 0
@@ -20,7 +20,7 @@ trait closedVariationPoints extends variationPoints{
     //each pile gets a face up card
     colNum = 0
     for (colNum <- 0 to 9) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload())
     }
     dealSeq
   }

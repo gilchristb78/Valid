@@ -6,23 +6,23 @@ import org.combinators.solitaire.domain._
   */
 trait variationPoints {
   case class AllSameSuit(movingCards: MoveInformation) extends Constraint
-  def getNumStock():Int = 2
-  def getNumTableau():Int = 8
-  def getNumFoundation():Int = 8
+  def getNumStock:Int = 2
+  def getNumTableau:Int = 8
+  def getNumFoundation:Int = 8
 
   val map:Map[ContainerType, Seq[Widget]] = Map (
-    Tableau -> horizontalPlacement(15, 200, getNumTableau(), 13*card_height),
+    Tableau -> horizontalPlacement(15, 200, getNumTableau, 13*card_height),
     StockContainer -> horizontalPlacement(15, 20, 1, card_height),
-    Foundation -> horizontalPlacement(100, 20, getNumFoundation(), card_height)
+    Foundation -> horizontalPlacement(100, 20, getNumFoundation, card_height)
   )
 
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
-    Tableau -> Seq.fill[Element](getNumTableau())(BuildablePile),
-    Foundation -> Seq.fill[Element](getNumFoundation())(Pile),
-    StockContainer -> Seq(Stock(getNumStock()))
+    Tableau -> Seq.fill[Element](getNumTableau)(BuildablePile),
+    Foundation -> Seq.fill[Element](getNumFoundation)(Pile),
+    StockContainer -> Seq(Stock(getNumStock))
   )
 
-  def getDeal(): Seq[DealStep] = {
+  def getDeal: Seq[DealStep] = {
     Seq(DealStep(ContainerTarget(Tableau), Payload(faceUp = false, numCards = 2)),
       DealStep(ContainerTarget(Tableau)))
   }
@@ -45,7 +45,7 @@ trait variationPoints {
   val buildFoundation:Move = MultipleCardsMove("BuildFoundation", Drag,
     source=(Tableau, Truth), target=Some((Foundation, tf_tgt)))
 
-  def foundationToTableauConstraint():Constraint = OrConstraint(
+  def foundationToTableauConstraint:Constraint = OrConstraint(
     IsEmpty(Destination),
     AndConstraint(
       OppositeColor(MovingCard, TopCardOf(Destination)),
@@ -56,7 +56,7 @@ trait variationPoints {
     source=(Tableau, Truth), target=Some((Tableau, buildOnTableau(MovingCards))))
 
   val foundationToTableauMove:Move = SingleCardMove("MoveFoundationToTableau", Drag,
-    source=(Foundation,Truth), target=Some((Tableau, foundationToTableauConstraint())))
+    source=(Foundation,Truth), target=Some((Tableau, foundationToTableauConstraint)))
 
   val deckDealMove:Move = DealDeckMove("DealDeck", 1,
     source=(StockContainer, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
@@ -72,7 +72,6 @@ trait variationPoints {
     val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),
       RemoveStep(targetElement.get),
-      //MovingCardsStep(Seq(CardCreate(Clubs, Ace)))
         MovingCardStep(CardCreate(Clubs, Eight))
     )
 

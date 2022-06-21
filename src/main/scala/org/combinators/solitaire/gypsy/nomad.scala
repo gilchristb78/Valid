@@ -6,7 +6,6 @@ import org.combinators.solitaire.gypsy.variationPoints
 package object nomad extends variationPoints {
   case object FreeCell extends Element(true)
 
-
   override def buildOnTableau(cards: MovingCards.type): Constraint = {
     val topDestination = TopCardOf(Destination)
     val bottomMoving = BottomCardOf(cards)
@@ -17,9 +16,9 @@ package object nomad extends variationPoints {
   }
 
   override val structureMap:Map[ContainerType,Seq[Element]] = Map(
-    Tableau -> Seq.fill[Element](getNumTableau())(BuildablePile),
-    Foundation -> Seq.fill[Element](getNumFoundation())(Pile),
-    StockContainer -> Seq(Stock(getNumStock())),
+    Tableau -> Seq.fill[Element](getNumTableau)(BuildablePile),
+    Foundation -> Seq.fill[Element](getNumFoundation)(Pile),
+    StockContainer -> Seq(Stock(getNumStock)),
     Reserve -> Seq(FreeCell)
   )
 
@@ -30,8 +29,8 @@ package object nomad extends variationPoints {
     Reserve -> horizontalPlacement(15, 200, 1, card_height)
   )
 
-  override def getDeal(): Seq[DealStep] = {
-    Seq(DealStep(ContainerTarget(Tableau), Payload(faceUp=true, numCards=4)))
+  override def getDeal: Seq[DealStep] = {
+    Seq(DealStep(ContainerTarget(Tableau), Payload(numCards=4)))
   }
 
   val freeCellConstraint:Constraint = AndConstraint(

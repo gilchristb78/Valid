@@ -9,7 +9,7 @@ package object castle {
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](8)(Column), // used to be column
     Foundation -> Seq.fill[Element](4)(Pile),
-    StockContainer -> Seq(Stock(1))
+    StockContainer -> Seq(Stock())
   )
   val points: Seq[(Int, Int)] = Seq ((100,200), (203,200), (306, 200), (409, 200), (615, 200), (718, 200), (821,200), (924,200))
   val foundationPoints: Seq[(Int, Int)] = Seq ((512, 100), (512, 200) ,(512, 300), (512, 400))
@@ -50,7 +50,7 @@ package object castle {
     IsAce(card)
   }
 
-  def setBoardState: Seq[Java] = {
+  def initBoardState: Seq[Java] = {
     Seq(Java(
       s"""
          |

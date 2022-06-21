@@ -7,9 +7,9 @@ package object milligancell extends variationPoints {
   case object FreeCell extends Element(true)
 
   override val structureMap:Map[ContainerType,Seq[Element]] = Map(
-    Tableau -> Seq.fill[Element](getNumTableau())(BuildablePile),
-    Foundation -> Seq.fill[Element](getNumFoundation())(Pile),
-    StockContainer -> Seq(Stock(getNumStock())),
+    Tableau -> Seq.fill[Element](getNumTableau)(BuildablePile),
+    Foundation -> Seq.fill[Element](getNumFoundation)(Pile),
+    StockContainer -> Seq(Stock(getNumStock)),
     Reserve -> Seq.fill[Element](4)(FreeCell),
   )
 
@@ -20,7 +20,7 @@ package object milligancell extends variationPoints {
     Reserve -> calculatedPlacement(Seq((15, 200),(15, 200+card_height+card_gap),(15, 200+(card_height+card_gap)*2),(15, 200+(card_height+card_gap)*3)))
   )
 
-  override def getDeal(): Seq[DealStep] = {
+  override def getDeal: Seq[DealStep] = {
     Seq(DealStep(ContainerTarget(Tableau), Payload(numCards=4)))
   }
 
@@ -53,7 +53,7 @@ package object milligancell extends variationPoints {
     OrConstraint(AndConstraint(isEmpty, descend, suit, IsKing(bottomMoving)), AndConstraint(descend, suit, OppositeColor(topDestination, bottomMoving)))
   }
 
-  override def foundationToTableauConstraint():Constraint = OrConstraint(
+  override def foundationToTableauConstraint:Constraint = OrConstraint(
     AndConstraint(IsEmpty(Destination), IsKing(MovingCard)),
     AndConstraint(
       OppositeColor(MovingCard, TopCardOf(Destination)),

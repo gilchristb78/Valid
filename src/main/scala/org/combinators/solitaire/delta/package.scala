@@ -8,7 +8,7 @@ package object delta {
   val structureMap: Map[ContainerType, Seq[Element]] = Map(
     Tableau->Seq.fill[Element](8)(Column),
     Foundation->Seq.fill[Element](4)(Pile),
-    StockContainer->Seq(Stock(1))
+    StockContainer->Seq(Stock())
   )
 
   val layoutMap: Map[ContainerType, Seq[Widget]] = Map(
@@ -26,16 +26,15 @@ package object delta {
   //tableau: we can move a single card from one buildable pile to another as long as it has a different suit and lower rank than the target
   //foundation: we can move cards from the tableau to the foundation, building down from king by suit
 
-  var t_And = AndConstraint(NotConstraint(SameSuit(MovingCard, TopCardOf(Destination))),
-      NextRank(TopCardOf(Destination), MovingCard, true))
-  var t_Or = OrConstraint(IsEmpty(Destination), t_And)
+  val t_And = AndConstraint(NotConstraint(SameSuit(MovingCard, TopCardOf(Destination))),
+      NextRank(TopCardOf(Destination), MovingCard, wrapAround=true))
+  val t_Or = OrConstraint(IsEmpty(Destination), t_And)
 
-  var f_And = AndConstraint(SameSuit(MovingCard, TopCardOf(Destination)), NextRank(TopCardOf(Destination), MovingCard, true))
-  var f_If = IfConstraint(IsEmpty(Destination), IsKing(MovingCard), f_And)
+  val f_And = AndConstraint(SameSuit(MovingCard, TopCardOf(Destination)), NextRank(TopCardOf(Destination), MovingCard, wrapAround=true))
+  val f_If = IfConstraint(IsEmpty(Destination), IsKing(MovingCard), f_And)
 
-
-  var tab_to_tab:Move = SingleCardMove("Tableau", Drag, source=(Tableau, Truth), target=Some(Tableau, t_Or))
-  var tab_to_found:Move = SingleCardMove("Foundation", Drag, source=(Tableau, Truth), target=Some(Foundation, f_If))
+  val tab_to_tab:Move = SingleCardMove("Tableau", Drag, source=(Tableau, Truth), target=Some(Tableau, t_Or))
+  val tab_to_found:Move = SingleCardMove("Foundation", Drag, source=(Tableau, Truth), target=Some(Foundation, f_If))
 
   val deckDeal:Move = DealDeckMove("DealDeck", 1, source=(StockContainer, NotConstraint(IsEmpty(Source))),
     target = Some((Tableau, Truth)))

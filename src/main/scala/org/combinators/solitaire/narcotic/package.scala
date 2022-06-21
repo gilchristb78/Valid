@@ -10,7 +10,7 @@ package object narcotic {
   val numTableau:Int = 4
   val map:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](numTableau)(Pile),
-    StockContainer -> Seq(Stock(1))
+    StockContainer -> Seq(Stock())
   )
 
   val sameRank =  SameRank(MovingCard, TopCardOf(Destination))

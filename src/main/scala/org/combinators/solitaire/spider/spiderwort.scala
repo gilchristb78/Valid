@@ -3,12 +3,11 @@ package org.combinators.solitaire
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.spider.closedVariationPoints
 
-
 package object spiderwort extends closedVariationPoints {
 
-  override def numTableau(): Int = 13
-  override def numFoundation(): Int = 12
-  override def numStock(): Int = 3
+  override def numTableau: Int = 13
+  override def numFoundation: Int = 12
+  override def numStock: Int = 3
 
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 0
@@ -24,7 +23,7 @@ package object spiderwort extends closedVariationPoints {
     //each pile gets a face up card
     colNum = 0
     for (colNum <- 0 to 12) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload())
     }
 
     dealSeq

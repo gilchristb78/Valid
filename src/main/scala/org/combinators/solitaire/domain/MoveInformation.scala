@@ -4,7 +4,7 @@ package org.combinators.solitaire.domain
 trait MoveInformation {
 
   /** Delegate the ability to retrieve specific name. */
-  def getName():String = ???
+  def getName:String = ???
 
   /**
     * Elements described in a move might be a single card or a collection of cards.

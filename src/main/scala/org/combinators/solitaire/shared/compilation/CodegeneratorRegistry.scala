@@ -14,7 +14,7 @@ sealed trait CodeGeneratorRegistry[C] { self =>
   /** Given a domain element, return the translated result for that element (if it can find it). */
   def apply[E](domainElement : E): Option[C] =
     getGenerator(domainElement).map {
-      case ((_, generator)) => generator(this, domainElement)
+      case (_, generator) => generator(this, domainElement)
     }
 
   /** By default, if nothing added, get None. */

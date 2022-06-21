@@ -45,7 +45,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
     val foundIndex = -1
     def nthAtomicConstraint(c:Constraint, ctr:Int, targetIndex:Int) : (Option[Constraint], Int) = {
       c match {
-        case andc:AndConstraint => {
+        case andc:AndConstraint =>
           var newctr:Int = ctr
           var found:Option[Constraint] = None
 
@@ -65,9 +65,8 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
           } else {
             (None, newctr)
           }
-        }
 
-        case ifc:IfConstraint => {
+        case ifc:IfConstraint =>
           val fbIdx = nthAtomicConstraint(ifc.falseBranch, ctr, targetIndex)
           if (fbIdx._2 == foundIndex) {
             fbIdx
@@ -79,13 +78,11 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
               (None, tbIdx._2)
             }
           }
-        }
 
-        case notc:NotConstraint => {
+        case notc:NotConstraint =>
           nthAtomicConstraint(notc.inner, ctr, targetIndex)
-        }
 
-        case orc:OrConstraint => {
+        case orc:OrConstraint =>
           var newctr:Int = ctr
           var argc:Seq[Constraint] = Seq.empty
           var found:Option[Constraint] = None
@@ -105,15 +102,13 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
           } else {
             (None, newctr)
           }
-        }
 
-        case c:Constraint => {
+        case c:Constraint =>
           if (ctr == targetIndex) {
             (Some(c), foundIndex)  // found
           } else {
             (None, ctr+1)
           }
-        }
       }
     }
 
@@ -126,7 +121,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
       */
     def perturb(c:Constraint, ctr:Int, flipIndex:Int) : (Constraint,Int) = {
       c match {
-          case andc:AndConstraint => {
+          case andc:AndConstraint =>
             var newctr:Int = ctr
             var argc:Seq[Constraint] = Seq.empty
             andc.args.foreach(arg => {
@@ -136,20 +131,17 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
             })
 
             (AndConstraint(argc : _*), newctr)
-          }
 
-          case ifc:IfConstraint => {
+          case ifc:IfConstraint =>
             val fbIdx = perturb(ifc.falseBranch, ctr, flipIndex)
             val tbIdx = perturb(ifc.trueBranch, fbIdx._2, flipIndex)
             (IfConstraint(fbIdx._1, tbIdx._1), tbIdx._2)
-          }
 
-          case notc:NotConstraint => {
+          case notc:NotConstraint =>
             val rc = perturb(notc.inner, ctr, flipIndex)
             (NotConstraint(rc._1), rc._2)
-          }
 
-          case orc:OrConstraint => {
+          case orc:OrConstraint =>
             var newctr:Int = ctr
             var argc:Seq[Constraint] = Seq.empty
             orc.args.foreach(arg => {
@@ -159,15 +151,13 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
             })
 
             (OrConstraint(argc : _*), newctr)
-          }
 
-          case c:Constraint => {
+          case c:Constraint =>
             if (ctr == flipIndex) {
               (NotConstraint(c), ctr+1)
             } else {
               (c, ctr+1)
             }
-          }
       }
     }
 
@@ -221,7 +211,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
 
     /** Not sure what to place here... */
     def sameSuitNegative(constraint: SameSuit, isSingle:Boolean) : Seq[Statement] = {
-      constraint.on.getName()
+      constraint.on.getName
 
       Java(
         s"""
@@ -257,7 +247,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
     def showConstraint(constraint:Constraint) : Seq[Statement] = {
       Java(
         s"""
-           |String user_defined_constraint = "${constraint}";
+           |String user_defined_constraint = "$constraint";
            |userDefined = true;//Set to True because it's user defined
            |""".stripMargin).statements()
     }
@@ -272,24 +262,24 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
 
     def getConstraintMethod(constraint:Constraint, isSingle:Boolean) : Seq[Statement] = {
       constraint match{
-        case d:Descending =>{
+        case d:Descending =>
           notDescending(d)
-        }
-        case a:IsAce=>{
+
+        case a:IsAce=>
           isAceNegative(a, isSingle)
-        }
-        case k:IsKing=>{
+
+        case k:IsKing=>
           isKingNegative(k, isSingle)
-        }
-        case e:IsEmpty=>{
+
+        case e:IsEmpty=>
           isEmptyNegative(e, isSingle)
-        }
-        case r:NextRank=>{
+
+        case r:NextRank=>
           nextRankNegative(constraint, isSingle)
-        }
-        case s:SameSuit=>{
+
+        case s:SameSuit=>
           sameSuitNegative(s, isSingle)
-        }
+
         case _=> showConstraint(constraint)
       }
     }
@@ -343,19 +333,19 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
           case InitializeStep(target, card) =>
             val rank = rankOf(card.rank)
             val suit = suitOf(card.suit)
-            stmts = stmts + s"""game.${target.name}.add(new Card(Card.${rank}, Card.${suit}));\n""".stripMargin
+            stmts = stmts + s"""game.${target.name}.add(new Card(Card.$rank, Card.$suit));\n""".stripMargin
 
           case MovingCardStep(card) =>
             val rank = rankOf(card.rank)
             val suit = suitOf(card.suit)
-            stmts = stmts + s"""Card movingCard = new Card(Card.${rank}, Card.${suit});\n""".stripMargin
+            stmts = stmts + s"""Card movingCard = new Card(Card.$rank, Card.$suit);\n""".stripMargin
 
           case MovingCardsStep(cards) =>
             stmts += "Stack movingCards = new Stack();\n"
             for (card <- cards) {
               val rank = rankOf(card.rank)
               val suit = suitOf(card.suit)
-              stmts = stmts + s"""movingCards.add(new Card(Card.${rank}, Card.${suit});\n""".stripMargin
+              stmts = stmts + s"""movingCards.add(new Card(Card.$rank, Card.$suit);\n""".stripMargin
             }
 
           case RemoveStep(target) =>
@@ -366,8 +356,8 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
     }
 
     def apply(gen:CodeGeneratorRegistry[Expression]): CompilationUnit = {
-      val pkgName = solitaire.name;
-      val name = solitaire.name.capitalize;
+      val pkgName = solitaire.name
+      val name = solitaire.name.capitalize
 
       var methods:Seq[MethodDeclaration] = Seq.empty
 
@@ -409,8 +399,8 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
           val parsedString = if (m.target.isDefined) {
               s"""
                     |@Test
-                    |public void test${m.name}${idx} () {
-                    |  // Testing ${setup.getClass().getSimpleName}
+                    |public void test${m.name}$idx () {
+                    |  // Testing ${setup.getClass.getSimpleName}
                     |  String type = "${m.moveType.getClass.getSimpleName}";
                     |
                     |  // this is where test set-up must go.
@@ -420,9 +410,9 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                     |  Stack destination = game.${setup.targetElement.get.name};
                     |  int ss = source.count();
                     |  int ds = destination.count();
-                    |  int ms = ${singleCard_logic};
+                    |  int ms = $singleCard_logic;
                     |
-                    |  ${m.name} move = new ${m.name}(source, ${dealDeck_logic});
+                    |  ${m.name} move = new ${m.name}(source, $dealDeck_logic);
                     |
                     |  Assert.assertTrue(move.valid(game));               // Move is valid
                     |  Assert.assertTrue(move.doMove(game));              // Make move
@@ -450,7 +440,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                |
                |//Should hold falsified cases
                |public class ${name}TestCases {
-               |${name} game;
+               |$name game;
                |
                |private Stack getValidStack() {
                |   Stack movingCards = new Stack();
@@ -481,7 +471,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
                |
                |    @Before
                |    public void makeGame() {
-               |        game = new ${name}();
+               |        game = new $name();
                |        final GameWindow window = Main.generateWindow(game, Deck.OrderBySuit);
                |        window.setVisible(true);
                |        try{

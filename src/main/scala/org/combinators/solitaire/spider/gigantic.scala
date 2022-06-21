@@ -6,17 +6,9 @@ import org.combinators.solitaire.spider.closedVariationPoints
 
 package object gigantic extends closedVariationPoints {
 
-  override def numTableau(): Int ={
-    15
-  }
-
-  override def numFoundation(): Int ={
-    16
-  }
-
-  override def numStock(): Int ={
-    4
-  }
+  override def numTableau: Int = 15
+  override def numFoundation: Int = 16
+  override def numStock: Int = 4
 
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 0
@@ -32,7 +24,7 @@ package object gigantic extends closedVariationPoints {
     //each pile gets a face up card
     colNum = 0
     for (colNum <- 0 to 14) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload())
     }
 
     dealSeq

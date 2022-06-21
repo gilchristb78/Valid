@@ -11,7 +11,7 @@ trait ContainerType extends MoveInformation {
   // case objects may have $ in their name
   val name:String = getClass.getSimpleName.replace("$","").toLowerCase()
 
-  override def getName():String = name
+  override def getName:String = name
 
   /** By default each container refers to a potential collection. */
   val isSingleCard:Boolean = false

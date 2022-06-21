@@ -113,9 +113,7 @@ trait Initialization extends SemanticTypes {
 
     // TOTAL HACK: TODO: FIX UP WITH CLEANER INSTANTIATION
     val constructor:String = element match  {
-      case FanPile(num) => {
-        s"""new ${typ}View($num, $modelName[j])"""
-      }
+      case FanPile(num) => s"""new ${typ}View($num, $modelName[j])"""
 
       case _ => s"""new ${typ}View($modelName[j])"""
     }
@@ -141,7 +139,7 @@ trait Initialization extends SemanticTypes {
   class ProcessFields (sol:Solitaire) {
     def apply: Seq[FieldDeclaration] = {
 
-      var defaultFields = Java(s"""|IntegerView scoreView;
+      val defaultFields = Java(s"""|IntegerView scoreView;
                                    |IntegerView numLeftView;
                                 """.stripMargin).fieldDeclarations()
 

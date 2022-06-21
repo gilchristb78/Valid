@@ -23,7 +23,7 @@ trait variationPoints {
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](18)(Column),
     Foundation -> Seq.fill[Element](4)(Pile),
-    StockContainer -> Seq(Stock(1))
+    StockContainer -> Seq(Stock())
   )
 
   def getDeal: Seq[DealStep] = {
@@ -34,7 +34,7 @@ trait variationPoints {
     {
       deal = deal :+ DealStep(ElementTarget(Tableau, colNum)) //used to b Payload(2)
       if (colNum < 17) {
-        deal = deal :+ DealStep(ElementTarget(Tableau, colNum), Payload(true, 2))
+        deal = deal :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp=true, 2))
       }
       colNum += 1
     }

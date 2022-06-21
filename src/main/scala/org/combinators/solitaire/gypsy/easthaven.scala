@@ -3,12 +3,11 @@ package org.combinators.solitaire
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.gypsy.variationPoints
 
-
 package object easthaven extends variationPoints {
 
-  override def getNumStock():Int = 1
-  override def getNumTableau():Int = 7
-  override def getNumFoundation():Int = 4
+  override def getNumStock:Int = 1
+  override def getNumTableau:Int = 7
+  override def getNumFoundation:Int = 4
 
   val easthaven:Solitaire = {
     Solitaire(name = "EastHaven",

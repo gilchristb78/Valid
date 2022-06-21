@@ -320,7 +320,7 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
               autoMoves: Seq[Statement],
               mouseClicked: Seq[Statement],
               mouseReleased: Seq[Statement],
-              mousePressed: ((SimpleName,SimpleName) => Seq[Statement])): CompilationUnit = {
+              mousePressed: (SimpleName,SimpleName) => Seq[Statement]): CompilationUnit = {
 
       shared.controller.java.Controller.render(
         RootPackage = rootPackage,

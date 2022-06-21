@@ -3,12 +3,11 @@ package org.combinators.solitaire
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.spider.closedVariationPoints
 
-
 package object scorpion extends closedVariationPoints {
 
-  override def numTableau(): Int = 7
-  override def numFoundation(): Int = 4
-  override def numStock(): Int = 1
+  override def numTableau: Int = 7
+  override def numFoundation: Int = 4
+  override def numStock: Int = 1
 
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 0
@@ -18,12 +17,12 @@ package object scorpion extends closedVariationPoints {
     }
     colNum = 0
     for (colNum <- 4 to 6) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 3))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(numCards = 3))
     }
 
     colNum = 0
     for (colNum <- 0 to 6) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 4))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(numCards = 4))
     }
 
     dealSeq
@@ -35,7 +34,7 @@ package object scorpion extends closedVariationPoints {
     val isEmpty = IsEmpty(Destination)
     val sameSuit = SameSuit(topDestination, bottomMoving)
 
-    IfConstraint(IsKing(bottomMoving), isEmpty, AndConstraint(sameSuit, NextRank(topDestination, bottomMoving, true)))
+    IfConstraint(IsKing(bottomMoving), isEmpty, AndConstraint(sameSuit, NextRank(topDestination, bottomMoving, wrapAround=true)))
   }
 
   //TODO a way to deal out just these 3 last cards?

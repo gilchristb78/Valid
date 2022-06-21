@@ -132,17 +132,17 @@ trait Initialization extends PythonSemanticTypes{
                       |x, y = self.getInvisibleCoords()
                       |s.talon = InitialDealTalonStack(x, y, self)
                       |""".stripMargin)
-                stmts = Python(stmts.getCode.toString ++ dw.getCode.toString)
+                stmts = Python(stmts.getCode ++ dw.getCode)
               } else {
                 //stock = Some(s)
                 val code:Python = layout_place_stock(sol, ct)
-                stmts = Python(stmts.getCode.toString ++ code.getCode.toString)
+                stmts = Python(stmts.getCode ++ code.getCode)
               }
 
             case _ =>
               // everyone else gets a chance
               val code:Python = layout_place(sol, ct, sol.structure(ct))
-              stmts = Python(stmts.getCode.toString ++ code.getCode.toString)
+              stmts = Python(stmts.getCode ++ code.getCode)
           }
       }
 

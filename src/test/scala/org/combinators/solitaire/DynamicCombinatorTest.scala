@@ -1,6 +1,5 @@
 package org.combinators.solitaire
 
-
 import org.scalatest._
 import org.combinators.cls.types._
 import org.combinators.cls.interpreter._

@@ -7,17 +7,9 @@ import org.combinators.templating.twirl.Java
 
 package object baby extends closedVariationPoints {
 
-  override def numTableau(): Int ={
-    8
-  }
-
-  override def numFoundation(): Int ={
-    4
-  }
-
-  override def numStock(): Int ={
-    1
-  }
+  override def numTableau: Int = 8
+  override def numFoundation: Int = 4
+  override def numStock: Int = 1
 
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 1
@@ -29,7 +21,7 @@ package object baby extends closedVariationPoints {
     //each pile gets a face up card
     colNum = 0
     for (colNum <- 0 to 7) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload())
     }
 
     dealSeq
@@ -41,13 +33,13 @@ package object baby extends closedVariationPoints {
     val isEmpty = IsEmpty(Destination)
     val descend = Descending(cards)
 
-    AndConstraint( descend, OrConstraint(isEmpty, NextRank(topDestination, bottomMoving, true)) )
+    AndConstraint( descend, OrConstraint(isEmpty, NextRank(topDestination, bottomMoving, wrapAround=true)) )
   }
 
   case object PrepareTableauToFoundation extends Setup {
 
-    val sourceElement = ElementInContainer(Tableau, 0)
-    val targetElement = Some(ElementInContainer(Foundation, 2))
+    val sourceElement: ElementInContainer = ElementInContainer(Tableau, 0)
+    val targetElement: Some[ElementInContainer] = Some(ElementInContainer(Foundation, 2))
 
     // clear Foundation, and place [2C, AC] on 0th tableau
     val setup:Seq[SetupStep] = Seq(

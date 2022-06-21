@@ -201,8 +201,8 @@ trait Structure extends PythonSemanticTypes {
 //        val srcCons: List[Constraint] = list.map(x => x.getSourceConstraint)
 //        val targetCons: List[Constraint] = list.map(x => x.getTargetConstraint)
 
-        val srcOr: OrConstraint = new OrConstraint(srcCons: _*)
-        val targetOr: OrConstraint = new OrConstraint(targetCons: _*)
+        val srcOr: OrConstraint = OrConstraint(srcCons: _*)
+        val targetOr: OrConstraint = OrConstraint(targetCons: _*)
 
         val one:Python = oneClass(s, generators, container, srcOr, targetOr, pressMap.get(container))
         processedContainers = processedContainers :+ container

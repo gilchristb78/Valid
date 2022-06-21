@@ -127,7 +127,7 @@ class Concepts(val gadget:Gadget) extends SemanticTypes {
         s"""public class GadgetCode {
            |  ${extraDecl.mkString("\n")}
            |  public void loop() {
-           |    try { Thread.sleep(${totalSec}); } catch (Exception ex) {}
+           |    try { Thread.sleep($totalSec); } catch (Exception ex) {}
            |    java.time.LocalDateTime now = java.time.LocalDateTime.now();
            |
            |    ${extraCode(Java("now").expression()).mkString("\n")}

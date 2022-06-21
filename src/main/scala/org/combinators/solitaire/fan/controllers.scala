@@ -48,10 +48,9 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
       .addCombinator (new IgnoreClickedHandler(pile))
 
     s match {
-      case fanfreepile => {
+      case fanfreepile =>
         updated = updated.addCombinator(new IgnoreClickedHandler('FreePile))
         updated = updated.addCombinator(new SingleCardMoveHandler('FreePile))
-      }
     }
 
     if (s.name.equals("superflowergarden")) {

@@ -12,7 +12,7 @@ package object fanfreepile extends variationPoints {
     Tableau -> Seq.fill[Element](18)(Column),
     Foundation -> Seq.fill[Element](4)(Pile),
     Reserve -> Seq.fill[Element](2)(FreePile),
-    StockContainer -> Seq(Stock(1))
+    StockContainer -> Seq(Stock())
   )
   override val layoutMap:Map[ContainerType, Seq[Widget]] = Map (
     Tableau -> calculatedPlacement(points, height = card_height*2),

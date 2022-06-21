@@ -84,7 +84,7 @@ package object alexanderthegreat extends variationPoints{
   override val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](18)(AlexColumn),
     Foundation -> Seq.fill[Element](4)(Pile),
-    StockContainer -> Seq(Stock(1))
+    StockContainer -> Seq(Stock())
   )
 
 

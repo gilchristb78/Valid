@@ -39,11 +39,11 @@ trait variationPoints {
 
     for(colNum <- 0 to 1){
       dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum),
-        Payload(faceUp = true, numCards = 8))
+        Payload(numCards = 8))
     }
     for(colNum <- 2 to 9){
       dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum),
-        Payload(faceUp = true, numCards = cardNumCounter))
+        Payload(numCards = cardNumCounter))
       cardNumCounter -= 1
     }
     dealSeq
@@ -56,7 +56,7 @@ trait variationPoints {
     val descend = Descending(cards)
     val suit = AllSameSuit(cards)
     AndConstraint( AndConstraint(descend, suit), OrConstraint(isEmpty,
-      NextRank(topDestination, bottomMoving, true)) )
+      NextRank(topDestination, bottomMoving, wrapAround=true)) )
   }
 
   def buildOnFoundation(cards: MovingCards.type): Constraint = {

@@ -52,7 +52,7 @@ trait SemanticTypes {
 
       object converter {
         def apply(from: TemperatureUnit, forUnit: Type):Type =
-          'Converter(Constructor(from.toString()), forUnit)
+          'Converter(Constructor(from.toString), forUnit)
       }
     }
 

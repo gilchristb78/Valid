@@ -6,24 +6,16 @@ import org.combinators.solitaire.spider.variationPoints
 
 package object openscorpion extends variationPoints {
 
-  override def numTableau(): Int ={
-    7
-  }
-
-  override def numFoundation(): Int ={
-    4
-  }
-
-  override def numStock(): Int ={
-    1
-  }
+  override def numTableau: Int = 7
+  override def numFoundation: Int = 4
+  override def numStock: Int = 1
 
   override def getDeal: Seq[DealStep] = {
     var colNum: Int = 0
     var dealSeq: Seq[DealStep] = Seq()
 
     for (colNum <- 0 to 6) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 7))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(numCards = 7))
     }
 
     dealSeq
@@ -35,7 +27,7 @@ package object openscorpion extends variationPoints {
     val isEmpty = IsEmpty(Destination)
     val sameSuit = SameSuit(topDestination, bottomMoving)
 
-    IfConstraint(IsKing(bottomMoving), isEmpty, AndConstraint(sameSuit, NextRank(topDestination, bottomMoving, true)))
+    IfConstraint(IsKing(bottomMoving), isEmpty, AndConstraint(sameSuit, NextRank(topDestination, bottomMoving, wrapAround=true)))
   }
 
   //TODO a way to deal out just these 3 last cards?

@@ -41,16 +41,7 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
     /** Get controllers defined based on solitaire domain. */
 
     /** For all visible containers, returns HEAD of each element set, since types are unique to a set */
-//    val visibleElements = s.structure.collect { case (ct,els) if s.layout.isVisible(ct) => els.head }
-//
-//    visibleElements.foreach(e => {
-//        val elt:Constructor = Constructor(e.name)
-//        updated = updated
-//          .addCombinator (new WidgetController(elt))
-//          .addCombinator (new ControllerNaming(elt))
-//      })
-
-    s.structure.collect { case (ct,els) if s.layout.isVisible(ct) => {
+    s.structure.collect { case (ct,els) if s.layout.isVisible(ct) =>
       val name = ct match {
         case StockContainer => "Deck"
         case _ => els.head.name
@@ -59,7 +50,7 @@ trait GameTemplate extends Base with Controller with Initialization with Semanti
       updated = updated
         .addCombinator (new WidgetController(elt))
         .addCombinator (new ControllerNaming(elt))
-    }}
+    }
 
 
     updated

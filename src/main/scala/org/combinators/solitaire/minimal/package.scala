@@ -9,7 +9,7 @@ package object minimal {
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](numTableau())(Column),
     Foundation -> Seq.fill[Element](4)(Pile),
-    StockContainer -> Seq(Stock(1))
+    StockContainer -> Seq(Stock())
   )
 
   val layout:Layout = Layout(Map(

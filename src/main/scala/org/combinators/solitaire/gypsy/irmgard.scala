@@ -5,9 +5,9 @@ import org.combinators.solitaire.gypsy.variationPoints
 
 package object irmgard extends variationPoints {
 
-  override def getNumTableau(): Int = 9  //instead of 8
+  override def getNumTableau: Int = 9  //instead of 8
 
-  override def getDeal(): Seq[DealStep] = {
+  override def getDeal: Seq[DealStep] = {
     Seq(DealStep(ElementTarget(Tableau, 0)),
       DealStep(ElementTarget(Tableau, 1), Payload(faceUp = false)),
       DealStep(ElementTarget(Tableau, 1)),
@@ -21,7 +21,7 @@ package object irmgard extends variationPoints {
       DealStep(ElementTarget(Tableau, 5)),
       DealStep(ElementTarget(Tableau, 6), Payload(numCards = 2, faceUp = false)),
       DealStep(ElementTarget(Tableau, 6)),
-      DealStep(ElementTarget(Tableau, 7), Payload(numCards = 1, faceUp = false)),
+      DealStep(ElementTarget(Tableau, 7), Payload(faceUp = false)),
       DealStep(ElementTarget(Tableau, 7)),
       DealStep(ElementTarget(Tableau, 8))
     )
@@ -36,7 +36,7 @@ package object irmgard extends variationPoints {
     OrConstraint(AndConstraint(isEmpty, descend, suit, IsKing(bottomMoving)), AndConstraint(descend, suit, OppositeColor(topDestination, bottomMoving)))
   }
 
-  override def foundationToTableauConstraint():Constraint = OrConstraint(
+  override def foundationToTableauConstraint:Constraint = OrConstraint(
     AndConstraint(IsEmpty(Destination), IsKing(MovingCard)),
     AndConstraint(
       OppositeColor(MovingCard, TopCardOf(Destination)),

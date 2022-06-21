@@ -6,7 +6,6 @@ case class Payload(faceUp:Boolean = true, numCards:Int = 1)
 trait Step { }
 trait Target {}
 
-
 trait MapType
 
 case object MapByRank extends MapType

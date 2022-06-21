@@ -19,7 +19,7 @@ package object spider extends closedVariationPoints {
     //each pile gets a face up card
     colNum = 0
     for (colNum <- 0 to 9) {
-      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload(faceUp = true, numCards = 1))
+      dealSeq = dealSeq :+ DealStep(ElementTarget(Tableau, colNum), Payload())
     }
     dealSeq
   }
