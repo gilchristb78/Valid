@@ -1,15 +1,15 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.golf
 
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.golf.variationPoints
 
-package object allInARow extends variationPoints{
+package object allInARow extends variationPoints {
 
   override def getNumTableau: Int = 13
 
-  override def golfLayout():Layout = {
+  override def golfLayout(): Layout = {
     Layout(Map(
-      Tableau -> horizontalPlacement(120, 20, getNumTableau, 5*card_height),
+      Tableau -> horizontalPlacement(120, 20, getNumTableau, 5 * card_height),
       Waste -> horizontalPlacement(15, 40 + card_height, 1, card_height)
     ))
   }
@@ -21,9 +21,9 @@ package object allInARow extends variationPoints{
       DealStep(ContainerTarget(Tableau)))
   }
 
-  val allInARow:Solitaire = {
+  val definition: Solitaire = {
 
-    Solitaire( name="AllInARow",
+    Solitaire(name = "AllInARow",
       structure = map,
       layout = golfLayout(),
       deal = getDeal,

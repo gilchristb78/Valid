@@ -2,12 +2,12 @@ package org.combinators.solitaire.golf
 
 import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
-import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
+import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
 import org.combinators.generic
 import org.combinators.solitaire.domain.{WinningLogic, _}
-import org.combinators.solitaire.{flake, shared}
+import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
 import org.combinators.templating.twirl.Java
 
