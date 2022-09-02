@@ -30,19 +30,29 @@ trait DefaultMain extends App { self:SolitaireSolution =>
 
   val results: Results
 
-  /** The computed result location (root/sourceDirectory) */
-  implicit lazy val resultLocation: ResultLocation = if (routingPrefix.isEmpty) {
-      ResultLocation(Paths.get("target", controllerAddress))
+  /** The computed result location (target/solitaire so all generated code goes into same directory.) */
+//  implicit lazy val resultLocation: ResultLocation = if (routingPrefix.isEmpty) {
+//      ResultLocation(Paths.get("target", controllerAddress))
+//  } else {
+//      ResultLocation(Paths.get("target", routingPrefix.get, controllerAddress))
+//  }
+
+  implicit lazy val priorCode: Option[ResultLocation] = if (routingPrefix.isEmpty) {
+      Option.empty
   } else {
-      ResultLocation(Paths.get("target", routingPrefix.get, controllerAddress))
+      Some(ResultLocation(Paths.get("target", "solitaire", "src", "main", "java", "org", "combinators", "solitaire", controllerAddress)))
   }
+
+  implicit lazy val resultLocation: ResultLocation = ResultLocation(Paths.get("target", "solitaire"))
 
   println("resulting targets:" + results)
   println(results.targets.collect { case (ty, Some(n)) if n == BigInt(0) => s"&Gamma; &vdash; ? : ${ty.toString}" }.mkString("\n"))
 
   // clean up before generating
-  println("cleaning target output")
-  FileUtils.deleteDirectory(resultLocation.relativeTo.toFile)
+  println("cleaning prior code")
+  if (priorCode.nonEmpty) {
+    FileUtils.deleteDirectory(priorCode.get.relativeTo.toFile)
+  }
 
   println("storing generated code in " + resultLocation.relativeTo.toString)
   results.storeToDisk(0)
