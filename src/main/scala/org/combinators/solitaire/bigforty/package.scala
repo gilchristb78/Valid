@@ -34,7 +34,7 @@ package object bigforty {
   val and_2 = AndConstraint(descend, AllSameSuit(MovingCards))
 
   val tableauToTableau:Move = MultipleCardsMove ("MoveColumn", Drag,
-    source=(Tableau, and_2),  target=Some((Tableau, or)))
+    source=(Tableau, NotConstraint(IsEmpty(Source))),  target=Some((Tableau, or)))
 
   //2. waste to tableau
   val moveCard= OrConstraint(isEmpty, NextRank(TopCardOf(Destination), MovingCard))

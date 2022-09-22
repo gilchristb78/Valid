@@ -76,7 +76,16 @@ class gameDomain (override val solitaire:Solitaire) extends SolitaireDomain(soli
       val methods = generateHelper.helpers(solitaire)
 
       methods ++ Java(s"""
-           |public static boolean allSameSuit (Column column) {
+           |public static boolean allSameSuit (Stack st) {
+           |  if (st.empty()) { return true; }
+           |    	int n = st.count();
+           |
+           |    	Card c = st.peek(0);
+           |    	for (int i = 1; i < n; i++) {
+           |    		if (!c.sameSuit(st.peek(i))) {
+           |    			return false;
+           |    		}
+           |    	}
            |  return true;
            |}""".stripMargin).methodDeclarations()
     }

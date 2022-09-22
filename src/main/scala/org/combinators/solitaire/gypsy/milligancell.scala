@@ -4,13 +4,13 @@ import org.combinators.solitaire.domain._
 import org.combinators.solitaire.gypsy.variationPoints
 
 package object milligancell extends variationPoints {
-  case object FreeCell extends Element(true)
+  case object FreeCellElement extends Element(true)
 
   override val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](getNumTableau)(BuildablePile),
     Foundation -> Seq.fill[Element](getNumFoundation)(Pile),
     StockContainer -> Seq(Stock(getNumStock)),
-    Reserve -> Seq.fill[Element](4)(FreeCell),
+    Reserve -> Seq.fill[Element](4)(FreeCellElement),
   )
 
   override val map:Map[ContainerType, Seq[Widget]] = Map (
@@ -128,7 +128,7 @@ package object milligancell extends variationPoints {
       structure = structureMap,
       layout = Layout(map),
       deal = getDeal,
-      specializedElements = Seq(FreeCell),
+      specializedElements = Seq(FreeCellElement),
       moves = Seq(tableauToTableauMove, buildFoundation, flipMove, foundationToTableauMove, deckDealMove, moveToFreeCell, moveFoundationToFreeCell, moveFreeCellToFoundation),
       logic = BoardState(Map(Foundation -> 104)),
       customizedSetup = Seq(TableauToEmptyTableau, TableauToNextTableau, TableauToEmptyFoundation, TableauToNextFoundation,

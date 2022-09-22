@@ -20,7 +20,7 @@ class gypsyDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
   override def baseModelNameFromElement (e:Element): String = {
     e match {
       case nomad.FreeCell => "Pile"
-      case milligancell.FreeCell => "Pile"
+      case milligancell.FreeCellElement => "Pile"
       case _ => super.baseModelNameFromElement(e)
     }
   }
@@ -28,7 +28,7 @@ class gypsyDomain(override val solitaire:Solitaire) extends SolitaireDomain(soli
   override def baseViewNameFromElement (e:Element): String = {
     e match {
       case nomad.FreeCell => "PileView"
-      case milligancell.FreeCell => "PileView"
+      case milligancell.FreeCellElement => "PileView"
       case _ => super.baseViewNameFromElement(e)
     }
   }

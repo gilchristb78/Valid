@@ -3,12 +3,12 @@ package org.combinators.solitaire
 import org.combinators.solitaire.domain._
 
 package object freecell {
-  case object FreeCellPile extends Element(true)
+  case object FreeCellPileElement extends Element(true)
 
   val structureMap:Map[ContainerType,Seq[Element]] = Map(
     Tableau -> Seq.fill[Element](8)(Column),
     Foundation -> Seq.fill[Element](4)(Pile),
-    Reserve -> Seq.fill[Element](4)(FreeCellPile),
+    Reserve -> Seq.fill[Element](4)(FreeCellPileElement),
   )
 
   val layoutMap:Map[ContainerType, Seq[Widget]] = Map (
@@ -79,7 +79,7 @@ package object freecell {
       layout = Layout(layoutMap),
       deal = getDeal,
       /** from element can infer ks.ViewWidget as well as Base Element. */
-      specializedElements = Seq(FreeCellPile),
+      specializedElements = Seq(FreeCellPileElement),
 
       /** All rules here. */
       moves = Seq(tableauToTableauMove, tableauToFoundationMove, fromTableauToReserve, fromReserveToReserve, fromReserveToTableau, fromReserveToFoundation ),
