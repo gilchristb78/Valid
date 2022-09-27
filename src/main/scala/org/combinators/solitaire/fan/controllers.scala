@@ -12,6 +12,7 @@ import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
 import org.combinators.templating.twirl.Java
 import org.combinators.solitaire.fanfreepile.fanfreepile
+import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 
 /** Defines Fan's controllers and their behaviors.
   *
@@ -53,7 +54,7 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
         updated = updated.addCombinator(new SingleCardMoveHandler('FreePile))
     }
 
-    if (s.name.equals("superflowergarden")) {
+    if (s.name.equalsIgnoreCase("superflowergarden")) {
       updated = updated.addCombinator(new IgnoreClickedHandler('Redeal))
         .addCombinator(new SingleCardMoveHandler('Redeal))
     }
@@ -62,8 +63,13 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
       .addCombinator (new IgnoreClickedHandler(deck))
       .addCombinator (new IgnoreReleasedHandler(deck))
 
-    updated = updated
-      .addCombinator(new DealToTableauHandlerLocal())
+    if (s.name.equalsIgnoreCase("superflowergarden")) {
+      updated = updated
+        .addCombinator(new ResetDeckHandlerLocal())
+    } else {
+      updated = updated
+        .addCombinator(new DealToTableauHandlerLocal())
+    }
 
     updated = createWinLogic(updated, s)
 
@@ -79,6 +85,25 @@ trait controllers extends shared.Controller  with GameTemplate with shared.Moves
     updated
   }
 
+  /**
+   * When dealing card(s) from the stock to all elements in Tableau
+   * If deck is empty, then reset.
+   * NOTE: How to make this more compositional?
+   */
+  class ResetDeckHandlerLocal() {
+    def apply(): (SimpleName, SimpleName) => Seq[Statement] = (widget, ignore) => {
+      Java(s"""|{Move m = new ResetDeck(theGame.deck, theGame.tableau);
+               |if (m.doMove(theGame)) {
+               |   theGame.pushMove(m);
+               |   // have solitaire game refresh widgets that were affected
+               |   theGame.refreshWidgets();
+               |   return;
+               |}}""".stripMargin
+      ).statements()
+    }
+
+    val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed)
+  }
     /**
       * When dealing card(s) from the stock to all elements in Tableau
       * If deck is empty, then reset.

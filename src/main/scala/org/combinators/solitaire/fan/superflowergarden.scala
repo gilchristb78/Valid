@@ -38,8 +38,11 @@ package object superflowergarden extends variationPoints {
     )
   }
 
-  val deckDealMove:Move = DealDeckMove("Reshuffle", 1,
-    source=(Tableau, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
+  // TODO: HACK -- this should be Reshuffle or something....
+//  val deckDealMove:Move = DealDeckMove("DealDeck", 1,
+//    source=(Tableau, NotConstraint(IsEmpty(Source))), target=Some((Tableau, Truth)))
+
+  val deckReset:Move =  ResetDeckMove("ResetDeck", source=(StockContainer,Truth), target=Some(Tableau,Truth))
 
   val superflowergarden: Solitaire = {
     Solitaire(name = "SuperFlowerGarden",
@@ -47,7 +50,7 @@ package object superflowergarden extends variationPoints {
       layout = Layout(layoutMap),
       deal = getDeal,
       specializedElements = Seq.empty,
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove),  //tableauToTableauMove2
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckReset),  //tableauToTableauMove2
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
       customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation, TableauToEmptyTableau, TableauToNextTableauIgnoreSuit, TableauToNextTableau)
