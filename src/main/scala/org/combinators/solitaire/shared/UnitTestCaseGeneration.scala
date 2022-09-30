@@ -345,7 +345,7 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
             for (card <- cards) {
               val rank = rankOf(card.rank)
               val suit = suitOf(card.suit)
-              stmts = stmts + s"""movingCards.add(new Card(Card.$rank, Card.$suit);\n""".stripMargin
+              stmts = stmts + s"""movingCards.add(new Card(Card.$rank, Card.$suit));\n""".stripMargin
             }
 
           case RemoveStep(target) =>

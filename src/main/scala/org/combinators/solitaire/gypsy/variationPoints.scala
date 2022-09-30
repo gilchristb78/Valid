@@ -72,7 +72,7 @@ trait variationPoints {
     val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),
       RemoveStep(targetElement.get),
-        MovingCardStep(CardCreate(Clubs, Eight))
+        MovingCardsStep(Seq(CardCreate(Clubs, Nine)))
     )
 
   }
@@ -85,8 +85,7 @@ trait variationPoints {
       RemoveStep(sourceElement),
       InitializeStep(targetElement.get, CardCreate(Clubs, Ace)),
       InitializeStep(targetElement.get, CardCreate(Clubs, Two)),
-      //MovingCardsStep(Seq(CardCreate(Clubs, Three)))
-      MovingCardStep(CardCreate(Clubs, Eight))
+      MovingCardsStep(Seq(CardCreate(Clubs, Three)))
     )
   }
 
@@ -98,7 +97,7 @@ trait variationPoints {
       RemoveStep(sourceElement),
       RemoveStep(targetElement.get),
       //MovingCardsStep(Seq(CardCreate(Clubs, Four)))
-      MovingCardStep(CardCreate(Clubs, Eight))
+      MovingCardsStep(Seq(CardCreate(Clubs, Jack)))
     )
   }
 
@@ -111,8 +110,7 @@ trait variationPoints {
       RemoveStep(targetElement.get),
       InitializeStep(targetElement.get, CardCreate(Clubs, Three)),
       InitializeStep(targetElement.get, CardCreate(Hearts, Two)),
-      //MovingCardsStep(Seq(CardCreate(Clubs, Ace)))
-      MovingCardStep(CardCreate(Clubs, Eight))
+      MovingCardsStep(Seq(CardCreate(Clubs, Ace)))
     )
   }
 
@@ -123,10 +121,9 @@ trait variationPoints {
     val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),
       RemoveStep(targetElement.get),
-      InitializeStep(targetElement.get, CardCreate(Clubs, Ten)),
-      InitializeStep(targetElement.get, CardCreate(Hearts, Nine)),
-      MovingCardStep(CardCreate(Clubs, Eight))
-      //MovingCardsStep(Seq(CardCreate(Clubs, Eight), CardCreate(Diamonds, Seven)))
+      InitializeStep(targetElement.get, CardCreate(Clubs, Queen)),
+      InitializeStep(targetElement.get, CardCreate(Hearts, Jack)),
+      MovingCardsStep(Seq(CardCreate(Clubs, Ten)))
     )
   }
 
@@ -137,7 +134,7 @@ trait variationPoints {
     val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),
       RemoveStep(targetElement.get),
-      MovingCardStep(CardCreate(Clubs, Eight))
+      MovingCardsStep(Seq(CardCreate(Clubs, Three), CardCreate(Diamonds, Two)))
      // MovingCardsStep(Seq(CardCreate(Clubs, Eight), CardCreate(Diamonds, Seven)))
     )
   }
