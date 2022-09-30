@@ -35,6 +35,16 @@ package object domain {
       source=source, target=target, isSingleDestination = false)
   }
 
+  // TODO: Move deal logic in the solitaire generated code into its own new method.
+  // TODO: add GameTemplate method for dealing cards (ala hasWon()).
+  // TODO: Make sure deal logic handles situation where deck doesn't have enough
+  // TODO: FINALLY have the move invoke deal on solitaire
+  def ResetDeckAndRedealMove(name:String,
+                    source:(ContainerType,Constraint),
+                    target:Option[(ContainerType,Constraint)]):Move = {
+    Move(name, ResetDeck, Press, movableElement=Card,
+      source=source, target=target, isSingleDestination = false)
+  }
 
   def RemoveSingleCardMove(name:String, gesture:GestureType,
                      source:(ContainerType,Constraint),
