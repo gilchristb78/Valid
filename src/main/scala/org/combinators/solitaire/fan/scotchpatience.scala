@@ -67,7 +67,7 @@ package object scotchpatience extends variationPoints {
       solvable = true,
       customizedSetup = Seq(//PrepareTableauToFoundation,
         TableauToNextTableauIgnoreSuit, TableauToNextFoundationOppositeColor,
-        TableauToEmptyFoundation, TableauToNextFoundation, //shouldn't pass - has to be opposite color
+        TableauToEmptyFoundation, //TableauToNextFoundation, //shouldn't pass - has to be opposite color
         TableauToEmptyTableau, TableauToNextTableau)
     )
   }
