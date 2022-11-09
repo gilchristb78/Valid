@@ -35,7 +35,7 @@ package object shamrocks extends variationPoints {
       deal = deal :+ DealStep(ElementTarget(Tableau, num))
     }
 
-    for (colNum <- 0 until 17) {
+    for (colNum <- 0 to 17) {
       var loadNum = 3
       if (visitedSpots.contains(colNum)){
         val oldSize = visitedSpots.size

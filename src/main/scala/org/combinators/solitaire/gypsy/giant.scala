@@ -10,7 +10,7 @@ package object giant extends variationPoints {
   }
 
   override def foundationToTableauConstraint:Constraint = AndConstraint(
-    IsEmpty(Destination),
+    //IsEmpty(Destination),
     OrConstraint(
     IsEmpty(Destination),
     AndConstraint(
