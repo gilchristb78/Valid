@@ -5,4 +5,4 @@ matrix:
          script:
          - sbt compile
          - sbt run
-         - sbt runMain buildTest.TestSynthesisConvertJ
+         - sbt "runMain buildTest.TestSynthesisConvertJ"
