@@ -1,5 +1,6 @@
 package org.combinators.solitaire.archway
 
+
 import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.git._
@@ -7,6 +8,7 @@ import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
 import org.combinators.templating.persistable.JavaPersistable._
+
 
 trait ArchwayT extends SolitaireSolution {
 
