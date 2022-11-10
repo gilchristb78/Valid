@@ -7,20 +7,18 @@ import org.combinators.solitaire.bakersdozen._
 
 
 object travisMain extends App {
-  println("----------   Archway Testing   ----------")
-  archway
-  println("----------   bakerdozen Testing   ----------")
-  bakersDozen
-
 }
 
-object archway {
+object archwayTest extends App {
+  println("----------   Archway Testing   ----------")
   ArchwayMain
 }
 
-object bakersDozen {
+object bakersDozenTest extends App {
+  println("----------   bakerdozen Testing   ----------")
   BakersDozenMain
   SpanishPatienceMain
   CastlesInSpainMain
 }
+
 
