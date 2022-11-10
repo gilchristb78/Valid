@@ -4,5 +4,4 @@ matrix:
          jdk: openjdk8
          script:
          - sbt compile
-         - sbt run
-         - sbt "runMain org.combinators.solitaire.archway.ArchwayMain"
+         - sbt "runMain org.combinators.solitaire.travisMain"
