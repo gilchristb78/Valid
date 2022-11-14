@@ -2,8 +2,11 @@ matrix:
    include:
        - language: scala
          jdk: openjdk8
+         env:
+           - PATH="runMain org.combinators.solitaire"
          script:
          - sbt compile
          - sbt "runMain org.combinators.solitaire.travis.archwayTest"
          - sbt "runMain org.combinators.solitaire.travis.bakersDozenTest"
-         - sbt "runMain org.combinators.solitaire.golf.golfMain"
+         - sbt "runMain org.combinators.solitaire.golf.GolfMain"
+         - sbt PATH.fan.FanMain
