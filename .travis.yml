@@ -6,3 +6,4 @@ matrix:
          - sbt compile
          - sbt "runMain org.combinators.solitaire.travis.archwayTest"
          - sbt "runMain org.combinators.solitaire.travis.bakersDozenTest"
+         - sbt "runMain org.combinators.solitaire.golf.golfMain"
