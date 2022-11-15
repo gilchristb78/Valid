@@ -1,7 +1,8 @@
 env:
-  - TESTINGER="runMain org.combinators.solitaire"
-  - Generate="sbt runMain org.combinators.solitaire"
-  - Generate2="runMain org.combinators.solitaire"
+  global:
+    - TESTINGER="runMain org.combinators.solitaire"
+    - Generate="sbt runMain org.combinators.solitaire"
+    - Generate2="runMain org.combinators.solitaire"
 matrix:
    include:
        - language: scala
