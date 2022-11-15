@@ -1,6 +1,7 @@
 env:
   - TESTINGER="runMain org.combinators.solitaire"
-  - Generate_="sbt runMain org.combinators.solitaire."
+  - Generate="sbt runMain org.combinators.solitaire"
+  - Generate2="runMain org.combinators.solitaire"
 matrix:
    include:
        - language: scala
@@ -12,5 +13,5 @@ matrix:
          - sbt "runMain org.combinators.solitaire.golf.GolfMain"
          - sbt "$TESTINGER.fan.FanMain"
          - sbt $TESTERINGER.fan.FanFreeMain
-         - $Generate_fan.ScotchPatienceMain
-         - $Generate_fan.FanTwoDeckMain
+         - $Generate.fan.ScotchPatienceMain
+         - sbt $Generate2.fan.FanTwoDeckMain
