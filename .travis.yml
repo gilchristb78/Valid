@@ -8,7 +8,7 @@ matrix:
          script:
          - sbt compile
          - sbt "$GENERATE.fan.FanMain"
-         - sbt "testOnly file:/home/travis/build/gilchristb78/nextgen-solitaire/target/src/main/java/org/combinators/solitaire/fan/*"
+         - sbt "testOnly file:./target/solitaire/src/main/java/org/combinators/solitaire/fan/*"
          - ls -R
 
 
