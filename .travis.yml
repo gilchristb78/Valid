@@ -1,5 +1,5 @@
 language: scala
 
 script:
-  - find . -name "*.scala" -exec grep -l "def.*main" {} + | xargs -n1 scalac
-  - find . -name "*.scala" -exec grep -l "def.*main" {} + | xargs -n1 scala
+  - sbt compile
+  - sbt ";project myproject; runMain $(find -name '*.scala' -exec grep -l 'def.*main' {} + | xargs -n1 | awk -F'.' '{print $2}')"
