@@ -1,12 +1,13 @@
 env:
   global:
-    - GENERATE="runMain org.combinators.solitaire"
+    - TEST_DIR="/home/travis/test"
+
 matrix:
-   include:
-       - language: scala
-         jdk: openjdk8
-         script:
-         - sbt compile
-         - sbt "$GENERATE.fan.FanMain"
-         - sbt coverage test
-         - bash <(curl -s https://codecov.io/bash) -f /home/ben/IdeaProjects/nextgen-solitaire/target/solitaire/src/main/java/org/combinators/solitaire/fan/coverage.xml
+  include:
+    - language: scala
+      jdk: openjdk8
+      script:
+        - sbt compile
+        - sbt "runMain org.combinators.solitaire.fan.FanMain"
+        - cp -r $TEST_DIR/* /home/travis/build/yourusername/yourrepository/target/
+        - sbt testOnly /home/travis/build/yourusername/yourrepository/target/*
