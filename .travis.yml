@@ -8,7 +8,5 @@ matrix:
          script:
          - sbt compile
          - sbt "$GENERATE.fan.FanMain"
-         - sbt compile
-         - sbt "testOnly file:./target/solitaire/src/main/java/org/combinators/solitaire/fan/*"
          - sbt coverage test
          - bash <(curl -s https://codecov.io/bash) -f /home/ben/IdeaProjects/nextgen-solitaire/target/solitaire/src/main/java/org/combinators/solitaire/fan/coverage.xml
