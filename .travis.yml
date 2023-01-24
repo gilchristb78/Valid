@@ -12,4 +12,4 @@ matrix:
         - sbt "$GENERATE.fan.FanMain"
         - ls
         - sbt compile
-        - sbt "testOnly file:./generated/solitaire/src/main/java/org/combinators/solitaire/fan/*"
+        - sbt "testOnly file:./generated/src/main/java/org/combinators/solitaire/fan/*"
