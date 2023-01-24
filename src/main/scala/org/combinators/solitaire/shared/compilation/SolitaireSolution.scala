@@ -43,7 +43,7 @@ trait DefaultMain extends App { self:SolitaireSolution =>
       Some(ResultLocation(Paths.get("generated",  "src", "main", "java", "org", "combinators", "solitaire", controllerAddress)))
   }
 
-  implicit lazy val resultLocation: ResultLocation = ResultLocation(Paths.get("generated")
+  implicit lazy val resultLocation: ResultLocation = ResultLocation(Paths.get("generated"))
 
   println("resulting targets:" + results)
   println(results.targets.collect { case (ty, Some(n)) if n == BigInt(0) => s"&Gamma; &vdash; ? : ${ty.toString}" }.mkString("\n"))
