@@ -3,4 +3,4 @@ language: scala
 script:
   - sbt compile
   - shopt -s nocaseglob
-  - find src/main/scala/org/combinators -type d | while read dir; do [ -f "$dir/$(basename "$dir").scala" ] && sbt ";project nextgen-solitaire; runMain $dir.$(basename "$dir")" ; done
+  - find src/main/scala/org/combinators -name "*.scala" -exec grep -l "def.*main" {} + | while read file; do class_name=$(echo $file | awk -F'.' '{print $2}'); sbt ";project yourprojectname; runMain $class_name" ; done
