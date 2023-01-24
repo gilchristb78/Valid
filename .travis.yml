@@ -3,4 +3,4 @@ language: scala
 script:
   - sbt compile
   - shopt -s nocaseglob
-  - find . -type d | while read dir; do [ -f "$dir/$(basename "$dir").scala" ] && sbt ";project nextgen-solitaire; runMain $dir.$(basename "$dir")" ; done
+  - find src/main/scala/org/combinators -type d | while read dir; do [ -f "$dir/$(basename "$dir").scala" ] && sbt ";project nextgen-solitaire; runMain $dir.$(basename "$dir")" ; done
