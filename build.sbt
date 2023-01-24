@@ -8,7 +8,6 @@ lazy val commonSettings = Seq(
 
   target := file("/generated/src/test/java"),
 
-
   javacOptions ++= Seq("-source", "8"),
 
   scalaVersion := "2.12.4",
