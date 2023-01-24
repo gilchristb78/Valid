@@ -10,6 +10,6 @@ matrix:
         - pwd
         - ls
         - sbt "$GENERATE.fan.FanMain"
-        - ls
         - sbt compile
+        - ls -R
         - sbt "testOnly file:./generated/src/main/java/org/combinators/solitaire/fan/*"
