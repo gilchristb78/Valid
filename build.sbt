@@ -33,7 +33,7 @@ lazy val commonSettings = Seq(
     "javax.xml.bind" % "jaxb-api" % "2.3.1",
     "ch.qos.logback" % "logback-classic" % "1.2.6",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
-
+    "junit" % "junit" % "4.8.1" % "test",
     guice
   )
 )
