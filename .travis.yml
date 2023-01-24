@@ -1,6 +1,15 @@
-language: scala
-
-script:
-  - sbt compile
-  - shopt -s nocaseglob
-  - find src/main/scala/org/combinators -name "*.scala" -exec grep -l "def.*main" {} + | while read file; do class_name=$(echo $file | awk -F'.' '{print $2}'); sbt ";project nextgen-solitaire; runMain $class_name" ; done
+env:
+  global:
+    - GENERATE="runMain org.combinators.solitaire"
+matrix:
+  include:
+    - language: scala
+      jdk: openjdk8
+      script:
+        - sbt compile
+        - pwd
+        - ls
+        - sbt "$GENERATE.fan.FanMain"
+        - ls
+        - sbt compile
+        - sbt "testOnly file:./generated/solitaire/src/main/java/org/combinators/solitaire/fan/*"
