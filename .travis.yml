@@ -11,5 +11,5 @@ matrix:
         - ls
         - sbt "$GENERATE.fan.FanMain"
         - sbt clean compile
-        - mv -r generated/src/main/java/org/combinators/solitaire src/test/java/org/combinators/solitaire
+        - mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/
         - sbt test
