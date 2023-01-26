@@ -10,6 +10,9 @@ matrix:
         - pwd
         - ls
         - sbt "$GENERATE.fan.FanMain"
+        - sbt "$GENERATE.bakersdozen.BakersDozenMain"
+        - sbt "$GENERATE.golf.GolfMain"
+        - sbt "$GENERATE.gypsy.GiantMain"
         - sbt clean compile
         - mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/
         - sbt test
