@@ -18,4 +18,10 @@ matrix:
         - sbt "$GENERATE.gypsy.GiantMain"
         - sbt clean compile
         - mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/
-        - sbt test
+        - for dir in src/test/java/org/combinators/solitaire/*; do
+          if sbt "testOnly $dir"; then
+          mv $dir generated/yes;
+          else
+          mv $dir generated/no;
+          fi
+          done
