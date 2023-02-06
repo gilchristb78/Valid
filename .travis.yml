@@ -17,8 +17,8 @@ matrix:
         - sbt compile
         - mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/
         - for dir in src/test/java/org/combinators/solitaire/*; do
-          modified_dir="$(echo $dir | awk -F "/" '{print $NF}' | awk -F "." '{print "org.combinators.solitaire."$NF".*"}')"
-          if sbt "testOnly $modified_dir"; then
+          dir_without_prefix=${dir#src/test/java/}
+          if sbt "testOnly $dir_without_prefix.*"; then
           mv $dir generated/yes;
           else
           mv $dir generated/no;
