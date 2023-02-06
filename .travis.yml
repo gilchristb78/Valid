@@ -14,11 +14,9 @@ matrix:
         - pwd
         - ls
         - sbt "$GENERATE.fan.FanMain"
-        - sbt "$GENERATE.bakersdozen.BakersDozenMain"
-        - sbt "$GENERATE.gypsy.GiantMain"
-        - sbt clean compile
+        - sbt compile
         - mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/
-        - for dir in src/test/java/org/combinators/solitaire/; do
+        - for dir in src/test/java/org/combinators/solitaire/*; do
           if sbt "testOnly ${dir////.}.*"; then
           mv $dir generated/yes;
           else
