@@ -11,11 +11,6 @@ matrix:
       jdk: openjdk8
       script:
         - sbt compile
-        - pwd
-        - ls
-        - sbt "$GENERATE.fan.FanMain"
-        - sbt compile
-        - mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/
         - for dir in src/test/java/org/combinators/solitaire/*; do
           dir_without_prefix=${dir#src/test/java/}
           if sbt "testOnly $dir_without_prefix.*"; then
@@ -24,5 +19,3 @@ matrix:
           mv $dir generated/no;
           fi
           done
-        - git remote add yes-repo https://github.com/gilchristb78/travisTest2.git
-        - git subtree push --prefix generated/yes yes-repo master
