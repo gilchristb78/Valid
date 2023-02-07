@@ -13,9 +13,9 @@ matrix:
         - sbt compile
         - for dir in src/test/java/org/combinators/solitaire/*; do
           dir_without_prefix=${dir#src/test/java/}
-          if sbt "testOnly $dir_without_prefix.*"; then
+          if sbt "testOnly ${dir_without_prefix//\//.}.*"; then
           mv $dir generated/yes;
           else
           mv $dir generated/no;
           fi
-          done
+         done
