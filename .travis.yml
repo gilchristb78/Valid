@@ -18,7 +18,7 @@ matrix:
         - mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/
         - for dir in src/test/java/org/combinators/solitaire/*; do
           remover=src/test/java/;
-          dir_without={dir#$remover};
+          dir_without=${dir#$remover};
           if sbt "testOnly ${dir_without////.}.*"; then
           mv $dir generated/yes;
           else
