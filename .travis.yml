@@ -25,5 +25,11 @@ matrix:
           mv $dir generated/no;
           fi
           done
+        - cd generated
+        - cd yes
+        - ls
+        - cd ..
+        - cd no
+        - ls
         - git remote add yes-repo https://github.com/gilchristb78/travisTest2.git
         - git subtree push --prefix generated/yes yes-repo master
