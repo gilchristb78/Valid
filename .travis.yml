@@ -27,9 +27,9 @@ matrix:
           done
         - cd generated
         - cd yes
-        - ls
+        - ls -d */
         - cd ..
         - cd no
-        - ls
+        - ls -d */
         - git remote add yes-repo https://github.com/gilchristb78/travisTest2.git
         - git subtree push --prefix generated/yes yes-repo master
