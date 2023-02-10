@@ -1,0 +1,20 @@
+->    /                              org.combinators.cls.git.Routes
+
+# To automatically synthesize all solitaire variants using [[buildTest.TestSynthesis]], make
+# sure that all solitaire class names start with org.combinators.solitaire.*
+#
+# Provided here so users can "debug" using a web-based interface that provides additional information
+# about the repository. To make this work, in the sbt shell terminal, type "run" or possibly "nextgen/run"
+# which starts a web server that processes these requests. Then type "http://localhost:3000/minimal" to
+# trigger this behavior.
+
+->    /                              org.combinators.solitaire.minimal.Minimal
+
+# All variants have names that end in "Controller", and then can extract package.MainClass easily
+
+GET   /temperature                          example.temperature.Temperature.overview()
+GET   /temperature/raw_:number              example.temperature.Temperature.raw(number: Long)
+GET   /temperature/prepare                  example.temperature.Temperature.prepare(number: Long)
+GET   /temperature/temperature.git/*file    example.temperature.Temperature.serveFile(file)
+
+->    /                                     example.timeGadget.TimeGadget

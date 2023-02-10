@@ -1,0 +1,6 @@
+#Successful Tests
+#Wed Jan 18 10:39:04 EST 2023
+org.combinators.solitaire.shared.CodeGeneratorRegistryTests=1674056302654
+org.combinators.solitaire.DynamicCombinatorTest=1674056336547
+org.combinators.solitaire.shared.SolitaireDomainTest=1674056204689
+test.Helper=1674056220267
