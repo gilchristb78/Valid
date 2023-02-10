@@ -10,8 +10,9 @@ matrix:
     - language: scala
       jdk: openjdk8
       script:
-        - ls
+        - sbt compile
         - cd target/scala-2.12/classes/
+        - ls
         - for i in `find org -name "*.class"`; do
           javap $i | grep DefaultMain >/dev/null;
           if [ $? -eq 0 ]; then
