@@ -21,5 +21,10 @@ matrix:
           i_cleaned=${i_without%\$*};
           variant=${i_cleaned////.};
           echo $variant;
+          sbt "$GENERATE.$variant";
+          mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/;
+          if sbt test; then
+          mv src/test/java/org/combinators/solitaire/* generated/yes; else
+          mv src/test/java/org/combinators/solitaire/* generated/no;
           fi
           done
