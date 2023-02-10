@@ -11,6 +11,7 @@ matrix:
       jdk: openjdk8
       script:
         - ls
+        - cd target/scala-2.12/classes/
         - for i in `find org -name "*.class"`; do
           javap $i | grep DefaultMain >/dev/null;
           if [ $? -eq 0 ]; then
