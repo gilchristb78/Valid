@@ -32,3 +32,7 @@ matrix:
           cd target/scala-2.12/classes/;
           fi;
           done
+        - cd ../../../generated/yes
+        - ls
+        - cd ../no
+        - ls
