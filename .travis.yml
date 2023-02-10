@@ -26,5 +26,6 @@ matrix:
           if sbt test; then
           mv src/test/java/org/combinators/solitaire/* generated/yes; else
           mv src/test/java/org/combinators/solitaire/* generated/no;
-          fi
+          fi;
+          fi;
           done
