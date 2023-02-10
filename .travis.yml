@@ -12,6 +12,7 @@ matrix:
       script:
         - sbt compile
         - cd target/scala-2.12/classes/
+        - pwd
         - ls
         - for i in `find org -name "*.class"`; do
           javap $i | grep DefaultMain >/dev/null;
