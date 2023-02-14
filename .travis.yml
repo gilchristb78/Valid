@@ -14,9 +14,8 @@ matrix:
         - cd target/scala-2.12/classes/
         - pwd
         - ls
-        - for i in `find org -name "*.class"`; do
-          javap $i | grep DefaultMain >/dev/null;
-          if [ $? -eq 0 ]; then
+        - while read i; do
+          i=$(echo "$i" | tr -d '\n')
           remover="org/combinators/solitaire/";
           i_without=${i#$remover};
           i_cleaned=${i_without%\$*};
@@ -30,8 +29,7 @@ matrix:
           mv src/test/java/org/combinators/solitaire/* generated/no;
           fi;
           cd target/scala-2.12/classes/;
-          fi;
-          done
+          done < travis.txt
         - cd ../../../generated/yes
         - ls
         - cd ../no
