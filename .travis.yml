@@ -11,11 +11,10 @@ matrix:
       jdk: openjdk8
       script:
         - sbt compile
-        - cd target/scala-2.12/classes/
         - pwd
         - ls
         - while read i; do
-          i=$(echo "$i" | tr -d '\n')
+          i=$(echo "$i" | tr -d '\n');
           remover="org/combinators/solitaire/";
           i_without=${i#$remover};
           i_cleaned=${i_without%\$*};
