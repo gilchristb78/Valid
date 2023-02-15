@@ -14,8 +14,7 @@ matrix:
         - pwd
         - ls
         - while read i; do
-          i=$(echo "$i" | tr -d '\n');
-          variant=$i;
+          variant=$(echo "$i" | tr -d '\n');
           echo $variant;
           sbt "$GENERATE.$variant";
           mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/;
