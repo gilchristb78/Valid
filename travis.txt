@@ -5,6 +5,7 @@ bakersdozen.CastlesInSpainMain
 bigforty.BigFortyMain
 castle.CastleMain
 delta.BakersDozenMain
+egyptian.EgyptianMain
 fan.FanMain
 fan.FanFreeMain
 fan.ScotchPatienceMain

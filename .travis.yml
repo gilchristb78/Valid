@@ -27,7 +27,7 @@ matrix:
           mv src/test/java/org/combinators/solitaire/* generated/no;
           fi;
           done < travis.txt
-        - cd ../../../generated/yes
+        - cd generated/yes
         - ls
         - cd ../no
         - ls
