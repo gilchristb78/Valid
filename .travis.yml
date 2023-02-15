@@ -15,10 +15,7 @@ matrix:
         - ls
         - while read i; do
           i=$(echo "$i" | tr -d '\n');
-          remover="org/combinators/solitaire/";
-          i_without=${i#$remover};
-          i_cleaned=${i_without%\$*};
-          variant=${i_cleaned////.};
+          variant=$i;
           echo $variant;
           sbt "$GENERATE.$variant";
           mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/;
