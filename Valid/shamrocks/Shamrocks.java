@@ -154,19 +154,19 @@ public class Shamrocks extends Solitaire implements SolvableSolitaire {
         }
         for (int i = 0; i < 1; i++) {
             Card c = deck.get();
-            ConstraintHelper.tableau(this)[16].add(c);
+            ConstraintHelper.tableau(this)[6].add(c);
         }
         for (int i = 0; i < 1; i++) {
             Card c = deck.get();
-            ConstraintHelper.tableau(this)[9].add(c);
+            ConstraintHelper.tableau(this)[12].add(c);
         }
         for (int i = 0; i < 1; i++) {
             Card c = deck.get();
-            ConstraintHelper.tableau(this)[4].add(c);
+            ConstraintHelper.tableau(this)[15].add(c);
         }
         for (int i = 0; i < 1; i++) {
             Card c = deck.get();
-            ConstraintHelper.tableau(this)[2].add(c);
+            ConstraintHelper.tableau(this)[17].add(c);
         }
         for (int i = 0; i < 3; i++) {
             Card c = deck.get();
@@ -176,7 +176,7 @@ public class Shamrocks extends Solitaire implements SolvableSolitaire {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[1].add(c);
         }
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[2].add(c);
         }
@@ -184,7 +184,7 @@ public class Shamrocks extends Solitaire implements SolvableSolitaire {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[3].add(c);
         }
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[4].add(c);
         }
@@ -192,7 +192,7 @@ public class Shamrocks extends Solitaire implements SolvableSolitaire {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[5].add(c);
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[6].add(c);
         }
@@ -204,7 +204,7 @@ public class Shamrocks extends Solitaire implements SolvableSolitaire {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[8].add(c);
         }
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[9].add(c);
         }
@@ -216,7 +216,7 @@ public class Shamrocks extends Solitaire implements SolvableSolitaire {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[11].add(c);
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[12].add(c);
         }
@@ -228,15 +228,15 @@ public class Shamrocks extends Solitaire implements SolvableSolitaire {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[14].add(c);
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[15].add(c);
         }
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 2; i++) {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[16].add(c);
         }
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 1; i++) {
             Card c = deck.get();
             ConstraintHelper.tableau(this)[17].add(c);
         }

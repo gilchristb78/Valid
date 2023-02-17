@@ -39,7 +39,17 @@ public class PileController extends SolitaireReleasedAdapter {
         boolean me_ignore = true;
         Widget me_widget = null;
         // must both define me_ignore to false and set me_widget to valid widget
-        me_ignore = true;
+        // Return in the case that the widget clicked on is empty
+        me_ignore = false;
+        // Return in the case that the widget clicked on is empty
+        Pile srcElement = (Pile) src.getModelElement();
+        if (srcElement.count() == 0) {
+            return;
+        }
+        me_widget = src.getCardViewForTopCard(me);
+        if (me_widget == null) {
+            return;
+        }
         if (me_ignore) {
             return;
         }
