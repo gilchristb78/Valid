@@ -12,6 +12,8 @@ matrix:
       jdk: openjdk8
       script:
         - sbt compile
+        - rm -r Invalid/*
+        - rm -r Valid/*
         - pwd
         - ls
         - while read i; do
