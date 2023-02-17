@@ -24,25 +24,22 @@ trait controllers extends shared.Controller with GameTemplate with shared.Moves 
     // these all have to do with GUI commands being ignored. Note we can envision an alternate
     // set of default behaviors to try to generate all possible moves to the Foundation,
     // should one exist.
-    s.structure.foreach(ctPair => {
-      updated = updated.addCombinator(new IgnoreClickedHandler(Constructor(ctPair._2.head.name)))
 
-      ctPair._1 match {
-        case Foundation => updated = updated.addCombinator (new IgnorePressedHandler(Constructor(ctPair._2.head.name)))
-        case _ =>
-      }
-    })
-
+    // Must determine how to handle clicks
+    updated = updated
+      .addCombinator(new IgnoreClickedHandler('FreeCellPile))  // CRITICAL that name exactly matches Scala name of case object
+      .addCombinator(new IgnoreClickedHandler(column))
+      .addCombinator(new IgnoreClickedHandler(pile))
 
     // for the PRESS while the TARGET is the locus for the RELEASE.
     // These are handling the PRESS events... SHOULD BE ABLE TO
     // INFER THESE FROM THE AVAILABLE MOVES
     updated = updated
-//      .addCombinator (new IgnorePressedHandler('HomePile))
-//      .addCombinator (new IgnoreClickedHandler('HomePile))
-      .addCombinator (new SingleCardMoveHandler('FreePile))
-      .addCombinator (new IgnoreClickedHandler('FreePile))
-//      .addCombinator (new IgnoreClickedHandler('Column))
+      .addCombinator (new IgnorePressedHandler(pile))  // FOUNDATION has no PRESS requirements
+      .addCombinator(new SingleCardMoveHandler(pile))  // RELEASE on Foundation
+      .addCombinator (new SingleCardMoveHandler('FreeCellPile))    // RELEASE on FreeCellPile
+
+    // are multiple card moves automatically generated? WHY
 
     updated = createWinLogic(updated, s)
 
@@ -59,11 +56,6 @@ trait controllers extends shared.Controller with GameTemplate with shared.Moves 
     // this is done by manipulating the chosen combinator.
     updated
   }
-
-  /**
-    * When moving between columns, use the 'validColumn' method to confirm press sequence.
-    */
- // @combinator object PC extends ColumnMoveHandler(column, Java("Column").simpleName(), Java(s"""validColumn""").simpleName())
 }
 
 

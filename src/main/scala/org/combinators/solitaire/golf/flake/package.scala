@@ -1,7 +1,6 @@
 package org.combinators.solitaire.golf
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.golf.variationPoints
 
 package object flake extends variationPoints {
 

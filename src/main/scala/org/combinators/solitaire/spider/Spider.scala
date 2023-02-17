@@ -6,15 +6,6 @@ import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, Results}
 import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
-import org.combinators.solitaire.spiderette.spiderette
-import org.combinators.solitaire.scorpion.scorpion
-import org.combinators.solitaire.mrsmop.mrsmop
-import org.combinators.solitaire.gigantic.gigantic
-import org.combinators.solitaire.spiderwort.spiderwort
-import org.combinators.solitaire.baby.baby
-import org.combinators.solitaire.openspider.openspider
-import org.combinators.solitaire.openscorpion.openscorpion
-import org.combinators.solitaire.curdsandwhey.curdsandwhey
 import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
 
 trait SpiderVariationT extends SolitaireSolution {
@@ -38,37 +29,37 @@ object SpiderMain extends DefaultMain with SpiderVariationT {
 }
 
 object SpideretteMain extends DefaultMain with SpiderVariationT {
-  override lazy val solitaire = spiderette
+  override lazy val solitaire = spiderette.spiderette
 }
 
 object ScorpionMain extends DefaultMain with SpiderVariationT {
-  override lazy val solitaire = scorpion
+  override lazy val solitaire = scorpion.scorpion
 }
 
 object MrsMopMain extends DefaultMain with SpiderVariationT {
-  override lazy val solitaire = mrsmop
+  override lazy val solitaire = mrsmop.mrsmop
 }
 
 object GiganticMain extends DefaultMain with SpiderVariationT {
-  override lazy val solitaire = gigantic
+  override lazy val solitaire = gigantic.gigantic
 }
 
 object SpiderwortMain extends DefaultMain with SpiderVariationT {
-  override lazy val solitaire = spiderwort
+  override lazy val solitaire = spiderwort.spiderwort
 }
 
 object BabyMain extends DefaultMain with SpiderVariationT {
-  override lazy val solitaire = baby
+  override lazy val solitaire = baby.baby
 }
 
 object OpenSpiderMain extends DefaultMain with SpiderVariationT {
-  override lazy val solitaire = openspider
+  override lazy val solitaire = openspider.openspider
 }
 
 object OpenScorpionMain extends DefaultMain with SpiderVariationT {
-  override lazy val solitaire = openscorpion
+  override lazy val solitaire = openscorpion.openscorpion
 }
 
 object CurdsAndWheyMain extends DefaultMain with SpiderVariationT {
-  override lazy val solitaire = curdsandwhey
+  override lazy val solitaire = curdsandwhey.curdsandwhey
 }

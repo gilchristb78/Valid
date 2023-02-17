@@ -1,6 +1,6 @@
 package org.combinators.solitaire.fan
 
-import com.github.javaparser.ast.{CompilationUnit, ImportDeclaration}
+import com.github.javaparser.ast.ImportDeclaration
 import com.github.javaparser.ast.body.{BodyDeclaration, MethodDeclaration}
 import com.github.javaparser.ast.expr.{Expression, Name}
 import com.github.javaparser.ast.stmt.Statement
@@ -11,9 +11,9 @@ import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
 import org.combinators.templating.twirl.Java
 import org.combinators.solitaire.domain.{Element, Solitaire}
-import org.combinators.solitaire.fanfreepile.FreePile
-import org.combinators.solitaire.alexanderthegreat.AlexColumn
-import org.combinators.solitaire.shamrocks.MaxSizeConstraint
+import org.combinators.solitaire.fan.alexanderthegreat.AlexColumn
+import org.combinators.solitaire.fan.fanfreepile.FreePile
+import org.combinators.solitaire.fan.shamrocks.MaxSizeConstraint
 
 /**
   * Defines Java package, the game's name, initializes the domain model,

@@ -1,8 +1,8 @@
 ->    /                              org.combinators.cls.git.Routes
 
-# To automatically synthesize all solitaire variants using [[buildTest.TestSynthesis]], make
-# sure that all solitaire class names start with org.combinators.solitaire.*
-#
+# Provided so the twirl templates can be easily regenerated after a chance (annoying, however).
+# You need to nextgen-solitaire\run and then start a browser looking for localhost:9000 which requests recompilation
+
 # Provided here so users can "debug" using a web-based interface that provides additional information
 # about the repository. To make this work, in the sbt shell terminal, type "run" or possibly "nextgen/run"
 # which starts a web server that processes these requests. Then type "http://localhost:3000/minimal" to

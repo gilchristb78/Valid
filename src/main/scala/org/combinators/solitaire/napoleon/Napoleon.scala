@@ -21,6 +21,8 @@ trait NapoleonT extends SolitaireSolution {
 
   lazy val results: Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
+
+  override lazy val routingPrefix = Some("napoleon")
 }
 
 // Match the Trait with multi card moves with the model that defines multi card moves

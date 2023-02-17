@@ -48,6 +48,15 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
       .addCombinator (new SingleCardMoveHandler(fanPile))    // Variation
       .addCombinator (new buildablePilePress.CP2())
 
+    updated = updated
+      .addCombinator (new IgnoreClickedHandler(deck))
+      .addCombinator (new IgnoreReleasedHandler(deck))
+
+    updated = updated
+      .addCombinator (new IgnoreClickedHandler(wastePile))
+      .addCombinator (new IgnoreReleasedHandler(wastePile))
+
+
     // TODO: FIX WITH PROPER MODELING
     // Some variations allow you to reset deck, others don't; note if numRedeals is a positive number, then
     // we can deal with that dynamically via state.
@@ -60,10 +69,6 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     updated = createWinLogic(updated, s)
 
     // needed for DealByThree variation. Would love to be able to separate these out better.
-
-    //    @combinator object MakeFanPile extends ExtendModel("Column", "FanPile", 'FanPileClass)
-    //    @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
-    //    @combinator object MakeWastePileView extends ExtendView("View", "WastePileView", "WastePile", 'WastePileViewClass)
 
     // move these to shared area
     updated = updated
@@ -172,10 +177,6 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
   }
 
   @combinator object ChainTogether extends deckPress.ChainTogether
-
-//  @combinator object MakeWastePile extends ExtendModel("Pile", "WastePile", 'WastePileClass)
-//  @combinator object MakeWastePileView extends ExtendView("View", "WastePileView", "WastePile", 'WastePileViewClass)
-
 }
 
 

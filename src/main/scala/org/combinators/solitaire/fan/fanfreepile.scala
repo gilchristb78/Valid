@@ -1,8 +1,6 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.fan
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.fan.variationPoints
-import org.combinators.templating.twirl.Java
 
 package object fanfreepile extends variationPoints {
 

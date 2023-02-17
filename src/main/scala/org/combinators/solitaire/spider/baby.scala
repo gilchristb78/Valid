@@ -1,14 +1,11 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.spider
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.spider.closedVariationPoints
-import org.combinators.templating.twirl.Java
 
-
-package object baby extends closedVariationPoints {
+package object baby extends closedSpiderVariationPoints {
 
   override def numTableau: Int = 8
-  override def numFoundation: Int = 4
+  override def numFoundation: Int = 1
   override def numStock: Int = 1
 
   override def getDeal: Seq[DealStep] = {
@@ -44,8 +41,9 @@ package object baby extends closedVariationPoints {
     // clear Foundation, and place [2C, AC] on 0th tableau
     val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),
-      InitializeStep(targetElement.get, CardCreate(Hearts, Ace)),
+      InitializeStep(targetElement.get, CardCreate(Hearts, Three)),
       InitializeStep(targetElement.get, CardCreate(Hearts, Two)),
+      MovingCardsStep(Seq(CardCreate(Hearts, Ace)))
     )
 
     // Note: The premise behind falsifiedTest() is flawed. Specifically, given a condition
@@ -54,15 +52,71 @@ package object baby extends closedVariationPoints {
     // positive test cases, to validate that a move works.
   }
 
+  case object SameSuit extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup: Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      InitializeStep(targetElement.get, CardCreate(Hearts, Three)),
+      InitializeStep(targetElement.get, CardCreate(Hearts, Two)),
+      MovingCardsStep(Seq(CardCreate(Hearts, Ace)))
+    )
+  }
+
+  case object DifferentSuit extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup: Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      InitializeStep(targetElement.get, CardCreate(Hearts, Three)),
+      InitializeStep(targetElement.get, CardCreate(Hearts, Two)),
+      MovingCardsStep(Seq(CardCreate(Clubs, Ace)))
+    )
+  }
+
+  case object TableauToEmptyTableauMultipleCards extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup: Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardsStep(Seq(CardCreate(Clubs, Three), CardCreate(Diamonds, Two)))
+      // MovingCardsStep(Seq(CardCreate(Clubs, Eight), CardCreate(Diamonds, Seven)))
+    )
+  }
+
+  case object TableauToEmptyTableau extends Setup {
+    val sourceElement = ElementInContainer(Tableau, 1)
+    val targetElement = Some(ElementInContainer(Tableau, 2))
+
+    val setup: Seq[SetupStep] = Seq(
+      RemoveStep(sourceElement),
+      RemoveStep(targetElement.get),
+      MovingCardsStep(Seq(CardCreate(Clubs, Three)))
+      // MovingCardsStep(Seq(CardCreate(Clubs, Eight), CardCreate(Diamonds, Seven)))
+    )
+  }
+  //TODO: Hack replace generated logic for do with own
+
+  //val tableauRemove: Move = RemoveMultipleCardsMove("RemoveAllCards", Press, source = (Tableau,Descending(Source)), target = None)
+
+  val tableauRemove: Move = RemoveStackMove("RemoveAllCards", Press, source = (Tableau, AndConstraint(Descending(Destination), IsAce(TopCardOf(Destination)), IsKing(BottomCardOf(Destination)))), target = None)
+
+
   val baby:Solitaire = {
     Solitaire(name = "Baby",
       structure = structureMap,
       layout = Layout(map),
       deal = getDeal,
       specializedElements = Seq.empty,
-      moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove),
-      logic = BoardState(Map(Foundation -> 52)),
-      customizedSetup = Seq(PrepareTableauToFoundation)
+      moves = Seq(tableauToTableauMove, tableauToFoundationMove, deckDealMove, flipMove, tableauRemove),
+      logic = BoardState(Map(Tableau -> 0, StockContainer ->0)),
+      customizedSetup = Seq(SameSuit, DifferentSuit, TableauToEmptyTableau, TableauToEmptyTableauMultipleCards)
     )
   }
 }

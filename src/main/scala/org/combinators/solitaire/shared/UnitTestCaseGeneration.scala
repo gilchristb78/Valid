@@ -5,13 +5,11 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.stmt.Statement
-import domain.constraints.Truth
 import org.combinators.cls.types.Type
 import org.combinators.generic
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared.compilation._
 import org.combinators.templating.twirl.Java
-import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
 
 
@@ -250,14 +248,6 @@ trait UnitTestCaseGeneration extends Base with shared.Moves with generic.JavaCod
            |String user_defined_constraint = "$constraint";
            |userDefined = true;//Set to True because it's user defined
            |""".stripMargin).statements()
-    }
-
-    //Doesn't create the function if constraint is true
-    def negateCase(constraint: Constraint) : Boolean ={
-      constraint match{
-        case t:Truth => true
-        case _=> false
-      }
     }
 
     def getConstraintMethod(constraint:Constraint, isSingle:Boolean) : Seq[Statement] = {

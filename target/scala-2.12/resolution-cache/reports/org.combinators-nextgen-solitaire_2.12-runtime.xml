@@ -7,7 +7,7 @@
 		revision="1.0.0-SNAPSHOT"
 		conf="runtime"
 		confs="compile, runtime, test, provided, optional, universal, universal-docs, universal-src, windows, docker, linux, rpm, debian, compile-internal, runtime-internal, test-internal, plugin, pom, scala-tool, docs"
-		date="20230206164618"/>
+		date="20230217002635"/>
 	<dependencies>
 		<module organisation="com.typesafe.scala-logging" name="scala-logging_2.12">
 			<revision name="3.9.4" status="release" pubdate="20210616083231" resolver="sbt-chain" artresolver="sbt-chain" homepage="https://github.com/lightbend/scala-logging" downloaded="false" searched="false" default="false" conf="default, compile, runtime, default(compile), master" position="71">

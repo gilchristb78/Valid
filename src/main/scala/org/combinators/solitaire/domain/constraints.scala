@@ -2,7 +2,6 @@ package org.combinators.solitaire.domain
 
 trait Constraint
 
-
 case class AlternatingColors(on: MoveInformation) extends Constraint
 case class Descending (on: MoveInformation) extends Constraint
 case class HigherRank(higher: MoveInformation, lower:MoveInformation) extends Constraint
@@ -28,7 +27,3 @@ case class IfConstraint(guard: Constraint, trueBranch:Constraint = Truth, falseB
 case class NotConstraint(inner: Constraint) extends Constraint
 case class OrConstraint(args: Constraint*) extends Constraint
 case class AndConstraint(args: Constraint*) extends Constraint
-
-
-// and constraint
-// ifConstraint

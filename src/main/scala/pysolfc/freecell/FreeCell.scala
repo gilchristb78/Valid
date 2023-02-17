@@ -22,5 +22,5 @@ trait PythonFreeCellT extends SolitaireSolution {
 
 // Match the Trait with multi card moves with the model that defines multi card moves
 object PythonFreeCellMain extends DefaultMain with PythonFreeCellT {
-  override lazy val solitaire = org.combinators.solitaire.freecell.freecell
+  override lazy val solitaire = org.combinators.solitaire.freecell.regular.freecell
 }

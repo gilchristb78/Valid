@@ -1,7 +1,6 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.fan
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.fan.variationPoints
 
 package object faneasy extends variationPoints {
 

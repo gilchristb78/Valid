@@ -1,18 +1,15 @@
 package org.combinators.solitaire.fan
 
-import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.expr.{Expression, SimpleName}
+import com.github.javaparser.ast.expr.SimpleName
 import com.github.javaparser.ast.stmt.Statement
 import org.combinators.solitaire.domain._
-import org.combinators.cls.interpreter.{ReflectedRepository, combinator}
+import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.types.Type
 import org.combinators.cls.types.syntax._
 import org.combinators.generic
 import org.combinators.solitaire.shared
 import org.combinators.solitaire.shared._
 import org.combinators.templating.twirl.Java
-import org.combinators.solitaire.fanfreepile.fanfreepile
-import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 
 /** Defines Fan's controllers and their behaviors.
   *

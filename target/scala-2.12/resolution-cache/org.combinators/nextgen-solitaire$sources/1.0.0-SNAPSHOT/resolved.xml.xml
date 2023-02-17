@@ -4,7 +4,7 @@
 		module="nextgen-solitaire$sources"
 		revision="1.0.0-SNAPSHOT"
 		status="integration"
-		publication="20230206164619"
+		publication="20230217002636"
 	/>
 	<configurations>
 		<conf name="compile" visibility="public" description=""/>
@@ -371,7 +371,7 @@
 			<artifact name="JavaEWAH" type="src" ext="jar" conf="*" e:classifier="sources"/>
 			<include name="*" type="*" ext="*" conf="" matcher="exact"/>
 		</dependency>
-		<dependency org="junit" name="junit" rev="4.12" transitive="false" conf="test->compile,runtime(*),master(compile),runtime,compile(*),master,default(compile);test-internal->compile,runtime(*),master(compile),runtime,compile(*),master,default(compile)">
+		<dependency org="junit" name="junit" rev="4.12" transitive="false" conf="test->compile,runtime(*),master(compile),runtime,compile(*),master;test-internal->compile,runtime(*),master(compile),runtime,compile(*),master">
 			<artifact name="junit" type="src" ext="jar" conf="*" e:classifier="sources"/>
 			<include name="*" type="*" ext="*" conf="" matcher="exact"/>
 		</dependency>

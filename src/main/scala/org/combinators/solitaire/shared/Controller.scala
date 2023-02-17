@@ -205,6 +205,9 @@ trait Controller extends Base with shared.Moves with generic.JavaCodeIdioms with
           } else /* if (typeName == "Column") */ {
             Java("ColumnView").simpleName()
           }
+
+          // TODO: I've been here and seen Stock as one of the types; harmless but should be eliminated
+
           updated = updated
             .addCombinator(new ColumnMoveHandler(tpe, Java(typeName).simpleName(), or, terminal, dragType))
         }

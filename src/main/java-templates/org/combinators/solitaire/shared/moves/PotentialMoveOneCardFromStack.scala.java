@@ -18,23 +18,23 @@ public class Potential@{Java(MoveName)} extends @{Java(MoveName)} {
     /** Destination. */
     public Potential@{Java(MoveName)} (Stack from, Stack to) {
         super(from, to);
-        numInColumn = 1;
+        numCards = 1;   // was numInColumn
     }
 
     public Potential@{Java(MoveName)} (Stack from, Stack to, int num) {
         super(from, to);
-        numInColumn = num;
+        numCards = num;
     }
 
     @@Override
     public boolean valid(Solitaire game) {
         if (@Java(DraggingCardVariableName) == null) {
-            if (source.count() < numInColumn) { return false; }
+            if (source.count() < numCards) { return false; }
 
             // make sure to keep order of potential column intact
             synchronized (this) {
                 @Java(DraggingCardVariableName) = new @{Java(Type)}();
-                source.select(numInColumn);
+                source.select(numCards);  // numInColumn
                 @{Java(DraggingCardVariableName)}.push(source.getSelected());
                 boolean result = super.valid(game);
                 source.push( @Java(DraggingCardVariableName) );
@@ -52,7 +52,7 @@ public class Potential@{Java(MoveName)} extends @{Java(MoveName)} {
 
         synchronized (this) {
             @Java(DraggingCardVariableName) = new @{Java(Type)}();
-            source.select(numInColumn);
+            source.select(numCards);  // numInColumn
             @{Java(DraggingCardVariableName)}.push(source.getSelected());
             boolean result = super.doMove(game);
 

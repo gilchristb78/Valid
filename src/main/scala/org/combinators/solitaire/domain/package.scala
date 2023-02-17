@@ -59,6 +59,13 @@ package object domain {
       source=source, target=None)
   }
 
+  def RemoveStackMove(name: String, gesture: GestureType,
+                      source: (ContainerType, Constraint),
+                      target: Option[(ContainerType, Constraint)]): Move = {
+    Move(name, RemoveStack, gesture, movableElement = Card,
+      source = source, target = target)
+  }
+
   def RemoveMultipleCardsMove(name:String, gesture:GestureType,
                            source:(ContainerType,Constraint),
                            target:Option[(ContainerType,Constraint)]):Move = {

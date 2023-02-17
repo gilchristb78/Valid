@@ -39,7 +39,8 @@ package object narcotic {
       deal = Seq(DealStep(ContainerTarget(Tableau))),
       specializedElements = Seq.empty,
       moves = Seq(tableauToTableauMove,tableauRemove,deckDealMove,deckReset),
-      logic = BoardState(Map(Tableau -> 0, StockContainer -> 0))
+      logic = BoardState(Map(Tableau -> 0, StockContainer -> 0)),
+      customizedSetup = Seq.empty
     )
   }
 }

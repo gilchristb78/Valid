@@ -36,3 +36,6 @@ case class Stock(numDecks:Int = 1) extends Element(true)
   * @param num  how many cards to present
   */
 case class FanPile(num:Int) extends Element (false)
+
+// note: don't forget to override methods in controllers
+case object WastePile extends Element (true)

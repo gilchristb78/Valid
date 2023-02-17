@@ -55,6 +55,7 @@ case object SingleCard extends MoveType
 case object RemoveSingleCard extends MoveType
 case object RemoveMultipleCards extends MoveType
 case object ShuffleDeck extends MoveType
+case object RemoveStack extends MoveType
 
 
 case class Move

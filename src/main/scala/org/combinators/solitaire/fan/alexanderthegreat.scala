@@ -1,7 +1,6 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.fan
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.fan.variationPoints
 import org.combinators.templating.twirl.Java
 
 // TODO: NEEDS WORK - for Bonus Deal (https://www.solsuite.com/games/alexander_the_great.htm) there is

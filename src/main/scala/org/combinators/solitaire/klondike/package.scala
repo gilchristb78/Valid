@@ -2,20 +2,17 @@ package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
 
-package object klondike {
+package object klondike extends variationPoints {
 
   val klondike:Solitaire = {
-
     Solitaire( name="Klondike",
-      structure = Map(),
-      layout=stockTableauColumnLayout(2),  // HACK
-      deal = Seq(DealStep(ContainerTarget(Tableau))),
+      structure = klondikeMap,
+      layout = Layout(klondikeLayout),
+      deal = klondikeDeal,
 
-      /** from element can infer ks.ViewWidget as well as Base Element. */
-      specializedElements = Seq.empty,
+      specializedElements = Seq(WastePile),
 
-      /** All rules here. UNTIL MOVES DEFINED, THIS WON'T WORK */
-      moves = Seq.empty,
+      moves = Seq(tableauToTableau, wasteToTableau, tableauToFoundation, wasteToFoundation, deckDeal, deckResetFromWaste, flipTableau),
 
       // fix winning logic
       logic = BoardState(Map(Foundation -> 52)),

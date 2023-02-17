@@ -14,7 +14,7 @@ trait KlondikeVariationT extends SolitaireSolution {
   lazy val Gamma = repository.init(ReflectedRepository(repository, classLoader = this.getClass.getClassLoader), solitaire)
   lazy val combinatorComponents = Gamma.combinatorComponents
 
-  val targets = Synthesizer.allTargets(solitaire)
+  lazy val targets = Synthesizer.allTargets(solitaire)
   lazy val results:Results =
     EmptyInhabitationBatchJobResults(Gamma).addJobs[CompilationUnit](targets).compute()
 
@@ -23,4 +23,24 @@ trait KlondikeVariationT extends SolitaireSolution {
 
 object KlondikeMain extends DefaultMain with KlondikeVariationT {
   override lazy val solitaire = klondike
+}
+
+object KlondikeDeal3Main extends DefaultMain with KlondikeVariationT {
+  override lazy val solitaire = klondikeDeal3.klondike
+}
+
+object EastCliffMain extends DefaultMain with KlondikeVariationT {
+  override lazy val solitaire = eastcliff.eastcliff
+}
+
+object SmallHarpMain extends DefaultMain with KlondikeVariationT {
+  override lazy val solitaire = smallharp.smallharp
+}
+
+object WhiteheadMain extends DefaultMain with KlondikeVariationT {
+  override lazy val solitaire = whitehead.whitehead
+}
+
+object ThumbAndPouchMain extends DefaultMain with KlondikeVariationT {
+  override lazy val solitaire = thumbAndPouch.thumbandpouch
 }

@@ -1,20 +1,12 @@
 package org.combinators.solitaire.fan
+
 import com.github.javaparser.ast.CompilationUnit
 import org.combinators.cls.interpreter.ReflectedRepository
 import org.combinators.cls.git.{EmptyInhabitationBatchJobResults, Results}
 import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.templating.persistable.JavaPersistable._
-import org.combinators.solitaire.fanfreepile.fanfreepile
-import org.combinators.solitaire.scotchpatience.scotchpatience
-import org.combinators.solitaire.fantwodeck.fantwodeck
-import org.combinators.solitaire.faneasy.faneasy
-import org.combinators.solitaire.superflowergarden.superflowergarden
-import org.combinators.solitaire.alexanderthegreat.alexanderthegreat
-import org.combinators.solitaire.labellelucie.labellelucie
-import org.combinators.solitaire.shamrocks.shamrocks
 import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
-import org.combinators.solitaire.trefoil.trefoil
 
 /***
 abstract class FanVariationController(web: WebJarsUtil, app: ApplicationLifecycle) extends InhabitationController(web, app) with RoutingEntries {
@@ -43,19 +35,19 @@ object FanMain extends DefaultMain with FanVariationT {
 // NOTE: While this is solvable, the generic SOLVE logic doesn't take into account
 // moves to/from the free cells; this needs to be fixed.
 object FanFreeMain extends DefaultMain with FanVariationT {
-  lazy val solitaire = fanfreepile
+  lazy val solitaire = fanfreepile.fanfreepile
 }
 
 object ScotchPatienceMain extends DefaultMain with FanVariationT {
-  lazy val solitaire = scotchpatience
+  lazy val solitaire = scotchpatience.scotchpatience
 }
 
 object ShamrocksMain extends DefaultMain with FanVariationT {
-  lazy val solitaire = shamrocks
+  lazy val solitaire = shamrocks.shamrocks
 }
 
 object FanTwoDeckMain extends DefaultMain with FanVariationT {
-  lazy val solitaire = fantwodeck
+  lazy val solitaire = fantwodeck.fantwodeck
 }
 
 //class FanEasyController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -63,7 +55,7 @@ object FanTwoDeckMain extends DefaultMain with FanVariationT {
 //  override lazy val solitaire = faneasy
 //}
 object FanEasyDeckMain extends DefaultMain with FanVariationT {
-  lazy val solitaire = faneasy
+  lazy val solitaire = faneasy.faneasy
 }
 
 //class LaBelleLucieController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -71,7 +63,7 @@ object FanEasyDeckMain extends DefaultMain with FanVariationT {
 //  override lazy val solitaire = labellelucie
 //}
 object LaBelleLucieMain extends DefaultMain with FanVariationT {
-  lazy val solitaire = labellelucie
+  lazy val solitaire = labellelucie.labellelucie
 }
 
 //class SuperFlowerGardenController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -79,7 +71,7 @@ object LaBelleLucieMain extends DefaultMain with FanVariationT {
 //  override lazy val solitaire = superflowergarden
 //}
 object SuperFlowerGardenMain extends DefaultMain with FanVariationT {
-  lazy val solitaire = superflowergarden
+  lazy val solitaire = superflowergarden.superflowergarden
 }
 
 //class TrefoilController @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)
@@ -87,9 +79,9 @@ object SuperFlowerGardenMain extends DefaultMain with FanVariationT {
 //  override lazy val solitaire = trefoil
 //}
 object TrefoilMain extends DefaultMain with FanVariationT {
-  lazy val solitaire = trefoil
+  lazy val solitaire = trefoil.trefoil
 }
 
 object AlexanderTheGreatMain extends DefaultMain with FanVariationT {
-  lazy val solitaire = alexanderthegreat
+  lazy val solitaire = alexanderthegreat.alexanderthegreat
 }

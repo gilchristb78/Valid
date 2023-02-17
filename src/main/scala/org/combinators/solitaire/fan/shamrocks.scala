@@ -1,7 +1,6 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.fan
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.fan.variationPoints
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
@@ -60,7 +59,8 @@ package object shamrocks extends variationPoints {
       moves = Seq(tableauToTableauMove, tableauToFoundationMove),
       logic = BoardState(Map(Tableau -> 0, Foundation -> 52)),
       solvable = true,
-      customizedSetup = Seq(TableauToEmptyFoundation, TableauToNextFoundation, TableauToEmptyTableau, TableauToNextTableau)
+      customizedSetup = Seq(TableauToEmptyFoundation, //TableauToNextFoundation, shouldnt pass has to be opposite color
+        TableauToEmptyTableau, TableauToNextTableau)
     )
   }
 }

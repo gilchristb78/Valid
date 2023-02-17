@@ -2,8 +2,7 @@ package org.combinators.solitaire
 
 import org.combinators.solitaire.domain._
 
-
-package object spider extends closedVariationPoints {
+package object spider extends closedSpiderVariationPoints {
 
   override def getDeal: Seq[DealStep] = {
     var colNum:Int = 0

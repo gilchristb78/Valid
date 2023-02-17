@@ -1,9 +1,8 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.spider
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.spider.closedVariationPoints
 
-package object scorpion extends closedVariationPoints {
+package object scorpion extends closedSpiderVariationPoints {
 
   override def numTableau: Int = 7
   override def numFoundation: Int = 4

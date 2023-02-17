@@ -59,7 +59,7 @@ package object nomad extends variationPoints {
 
     val setup:Seq[SetupStep] = Seq(
       RemoveStep(sourceElement),  //this should clear the 0th Reserve
-      MovingCardStep(CardCreate(Clubs, Three)),                      // move Three to target
+      MovingCardStep(CardCreate(Clubs, Four)),                      // move Three to target
     )
   }
 

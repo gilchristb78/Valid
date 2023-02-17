@@ -9,11 +9,6 @@ import org.combinators.cls.types.Constructor
 import org.combinators.solitaire.shared.cls.Synthesizer
 import org.combinators.solitaire.shared.compilation.{DefaultMain, SolitaireSolution}
 import org.combinators.templating.persistable.JavaPersistable._
-import org.webjars.play.WebJarsUtil
-import play.api.inject.ApplicationLifecycle
-
-// domain
-import domain._
 
 /***
 class Idiot @Inject()(webJars: WebJarsUtil, applicationLifecycle: ApplicationLifecycle)

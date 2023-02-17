@@ -136,10 +136,10 @@ object constraintCodeGenerators extends LazyLogging {
         Python(s"""${registry(top.moveInfo).get}[-1]""")
     },
 
-//    CodeGeneratorRegistry[Python, BottomCardOf] {
-//      case (registry: CodeGeneratorRegistry[Python], bottom:BottomCardOf) =>
-//        Python(s"""${registry(bottom.move).get}[0]""")
-//    },
+    CodeGeneratorRegistry[Python, BottomCardOf] {
+      case (registry: CodeGeneratorRegistry[Python], bottom:BottomCardOf) =>
+        Python(s"""${registry(bottom.moveInfo).get}[0]""")
+    },
 
     CodeGeneratorRegistry[Python, AlternatingColors] {
       case (registry: CodeGeneratorRegistry[Python], alternating: AlternatingColors) =>
@@ -173,12 +173,12 @@ object constraintCodeGenerators extends LazyLogging {
 
     CodeGeneratorRegistry[Python, SameRank] {
       case (registry: CodeGeneratorRegistry[Python], sameRank:SameRank) =>
-        Python(s"""${registry(sameRank.on).get}.rank == ${registry(sameRank.other).get}.rank""")   // TODO: FIC CHECK ORDER
+        Python(s"""${registry(sameRank.on).get}.rank == ${registry(sameRank.other).get}.rank""")
     },
 
     CodeGeneratorRegistry[Python, SameSuit] {
       case (registry: CodeGeneratorRegistry[Python], sameSuit:SameSuit) =>
-        Python(s"""${registry(sameSuit.on).get}.suit == ${registry(sameSuit.other).get}.suit""")  // TODO: CHECK ORDER
+        Python(s"""${registry(sameSuit.on).get}.suit == ${registry(sameSuit.other).get}.suit""")
     },
 
     CodeGeneratorRegistry[Python, OrConstraint] {
@@ -231,8 +231,6 @@ class ConstraintExpander(c:Constraint, tpe:Type) extends PythonSemanticTypes wit
 
   var semanticType: Type = constraints(constraints.generator) =>: tpe
 }
-
-
 
 /** When used, it isn't important what semantic Type is, which is why we omit it. */
 class MapExpressionCombinator(m:MapType) extends PythonSemanticTypes with LazyLogging {

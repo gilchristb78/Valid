@@ -43,6 +43,11 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(buildablePile))
 
+    if(s.name.equalsIgnoreCase("Baby")){
+      updated = updated
+        .addCombinator(new BuildablePileRelease())
+    }
+
 
     //determine if our variation needs the buildablePilePress controller
     //if(s.isInstanceOf[closedVariationPoints]){
@@ -139,6 +144,33 @@ trait controllers extends shared.Controller with GameTemplate with WinningLogic 
     val semanticType: Type = drag(drag.variable, drag.ignore) =>: controller(deck, controller.pressed)
   }
 
+  class BuildablePileRelease() {
+    def apply(): Seq[Statement] = {
+      Java(
+        s"""|{
+            |Column movingElement = (Column) w.getModelElement();
+            |BuildablePile toElement = (BuildablePile) src.getModelElement();
+            |// Get sourceWidget for card being dragged
+            |Widget sourceWidget = theGame.getContainer().getDragSource();
+            |// Identify the source
+            |BuildablePile sourceEntity = (BuildablePile) sourceWidget.getModelElement();
+            |// this is the actual move
+            |Move m = new MoveColumn(sourceEntity, movingElement, toElement);
+            |Move rm = new RemoveAllCards(toElement);
+            |if (m.valid(theGame)) {
+            |   m.doMove(theGame);
+            |   theGame.pushMove(m);
+            |   if(rm.valid(theGame)){
+            |     rm.doMove(theGame);
+            |     theGame.pushMove(rm);
+            |   }
+            |}
+            |}""".stripMargin
+      ).statements()
+    }
+
+    val semanticType: Type = controller(buildablePile, controller.released)
+  }
 }
 
 

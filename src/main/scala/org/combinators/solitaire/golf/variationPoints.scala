@@ -3,9 +3,7 @@ package org.combinators.solitaire.golf
 import org.combinators.solitaire.domain._
 
 trait variationPoints {
-  // note: don't forget to override methods in controllers
-  case object WastePile extends Element (true)
-
+ 
   def getNumTableau: Int = 7
   def getNumDecks: Int = 1
 

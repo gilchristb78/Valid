@@ -6,8 +6,6 @@ package object bigforty {
 
   case class AllSameSuit(src:MoveInformation) extends Constraint
 
-  case object WastePile extends Element (true)
-
   val numTableau:Int = 10
   val numFoundation:Int = 4
   val map:Map[ContainerType,Seq[Element]] = Map(
@@ -18,15 +16,13 @@ package object bigforty {
   )
 
   val isEmpty = IsEmpty(Destination)
-  val nextOne =  NextRank(TopCardOf(Destination), MovingCard)
 
   val bottomMoving = BottomCardOf(MovingCards)
   val topDestination = TopCardOf(Destination)
 
   //constraint to the destination
-  val and= AndConstraint(NextRank(TopCardOf(Destination),
-    BottomCardOf(MovingCards)), SameSuit(TopCardOf(Destination),
-    BottomCardOf(MovingCards)))
+  val and= AndConstraint(NextRank(TopCardOf(Destination), BottomCardOf(MovingCards)),
+                         SameSuit(TopCardOf(Destination), BottomCardOf(MovingCards)))
   val or = OrConstraint(isEmpty, and)
 
   //constraint to the source
@@ -34,15 +30,14 @@ package object bigforty {
   val and_2 = AndConstraint(descend, AllSameSuit(MovingCards))
 
   val tableauToTableau:Move = MultipleCardsMove ("MoveColumn", Drag,
-    source=(Tableau, NotConstraint(IsEmpty(Source))),  target=Some((Tableau, or)))
+    source=(Tableau, Truth),  target=Some((Tableau, or)))
 
   //2. waste to tableau
   val moveCard= OrConstraint(isEmpty, NextRank(TopCardOf(Destination), MovingCard))
   val wasteToTableau:Move = SingleCardMove("MoveCard", Drag,
-    source=(Waste,Truth), target=Some(Tableau, moveCard))
+    source=(Waste, Truth), target=Some(Tableau, moveCard))
 
   //3. waste to foundation  4.tableau to foundation
-  val isSingle = IsSingle(MovingCards)
   val tf_tgt = IfConstraint(isEmpty,
     AndConstraint (IsSingle(MovingCards), IsAce(BottomCardOf(MovingCards))),
     AndConstraint (IsSingle(MovingCards),
@@ -50,7 +45,7 @@ package object bigforty {
       SameSuit(BottomCardOf(MovingCards), TopCardOf(Destination))))
 
   val buildFoundation:Move = MultipleCardsMove("BuildFoundation", Drag,
-    source=(Tableau, IsSingle(MovingCards)), target=Some((Foundation, tf_tgt)))
+    source=(Tableau, NotConstraint(IsEmpty(Source))), target=Some((Foundation, tf_tgt)))
 
   val wf_tgt =  IfConstraint(isEmpty,
      AndConstraint ( IsSingle(MovingCard), IsAce(MovingCard)),

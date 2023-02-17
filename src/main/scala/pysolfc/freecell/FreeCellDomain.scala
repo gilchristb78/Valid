@@ -3,8 +3,8 @@ package pysolfc.freecell
 import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types.Type
 import org.combinators.templating.twirl.Python
-import domain.freeCell.SufficientFree
 import org.combinators.solitaire.domain.Solitaire
+import org.combinators.solitaire.freecell.IsSufficientFree
 import org.combinators.solitaire.shared.SolitaireDomain
 import org.combinators.solitaire.shared.compilation.CodeGeneratorRegistry
 import org.combinators.solitaire.shared.python.{PythonSemanticTypes, constraintCodeGenerators}
@@ -28,10 +28,10 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
   object freeCellCodeGenerator {
     val generators:CodeGeneratorRegistry[Python] = CodeGeneratorRegistry.merge[Python](
 
-      CodeGeneratorRegistry[Python, SufficientFree] {
-        case (registry:CodeGeneratorRegistry[Python], c:SufficientFree) =>
-          val destination = registry(c.destination).get
-          val src = registry(c.src).get
+      CodeGeneratorRegistry[Python, IsSufficientFree] {
+        case (registry:CodeGeneratorRegistry[Python], c:IsSufficientFree) =>
+          val destination = registry(c.to).get
+          val src = registry(c.from).get
           Python(s"""sufficientFree($destination, $src)""")
 
       },
@@ -67,6 +67,7 @@ class FreeCellDomain(override val solitaire:Solitaire) extends SolitaireDomain(s
 
         Python(s"""
                   |def sufficientFree (destination, source):
+                  |    # Still needs to be worked on....
                   |    return True
                   |
                   |""".stripMargin)

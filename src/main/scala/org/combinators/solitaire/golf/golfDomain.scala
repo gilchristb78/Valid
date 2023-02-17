@@ -16,7 +16,6 @@ import org.combinators.templating.twirl.Java
 // to get the code to compile 
 class golfDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with GameTemplate with Controller {
 
-
   // override as needed in your own own specialized trait. I.e. "AcesUpPile" -> "PileView"
   override def baseViewNameFromElement (e:Element): String = {
     e match {
@@ -31,7 +30,6 @@ class golfDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       case _ => super.baseViewNameFromElement(e)
     }
   }
-
 
   object golfCodeGenerator {
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression]().merge(constraintCodeGenerators.generators)

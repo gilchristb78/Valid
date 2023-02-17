@@ -8,7 +8,6 @@ import org.combinators.cls.interpreter.combinator
 import org.combinators.cls.types._
 import org.combinators.cls.types.syntax._
 import org.combinators.templating.twirl.Java
-import domain.freeCell.{Full, SufficientFree}
 import org.combinators.solitaire.domain._
 import org.combinators.solitaire.shared._
 import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, generateHelper}
@@ -17,25 +16,37 @@ import org.combinators.solitaire.shared.compilation.{CodeGeneratorRegistry, gene
 // to get the code to compile 
 class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solitaire) with Controller with GameTemplate  {
 
+  // TODO: Should be able to derive this from the modeling
+  override def baseModelNameFromElement (e:Element): String = {
+    e match {
+      case FreeCellPile => "Pile"
+      case _ => super.baseModelNameFromElement(e)
+    }
+  }
+
+  override def baseViewNameFromElement (e:Element): String = {
+    e match {
+      case FreeCellPile => "PileView"
+      case _ => super.baseViewNameFromElement(e)
+    }
+  }
+
   object freecellCodeGenerator {
     val generators:CodeGeneratorRegistry[Expression] = CodeGeneratorRegistry.merge[Expression](
 
-      CodeGeneratorRegistry[Expression, SufficientFree] {
-        case (registry:CodeGeneratorRegistry[Expression], c:SufficientFree) =>
-          val destination = registry(c.destination).get
-          val src = registry(c.src).get
-          val column = registry(c.column).get
-          val reserve = registry(c.reserve).get
-          val tableau = registry(c.tableau).get
-          Java(s"""ConstraintHelper.sufficientFree($column, $src, $destination, $reserve, $tableau)""").expression()
+      CodeGeneratorRegistry[Expression, IsSufficientFree] {
+        case (registry:CodeGeneratorRegistry[Expression], c:IsSufficientFree) =>
+          val destination = registry(c.to).get
+          val src = registry(c.from).get
+          val column = registry(c.movingCards).get
+          Java(s"""ConstraintHelper.sufficientFree($column, $src, $destination, ConstraintHelper.tableau(game), ConstraintHelper.reserve(game))""").expression()
       },
 
-      CodeGeneratorRegistry[Expression, Full] {
-        case (registry:CodeGeneratorRegistry[Expression], f:Full) =>
-          val src = registry(f.src).get
-          Java(s"""ConstraintHelper.isFull($src)""").expression()
-      },
-
+//      CodeGeneratorRegistry[Expression, Full] {
+//        case (registry:CodeGeneratorRegistry[Expression], f:Full) =>
+//          val src = registry(f.src).get
+//          Java(s"""ConstraintHelper.isFull($src)""").expression()
+//      },
 
     ).merge(constraintCodeGenerators.generators)
   }
@@ -91,12 +102,12 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
       generateHelper.helpers(solitaire) ++
         Java(
           s"""
-             |/** A Foundation stack is full at 13 cards. */
-             |public static boolean isFull(Stack src) {
-             |  return (src.count() == 13);
-             |}
+             |///** A Foundation stack is full at 13 cards. */
+             |//public static boolean isFull(Stack src) {
+             |//  return (src.count() == 13);
+             |//}
              |
-             |public static boolean sufficientFree (Column column, Stack src, Stack destination, Stack[] reserve, Stack[] tableau) {
+             |public static boolean sufficientFree (Stack column, Stack src, Stack destination, Stack[] reserve, Stack[] tableau) {
              |	int numEmpty = 0;
              |	for (Stack s : tableau) {
              |		if (s.empty() && s != destination) numEmpty++;
@@ -154,7 +165,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |	return (countOppositeColorLowerRank == 2);
            |}
            |
-           |// should be encapsulated out elswhere since this is standard logic...
+           |// should be encapsulated out elsewhere since this is standard logic...
            |public void tryAutoMoves() {
            |	Move m;
            |	do {
@@ -195,7 +206,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |				throw new IllegalStateException ("ACE is available to play but no open destination piles.");
            |			}
            |
-           |			return new PotentialBuildColumn (tableau[c], emptyDest);
+           |			return new PotentialMoveCardFoundation (tableau[c], emptyDest);
            |		}
            |
            |		Card cc = tableau[c].peek();
@@ -204,7 +215,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |		Move theMove = null;
            |		boolean foundMove = false;
            |		for (int b = 0; b<foundation.length; b++) {
-           |			theMove = new PotentialBuildColumn (tableau[c], foundation[b]);
+           |			theMove = new PotentialMoveCardFoundation (tableau[c], foundation[b]);
            |			if (theMove.valid (this)) {
            |				foundMove = true;
            |				break;
@@ -243,7 +254,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |
            |		// try to find a destination it goes to.
            |		for (int b = 0; b<foundation.length; b++) {
-           |			theMove = new PotentialBuildFreePileCard (reserve[f], foundation[b]);
+           |			theMove = new PotentialMoveCardFoundation (reserve[f], foundation[b]);
            |			if (theMove.valid (this)) {
            |				bc = reserve[f].peek();
            |				foundMove = true;
@@ -298,18 +309,18 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |        // try to build card to foundation
            |        for (Column c : tableau) {
            |            for (Pile p : foundation) {
-           |                PotentialBuildColumn pbc = new PotentialBuildColumn(c, p);
-           |                if (pbc.valid(this)) {
-           |                    v.add(pbc);
+           |                PotentialMoveCardFoundation pmcf = new PotentialMoveCardFoundation(c, p);
+           |                if (pmcf.valid(this)) {
+           |                    v.add(pmcf);
            |                }
            |            }
            |        }
            |        // try to move cards from free cell to foundation
            |        for (Pile s : reserve) {
            |            for (Pile d : foundation) {
-           |                PotentialBuildFreePileCard pbfpc = new PotentialBuildFreePileCard(s, d);
-           |                if (pbfpc.valid(this)) {
-           |                    v.add(pbfpc);
+           |                PotentialMoveCardFoundation pmcf = new PotentialMoveCardFoundation(s, d);
+           |                if (pmcf.valid(this)) {
+           |                    v.add(pmcf);
            |                }
            |            }
            |        }
@@ -318,14 +329,11 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |        // than the destination.
            |        for (Column s : tableau) {
            |            for (Column d : tableau) {
-           |                if (s != d) {
-           |                    for (int i = s.count(); i > 0; i--) {
-           |                        PotentialMoveColumn pmc = new PotentialMoveColumn(s, d, i);
-           |                        if (pmc.valid(this)) {
-           |                            if (s.count() - i < d.count()) {
-           |                                v.add(pmc);
-           |                            }
-           |                        }
+           |                // don't waste time moving a single card from one reserve to another empty one
+           |                if ((s != d) && !(s.count() == 1 && d.count() == 0)) {
+           |                    PotentialMoveColumn pmc = new PotentialMoveColumn(s, d);
+           |                    if (pmc.valid(this)) {
+           |                        v.add(pmc);
            |                    }
            |                }
            |            }
@@ -344,7 +352,7 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |        if (lowest != null) {
            |	        for (Pile p : reserve) {
            |	            if (p.count() == 0) {
-           |	                PotentialPlaceColumn ppc = new PotentialPlaceColumn(lowest, p);
+           |	                PotentialMoveColumn ppc = new PotentialMoveColumn(lowest, p);
            |	                v.add(ppc);
            |	                break;
            |	            }
@@ -354,16 +362,9 @@ class gameDomain(override val solitaire:Solitaire) extends SolitaireDomain(solit
            |        return v.elements();
            |}""".stripMargin).methodDeclarations()
 
-
       methods ++ solvableMoves
-
     }
     val semanticType: Type = game(game.methods :&: game.availableMoves)
   }
-
-//   @combinator object MakeHomePile extends ExtendModel("Pile", "HomePile", 'HomePileClass)
-//   @combinator object MakeFreePile extends ExtendModel("Pile", "FreePile", 'FreePileClass)
-//   @combinator object MakeHomePileView extends ExtendView("View", "HomePileView", "HomePile", 'HomePileViewClass)
-//   @combinator object MakeFreePileView extends ExtendView("View", "FreePileView", "FreePile", 'FreePileViewClass)
 
 }

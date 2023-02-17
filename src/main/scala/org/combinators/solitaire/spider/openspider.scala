@@ -1,10 +1,9 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.spider
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.spider.variationPoints
 
 
-package object openspider extends variationPoints {
+package object openspider extends spiderVariationPoints {
 
   val openspider:Solitaire = {
     Solitaire(name = "OpenSpider",

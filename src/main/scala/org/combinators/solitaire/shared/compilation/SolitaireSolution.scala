@@ -40,16 +40,18 @@ trait DefaultMain extends App { self:SolitaireSolution =>
   implicit lazy val priorCode: Option[ResultLocation] = if (routingPrefix.isEmpty) {
       Option.empty
   } else {
-      Some(ResultLocation(Paths.get("generated",  "src", "main", "java", "org", "combinators", "solitaire", controllerAddress)))
+      //Some(ResultLocation(Paths.get("target", "solitaire", "src", "main", "java", "org", "combinators", "solitaire", controllerAddress)))
+        Some(ResultLocation(Paths.get("generated", "src", "main", "java", "org", "combinators", "solitaire", controllerAddress)))
   }
 
+  //implicit lazy val resultLocation: ResultLocation = ResultLocation(Paths.get("target", "solitaire"))
   implicit lazy val resultLocation: ResultLocation = ResultLocation(Paths.get("generated"))
 
   println("resulting targets:" + results)
   println(results.targets.collect { case (ty, Some(n)) if n == BigInt(0) => s"&Gamma; &vdash; ? : ${ty.toString}" }.mkString("\n"))
 
   // clean up before generating
-  println("cleaning prior code")
+  println("cleaning prior code:" + priorCode)
   if (priorCode.nonEmpty) {
     FileUtils.deleteDirectory(priorCode.get.relativeTo.toFile)
   }

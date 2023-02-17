@@ -1,7 +1,6 @@
 package org.combinators.solitaire.shared
 
 import com.github.javaparser.ast.CompilationUnit
-import domain.constraints.movetypes.MoveComponents
 import com.github.javaparser.ast.body.BodyDeclaration
 import com.github.javaparser.ast.expr.{Expression, Name, SimpleName}
 import com.github.javaparser.ast.stmt.Statement
@@ -239,8 +238,8 @@ trait Moves extends Base with JavaSemanticTypes {
         // Since source-constraint and target-constraint are concatenated together, we need to convert the
         // MovingColumn component into .
         // HACK to make as ((Column) me_widget.getModelElement())
-        val moveColumnRegExp = MoveComponents.MovingColumn.getName.r
-        val moveRowRegExp = MoveComponents.MovingRow.getName.r
+        val moveColumnRegExp = "movingColumn".r  // MoveComponents.MovingColumn.getName.r
+        val moveRowRegExp = "movingRow".r        // MoveComponents.MovingRow.getName.r
         val cc3: Option[Expression] = generators(c)
 
         val strExp = if (cc3.isEmpty) {

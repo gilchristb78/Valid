@@ -1,7 +1,6 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.fan
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.fan.variationPoints
 
 package object fantwodeck extends variationPoints{
    val points2: Seq[(Int, Int)] = Seq ((100,200), (203,200), (306, 200), (409, 200), (512, 200), (615, 200), (718,200), (100,400), (203,400), (306, 400), (409, 400), (512, 400), (615, 400), (718,400), (100,600), (203,600), (306, 600), (409, 600), (512, 600), (615, 600), (718, 600), (100,800), (203,800), (306, 800), (409, 800), (512, 800))

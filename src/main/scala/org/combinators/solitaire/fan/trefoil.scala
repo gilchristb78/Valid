@@ -1,8 +1,6 @@
-package org.combinators.solitaire
+package org.combinators.solitaire.fan
 
 import org.combinators.solitaire.domain._
-import org.combinators.solitaire.fan.variationPoints
-import org.combinators.solitaire.labellelucie.{buildOnTableau, tableauToFoundationMove, tableauToTableauMove2}
 package object trefoil extends variationPoints{
 
   override val structureMap:Map[ContainerType,Seq[Element]] = Map(

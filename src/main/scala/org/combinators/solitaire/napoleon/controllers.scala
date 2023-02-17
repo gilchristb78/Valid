@@ -29,6 +29,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
     updated = generateMoveLogic(updated, s)
     updated = generateExtendedClasses(updated, s)
 
+    // SHOULD be able to figure these out from the solitaire domain!!!
     updated = updated
       .addCombinator (new IgnorePressedHandler(pile))
       .addCombinator (new IgnoreClickedHandler(pile))
@@ -40,8 +41,7 @@ trait controllers extends shared.Controller with shared.Moves with GameTemplate 
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(column))
-      .addCombinator (new IgnorePressedHandler(column))   // scaffolding
-      .addCombinator (new IgnoreReleasedHandler(column))  // scaffolding
+      .addCombinator (new SingleCardMoveHandler(column))
 
     updated = updated
       .addCombinator (new IgnoreClickedHandler(deck))
