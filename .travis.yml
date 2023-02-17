@@ -24,12 +24,12 @@ matrix:
           mv src/test/java/org/combinators/solitaire/* Invalid;
           fi;
           done < travis.txt
-        - cd Valid
         - git config --global user.email "gilchristb78@gmail.com";
         - git config --global user.name "gilchristb78";
-        - git add .;
+        - git add Valid/;
         - git commit -m"Travis build update,  Valid directory";
         - git push --force "https://${GH_TOKEN}@github.com/gilchristb78/Valid" HEAD:main;
+        - cd Valid
         - ls
         - cd ../Invalid
         - ls
