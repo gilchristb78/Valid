@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Play2ExcludedModulesSettings">
+    <option name="INFO">
+      <map>
+        <entry key="nextgen-solitaire">
+          <value>
+            <ProjectSettingsEntry>
+              <option name="confDir" value="$PROJECT_DIR$/src/main" />
+              <option name="playDistrPath" value="$USER_HOME$/.ivy2/cache/com.typesafe.play/play_2.12/jars/play_2.12-2.6.9.jar" />
+              <option name="templateImports">
+                <list>
+                  <option value="org.combinators.templating.twirl.Java" />
+                  <option value="org.combinators.templating.twirl.Python" />
+                  <option value="com.github.javaparser.ast._" />
+                  <option value="com.github.javaparser.ast.body._" />
+                  <option value="com.github.javaparser.ast.comments._" />
+                  <option value="com.github.javaparser.ast.expr._" />
+                  <option value="com.github.javaparser.ast.stmt._" />
+                  <option value="com.github.javaparser.ast.`type`._" />
+                </list>
+              </option>
+              <option name="routesImports">
+                <list>
+                  <option value="controllers.Assets.Asset" />
+                </list>
+              </option>
+              <option name="uri" value="$PROJECT_DIR$" />
+            </ProjectSettingsEntry>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

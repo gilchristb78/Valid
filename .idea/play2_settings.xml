@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Play2ProjectSettings">
+    <option name="LANGUAGE_IMPORTS">
+      <array>
+        <option value="com.github.javaparser.ast.body._" />
+        <option value="org.combinators.templating.twirl.Java" />
+        <option value="com.github.javaparser.ast.expr._" />
+        <option value="com.github.javaparser.ast.`type`._" />
+        <option value="org.combinators.templating.twirl.Python" />
+        <option value="com.github.javaparser.ast.comments._" />
+        <option value="com.github.javaparser.ast.stmt._" />
+        <option value="com.github.javaparser.ast._" />
+      </array>
+    </option>
+  </component>
+</project>
