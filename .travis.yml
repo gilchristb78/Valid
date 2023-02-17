@@ -2,6 +2,7 @@ services:
   - xvfb
 before_script:
   - export DISPLAY=:99.0
+  - git fetch --unshallow
 env:
   global:
     - GENERATE="runMain org.combinators.solitaire"
