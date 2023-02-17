@@ -27,7 +27,7 @@ matrix:
         - git config --global user.email "gilchristb78@gmail.com";
         - git config --global user.name "gilchristb78";
         - git add Valid/ Invalid/;
-        - git commit -m"Travis build update,  Valid directory";
+        - git commit -m"Travis Tests Results";
         - git push --force "https://${GH_TOKEN}@github.com/gilchristb78/Valid" HEAD:main;
         - cd Valid
         - ls
