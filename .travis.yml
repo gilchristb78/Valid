@@ -19,11 +19,11 @@ matrix:
           sbt "$GENERATE.$variant";
           mv -f generated/src/main/java/org/combinators/solitaire/* src/test/java/org/combinators/solitaire/;
           if sbt test; then
-          mv src/test/java/org/combinators/solitaire/* generated/pass; else
-          mv src/test/java/org/combinators/solitaire/* generated/fail;
+          mv src/test/java/org/combinators/solitaire/* Valid; else
+          mv src/test/java/org/combinators/solitaire/* Invalid;
           fi;
           done < travis.txt
-        - cd generated/pass
+        - cd Valid
         - ls
-        - cd ../fail
+        - cd Invalid
         - ls
